@@ -1,0 +1,89 @@
+###################
+
+# .NET
+
+###################
+bin/
+obj/
+out/
+*.user
+*.suo
+*.cache
+.vs/
+.vscode/
+*.userprefs
+*.pidb
+*.log
+
+###################
+
+# Test Coverage
+
+###################
+coverage/
+coveragereport/
+*.cobertura.xml
+TestResults/
+
+###################
+
+# NuGet
+
+###################
+*.nupkg
+*.snupkg
+artifacts/
+packages/
+
+###################
+
+# Node.js (for tooling)
+
+###################
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+###################
+
+# OS files
+
+###################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+###################
+
+# Backup files
+
+###################
+*.backup
+*.bak
+*.tmp
+*.temp
+.temp-fresh-start/
+
+###################
+
+# IDE
+
+###################
+.idea/
+*.swp
+*.swo
+*~
+
+###################
+
+# Scripts
+
+###################
+[fresh-start.sh](http://fresh-start.sh/)[fresh-start-fixed.sh](http://fresh-start-fixed.sh/)[test-automation.sh](http://test-automation.sh/)

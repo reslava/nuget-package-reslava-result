@@ -1,0 +1,31 @@
+{
+  "name": "nuget-package-reslava-result",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Development tooling for REslava.Result NuGet package",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reslava/nuget-package-reslava-result.git"
+  },
+  "scripts": {
+    "commit": "git-cz",
+    "release": "standard-version",
+    "release:beta": "standard-version --prerelease beta",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major",
+    "release:dry": "standard-version --dry-run"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "commitizen": "^4.3.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^8.0.3",
+    "standard-version": "^9.5.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
