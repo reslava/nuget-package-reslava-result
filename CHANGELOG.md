@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.2.0](https://github.com/reslava/nuget-package-reslava-result/compare/v0.1.0...v0.2.0) (2026-01-07)
+
+
+### 🔧 Build System
+
+* fix .versionrc.json to properly update .csproj ([1de1805](https://github.com/reslava/nuget-package-reslava-result/commit/1de1805065d0a9ce3574ee6eef36b286fd48cb16))
+
 ## [0.1.0](https://github.com/reslava/nuget-package-reslava-result/compare/v0.0.1...v0.1.0) (2026-01-07)
 
 
