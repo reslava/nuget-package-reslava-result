@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTests", "ConsoleTest
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{89008026-5217-4D7D-A05F-8C740D8A743A}"
 	ProjectSection(SolutionItems) = preProject
+		BRANCHING-STRATEGY.md = BRANCHING-STRATEGY.md
+		QUICK-START.md = QUICK-START.md
 		README.md = README.md
 		result-pattern-uml.mermaid = result-pattern-uml.mermaid
 	EndProjectSection
