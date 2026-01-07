@@ -40,6 +40,52 @@ My idea is to make this library as simple as possible, easy to understand and us
 
 I hope you find this library useful. Thank you!
 
+## 🔄 Development Workflow
+
+### Quick Start
+```bash
+# Clone the repository
+git clone https://github.com/reslava/nuget-package-reslava-result.git
+cd nuget-package-reslava-result
+
+# Install dependencies
+npm install
+dotnet restore
+
+# Start working
+git checkout dev
+git checkout -b feature/my-feature
+
+# Make changes and commit
+git add .
+npm run commit
+
+# For detailed workflow, see [QUICK-START.md](QUICK-START.md)
+```
+
+### Branching Strategy
+
+- **main**: Production releases only
+- **dev**: Active development (work here!)
+- **feature/\***: New features
+- **fix/\***: Bug fixes
+
+See [BRANCHING-STRATEGY.md](BRANCHING-STRATEGY.md) for complete details.
+
+### Creating Releases
+```bash
+# Preview release
+npm run release:dry
+
+# Create release
+npm run release:minor  # or :beta, :major
+
+# Push
+git push --follow-tags
+```
+
+See [QUICK-START.md](QUICK-START.md#creating-releases) for detailed release workflow.
+
 ## 🏗️ Architecture Highlights
 1. Fluent Interfaces & Method Chaining
 The entire library is designed around fluent APIs for maximum expressiveness:
