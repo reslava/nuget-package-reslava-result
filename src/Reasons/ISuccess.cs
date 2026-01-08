@@ -1,3 +1,3 @@
-﻿namespace REslava.Result;
+namespace REslava.Result;
 
 public interface ISuccess : IReason { }

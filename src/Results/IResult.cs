@@ -1,4 +1,4 @@
-﻿namespace REslava.Result;
+namespace REslava.Result;
 
 public interface IResult
 {
@@ -6,10 +6,10 @@ public interface IResult
     bool IsFailed { get; }
     List<IReason> Reasons { get; }
     IReadOnlyList<IError> Errors { get; }
-    IReadOnlyList<ISuccess> Successes { get; }    
+    IReadOnlyList<ISuccess> Successes { get; }
 }
 
-public interface IResult <out TValue> : IResult
+public interface IResult<out TValue> : IResult
 {
     TValue? Value { get; }
     TValue? ValueOrDefault { get; }

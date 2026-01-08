@@ -1,9 +1,23 @@
 <Project>
-<PropertyGroup>
-<LangVersion>latest</LangVersion>
-<Nullable>enable</Nullable>
-<ImplicitUsings>enable</ImplicitUsings>
-<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-</PropertyGroup>
+  <PropertyGroup>    
+    <!-- Language Features -->
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Build Settings -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- Code Analysis -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+
+    <!-- Documentation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Suppress documentation warnings until we add them -->
+    <!-- Remove this when you start adding XML comments -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
 </Project>

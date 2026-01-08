@@ -1,4 +1,4 @@
-﻿namespace REslava.Result;
+namespace REslava.Result;
 
 //public static class ResultExtensions
 //{
