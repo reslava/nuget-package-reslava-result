@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.3.1](https://github.com/reslava/nuget-package-reslava-result/compare/v0.3.0...v0.3.1) (2026-01-10)
+
+
+### 📚 Documentation
+
+* **quick-start:** update ([f40915e](https://github.com/reslava/nuget-package-reslava-result/commit/f40915e73f9035bff6b34882759a8fda0ae44bb1))
+* **quick-start:** update ([83c49ca](https://github.com/reslava/nuget-package-reslava-result/commit/83c49ca6b38d282cf38499b8155659abf12ad419))
+* **quick-start:** update tests docs branch strategies ([b29c210](https://github.com/reslava/nuget-package-reslava-result/commit/b29c210c3cea2d6702990b8cd542128fe0c58fda))
+
+
+### ✅ Tests
+
+* **result:** map ([b0a0a4a](https://github.com/reslava/nuget-package-reslava-result/commit/b0a0a4acdc72ed47155bf3224864f6b9f46f3e78))
+
 ## [0.3.0](https://github.com/reslava/nuget-package-reslava-result/compare/v0.2.0...v0.3.0) (2026-01-09)
 
 
