@@ -22,34 +22,74 @@ We use a simplified Git Flow for solo development:
 ### Branch Structure
 ```
 main        → Production releases only (v1.0.0, v1.1.0, etc.)
-dev         → Active development, docs (merge feature branches here)
+dev         → Active development (merge feature branches here)
 feature/*   → Individual features (branch from dev)
-test/*      → Individual tests (branch from tests)
 fix/*       → Bug fixes (branch from dev)
+test/*      → Test additions or improvements (branch from dev)
 hotfix/*    → Critical production fixes (branch from main)
 ```
 
 ### Branch Rules
 
 - **main**: Only merge from dev when ready to release
-- **dev**: Default working branch, always stable enough to test. Docs.
+- **dev**: Default working branch, always stable enough to test
 - **feature/**: Create for each new feature
-- **test/**: Create for each new test
 - **fix/**: Create for each bug fix
-- **hotfix/**: Emergency fixes for production issues
+- **test/**: Create for test-related work
+- **hotfix/**: Create for critical production fixes (from main)
 
 ---
 
 ## 🔄 Development Workflow
 
-### Daily Work Cycle
+### Simple Workflow (Quick Changes: 5-30 minutes)
+
+For small, straightforward changes where you'll merge immediately:
+
 ```bash
 # 1. Start on dev branch
 git checkout dev
 git pull origin dev
 
 # 2. Create feature branch
-git checkout -b feature/add-map-method
+git checkout -b test/map
+
+# 3. Make your changes
+# ... code, code, code ...
+
+# 4. Stage and commit
+git add .
+npm run commit
+# Type: test
+# Scope: Map
+# Description: add Map method tests
+
+# 5. Merge to dev immediately
+git checkout dev
+git merge test/map
+
+# 6. Delete local branch
+git branch -d test/map
+
+# 7. Push dev
+git push origin dev
+```
+
+**Note**: No need to push the feature branch since you're merging right away.
+
+---
+
+### Safe Workflow (Complex Changes: Hours/Days)
+
+For larger features where you want backup and work over multiple sessions:
+
+```bash
+# 1. Start on dev branch
+git checkout dev
+git pull origin dev
+
+# 2. Create feature branch
+git checkout -b feature/add-validation
 
 # 3. Make your changes
 # ... code, code, code ...
@@ -58,24 +98,49 @@ git checkout -b feature/add-map-method
 git add .
 npm run commit
 # Type: feat
-# Scope: Result
-# Description: add Map method for value transformation
+# Scope: Validation
+# Description: add Ensure and EnsureNotNull methods
 
-# 5. Push feature branch
-git push -u origin feature/add-map-method
+# 5. Push for backup (IMPORTANT for longer work!)
+git push -u origin feature/add-validation
 
-# 6. When feature is complete, merge to dev
+# 6. Continue working over multiple days
+# ... more changes ...
+git add .
+npm run commit
+git push  # Keep remote updated
+
+# 7. When feature is complete, merge to dev
 git checkout dev
-git merge feature/add-map-method
+git merge feature/add-validation
 
-# 7. Delete feature branch
-git branch -d feature/add-map-method
+# 8. Delete BOTH local and remote branches
+git branch -d feature/add-validation
+git push origin --delete feature/add-validation
 
-# 8. Push dev
+# 9. Push dev
 git push origin dev
 ```
 
+---
+
+### When to Push Feature Branches?
+
+| Scenario | Push to Origin? | Why? |
+|----------|----------------|------|
+| Quick fix (< 30 min) | **Optional** | Merging immediately, no backup needed |
+| Work in progress | **Yes** | Backup in case of machine failure |
+| Multi-day feature | **Yes** | Safety and continuity |
+| Experimentation | **Yes** | May want to reference later |
+| Working from multiple machines | **Yes** | Sync across devices |
+| Want to create PR for self-review | **Yes** | GitHub PR requires remote branch |
+
+**Rule of thumb**: If you'll merge within the hour, skip pushing the feature branch. Otherwise, push it for safety.
+
+---
+
 ### When Ready to Release
+
 ```bash
 # 1. Ensure dev is ready
 git checkout dev
@@ -89,15 +154,13 @@ git pull origin main
 git merge dev
 
 # 3. Create release (see "Creating Releases" section)
-npm run release:minor  # or release, release:beta, etc.
+npm run release:beta  # or release, release:minor, etc.
 
 # 4. Push everything
 git push origin main --follow-tags
 
 # 5. Go back to dev for next work
 git checkout dev
-git merge main  # Sync dev with main
-git push origin dev
 ```
 
 ---
@@ -128,7 +191,7 @@ When you run `npm run commit`, you'll see:
 **Follow these steps:**
 
 1. **Select Type**: Use arrow keys, press Enter
-2. **Scope** (optional): Type scope (e.g., "Result", "Reason") or press Enter
+2. **Scope** (optional): Type scope (e.g., "Result", "Factory") or press Enter
 3. **Short Description**: Brief description (e.g., "add Map method")
 4. **Long Description** (optional): Press Enter to skip
 5. **Breaking Changes**: Type "N" (or "Y" if backward incompatible)
@@ -138,15 +201,15 @@ When you run `npm run commit`, you'll see:
 ```bash
 $ npm run commit
 
-? Select the type of change: feat
-? What is the scope of this change: Result
-? Write a SHORT, IMPERATIVE tense description: add Map method
+? Select the type of change: test
+? What is the scope of this change: Map
+? Write a SHORT, IMPERATIVE tense description: add Map method tests
 ? Provide a LONGER description: (press enter to skip)
 ? Are there any breaking changes? No
 ? Does this change affect any open issues? (press enter to skip)
 
-[dev abc123d] feat(Result): add Map method
- 2 files changed, 45 insertions(+)
+[dev abc123d] test(Map): add Map method tests
+ 1 file changed, 25 insertions(+)
 ```
 
 ---
@@ -169,21 +232,9 @@ $ npm run commit
 |------|-------------|---------|
 | `perf` | Performance | `perf(Result): optimize Bind` |
 | `style` | Formatting | `style: fix indentation` |
-| `build` | Build system | `build: update .NET SDK to 10.0` |
+| `build` | Build system | `build: update .NET SDK` |
 | `ci` | CI/CD | `ci: add coverage workflow` |
 | `chore` | Maintenance | `chore: update gitignore` |
-
-### Common Scopes
-
-Use these scopes for consistency:
-
-- `Result` - Core Result class changes
-- `Reason` - Reason/Error/Success classes
-- `Factory` - Factory methods
-- `Extensions` - Extension methods
-- `Tests` - Test-related changes
-- `README` - README documentation
-- `Docs` - Other documentation
 
 ---
 
@@ -192,7 +243,6 @@ Use these scopes for consistency:
 ### Release Workflow
 
 Releases happen from the **main** branch only.
-
 ```bash
 # 1. Ensure you're on main with latest code
 git checkout main
@@ -202,10 +252,9 @@ git pull origin main
 npm run release:dry
 
 # 3. Review what would change:
-#    - Version bump (0.3.0 → 0.4.0)
+#    - Version bump (0.1.0 → 0.2.0)
 #    - CHANGELOG.md entries
-#    - Git tag (v0.4.0)
-#    - Updates to package.json AND src/REslava.Result.csproj
+#    - Git tag (v0.2.0)
 
 # 4. If preview looks good, create the release
 npm run release:minor  # or :beta, or :major
@@ -231,18 +280,18 @@ git push origin dev
 # Preview what would happen (safe - doesn't change anything)
 npm run release:dry
 
-# Create beta release (0.3.0-beta.0, 0.3.0-beta.1, etc.)
+# Create beta release (0.1.0-beta.0, 0.1.0-beta.1, etc.)
 npm run release:beta
 
-# Create patch release (0.3.0 → 0.3.1)
+# Create patch release (0.1.0 → 0.1.1)
 # Use for bug fixes only
 npm run release
 
-# Create minor release (0.3.0 → 0.4.0)
+# Create minor release (0.1.0 → 0.2.0)
 # Use for new features (backward compatible)
 npm run release:minor
 
-# Create major release (0.3.0 → 1.0.0)
+# Create major release (0.1.0 → 1.0.0)
 # Use for breaking changes
 npm run release:major
 ```
@@ -261,8 +310,8 @@ Version: MAJOR.MINOR.PATCH-PRERELEASE
 ```
 
 **Examples:**
-- `0.3.0` → `0.3.1`: Fixed bugs (PATCH)
-- `0.3.0` → `0.4.0`: Added features (MINOR)
+- `0.1.0` → `0.1.1`: Fixed bugs (PATCH)
+- `0.1.0` → `0.2.0`: Added features (MINOR)
 - `0.9.0` → `1.0.0`: First stable release (MAJOR)
 - `1.0.0` → `2.0.0`: Breaking changes (MAJOR)
 
@@ -292,7 +341,8 @@ Version: MAJOR.MINOR.PATCH-PRERELEASE
 
 ## 🎯 Common Scenarios
 
-### Scenario 1: Adding a New Feature
+### Scenario 1: Adding a New Feature (Multi-day work)
+
 ```bash
 # 1. Start from dev
 git checkout dev
@@ -304,22 +354,24 @@ git checkout -b feature/add-validation
 # 3. Implement feature
 # ... write code in src/Extensions/ValidationExtensions.cs ...
 
-# 4. Write tests
-# ... write tests in tests/REslava.Result.Tests/ValidationExtensions_Tests.cs ...
-
-# 5. Commit feature code
+# 4. Commit and push for backup
 git add src/Extensions/ValidationExtensions.cs
 npm run commit
 # Type: feat
-# Scope: Extensions
-# Description: add Ensure and EnsureNotNull validation methods
+# Scope: Validation
+# Description: add Ensure and EnsureNotNull methods
+git push -u origin feature/add-validation
 
-# 6. Commit tests
-git add tests/REslava.Result.Tests/ValidationExtensions_Tests.cs
+# 5. Next day: write tests
+# ... write tests in tests/ValidationExtensions_Tests.cs ...
+
+# 6. Commit tests and push
+git add tests/ValidationExtensions_Tests.cs
 npm run commit
 # Type: test
-# Scope: Extensions
+# Scope: Validation
 # Description: add validation extension tests
+git push
 
 # 7. Update documentation
 git add README.md
@@ -327,19 +379,24 @@ npm run commit
 # Type: docs
 # Scope: README
 # Description: add validation examples
+git push
 
 # 8. Merge to dev
 git checkout dev
 git merge feature/add-validation
 
-# 9. Push dev
-git push origin dev
-
-# 10. Delete feature branch
+# 9. Delete both local and remote branches
 git branch -d feature/add-validation
+git push origin --delete feature/add-validation
+
+# 10. Push dev
+git push origin dev
 ```
 
-### Scenario 2: Fixing a Bug
+---
+
+### Scenario 2: Quick Bug Fix (< 30 minutes)
+
 ```bash
 # 1. Create fix branch from dev
 git checkout dev
@@ -350,25 +407,57 @@ git checkout -b fix/bind-null-handling
 # ... edit src/Results/Result.Bind.cs ...
 
 # 3. Add regression test
-# ... add test to tests/REslava.Result.Tests/Result_Bind_Tests.cs ...
+# ... add test to tests/Result_Bind.cs ...
 
 # 4. Commit fix
-git add src/Results/Result.Bind.cs tests/REslava.Result.Tests/Result_Bind_Tests.cs
+git add src/Results/Result.Bind.cs tests/Result_Bind.cs
 npm run commit
 # Type: fix
 # Scope: Result
 # Description: handle null values in Bind method
 
-# 5. Merge to dev
+# 5. Merge to dev immediately (no need to push feature branch)
 git checkout dev
 git merge fix/bind-null-handling
 
-# 6. Push and cleanup
-git push origin dev
+# 6. Delete local branch and push dev
 git branch -d fix/bind-null-handling
+git push origin dev
 ```
 
-### Scenario 3: Hotfix for Production
+---
+
+### Scenario 3: Adding Tests (Quick work)
+
+```bash
+# 1. Create test branch from dev
+git checkout dev
+git pull origin dev
+git checkout -b test/map
+
+# 2. Write tests
+# ... add tests for Map method ...
+
+# 3. Commit
+git add tests/Result_Map.cs
+npm run commit
+# Type: test
+# Scope: Map
+# Description: add Map method tests
+
+# 4. Merge immediately (no push needed)
+git checkout dev
+git merge test/map
+
+# 5. Cleanup and push
+git branch -d test/map
+git push origin dev
+```
+
+---
+
+### Scenario 4: Hotfix for Production
+
 ```bash
 # 1. Create hotfix from main (not dev!)
 git checkout main
@@ -396,16 +485,20 @@ git merge hotfix/critical-memory-leak
 npm run release
 git push --follow-tags
 
-# 7. Merge back to dev (important!)
+# 7. Merge back to dev (IMPORTANT!)
 git checkout dev
 git merge main
 git push origin dev
 
-# 8. Cleanup
+# 8. Cleanup (delete both local and remote)
 git branch -d hotfix/critical-memory-leak
+git push origin --delete hotfix/critical-memory-leak
 ```
 
-### Scenario 4: Preparing a Release
+---
+
+### Scenario 5: Preparing a Release
+
 ```bash
 # 1. Ensure dev is ready
 git checkout dev
@@ -422,15 +515,13 @@ git merge dev
 npm run release:dry
 
 # Expected output:
-# ✔ bumping version in package.json from 0.3.0 to 0.4.0
-# ✔ bumping version in src/REslava.Result.csproj from 0.3.0 to 0.4.0
+# ✔ bumping version in package.json from 0.1.0 to 0.2.0
 # ✔ outputting changes to CHANGELOG.md
-# ✔ committing package.json, src/REslava.Result.csproj and CHANGELOG.md
-# ✔ tagging release v0.4.0
+# ✔ committing package.json and CHANGELOG.md
+# ✔ tagging release v0.2.0
 
 # 4. Review what would change
 git diff HEAD package.json  # Check version
-git diff HEAD src/REslava.Result.csproj  # Check .csproj version
 # Review CHANGELOG preview in output
 
 # 5. If good, create release
@@ -446,7 +537,7 @@ git push --follow-tags
 # 8. Create GitHub Release
 # - Go to Releases page
 # - Click "Draft a new release"
-# - Select tag v0.4.0
+# - Select tag v0.2.0
 # - Copy changelog
 # - Publish
 
@@ -511,16 +602,20 @@ git commit
 git push origin dev
 ```
 
-### Problem: Release created wrong version
+### Problem: Pushed feature branch but want to delete it
 ```bash
-# If you haven't pushed yet
-git reset --hard HEAD~1  # Remove release commit
-git tag -d v0.4.0        # Remove tag
-npm run release:dry      # Review again
-npm run release:minor    # Create correct release
+# Delete both local and remote
+git branch -d feature/old-feature
+git push origin --delete feature/old-feature
+```
 
-# If you already pushed
-# Contact repository maintainer or create new release
+### Problem: Forgot to delete remote branch after merging
+```bash
+# List all remote branches
+git branch -r
+
+# Delete specific remote branch
+git push origin --delete feature/old-feature
 ```
 
 ---
@@ -542,30 +637,33 @@ npm run release:minor    # Create correct release
    ```
    ✅ feature/add-async-support
    ✅ fix/null-reference-in-bind
+   ✅ test/map-method
    ❌ my-branch
    ❌ temp
    ```
 
-4. **Commit often, push regularly**
+4. **Push feature branches for longer work**
    ```bash
-   # Small, focused commits
-   git add src/Results/Result.Map.cs
-   npm run commit
+   # If working > 1 hour, push for backup
+   git push -u origin feature/my-feature
    ```
 
-5. **Preview releases before creating**
+5. **Delete both local AND remote branches**
+   ```bash
+   git branch -d feature/done
+   git push origin --delete feature/done
+   ```
+
+6. **Preview releases before creating**
    ```bash
    npm run release:dry  # Always do this first!
    ```
 
-6. **Test before releasing**
+7. **Test before releasing**
    ```bash
    dotnet build
    dotnet test
    ```
-
-7. **Use consistent scopes**
-   - Result, Reason, Factory, Extensions, Tests, README, Docs
 
 ### ❌ DON'T
 
@@ -596,30 +694,53 @@ npm run release:minor    # Create correct release
    - Always build and test first
    - Check `npm run release:dry` output
 
-6. **Don't forget to sync dev after releases**
+6. **Don't leave remote branches after merging**
    ```bash
-   git checkout dev
-   git merge main  # ← Don't forget this!
-   git push origin dev
+   # Always cleanup both
+   git branch -d feature/done
+   git push origin --delete feature/done
    ```
 
 ---
 
 ## 📚 Quick Reference
 
-### Essential Commands
+### Essential Commands - Simple Workflow
 ```bash
-# Daily workflow
+# Quick changes (merge immediately)
+git checkout dev                    # Start on dev
+git pull origin dev                 # Get latest
+git checkout -b test/my-test        # Create branch
+npm run commit                      # Make commit
+git checkout dev                    # Back to dev
+git merge test/my-test              # Merge
+git branch -d test/my-test          # Delete local
+git push origin dev                 # Push dev
+```
+
+### Essential Commands - Safe Workflow
+```bash
+# Complex changes (multi-day work)
 git checkout dev                    # Start on dev
 git pull origin dev                 # Get latest
 git checkout -b feature/my-feature  # Create branch
 npm run commit                      # Make commit
-git push origin feature/my-feature  # Push branch
+git push -u origin feature/my-feature  # Push for backup
+
+# ... continue work over days ...
+npm run commit
+git push
+
+# When done
 git checkout dev                    # Back to dev
 git merge feature/my-feature        # Merge feature
+git branch -d feature/my-feature    # Delete local
+git push origin --delete feature/my-feature  # Delete remote
 git push origin dev                 # Push dev
+```
 
-# Releases (from main branch)
+### Releases (from main branch)
+```bash
 git checkout main                   # Switch to main
 git merge dev                       # Bring dev changes
 npm run release:dry                 # Preview release
@@ -628,20 +749,15 @@ git push --follow-tags              # Push with tags
 git checkout dev                    # Back to dev
 git merge main                      # Sync dev with main
 git push origin dev                 # Push dev
-
-# Viewing
-git log --oneline --graph           # View history
-git status                          # Check status
-git branch                          # List branches
 ```
 
 ### Release Commands
 ```bash
 npm run release:dry        # Preview (safe, no changes)
-npm run release:beta       # Beta: 0.3.0-beta.0
-npm run release            # Patch: 0.3.0 → 0.3.1
-npm run release:minor      # Minor: 0.3.0 → 0.4.0
-npm run release:major      # Major: 0.3.0 → 1.0.0
+npm run release:beta       # Beta: 0.1.0-beta.0
+npm run release            # Patch: 0.1.0 → 0.1.1
+npm run release:minor      # Minor: 0.1.0 → 0.2.0
+npm run release:major      # Major: 0.1.0 → 1.0.0
 ```
 
 ### Branch Commands
@@ -652,6 +768,18 @@ git branch -d feature/old           # Delete local branch
 git push origin --delete feature/old # Delete remote branch
 git checkout -b feature/new         # Create and switch
 git branch -m old-name new-name     # Rename branch
+```
+
+### Cleanup Commands
+```bash
+# Delete merged local branches
+git branch --merged dev | grep -v "^\*\|main\|dev" | xargs git branch -d
+
+# View all remote branches
+git branch -r
+
+# Prune deleted remote branches from local
+git remote prune origin
 ```
 
 ---
@@ -666,11 +794,24 @@ git branch -m old-name new-name     # Rename branch
 
 ### Common Questions
 
-**Q: What if I committed to the wrong branch?**
-A: See "Troubleshooting" section above - you can move commits to a new branch.
+**Q: Should I push feature branches to origin?**
+A: 
+- **Quick work (< 1 hour)**: Optional, you're merging soon anyway
+- **Longer work (> 1 hour)**: Yes, always push for backup
+- **Multi-day features**: Yes, absolutely push regularly
 
 **Q: Should I delete feature branches after merging?**
-A: Yes! Keep your workspace clean. Delete both local and remote branches.
+A: Yes! Delete **both local and remote** branches to keep workspace clean:
+```bash
+git branch -d feature/done
+git push origin --delete feature/done
+```
+
+**Q: What if I forgot to delete a remote branch?**
+A: No problem, delete it anytime:
+```bash
+git push origin --delete feature/old-branch
+```
 
 **Q: How often should I release?**
 A: 
@@ -682,8 +823,8 @@ A:
 **Q: Can I work directly on dev for small changes?**
 A: Yes! For tiny changes (typos, small fixes), committing directly to dev is fine.
 
-**Q: Why does the release update both package.json and .csproj?**
-A: The versioning system keeps both files in sync automatically for consistency.
+**Q: How do I see which remote branches exist?**
+A: Use `git branch -r` to list all remote branches.
 
 ---
 
@@ -694,42 +835,49 @@ A: The versioning system keeps both files in sync automatically for consistency.
 - [ ] Learn commit types (feat, fix, docs, test)
 - [ ] Practice writing good commit messages
 - [ ] Work on feature branches
+- [ ] Understand when to push vs. not push
 
 ### Week 2: Branching
 - [ ] Create feature branches regularly
 - [ ] Merge features to dev
 - [ ] Keep dev stable
-- [ ] Delete old branches
+- [ ] Delete both local and remote branches
+- [ ] Practice the simple vs. safe workflow
 
 ### Week 3: Releases
 - [ ] Practice `npm run release:dry`
 - [ ] Create a beta release
 - [ ] Review generated CHANGELOG
 - [ ] Understand semantic versioning
+- [ ] Clean up after releases
 
 ### Week 4: Advanced
 - [ ] Handle merge conflicts
 - [ ] Create hotfixes from main
 - [ ] Manage multiple feature branches
 - [ ] Perfect your release process
+- [ ] Master branch cleanup
 
 ---
 
 ## 🎉 You're Ready!
 
 You now know:
-- ✅ Branch strategy (main, dev, feature/*)
+- ✅ Branch strategy (main, dev, feature/*, test/*, fix/*)
 - ✅ Making proper commits with `npm run commit`
+- ✅ When to push feature branches (and when not to)
+- ✅ Deleting both local and remote branches
 - ✅ Creating releases with `commit-and-tag-version`
 - ✅ Semantic versioning
 - ✅ Complete workflow from feature to release
 
 **Remember**: 
 - Work on feature branches
+- Push long-running branches for backup
 - Merge to dev frequently
+- Delete both local and remote branches after merging
 - Release from main
-- Always use `npm run commit`
-- Sync dev after releases!
+- Always use `npm run commit`!
 
 Happy coding! 🚀
 
@@ -738,4 +886,4 @@ Happy coding! 🚀
 *Last updated: 2026-01-10*
 *Using: commit-and-tag-version for releases*
 *Branch strategy: Git Flow (main + dev)*
-*Current version: 0.3.0*
+*Branch cleanup: Local AND remote deletion*
