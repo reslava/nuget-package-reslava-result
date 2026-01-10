@@ -30,7 +30,7 @@ public partial class Result : IResult
                                 : string.Empty;
 
         return $"Result: IsSuccess='{IsSuccess}'{reasonsString}";
-    }
+    }    
 }
 
 public partial class Result<TValue> : Result, IResult<TValue>
@@ -55,13 +55,19 @@ public partial class Result<TValue> : Result, IResult<TValue>
         { 
             throw new InvalidOperationException($"Result is in status failed. Value is not set.");
         }
-    }
-    public Result<TValue> WithValue(TValue value) { Value = value; return this; }
+    }    
 
     public override string ToString()
     {
         var baseString = base.ToString();
         var valueString = $"{nameof(Value)} = {ValueOrDefault}";
         return $"{baseString}, {valueString}";
-    }
+    }    
+    
+    public new Result<TValue> WithSuccess(string message) { return (Result<TValue>)base.WithSuccess(message); }
+    public new Result<TValue> WithError(string message) { return (Result<TValue>)base.WithError(message); }
+    public new Result<TValue> WithSuccess(Success success) { return (Result<TValue>)base.WithSuccess(success); }
+    public new Result<TValue> WithError(Error error) { return (Result<TValue>)base.WithError(error); }
+    public new Result<TValue> WithSuccesses(IEnumerable<Success> sucesses) { return (Result<TValue>)base.WithSuccesses(sucesses); }
+    public new Result<TValue> WithErrors(IEnumerable<Error> errors) { return (Result<TValue>)base.WithErrors(errors); }
 }
