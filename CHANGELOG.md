@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.0](https://github.com/reslava/nuget-package-reslava-result/compare/v0.3.1...v0.4.0) (2026-01-10)
+
+
+### ✨ Features
+
+* **result:** complete core, factory, convert from methods, delete ok(string) method ([523ef63](https://github.com/reslava/nuget-package-reslava-result/commit/523ef6348d28e47cdd96a6db4db8b53c7e499564))
+
+
+### ♻️ Code Refactoring
+
+* **result:** use concrete interface ([65d2770](https://github.com/reslava/nuget-package-reslava-result/commit/65d2770faa3e0e87ec1e61e9ed0568dd0f3301ee))
+
 ## [0.3.1](https://github.com/reslava/nuget-package-reslava-result/compare/v0.3.0...v0.3.1) (2026-01-10)
 
 
