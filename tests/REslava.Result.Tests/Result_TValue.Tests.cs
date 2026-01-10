@@ -488,8 +488,8 @@ public sealed class ResultTValueTests
         var bound = result.Bind(x => Result<string>.Ok(x.ToString()));
 
         // Assert
-        Assert.IsTrue(bound.IsFailed);
-        Assert.AreEqual(1, bound.Errors.Count);
+        Assert.IsTrue(bound.IsFailed);        
+        Assert.HasCount(1, bound.Errors);
         Assert.AreEqual("Original error", bound.Errors[0].Message);
     }
 
@@ -504,7 +504,7 @@ public sealed class ResultTValueTests
 
         // Assert
         Assert.IsTrue(bound.IsFailed);
-        Assert.AreEqual(1, bound.Errors.Count);
+        Assert.HasCount(1, bound.Errors);
         Assert.AreEqual("Binder failed", bound.Errors[0].Message);
     }
 
@@ -599,9 +599,9 @@ public sealed class ResultTValueTests
         // Act
         var str = result.ToString();
 
-        // Assert
-        Assert.IsTrue(str.Contains("IsSuccess='True'"));
-        Assert.IsTrue(str.Contains("Value = 42"));
+        // Assert        
+        Assert.Contains("IsSuccess='True'", str);
+        Assert.Contains("Value = 42", str);
     }
 
     [TestMethod]
