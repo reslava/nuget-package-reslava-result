@@ -16,12 +16,12 @@ public partial class Result : IResult
         Reasons = [];
     }
 
-    public IResult WithSuccess(string message) { Reasons.Add(new Success(message)); return this; }
-    public IResult WithError(string message) { Reasons.Add(new Error(message)); return this; }
-    public IResult WithSuccess(Success success) { Reasons.Add((IReason)success); return this; }
-    public IResult WithError(Error error) { Reasons.Add((IReason)error); return this; }
-    public IResult WithSuccesses(IEnumerable<Success> sucesses) { Reasons.AddRange((IEnumerable<IReason>)sucesses); return this; }
-    public IResult WithErrors(IEnumerable<Error> errors) { Reasons.AddRange((IEnumerable<IReason>)errors); return this; }
+    public Result WithSuccess(string message) { Reasons.Add(new Success(message)); return this; }
+    public Result WithError(string message) { Reasons.Add(new Error(message)); return this; }
+    public Result WithSuccess(Success success) { Reasons.Add((IReason)success); return this; }
+    public Result WithError(Error error) { Reasons.Add((IReason)error); return this; }
+    public Result WithSuccesses(IEnumerable<Success> sucesses) { Reasons.AddRange((IEnumerable<IReason>)sucesses); return this; }
+    public Result WithErrors(IEnumerable<Error> errors) { Reasons.AddRange((IEnumerable<IReason>)errors); return this; }
 
     public override string ToString()
     {
@@ -64,10 +64,10 @@ public partial class Result<TValue> : Result, IResult<TValue>
         return $"{baseString}, {valueString}";
     }    
     
-    public new IResult<TValue> WithSuccess(string message) { return (IResult<TValue>)base.WithSuccess(message); }
-    public new IResult<TValue> WithError(string message) { return (IResult<TValue>)base.WithError(message); }
-    public new IResult<TValue> WithSuccess(Success success) { return (IResult<TValue>)base.WithSuccess(success); }
-    public new IResult<TValue> WithError(Error error) { return (IResult<TValue>)base.WithError(error); }
-    public new IResult<TValue> WithSuccesses(IEnumerable<Success> sucesses) { return (IResult<TValue>)base.WithSuccesses(sucesses); }
-    public new IResult<TValue> WithErrors(IEnumerable<Error> errors) { return (IResult<TValue>)base.WithErrors(errors); }
+    public new Result<TValue> WithSuccess(string message) { return (Result<TValue>)base.WithSuccess(message); }
+    public new Result<TValue> WithError(string message) { return (Result<TValue>)base.WithError(message); }
+    public new Result<TValue> WithSuccess(Success success) { return (Result<TValue>)base.WithSuccess(success); }
+    public new Result<TValue> WithError(Error error) { return (Result<TValue>)base.WithError(error); }
+    public new Result<TValue> WithSuccesses(IEnumerable<Success> sucesses) { return (Result<TValue>)base.WithSuccesses(sucesses); }
+    public new Result<TValue> WithErrors(IEnumerable<Error> errors) { return (Result<TValue>)base.WithErrors(errors); }
 }
