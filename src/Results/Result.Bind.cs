@@ -15,7 +15,7 @@ namespace REslava.Result;
 /// <param name="binder">The function that returns a new Result.</param>
 /// <returns>The result of the binder function or a failed result.</returns>
 public partial class Result<TValue> : Result, IResult<TValue>
-{
+{    
     public Result<TOut> Bind<TOut>(Func<TValue, Result<TOut>> binder)
     {
         ArgumentNullException.ThrowIfNull(binder);

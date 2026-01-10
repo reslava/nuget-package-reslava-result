@@ -1,18 +1,13 @@
+using System.Runtime.CompilerServices;
+
 namespace REslava.Result;
 
-public partial class Result
+public partial class Result : IResult
 {
     public static Result Ok()
     {
         return new Result();
-    }
-
-    public static Result Ok(string message)
-    {
-        var result = new Result();
-        result.Reasons.Add(new Success(message));
-        return result;
-    }
+    }       
 
     public static Result Fail(string message)
     {
@@ -61,25 +56,48 @@ public partial class Result
     }
 }
 
-public partial class Result<TValue>
-{
-    public static new Result<TValue> Ok(string message)
-    {
-        var result = new Result<TValue>();
-        result.Reasons.Add(new Success(message));
-        return result;
-    }
-
+public partial class Result<TValue> : Result, IResult<TValue>
+{   
     public static Result<TValue> Ok(TValue value)
-    {
+    {        
         var result = new Result<TValue>() { Value = value };
         return result;
     }
-
-    public static new Result<TValue> Fail(string message)
+    
+    public static Result<TValue> From(Result result)
     {
-        var result = new Result<TValue>();
-        result.Reasons.Add(new Error(message));
-        return result;
+        ArgumentNullException.ThrowIfNull(result);
+
+        if (result.IsSuccess)
+        {
+            throw new InvalidOperationException(
+                "Cannot convert a successful Result to Result<TValue>. " +
+                "Use Result<TValue>.Ok() with a value instead.");
+        }
+
+        var typedResult = new Result<TValue>();
+        typedResult.Reasons.AddRange(result.Reasons);
+
+        return typedResult;
+    }    
+    
+    public static new Result<TValue> Fail(string message)
+    {     
+        return Result<TValue>.From(Result.Fail(message));
+    }
+
+    public static new Result<TValue> Fail(Error error)
+    {
+        return Result<TValue>.From(Result.Fail(error));
+    }
+
+    public static new Result<TValue> Fail(IEnumerable<string> messages)
+    {
+        return Result<TValue>.From(Result.Fail(messages));
+    }
+
+    public static new Result<TValue> Fail(IEnumerable<Error> errors)
+    {
+        return Result<TValue>.From(Result.Fail(errors));
     }
 }
