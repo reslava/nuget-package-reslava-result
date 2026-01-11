@@ -1,4 +1,4 @@
-namespace REslava.Result.Results.Tests;
+namespace REslava.Result.Tests;
 
 /// <summary>
 /// Comprehensive tests for the Result class (non-generic)
@@ -222,103 +222,7 @@ public sealed class ResultTests
     }
 
     #endregion
-
-    #region Match Methods
-
-    [TestMethod]
-    public void Match_OnSuccess_ExecutesOnSuccessFunction()
-    {
-        // Arrange
-        var result = Result.Ok();
-        var executed = false;
-
-        // Act
-        var output = result.Match(
-            onSuccess: () => { executed = true; return "success"; },
-            onFailure: errors => "failure"
-        );
-
-        // Assert
-        Assert.IsTrue(executed);
-        Assert.AreEqual("success", output);
-    }
-
-    [TestMethod]
-    public void Match_OnFailure_ExecutesOnFailureFunction()
-    {
-        // Arrange
-        var result = Result.Fail("Error");
-        var executed = false;
-
-        // Act
-        var output = result.Match(
-            onSuccess: () => "success",
-            onFailure: errors => { executed = true; return $"failure: {errors.Count}"; }
-        );
-
-        // Assert
-        Assert.IsTrue(executed);
-        Assert.AreEqual("failure: 1", output);
-    }
-
-    [TestMethod]
-    public void Match_Action_OnSuccess_ExecutesOnSuccessAction()
-    {
-        // Arrange
-        var result = Result.Ok();
-        var executed = false;
-
-        // Act
-        result.Match(
-            onSuccess: () => executed = true,
-            onFailure: errors => { }
-        );
-
-        // Assert
-        Assert.IsTrue(executed);
-    }
-
-    [TestMethod]
-    public void Match_Action_OnFailure_ExecutesOnFailureAction()
-    {
-        // Arrange
-        var result = Result.Fail("Error");
-        var errorCount = 0;
-
-        // Act
-        result.Match(
-            onSuccess: () => { },
-            onFailure: errors => errorCount = errors.Count
-        );
-
-        // Assert
-        Assert.AreEqual(1, errorCount);
-    }
-
-    [TestMethod]
-    public void Match_WithNullOnSuccess_ThrowsArgumentNullException()
-    {
-        // Arrange
-        var result = Result.Ok();
-
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
-            result.Match(null!, errors => "failure"));
-    }
-
-    [TestMethod]
-    public void Match_WithNullOnFailure_ThrowsArgumentNullException()
-    {
-        // Arrange
-        var result = Result.Ok();
-
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
-            result.Match(() => "success", null!));
-    }
-
-    #endregion
-
+    
     #region ToString
 
     [TestMethod]

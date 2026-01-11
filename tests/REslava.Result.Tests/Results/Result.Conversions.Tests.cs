@@ -1,4 +1,4 @@
-namespace REslava.Result.Results.Tests;
+namespace REslava.Result.Tests;
 
 /// <summary>
 /// Comprehensive tests for Result_TValue implicit conversion operators
