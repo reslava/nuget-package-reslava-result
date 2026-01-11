@@ -1,10 +1,10 @@
-namespace REslava.Result.Tests;
+namespace REslava.Result.Results.Tests;
 
 /// <summary>
 /// Comprehensive tests for the Result_TValue class (generic)
 /// </summary>
 [TestClass]
-public sealed class ResultTValueTests
+public sealed class ResultGenericTests
 {
     #region Factory Methods - Ok
 
@@ -668,5 +668,13 @@ public sealed class ResultTValueTests
         public int Age { get; set; }
     }
 
+    private class DueDateError : Error
+    {
+        public DueDateError(DateTime dueDate)
+        {
+            base.Message = ($"The due date {dueDate} must be on current date {DateTime.Today.ToShortDateString()} or later.");
+            Tags.Add("ErrorCode", "101");
+        }
+    }
     #endregion
 }

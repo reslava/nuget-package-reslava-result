@@ -1,4 +1,4 @@
-namespace REslava.Result.Tests;
+namespace REslava.Result.Results.Tests;
 
 /// <summary>
 /// Comprehensive tests for the Result class (non-generic)

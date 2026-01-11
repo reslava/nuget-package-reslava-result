@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace REslava.Result;
 
 public partial class Result : IResult
@@ -16,7 +14,7 @@ public partial class Result : IResult
         return result;
     }
 
-    public static Result Fail(Error error)
+    public static Result Fail(IError error)
     {
         var result = new Result();
         result.Reasons.Add(error);
@@ -39,7 +37,7 @@ public partial class Result : IResult
         return result;
     }
 
-    public static Result Fail(IEnumerable<Error> errors)
+    public static Result Fail(IEnumerable<IError> errors)
     {
         if (errors is null)
         {
@@ -53,51 +51,5 @@ public partial class Result : IResult
         var result = new Result();
         result.Reasons.AddRange(errors);
         return result;
-    }
-}
-
-public partial class Result<TValue> : Result, IResult<TValue>
-{   
-    public static Result<TValue> Ok(TValue value)
-    {        
-        var result = new Result<TValue>() { Value = value };
-        return result;
-    }
-    
-    public static Result<TValue> FromResult(Result result)
-    {
-        ArgumentNullException.ThrowIfNull(result);
-
-        if (result.IsSuccess)
-        {
-            throw new InvalidOperationException(
-                "Cannot convert a successful Result to Result<TValue>. " +
-                "Use Result<TValue>.Ok() with a value instead.");
-        }
-
-        var typedResult = new Result<TValue>();
-        typedResult.Reasons.AddRange(result.Reasons);
-
-        return typedResult;
-    }    
-    
-    public static new Result<TValue> Fail(string message)
-    {     
-        return Result<TValue>.FromResult(Result.Fail(message));
-    }
-
-    public static new Result<TValue> Fail(Error error)
-    {
-        return Result<TValue>.FromResult(Result.Fail(error));
-    }
-
-    public static new Result<TValue> Fail(IEnumerable<string> messages)
-    {
-        return Result<TValue>.FromResult(Result.Fail(messages));
-    }
-
-    public static new Result<TValue> Fail(IEnumerable<Error> errors)
-    {
-        return Result<TValue>.FromResult(Result.Fail(errors));
     }
 }
