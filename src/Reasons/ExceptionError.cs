@@ -4,7 +4,7 @@ using System.Text;
 
 namespace REslava.Result;
 
-public class ExceptionError : Error
+public class ExceptionError : Reason<ExceptionError>, IError
 {
     public Exception Exception { get; }
 
@@ -19,7 +19,7 @@ public class ExceptionError : Error
         ArgumentNullException.ThrowIfNull(exception);
         Exception = exception;
         ExceptionInitialize(exception);
-    }
+    }    
 
     private void ExceptionInitialize(Exception exception)
     {        

@@ -34,7 +34,7 @@ public partial class Result<TValue> : Result, IResult<TValue>
             // Return original and new success reasons
             if (bindResult.IsSuccess && Successes.Any())
             {
-                var newResult = new Result<TOut> { ValueOrDefault = bindResult.ValueOrDefault };
+                var newResult = Result<TOut>.Ok(bindResult.Value!);                
                 newResult.Reasons.AddRange(Successes);
                 newResult.Reasons.AddRange(bindResult.Reasons);
 
