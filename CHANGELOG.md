@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.6](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.5...v0.4.6) (2026-01-11)
+
+
+### ✅ Tests
+
+* **result:** extensions validation-estensions - tap try ([0131034](https://github.com/reslava/nuget-package-reslava-result/commit/0131034d3393ad54a99597f0ca2252227f3703fc))
+
 ## [0.4.5](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.4...v0.4.5) (2026-01-11)
 
 
