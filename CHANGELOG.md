@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.5](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.4...v0.4.5) (2026-01-11)
+
+
+### ✅ Tests
+
+* **result:** add try, split files ([008f764](https://github.com/reslava/nuget-package-reslava-result/commit/008f76499ad1d31f185378769fc58d7e0886cc4d))
+
 ## [0.4.4](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.3...v0.4.4) (2026-01-11)
 
 
