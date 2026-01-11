@@ -4,7 +4,7 @@ namespace REslava.Result.Tests;
 /// Comprehensive tests for Map
 /// </summary>
 [TestClass]
-public sealed class ResultBindTests
+public sealed class ResultMapTests
 {
     #region Map Methods
 

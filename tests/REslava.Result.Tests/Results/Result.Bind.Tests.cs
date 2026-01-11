@@ -4,7 +4,7 @@ namespace REslava.Result.Tests;
 /// Comprehensive tests for Bind
 /// </summary>
 [TestClass]
-public sealed class ResultMapTests
+public sealed class ResultBindTests
 {
     #region Bind Methods
 
