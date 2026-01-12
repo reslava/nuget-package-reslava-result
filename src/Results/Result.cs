@@ -13,6 +13,8 @@ public partial class Result : IResult
         Reasons = [];
     }
 
+    public Result WithReason(IReason reason) { Reasons.Add(reason); return this; }
+    public Result WithReasons(IEnumerable<IReason> reasons) { Reasons.AddRange(reasons); return this; }
     public Result WithSuccess(string message) { Reasons.Add(new Success(message)); return this; }
     public Result WithError(string message) { Reasons.Add(new Error(message)); return this; }
     public Result WithSuccess(ISuccess success) { Reasons.Add((IReason)success); return this; }
