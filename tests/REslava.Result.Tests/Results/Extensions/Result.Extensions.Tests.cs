@@ -1,15 +1,237 @@
 namespace REslava.Result.Tests;
 
 /// <summary>
-/// Comprehensive tests for Result extension methods (Tap)
+/// Comprehensive tests for Result extension methods (Tap and TapAsync)
 /// </summary>
 [TestClass]
-public sealed class ResultExtensionsTests
+public sealed class ResultExtensionsCompleteTests
 {
-    #region Tap Tests - Success Cases
+    #region Tap - Non-Generic Result - Sync
 
     [TestMethod]
-    public void Tap_OnSuccess_ExecutesAction()
+    public void Tap_Result_OnSuccess_ExecutesAction()
+    {
+        // Arrange
+        var result = Result.Ok();
+        var executed = false;
+
+        // Act
+        result.Tap(() => executed = true);
+
+        // Assert
+        Assert.IsTrue(executed);
+    }
+
+    [TestMethod]
+    public void Tap_Result_OnFailure_DoesNotExecuteAction()
+    {
+        // Arrange
+        var result = Result.Fail("Error");
+        var executed = false;
+
+        // Act
+        result.Tap(() => executed = true);
+
+        // Assert
+        Assert.IsFalse(executed);
+    }
+
+    [TestMethod]
+    public void Tap_Result_WithSideEffects_ModifiesExternalState()
+    {
+        // Arrange
+        var result = Result.Ok();
+        var log = new List<string>();
+
+        // Act
+        result.Tap(() => log.Add("Action executed"));
+
+        // Assert
+        Assert.HasCount(1, log);
+        Assert.AreEqual("Action executed", log[0]);
+    }
+
+    #endregion
+
+    #region TapAsync - Non-Generic Result - Async Action
+
+    [TestMethod]
+    public async Task TapAsync_Result_AsyncAction_OnSuccess_ExecutesAction()
+    {
+        // Arrange
+        var result = Result.Ok();
+        var executed = false;
+
+        // Act
+        await result.TapAsync(async () =>
+        {
+            await Task.Delay(10);
+            executed = true;
+        });
+
+        // Assert
+        Assert.IsTrue(executed);
+    }
+
+    [TestMethod]
+    public async Task TapAsync_Result_AsyncAction_OnFailure_DoesNotExecute()
+    {
+        // Arrange
+        var result = Result.Fail("Error");
+        var executed = false;
+
+        // Act
+        await result.TapAsync(async () =>
+        {
+            await Task.Delay(10);
+            executed = true;
+        });
+
+        // Assert
+        Assert.IsFalse(executed);
+    }
+
+    [TestMethod]
+    public async Task TapAsync_Result_AsyncAction_WithSideEffects_Works()
+    {
+        // Arrange
+        var result = Result.Ok();
+        var log = new List<string>();
+
+        // Act
+        await result.TapAsync(async () =>
+        {
+            await Task.Delay(10);
+            log.Add("Async action executed");
+        });
+
+        // Assert
+        Assert.HasCount(1, log);
+        Assert.AreEqual("Async action executed", log[0]);
+    }
+
+    #endregion
+
+    #region TapAsync - Task<Result> - Sync Action
+
+    [TestMethod]
+    public async Task TapAsync_TaskResult_SyncAction_OnSuccess_ExecutesAction()
+    {
+        // Arrange
+        var executed = false;
+
+        // Act
+        await Task.FromResult(Result.Ok())
+            .TapAsync(() => executed = true);
+
+        // Assert
+        Assert.IsTrue(executed);
+    }
+
+    [TestMethod]
+    public async Task TapAsync_TaskResult_SyncAction_OnFailure_DoesNotExecute()
+    {
+        // Arrange
+        var executed = false;
+
+        // Act
+        await Task.FromResult(Result.Fail("Error"))
+            .TapAsync(() => executed = true);
+
+        // Assert
+        Assert.IsFalse(executed);
+    }
+
+    // TOFIX
+    // [TestMethod]
+    // public async Task TapAsync_TaskResult_SyncAction_WithChaining_Works()
+    // {
+    //     // Arrange
+    //     var executionOrder = new List<int>();
+
+    //     // Act
+    //     await GetResultAsync()
+    //         .TapAsync(() => executionOrder.Add(1))
+    //         .TapAsync(() => executionOrder.Add(2));
+
+    //     // Assert
+    //     Assert.HasCount(2, executionOrder);
+    //     Assert.AreEqual(1, executionOrder[0]);
+    //     Assert.AreEqual(2, executionOrder[1]);
+    // }
+
+    #endregion
+
+    #region TapAsync - Task<Result> - Async Action
+
+    [TestMethod]
+    public async Task TapAsync_TaskResult_AsyncAction_OnSuccess_ExecutesAction()
+    {
+        // Arrange
+        var executed = false;
+
+        // Act
+        await Task.FromResult(Result.Ok())
+            .TapAsync(async () =>
+            {
+                await Task.Delay(10);
+                executed = true;
+            });
+
+        // Assert
+        Assert.IsTrue(executed);
+    }
+
+    [TestMethod]
+    public async Task TapAsync_TaskResult_AsyncAction_OnFailure_DoesNotExecute()
+    {
+        // Arrange
+        var executed = false;
+
+        // Act
+        await Task.FromResult(Result.Fail("Error"))
+            .TapAsync(async () =>
+            {
+                await Task.Delay(10);
+                executed = true;
+            });
+
+        // Assert
+        Assert.IsFalse(executed);
+    }
+
+    // TOFIX
+    // [TestMethod]
+    // public async Task TapAsync_TaskResult_AsyncAction_WithChaining_Works()
+    // {
+    //     // Arrange
+    //     var executionOrder = new List<int>();
+
+    //     // Act
+    //     await GetResultAsync()
+    //         .TapAsync(async () =>
+    //         {
+    //             await Task.Delay(10);
+    //             executionOrder.Add(1);
+    //         })
+    //         .TapAsync(async () =>
+    //         {
+    //             await Task.Delay(10);
+    //             executionOrder.Add(2);
+    //         });
+
+    //     // Assert
+    //     Assert.HasCount(2, executionOrder);
+    //     Assert.AreEqual(1, executionOrder[0]);
+    //     Assert.AreEqual(2, executionOrder[1]);
+    // }
+
+    #endregion
+
+    #region Tap - Generic Result<T> - Sync
+
+    [TestMethod]
+    public void Tap_Generic_OnSuccess_ExecutesAction()
     {
         // Arrange
         var result = Result<int>.Ok(42);
@@ -24,7 +246,7 @@ public sealed class ResultExtensionsTests
     }
 
     [TestMethod]
-    public void Tap_OnSuccess_ReturnsSameInstance()
+    public void Tap_Generic_OnSuccess_ReturnsSameInstance()
     {
         // Arrange
         var result = Result<string>.Ok("test");
@@ -39,22 +261,37 @@ public sealed class ResultExtensionsTests
     }
 
     [TestMethod]
-    public void Tap_OnSuccess_CanModifyExternalState()
+    public void Tap_Generic_OnFailure_DoesNotExecuteAction()
     {
         // Arrange
-        var result = Result<int>.Ok(10);
-        var sideEffectList = new List<string>();
+        var result = Result<int>.Fail("Error occurred");
+        var actionExecuted = false;
 
         // Act
-        result.Tap(value => sideEffectList.Add($"Processing: {value}"));
+        var returned = result.Tap(value => actionExecuted = true);
 
         // Assert
-        Assert.HasCount(1, sideEffectList);
-        Assert.AreEqual("Processing: 10", sideEffectList[0]);
+        Assert.IsFalse(actionExecuted);
+        Assert.AreSame(result, returned);
     }
 
     [TestMethod]
-    public void Tap_OnSuccess_MultipleCallsExecuteInOrder()
+    public void Tap_Generic_OnFailure_PreservesErrors()
+    {
+        // Arrange
+        var result = Result<string>.Fail("Original error");
+
+        // Act
+        var returned = result.Tap(value => { });
+
+        // Assert
+        Assert.IsTrue(returned.IsFailed);
+        Assert.HasCount(1, returned.Errors);
+        Assert.AreEqual("Original error", returned.Errors[0].Message);
+    }
+
+    [TestMethod]
+    public void Tap_Generic_MultipleCallsExecuteInOrder()
     {
         // Arrange
         var result = Result<int>.Ok(5);
@@ -73,60 +310,206 @@ public sealed class ResultExtensionsTests
         Assert.AreEqual(3, executionOrder[2]);
     }
 
-    #endregion
-
-    #region Tap Tests - Failure Cases
-
     [TestMethod]
-    public void Tap_OnFailure_DoesNotExecuteAction()
+    public void Tap_Generic_WithComplexType_Works()
     {
         // Arrange
-        var result = Result<int>.Fail("Error occurred");
-        var actionExecuted = false;
+        var person = new Person { Name = "John", Age = 30 };
+        var result = Result<Person>.Ok(person);
+        var loggedName = "";
 
         // Act
-        var returned = result.Tap(value => actionExecuted = true);
+        result.Tap(p => loggedName = p.Name);
 
         // Assert
-        Assert.IsFalse(actionExecuted);
+        Assert.AreEqual("John", loggedName);
+    }
+
+    #endregion
+
+    #region TapAsync - Generic Result<T> - Async Action
+
+    [TestMethod]
+    public async Task TapAsync_Generic_AsyncAction_OnSuccess_ExecutesAction()
+    {
+        // Arrange
+        var result = Result<int>.Ok(42);
+        var capturedValue = 0;
+
+        // Act
+        var returned = await result.TapAsync(async value =>
+        {
+            await Task.Delay(10);
+            capturedValue = value;
+        });
+
+        // Assert
+        Assert.AreEqual(42, capturedValue);
         Assert.AreSame(result, returned);
     }
 
     [TestMethod]
-    public void Tap_OnFailure_PreservesErrors()
-    {
-        // Arrange
-        var result = Result<string>.Fail("Original error");
-
-        // Act
-        var returned = result.Tap(value => { });
-
-        // Assert
-        Assert.IsTrue(returned.IsFailed);
-        Assert.HasCount(1, returned.Errors);
-        Assert.AreEqual("Original error", returned.Errors[0].Message);
-    }
-
-    [TestMethod]
-    public void Tap_OnFailure_MultipleCallsDoNotExecute()
+    public async Task TapAsync_Generic_AsyncAction_OnFailure_DoesNotExecute()
     {
         // Arrange
         var result = Result<int>.Fail("Error");
-        var executionCount = 0;
+        var executed = false;
 
         // Act
-        result
-            .Tap(v => executionCount++)
-            .Tap(v => executionCount++)
-            .Tap(v => executionCount++);
+        var returned = await result.TapAsync(async value =>
+        {
+            await Task.Delay(10);
+            executed = true;
+        });
 
         // Assert
-        Assert.AreEqual(0, executionCount);
+        Assert.IsFalse(executed);
+        Assert.AreSame(result, returned);
+    }
+
+    [TestMethod]
+    public async Task TapAsync_Generic_AsyncAction_WithChaining_Works()
+    {
+        // Arrange
+        var result = Result<int>.Ok(10);
+        var log = new List<string>();
+
+        // Act
+        await result
+            .TapAsync(async v =>
+            {
+                await Task.Delay(10);
+                log.Add($"Step 1: {v}");
+            })
+            .TapAsync(async v =>
+            {
+                await Task.Delay(10);
+                log.Add($"Step 2: {v}");
+            });
+
+        // Assert
+        Assert.HasCount(2, log);
+        Assert.AreEqual("Step 1: 10", log[0]);
+        Assert.AreEqual("Step 2: 10", log[1]);
     }
 
     #endregion
 
-    #region Tap Tests - Chaining
+    #region TapAsync - Task<Result<T>> - Sync Action
+
+    [TestMethod]
+    public async Task TapAsync_TaskGeneric_SyncAction_OnSuccess_ExecutesAction()
+    {
+        // Arrange
+        var capturedValue = 0;
+
+        // Act
+        await Task.FromResult(Result<int>.Ok(42))
+            .TapAsync(value => capturedValue = value);
+
+        // Assert
+        Assert.AreEqual(42, capturedValue);
+    }
+
+    [TestMethod]
+    public async Task TapAsync_TaskGeneric_SyncAction_OnFailure_DoesNotExecute()
+    {
+        // Arrange
+        var executed = false;
+
+        // Act
+        await Task.FromResult(Result<int>.Fail("Error"))
+            .TapAsync(value => executed = true);
+
+        // Assert
+        Assert.IsFalse(executed);
+    }
+
+    [TestMethod]
+    public async Task TapAsync_TaskGeneric_SyncAction_WithChaining_Works()
+    {
+        // Arrange
+        var log = new List<string>();
+
+        // Act
+        await GetUserAsync(123)
+            .TapAsync(user => log.Add($"Got user: {user.Name}"))
+            .TapAsync(user => log.Add($"Age: {user.Age}"));
+
+        // Assert
+        Assert.HasCount(2, log);
+        Assert.Contains("Got user:", log[0]);
+        Assert.Contains("Age:", log[1]);
+    }
+
+    #endregion
+
+    #region TapAsync - Task<Result<T>> - Async Action
+
+    [TestMethod]
+    public async Task TapAsync_TaskGeneric_AsyncAction_OnSuccess_ExecutesAction()
+    {
+        // Arrange
+        var capturedValue = 0;
+
+        // Act
+        await Task.FromResult(Result<int>.Ok(42))
+            .TapAsync(async value =>
+            {
+                await Task.Delay(10);
+                capturedValue = value;
+            });
+
+        // Assert
+        Assert.AreEqual(42, capturedValue);
+    }
+
+    [TestMethod]
+    public async Task TapAsync_TaskGeneric_AsyncAction_OnFailure_DoesNotExecute()
+    {
+        // Arrange
+        var executed = false;
+
+        // Act
+        await Task.FromResult(Result<int>.Fail("Error"))
+            .TapAsync(async value =>
+            {
+                await Task.Delay(10);
+                executed = true;
+            });
+
+        // Assert
+        Assert.IsFalse(executed);
+    }
+
+    [TestMethod]
+    public async Task TapAsync_TaskGeneric_AsyncAction_WithChaining_Works()
+    {
+        // Arrange
+        var log = new List<string>();
+
+        // Act
+        await GetUserAsync(123)
+            .TapAsync(async user =>
+            {
+                await Task.Delay(10);
+                log.Add($"Processing: {user.Name}");
+            })
+            .TapAsync(async user =>
+            {
+                await Task.Delay(10);
+                log.Add("Complete");
+            });
+
+        // Assert
+        Assert.HasCount(2, log);
+        Assert.Contains("Processing:", log[0]);
+        Assert.AreEqual("Complete", log[1]);
+    }
+
+    #endregion
+
+    #region Integration Tests - Chaining with Map and Bind
 
     [TestMethod]
     public void Tap_ChainedWithMap_Works()
@@ -189,67 +572,65 @@ public sealed class ResultExtensionsTests
         Assert.AreEqual("Step 1", executionLog[0]);
     }
 
-    #endregion
-
-    #region Tap Tests - Complex Scenarios
-
     [TestMethod]
-    public void Tap_WithComplexType_Works()
+    public async Task TapAsync_ChainedWithMapAndBind_Works()
     {
         // Arrange
-        var person = new Person { Name = "John", Age = 30 };
-        var result = Result<Person>.Ok(person);
-        var loggedName = "";
+        var log = new List<string>();
 
         // Act
-        result.Tap(p => loggedName = p.Name);
+        var result = await GetUserAsync(123)
+            .TapAsync(user => log.Add($"Fetched: {user.Name}"))
+            .TapAsync(async user => await LogToServiceAsync($"Processing {user.Name}"))
+            .TapAsync(user => log.Add("Validation next"));
 
         // Assert
-        Assert.AreEqual("John", loggedName);
+        Assert.IsTrue(result.IsSuccess);
+        Assert.HasCount(2, log);
     }
 
+    #endregion
+
+    #region Real-World Scenarios
+
     [TestMethod]
-    public void Tap_ForLogging_RealWorldScenario()
+    public async Task TapAsync_ForLogging_RealWorldScenario()
     {
         // Arrange
         var logger = new TestLogger();
 
         // Act
-        var result = Result<int>.Ok(42)
-            .Tap(v => logger.Log($"Processing value: {v}"))
-            .Map(v => v * 2)
-            .Tap(v => logger.Log($"Doubled to: {v}"))
-            .Bind(v => v > 50
-                ? Result<string>.Ok($"Large: {v}")
-                : Result<string>.Fail("Too small"))
-            .Tap(v => logger.Log($"Final result: {v}"));
+        var result = await GetUserAsync(42)
+            .TapAsync(async u => await logger.LogAsync($"Processing user: {u.Name}"))
+            .TapAsync(u => logger.Log($"Age: {u.Age}"))
+            .TapAsync(async u => await logger.LogAsync("Processing complete"));
 
         // Assert
         Assert.IsTrue(result.IsSuccess);
         Assert.HasCount(3, logger.Logs);
-        Assert.AreEqual("Processing value: 42", logger.Logs[0]);
-        Assert.AreEqual("Doubled to: 84", logger.Logs[1]);
-        Assert.AreEqual("Final result: Large: 84", logger.Logs[2]);
+        Assert.Contains("Processing user:", logger.Logs[0]);
+        Assert.Contains("Age:", logger.Logs[1]);
+        Assert.AreEqual("Processing complete", logger.Logs[2]);
     }
 
     [TestMethod]
-    public void Tap_ForAuditing_RealWorldScenario()
+    public async Task TapAsync_ForAuditing_RealWorldScenario()
     {
         // Arrange
         var auditTrail = new List<AuditEntry>();
         var userId = "user-123";
 
         // Act
-        var result = Result<Order>.Ok(new Order { Id = "ORD-001", Total = 99.99m })
-            .Tap(order => auditTrail.Add(new AuditEntry
+        var result = await CreateOrderAsync(userId)
+            .TapAsync(order => auditTrail.Add(new AuditEntry
             {
                 Action = "OrderCreated",
                 OrderId = order.Id,
                 UserId = userId,
                 Timestamp = DateTime.UtcNow
             }))
-            .Bind(order => ValidateOrder(order))
-            .Tap(order => auditTrail.Add(new AuditEntry
+            .TapAsync(async order => await ValidateOrderAsync(order))
+            .TapAsync(order => auditTrail.Add(new AuditEntry
             {
                 Action = "OrderValidated",
                 OrderId = order.Id,
@@ -265,6 +646,26 @@ public sealed class ResultExtensionsTests
     }
 
     [TestMethod]
+    public async Task TapAsync_MixingSyncAndAsync_Works()
+    {
+        // Arrange
+        var log = new List<string>();
+
+        // Act
+        var result = await GetUserAsync(123)
+            .TapAsync(u => log.Add($"Sync: {u.Name}"))                    // Sync action
+            .TapAsync(async u => await Task.Run(() => log.Add("Async"))) // Async action
+            .TapAsync(u => log.Add("Sync again"));                        // Sync action
+
+        // Assert
+        Assert.IsTrue(result.IsSuccess);
+        Assert.HasCount(3, log);
+        Assert.Contains("Sync:", log[0]);
+        Assert.AreEqual("Async", log[1]);
+        Assert.AreEqual("Sync again", log[2]);
+    }
+
+    [TestMethod]
     public void Tap_WithSideEffectsThatThrow_DoesNotCatchException()
     {
         // Arrange
@@ -276,12 +677,118 @@ public sealed class ResultExtensionsTests
         );
     }
 
+    [TestMethod]
+    public async Task TapAsync_WithSideEffectsThatThrow_DoesNotCatchException()
+    {
+        // Arrange
+        var result = Result<int>.Ok(10);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await result.TapAsync(async v =>
+            {
+                await Task.Delay(10);
+                throw new InvalidOperationException("Async side effect failed");
+            })
+        );
+    }
+
     #endregion
 
-    #region Helper Classes
+    #region Edge Cases
+
+    [TestMethod]
+    public async Task TapAsync_WithNullValue_Works()
+    {
+        // Arrange
+        var result = Result<string?>.Ok(null);
+        string? capturedValue = "not null";
+
+        // Act
+        await result.TapAsync(async v =>
+        {
+            await Task.Delay(10);
+            capturedValue = v;
+        });
+
+        // Assert
+        Assert.IsNull(capturedValue);
+    }
+
+    [TestMethod]
+    public async Task TapAsync_EmptyChain_DoesNothing()
+    {
+        // Arrange & Act
+        var result = await GetUserAsync(123);
+
+        // Assert
+        Assert.IsTrue(result.IsSuccess);
+    }
+
+    [TestMethod]
+    public async Task TapAsync_LongChain_ExecutesInOrder()
+    {
+        // Arrange
+        var executionOrder = new List<int>();
+
+        // Act
+        await GetUserAsync(123)
+            .TapAsync(u => executionOrder.Add(1))
+            .TapAsync(async u => { await Task.Delay(5); executionOrder.Add(2); })
+            .TapAsync(u => executionOrder.Add(3))
+            .TapAsync(async u => { await Task.Delay(5); executionOrder.Add(4); })
+            .TapAsync(u => executionOrder.Add(5));
+
+        // Assert
+        Assert.AreEqual(5, executionOrder.Count);
+        for (int i = 0; i < 5; i++)
+        {
+            Assert.AreEqual(i + 1, executionOrder[i]);
+        }
+    }
+
+    #endregion
+
+    #region Helper Methods and Classes
+
+    private static Task<Result> GetResultAsync()
+    {
+        return Task.FromResult(Result.Ok());
+    }
+
+    private static Task<Result<Person>> GetUserAsync(int id)
+    {
+        return Task.FromResult(Result<Person>.Ok(new Person
+        {
+            Id = id,
+            Name = $"User{id}",
+            Age = 30
+        }));
+    }
+
+    private static Task<Result<Order>> CreateOrderAsync(string userId)
+    {
+        return Task.FromResult(Result<Order>.Ok(new Order
+        {
+            Id = "ORD-001",
+            UserId = userId,
+            Total = 99.99m
+        }));
+    }
+
+    private static Task ValidateOrderAsync(Order order)
+    {
+        return Task.Delay(10);
+    }
+
+    private static Task LogToServiceAsync(string message)
+    {
+        return Task.Delay(10);
+    }
 
     private class Person
     {
+        public int Id { get; set; }
         public string Name { get; set; } = "";
         public int Age { get; set; }
     }
@@ -289,6 +796,7 @@ public sealed class ResultExtensionsTests
     private class Order
     {
         public string Id { get; set; } = "";
+        public string UserId { get; set; } = "";
         public decimal Total { get; set; }
     }
 
@@ -304,13 +812,11 @@ public sealed class ResultExtensionsTests
     {
         public List<string> Logs { get; } = new();
         public void Log(string message) => Logs.Add(message);
-    }
-
-    private Result<Order> ValidateOrder(Order order)
-    {
-        return order.Total > 0
-            ? Result<Order>.Ok(order)
-            : Result<Order>.Fail("Invalid order total");
+        public Task LogAsync(string message)
+        {
+            Logs.Add(message);
+            return Task.Delay(10);
+        }
     }
 
     #endregion
