@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.10](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.9...v0.4.10) (2026-01-12)
+
+
+### ✨ Features
+
+* **release:** add conversions, factories combine conditional, extensions linq validations ([1990097](https://github.com/reslava/nuget-package-reslava-result/commit/19900970fc424a4d795bc5b8366a0aa5cbdf3f16))
+
 ## [0.4.9](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.8...v0.4.9) (2026-01-12)
 
 ## [0.4.8](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.7...v0.4.8) (2026-01-12)
