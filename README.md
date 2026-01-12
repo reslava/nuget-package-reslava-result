@@ -10,7 +10,7 @@
 
 **A clean, fluent, and type-safe approach to error handling in C#**
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Design](#-architecture--design) • [Contributing](#-contributing)
+[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Design](#-architecture-and-design) • [Contributing](#-contributing)
 
 </div>
 
@@ -205,7 +205,9 @@ public Result<int> GetAge(User user)
 
 ### 🎨 Custom Error Types
 
-Create domain-specific errors with full fluent API support:
+#### Simple Approach (Recommended for Most Cases)
+
+Inherit from `Error` to add domain-specific constructors and default tags:
 
 ```csharp
 public class ValidationError : Error
@@ -235,6 +237,45 @@ public class NotFoundError : Error
 return Result<User>.Fail(new NotFoundError("User", userId));
 return Result<User>.Fail(new ValidationError("Email", "Invalid format"));
 ```
+#### Advanced Approach (For Custom Fluent Methods)
+
+Use direct CRTP inheritance when you need error-type-specific fluent methods:
+
+```csharp
+public class DatabaseError : Reason<DatabaseError>, IError
+{
+    public DatabaseError() : base("Database error occurred") { }
+
+    // Custom fluent method specific to DatabaseError
+    public DatabaseError WithQuery(string query)
+    {
+        WithTags("Query", query);
+        return this; // Returns DatabaseError, not Error
+    }
+
+    // Custom fluent method
+    public DatabaseError WithRetryCount(int count)
+    {
+        WithTags("RetryCount", count);
+        return this;
+    }
+}
+
+// Usage with custom fluent API
+var error = new DatabaseError()
+    .WithQuery("SELECT * FROM Users")
+    .WithRetryCount(3)
+    .WithTags("Server", "localhost");
+```
+**Key Difference:**
+
+- `ValidationError : Error` → Inherits `WithTags()` that returns `Error`
+- `DatabaseError : Reason<DatabaseError>` → Gets `WithTags()` that returns `DatabaseError`
+
+**Which to choose?**
+
+- ✅ **Inherit from `Error`** (Simple) - 95% of cases
+- ✅ **Inherit from `Reason<T>`** (Advanced) - Only when you need custom fluent methods
 
 ## 📦 Quick Start
 
@@ -320,7 +361,7 @@ public class UsersController : ControllerBase
 }
 ```
 
-## 🏗️ Architecture & Design
+## 📐 Architecture and Design 
 
 ### CRTP (Curiously Recurring Template Pattern)
 
@@ -393,15 +434,35 @@ if (result.IsSuccess)
 ```
 
 **4. Composition Over Inheritance**
+
+The library uses interface composition for flexibility:
+
 ```csharp
 // Reason system is interface-based
 public interface IReason { }
 public interface IError : IReason { }
 public interface ISuccess : IReason { }
 
+// Base implementation using CRTP
+public abstract class Reason<TReason> : Reason where TReason : Reason<TReason>
+{
+    public TReason WithMessage(string message) { /*...*/ }
+    public TReason WithTags(string key, object value) { /*...*/ }
+}
+
+// Concrete implementations
+public class Error : Reason<Error>, IError { }
+public class Success : Reason<Success>, ISuccess { }
+
 // Easy to extend
 public class CustomError : Reason<CustomError>, IError { }
+
+//This design allows:
+//✅ Adding new reason types without modifying existing code
+//✅ Type-safe fluent interfaces via CRTP
+//✅ Interface-based polymorphism for reasoning
 ```
+
 
 ### UML Class Diagram
 
@@ -418,7 +479,7 @@ public class CustomError : Reason<CustomError>, IError { }
     │          │
 ┌───▼────┐ ┌──▼──────┐
 │ IError │ │ISuccess │
-└───┬────┘ └──┬──────┘
+└───┬────┘ └───┬─────┘
     │          │
 ┌───▼──────────▼───┐
 │  Reason<TReason> │  ← CRTP Pattern
@@ -427,14 +488,14 @@ public class CustomError : Reason<CustomError>, IError { }
 │ + WithTags()     │
 └────┬─────────────┘
      │
-  ┌──┴───┐
-  │      │
-┌─▼──┐ ┌─▼──────┐
+  ┌──┴────┐
+  │       │
+┌─▼───┐ ┌─▼──────┐
 │Error│ │Success │
 └─────┘ └────────┘
 ```
-
-[See full UML diagram](docs/UML.md)
+ 
+[See full UML diagram](docs/UML.md) • [See simple version](docs/UML-simple.md) • [See simple in PNG format](images/UML-simple.png)
 
 ## 🎓 Advanced Usage
 
@@ -597,7 +658,7 @@ This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.t
 
 **⭐ Star this repository if you find it useful!**
 
-Made with ❤️ by [Rafa Eslava](https://github.com/reslava)
+Made with ❤️ by [Rafa Eslava](https://github.com/reslava) for developers
 
 [Report Bug](https://github.com/reslava/nuget-package-reslava-result/issues) • [Request Feature](https://github.com/reslava/nuget-package-reslava-result/issues) • [Discussions](https://github.com/reslava/nuget-package-reslava-result/discussions)
 
