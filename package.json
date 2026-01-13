@@ -1,6 +1,6 @@
 {
   "name": "nuget-package-reslava-result",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "private": true,
   "description": "Development tooling for REslava.Result NuGet package",
   "repository": {
