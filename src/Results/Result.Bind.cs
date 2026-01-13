@@ -115,4 +115,12 @@ public partial class Result<TValue> : Result, IResult<TValue>
             return errorResult;
         }
     }
+
+
+
+
+
+
+
+    
 }
