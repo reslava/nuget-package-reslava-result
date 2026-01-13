@@ -9,7 +9,7 @@ namespace REslava.Result;
 public partial class Result<TValue> : Result, IResult<TValue>
 {
     /// <summary>
-    /// Transform the value of a succeful result using a specific mapper function.
+    /// Transform the value of a successful result using a specific mapper function.
     /// If the result is failed return a new error with the same reasons.
     /// </summary>
     /// <typeparam name="TOut">The type of the output value.</typeparam>
@@ -31,10 +31,9 @@ public partial class Result<TValue> : Result, IResult<TValue>
 
         try
         {
-            TOut mappedValue;
-            mappedValue = mapper(Value!);
+            TOut mappedValue = mapper(Value!);
             var result = Result<TOut>.Ok(mappedValue);
-
+            result.Reasons.AddRange(Successes);  // ← ADD THIS LINE
             return result;
         }
         catch (Exception ex)
@@ -44,7 +43,7 @@ public partial class Result<TValue> : Result, IResult<TValue>
     }
     
     /// <summary>
-    /// Asynchronously transform the value of a succeful result using a specific mapper function.
+    /// Asynchronously transform the value of a successful result using a specific mapper function.
     /// If the result is failed return a new error with the same reasons.
     /// </summary>
     /// <typeparam name="TOut">The type of the output value.</typeparam>
