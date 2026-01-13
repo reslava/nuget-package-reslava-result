@@ -72,4 +72,43 @@ public partial class Result<TValue> : Result, IResult<TValue>
             return Result<TOut>.Fail(new ExceptionError(ex));
         }
     }
+
+    
+}
+
+public static class ResultTaskExtensions
+{
+    /// <summary>
+    /// Maps the value inside a Task_Result_T to a new value of type U
+    /// </summary>
+    public static async Task<Result<U>> Map<T, U>(
+        this Task<Result<T>> resultTask,
+        Func<T, U> mapper)
+    {
+        var result = await resultTask;
+        return result.Map(mapper);
+    }
+
+    /// <summary>
+    /// Chains async operations on Task_Result_T
+    /// </summary>
+    public static async Task<Result<U>> BindAsync<T, U>(
+        this Task<Result<T>> resultTask,
+        Func<T, Task<Result<U>>> binder)
+    {
+        var result = await resultTask;
+        return await result.BindAsync(binder);
+    }
+
+    /// <summary>
+    /// Validates the value inside Task_Result_T
+    /// </summary>
+    public static async Task<Result<T>> Ensure<T>(
+        this Task<Result<T>> resultTask,
+        Func<T, bool> predicate,
+        string errorMessage)
+    {
+        var result = await resultTask;
+        return result.Ensure(predicate, errorMessage);
+    }
 }

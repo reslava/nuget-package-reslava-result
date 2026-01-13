@@ -32,7 +32,7 @@ public partial class Result<TValue>
 
     public static implicit operator Result<TValue>(ExceptionError[] errors) => Fail(errors);  
 
-    public static implicit operator Result<TValue>(List<ExceptionError> errors) => Fail(errors);  
+    public static implicit operator Result<TValue>(List<ExceptionError> errors) => Fail(errors);    
 
     /// <summary>
     /// Converts this Result to a non-generic Result, discarding the value.
