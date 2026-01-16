@@ -1,38 +1,48 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace REslava.Result;
+using REslava.Result;
 
 public class ExceptionError : Reason<ExceptionError>, IError
 {
     public Exception Exception { get; }
 
-    public ExceptionError(Exception exception) : base(exception?.Message?? "An exception ocurred")
+    // Public constructors
+    public ExceptionError(Exception exception)
+        : base(exception?.Message ?? "An exception occurred")
     {
-        ArgumentNullException.ThrowIfNull(exception);
-        Exception = exception;
-        ExceptionInitialize(exception);
+        Exception = exception ?? throw new ArgumentNullException(nameof(exception));
     }
-    public ExceptionError(Exception exception, string customMessage) : base(customMessage)
+
+    public ExceptionError(string message, Exception exception)
+        : base(message)
     {
-        ArgumentNullException.ThrowIfNull(exception);
+        Exception = exception ?? throw new ArgumentNullException(nameof(exception));
+    }
+
+    // Private constructor for creating copies (needed for fluent API)
+    private ExceptionError(
+        string message,
+        Dictionary<string, object> tags,
+        Exception exception)
+        : base(message, tags)
+    {
         Exception = exception;
-        ExceptionInitialize(exception);
-    }    
+    }
 
-    private void ExceptionInitialize(Exception exception)
-    {        
-        WithTags("ExceptionType", exception.GetType().Name);
+    // Override CreateNew to include Exception
+    protected override ExceptionError CreateNew(
+        string message,
+        Dictionary<string, object> tags)
+    {
+        return new ExceptionError(message, tags, Exception);
+    }
 
-        if (exception.StackTrace is not null)
-        {
-            WithTags("StackTrace", exception.StackTrace);
-        }
+    // Custom fluent methods specific to ExceptionError
+    public ExceptionError WithExceptionType(string type)
+    {
+        return WithTags("ExceptionType", type);
+    }
 
-        if (exception.InnerException is not null)
-        {
-            WithTags("InnerException", exception.InnerException.Message);
-        }
+    public ExceptionError WithStackTrace()
+    {
+        return WithTags("StackTrace", Exception.StackTrace ?? "(Stack trace unavailable)");
     }
 }

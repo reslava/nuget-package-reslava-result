@@ -1,20 +1,61 @@
 namespace REslava.Result;
 
+// Generic class - adds fluent API
 public abstract class Reason<TReason> : Reason
-        where TReason : Reason<TReason>
+    where TReason : Reason<TReason>
 {
-    public Reason() : base() { }
-    public Reason(string message) : base(message) { }
+    protected Reason(string message) : base(message) { }
 
-    public TReason WithMessage(string message) { Message = message; return (TReason)this; }
-    public TReason WithTags(string key, object value) { Tags.Add(key, value); return (TReason)this; }
-    public TReason WithTags(Dictionary<string, object> metadata)
+    protected Reason(string message, Dictionary<string, object> tags)
+        : base(message, tags) { }
+
+    // Fluent methods that return TReason
+    public TReason WithMessage(string message)
     {
-        foreach (var metadataItem in metadata)
-        {
-            Tags.Add(metadataItem.Key, metadataItem.Value);
+        if (string.IsNullOrWhiteSpace(message))
+        { 
+            throw new ArgumentException("Message cannot be empty", nameof(message));
+        }   
+
+        return CreateNew(message, GetTagsCopy());
+    }
+
+    public TReason WithTags(string key, object value)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        { 
+            throw new ArgumentException("Tag key cannot be empty", nameof(key));
         }
 
-        return (TReason)this;
+        var newTags = GetTagsCopy();
+        newTags[key] = value;
+
+        return CreateNew(Message, newTags);
     }
+
+    public TReason WithTags(params (string key, object value)[] tags)
+    {
+        var newTags = GetTagsCopy();
+
+        foreach (var (key, value) in tags)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+            { 
+                throw new ArgumentException("Tag key cannot be empty");
+            }
+
+            newTags[key] = value;
+        }
+
+        return CreateNew(Message, newTags);
+    }
+
+    // Helper to get a copy of current tags
+    private Dictionary<string, object> GetTagsCopy()
+    {
+        return new Dictionary<string, object>(Tags);
+    }
+
+    // Abstract factory method for derived classes
+    protected abstract TReason CreateNew(string message, Dictionary<string, object> tags);
 }

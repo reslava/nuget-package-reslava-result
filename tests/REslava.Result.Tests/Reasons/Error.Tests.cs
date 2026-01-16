@@ -100,12 +100,15 @@ public sealed class ErrorTests
     public void WithMessage_Chaining_Works()
     {
         // Arrange
-        var error = new Error();
-
-        // Act
-        error.WithMessage("First")
+        var error = new Error().WithMessage("First")
              .WithMessage("Second")
              .WithMessage("Third");
+        
+
+        // Act
+        //error.WithMessage("First")
+        //     .WithMessage("Second")
+        //     .WithMessage("Third");
 
         // Assert
         Assert.AreEqual("Third", error.Message);
@@ -190,8 +193,10 @@ public sealed class ErrorTests
             { "Severity", "High" }
         };
 
+        var tagsArr = tags.Select(kvp => (kvp.Key, kvp.Value)).ToArray();
+
         // Act
-        var result = error.WithTags(tags);
+        var result = error.WithTags(tagsArr);
 
         // Assert
         Assert.HasCount(3, error.Tags);
@@ -208,8 +213,10 @@ public sealed class ErrorTests
         var error = new Error();
         var emptyTags = new Dictionary<string, object>();
 
+        var tagsArr = emptyTags.Select(kvp => (kvp.Key, kvp.Value)).ToArray();
+
         // Act
-        error.WithTags(emptyTags);
+        error.WithTags(tagsArr);
 
         // Assert
         Assert.IsEmpty(error.Tags);
@@ -223,9 +230,12 @@ public sealed class ErrorTests
         var tags1 = new Dictionary<string, object> { { "A", 1 }, { "B", 2 } };
         var tags2 = new Dictionary<string, object> { { "C", 3 }, { "D", 4 } };
 
+        var tags1Arr = tags1.Select(kvp => (kvp.Key, kvp.Value)).ToArray();
+        var tags2Arr = tags2.Select(kvp => (kvp.Key, kvp.Value)).ToArray();
+
         // Act
-        error.WithTags(tags1)
-             .WithTags(tags2);
+        error.WithTags(tags1Arr)
+             .WithTags(tags2Arr);
 
         // Assert
         Assert.HasCount(4, error.Tags);
@@ -371,16 +381,17 @@ public sealed class ErrorTests
         Assert.Throws<ArgumentException>(() => error.WithTags("Key", "Value2"));
     }
 
+    
     [TestMethod]
     public void WithTags_Dictionary_DuplicateKeyInDictionary_ThrowsArgumentException()
     {
         // Arrange
         var error = new Error();
         error.WithTags("Existing", "Value");
-        var tags = new Dictionary<string, object> { { "Existing", "NewValue" } };
+        //var tags = new Dictionary<string, object> { { "Existing", "NewValue" } };
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => error.WithTags(tags));
+        Assert.Throws<ArgumentException>(() => error.WithTags("Existing", "NewValue"));
     }
 
     [TestMethod]
