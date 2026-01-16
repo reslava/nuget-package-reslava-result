@@ -53,7 +53,7 @@ public sealed class ExceptionErrorTests
         var exception = new InvalidOperationException("Original message");
 
         // Act
-        var error = new ExceptionError(exception, "Custom error message");
+        var error = new ExceptionError("Custom error message", exception);
 
         // Assert
         Assert.AreEqual("Custom error message", error.Message);
@@ -65,7 +65,7 @@ public sealed class ExceptionErrorTests
     {
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            new ExceptionError(null!, "Custom message"));
+            new ExceptionError("Custom message", null!));
     }
 
     [TestMethod]
@@ -75,7 +75,7 @@ public sealed class ExceptionErrorTests
         var exception = new Exception("Original");
 
         // Act
-        var error = new ExceptionError(exception, "");
+        var error = new ExceptionError("", exception);
 
         // Assert
         Assert.AreEqual("", error.Message);
@@ -444,7 +444,7 @@ public sealed class ExceptionErrorTests
         }
 
         // Act
-        var error = new ExceptionError(exception, "Database operation failed")
+        var error = new ExceptionError("Database operation failed", exception)
             .WithTags("Server", "localhost")
             .WithTags("Database", "ProductionDB")
             .WithTags("Operation", "SaveOrder");

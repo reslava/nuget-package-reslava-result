@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace REslava.Result.Reasons.Tests;
 
 /// <summary>
@@ -47,7 +49,7 @@ public sealed class SuccessTests
     {
         // Act
         var success = new Success(null!);
-
+        
         // Assert
         Assert.IsNull(success.Message);
     }
@@ -187,8 +189,9 @@ public sealed class SuccessTests
             { "BatchId", "BATCH-001" }
         };
 
+        var tagsArr = tags.Select(kvp => (kvp.Key, kvp.Value)).ToArray();
         // Act
-        var result = success.WithTags(tags);
+        var result = success.WithTags(tagsArr);
 
         // Assert
         Assert.HasCount(3, success.Tags);
@@ -205,8 +208,9 @@ public sealed class SuccessTests
         var success = new Success();
         var emptyTags = new Dictionary<string, object>();
 
+        var tagsArr = emptyTags.Select(kvp => (kvp.Key, kvp.Value)).ToArray();
         // Act
-        success.WithTags(emptyTags);
+        success.WithTags(tagsArr);
 
         // Assert
         Assert.IsEmpty(success.Tags);
@@ -220,9 +224,11 @@ public sealed class SuccessTests
         var tags1 = new Dictionary<string, object> { { "Step1", "Completed" }, { "Step2", "Completed" } };
         var tags2 = new Dictionary<string, object> { { "Step3", "Completed" }, { "Step4", "Completed" } };
 
+        var tags1Arr = tags1.Select(kvp => (kvp.Key, kvp.Value)).ToArray();
+        var tags2Arr = tags2.Select(kvp => (kvp.Key, kvp.Value)).ToArray();
         // Act
-        success.WithTags(tags1)
-               .WithTags(tags2);
+        success.WithTags(tags1Arr)
+               .WithTags(tags2Arr);
 
         // Assert
         Assert.HasCount(4, success.Tags);
@@ -372,10 +378,10 @@ public sealed class SuccessTests
         // Arrange
         var success = new Success();
         success.WithTags("Existing", "Value");
-        var tags = new Dictionary<string, object> { { "Existing", "NewValue" } };
+        //var tags = new Dictionary<string, object> { { "Existing", "NewValue" } };        
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => success.WithTags(tags));
+        Assert.Throws<ArgumentException>(() => success.WithTags("Existing", "NewValue"));
     }
 
     [TestMethod]

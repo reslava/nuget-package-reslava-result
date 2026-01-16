@@ -331,7 +331,7 @@ public sealed class ResultGenericTests
         public DueDateError(DateTime dueDate)
         {
             base.Message = ($"The due date {dueDate} must be on current date {DateTime.Today.ToShortDateString()} or later.");
-            Tags.Add("ErrorCode", "101");
+            WithTags("ErrorCode", "101");
         }
     }
     #endregion
