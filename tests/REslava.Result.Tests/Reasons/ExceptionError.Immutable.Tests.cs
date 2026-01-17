@@ -1,10 +1,12 @@
+using System.Collections.Immutable;
+
 namespace REslava.Result.Reasons.Tests;
 
 /// <summary>
-/// Comprehensive tests for the ExceptionError class
+/// Comprehensive tests for the ExceptionError class (immutable version)
 /// </summary>
 [TestClass]
-public sealed class ExceptionErrorTests
+public sealed class ExceptionErrorImmutableTests
 {
     #region Constructor Tests - Default Message
 
@@ -26,7 +28,7 @@ public sealed class ExceptionErrorTests
     public void Constructor_WithNullException_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new ExceptionError(null!));
+        Assert.ThrowsException<ArgumentNullException>(() => new ExceptionError(null!));
     }
 
     [TestMethod]
@@ -39,7 +41,87 @@ public sealed class ExceptionErrorTests
         var error = new ExceptionError(exception);
 
         // Assert
-        Assert.AreEqual("An exception ocurred", error.Message);
+        Assert.AreEqual("An exception occurred", error.Message);
+    }
+
+    [TestMethod]
+    public void Constructor_WithException_CreatesExceptionTypeTags()
+    {
+        // Arrange
+        var exception = new InvalidOperationException("Test");
+
+        // Act
+        var error = new ExceptionError(exception);
+
+        // Assert
+        Assert.IsTrue(error.Tags.ContainsKey("ExceptionType"));
+        Assert.AreEqual("InvalidOperationException", error.Tags["ExceptionType"]);
+    }
+
+    [TestMethod]
+    public void Constructor_WithException_StackTrace_AddsStackTraceTag()
+    {
+        // Arrange
+        Exception exception;
+        try
+        {
+            throw new InvalidOperationException("Test exception");
+        }
+        catch (Exception ex)
+        {
+            exception = ex;
+        }
+
+        // Act
+        var error = new ExceptionError(exception);
+
+        // Assert
+        Assert.IsTrue(error.Tags.ContainsKey("StackTrace"));
+        Assert.IsNotNull(error.Tags["StackTrace"]);
+        var stackTrace = error.Tags["StackTrace"] as string;
+        Assert.IsNotNull(stackTrace);
+        Assert.IsTrue(stackTrace!.Length > 0);
+    }
+
+    [TestMethod]
+    public void Constructor_WithException_NoStackTrace_DoesNotAddStackTraceTag()
+    {
+        // Arrange
+        var exception = new Exception("Test"); // No stack trace
+
+        // Act
+        var error = new ExceptionError(exception);
+
+        // Assert
+        Assert.IsFalse(error.Tags.ContainsKey("StackTrace"));
+    }
+
+    [TestMethod]
+    public void Constructor_WithException_InnerException_AddsInnerExceptionTag()
+    {
+        // Arrange
+        var innerException = new ArgumentException("Inner error");
+        var outerException = new InvalidOperationException("Outer error", innerException);
+
+        // Act
+        var error = new ExceptionError(outerException);
+
+        // Assert
+        Assert.IsTrue(error.Tags.ContainsKey("InnerException"));
+        Assert.AreEqual("Inner error", error.Tags["InnerException"]);
+    }
+
+    [TestMethod]
+    public void Constructor_WithException_NoInnerException_DoesNotAddInnerExceptionTag()
+    {
+        // Arrange
+        var exception = new Exception("Test");
+
+        // Act
+        var error = new ExceptionError(exception);
+
+        // Assert
+        Assert.IsFalse(error.Tags.ContainsKey("InnerException"));
     }
 
     #endregion
@@ -64,7 +146,7 @@ public sealed class ExceptionErrorTests
     public void Constructor_WithCustomMessage_NullException_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
+        Assert.ThrowsException<ArgumentNullException>(() =>
             new ExceptionError("Custom message", null!));
     }
 
@@ -78,7 +160,21 @@ public sealed class ExceptionErrorTests
         var error = new ExceptionError("", exception);
 
         // Assert
-        Assert.AreEqual("", error.Message);
+        Assert.AreEqual(string.Empty, error.Message);
+    }
+
+    [TestMethod]
+    public void Constructor_WithCustomMessage_CreatesExceptionTypeTags()
+    {
+        // Arrange
+        var exception = new ArgumentException("Test");
+
+        // Act
+        var error = new ExceptionError("Custom message", exception);
+
+        // Assert
+        Assert.IsTrue(error.Tags.ContainsKey("ExceptionType"));
+        Assert.AreEqual("ArgumentException", error.Tags["ExceptionType"]);
     }
 
     #endregion
@@ -111,132 +207,25 @@ public sealed class ExceptionErrorTests
         Assert.IsInstanceOfType<ArgumentNullException>(error.Exception);
     }
 
-    #endregion
-
-    #region Tags Tests - ExceptionType
-
     [TestMethod]
-    public void Tags_ContainsExceptionType()
+    public void Exception_Property_ImmutableAfterConstruction()
     {
         // Arrange
-        var exception = new InvalidOperationException("Test");
+        var exception1 = new Exception("Test 1");
+        var exception2 = new Exception("Test 2");
 
         // Act
-        var error = new ExceptionError(exception);
+        var error = new ExceptionError(exception1);
 
-        // Assert
-        Assert.IsTrue(error.Tags.ContainsKey("ExceptionType"));
-        Assert.AreEqual("InvalidOperationException", error.Tags["ExceptionType"]);
-    }
-
-    [TestMethod]
-    public void Tags_ExceptionType_DifferentExceptionTypes()
-    {
-        // Arrange & Act
-        var error1 = new ExceptionError(new ArgumentException("Test"));
-        var error2 = new ExceptionError(new NullReferenceException("Test"));
-        var error3 = new ExceptionError(new DivideByZeroException("Test"));
-
-        // Assert
-        Assert.AreEqual("ArgumentException", error1.Tags["ExceptionType"]);
-        Assert.AreEqual("NullReferenceException", error2.Tags["ExceptionType"]);
-        Assert.AreEqual("DivideByZeroException", error3.Tags["ExceptionType"]);
+        // Assert - Exception property should be get-only
+        var exceptionProperty = typeof(ExceptionError).GetProperty("Exception");
+        Assert.IsNotNull(exceptionProperty);
+        Assert.IsNull(exceptionProperty!.SetMethod);
     }
 
     #endregion
 
-    #region Tags Tests - StackTrace
-
-    [TestMethod]
-    public void Tags_ContainsStackTrace_WhenAvailable()
-    {
-        // Arrange
-        Exception exception;
-        try
-        {
-            throw new InvalidOperationException("Test exception");
-        }
-        catch (Exception ex)
-        {
-            exception = ex;
-        }
-
-        // Act
-        var error = new ExceptionError(exception);
-
-        // Assert
-        Assert.IsTrue(error.Tags.ContainsKey("StackTrace"));
-        Assert.IsNotNull(error.Tags["StackTrace"]);
-        var stackTrace = error.Tags["StackTrace"] as string;
-        Assert.IsNotNull(stackTrace);
-        Assert.IsGreaterThan(0, stackTrace!.Length);
-    }
-
-    [TestMethod]
-    public void Tags_DoesNotContainStackTrace_WhenNull()
-    {
-        // Arrange
-        var exception = new Exception("Test"); // No stack trace
-
-        // Act
-        var error = new ExceptionError(exception);
-
-        // Assert
-        Assert.IsFalse(error.Tags.ContainsKey("StackTrace"));
-    }
-
-    #endregion
-
-    #region Tags Tests - InnerException
-
-    [TestMethod]
-    public void Tags_ContainsInnerException_WhenAvailable()
-    {
-        // Arrange
-        var innerException = new ArgumentException("Inner error");
-        var outerException = new InvalidOperationException("Outer error", innerException);
-
-        // Act
-        var error = new ExceptionError(outerException);
-
-        // Assert
-        Assert.IsTrue(error.Tags.ContainsKey("InnerException"));
-        Assert.AreEqual("Inner error", error.Tags["InnerException"]);
-    }
-
-    [TestMethod]
-    public void Tags_DoesNotContainInnerException_WhenNull()
-    {
-        // Arrange
-        var exception = new Exception("Test");
-
-        // Act
-        var error = new ExceptionError(exception);
-
-        // Assert
-        Assert.IsFalse(error.Tags.ContainsKey("InnerException"));
-    }
-
-    [TestMethod]
-    public void Tags_InnerException_NestedExceptions()
-    {
-        // Arrange
-        var level3 = new ArgumentException("Level 3");
-        var level2 = new InvalidOperationException("Level 2", level3);
-        var level1 = new Exception("Level 1", level2);
-
-        // Act
-        var error = new ExceptionError(level1);
-
-        // Assert
-        Assert.IsTrue(error.Tags.ContainsKey("InnerException"));
-        Assert.AreEqual("Level 2", error.Tags["InnerException"]);
-        // Note: Only immediate inner exception is captured
-    }
-
-    #endregion
-
-    #region Complete Tags Tests
+    #region Tags Tests - Complete Exception Information
 
     [TestMethod]
     public void Tags_CompleteException_ContainsAllMetadata()
@@ -263,7 +252,7 @@ public sealed class ExceptionErrorTests
         var error = new ExceptionError(exception);
 
         // Assert
-        Assert.HasCount(3, error.Tags); // ExceptionType, StackTrace, InnerException
+        Assert.AreEqual(3, error.Tags.Count); // ExceptionType, StackTrace, InnerException
         Assert.IsTrue(error.Tags.ContainsKey("ExceptionType"));
         Assert.IsTrue(error.Tags.ContainsKey("StackTrace"));
         Assert.IsTrue(error.Tags.ContainsKey("InnerException"));
@@ -279,15 +268,81 @@ public sealed class ExceptionErrorTests
         var error = new ExceptionError(exception);
 
         // Assert
-        Assert.HasCount(1, error.Tags); // Only ExceptionType
+        Assert.AreEqual(1, error.Tags.Count); // Only ExceptionType
         Assert.IsTrue(error.Tags.ContainsKey("ExceptionType"));
         Assert.IsFalse(error.Tags.ContainsKey("StackTrace"));
         Assert.IsFalse(error.Tags.ContainsKey("InnerException"));
     }
 
+    [TestMethod]
+    public void Tags_DifferentExceptionTypes_RecordsCorrectType()
+    {
+        // Arrange & Act
+        var error1 = new ExceptionError(new ArgumentException("Test"));
+        var error2 = new ExceptionError(new NullReferenceException("Test"));
+        var error3 = new ExceptionError(new DivideByZeroException("Test"));
+
+        // Assert
+        Assert.AreEqual("ArgumentException", error1.Tags["ExceptionType"]);
+        Assert.AreEqual("NullReferenceException", error2.Tags["ExceptionType"]);
+        Assert.AreEqual("DivideByZeroException", error3.Tags["ExceptionType"]);
+    }
+
+    [TestMethod]
+    public void Tags_NestedExceptions_OnlyImmediateInnerExceptionRecorded()
+    {
+        // Arrange
+        var level3 = new ArgumentException("Level 3");
+        var level2 = new InvalidOperationException("Level 2", level3);
+        var level1 = new Exception("Level 1", level2);
+
+        // Act
+        var error = new ExceptionError(level1);
+
+        // Assert
+        Assert.IsTrue(error.Tags.ContainsKey("InnerException"));
+        Assert.AreEqual("Level 2", error.Tags["InnerException"]);
+        // Only immediate inner exception is captured
+    }
+
     #endregion
 
-    #region Fluent Interface Tests
+    #region Fluent Interface Tests (Immutability)
+
+    [TestMethod]
+    public void FluentInterface_WithMessage_CreatesNewInstance()
+    {
+        // Arrange
+        var exception = new Exception("Original");
+        var original = new ExceptionError(exception);
+
+        // Act
+        var updated = original.WithMessage("Updated error message");
+
+        // Assert
+        Assert.AreNotSame(original, updated);
+        Assert.AreEqual("Original", original.Message);
+        Assert.AreEqual("Updated error message", updated.Message);
+        Assert.AreSame(exception, updated.Exception); // Exception preserved
+    }
+
+    [TestMethod]
+    public void FluentInterface_WithTags_CreatesNewInstance()
+    {
+        // Arrange
+        var exception = new Exception("Test");
+        var original = new ExceptionError(exception);
+
+        // Act
+        var updated = original.WithTags("UserId", "user-123");
+
+        // Assert
+        Assert.AreNotSame(original, updated);
+        Assert.IsFalse(original.Tags.ContainsKey("UserId"));
+        Assert.IsTrue(updated.Tags.ContainsKey("UserId"));
+        Assert.AreEqual("user-123", updated.Tags["UserId"]);
+        Assert.AreSame(exception, updated.Exception); // Exception preserved
+    }
 
     [TestMethod]
     public void FluentInterface_AdditionalTags_CanBeAdded()
@@ -309,18 +364,66 @@ public sealed class ExceptionErrorTests
     }
 
     [TestMethod]
-    public void FluentInterface_MessageUpdate_Works()
+    public void FluentInterface_ComplexChaining_PreservesException()
     {
         // Arrange
-        var exception = new Exception("Original");
+        var exception = new ArgumentException("Test");
 
         // Act
-        var error = new ExceptionError(exception)
-            .WithMessage("Updated error message");
+        var error = new ExceptionError("Custom message", exception)
+            .WithTags("Step", 1)
+            .WithMessage("Updated message")
+            .WithTags("AdditionalInfo", "Info");
 
         // Assert
-        Assert.AreEqual("Updated error message", error.Message);
+        Assert.AreEqual("Updated message", error.Message);
         Assert.AreSame(exception, error.Exception);
+        Assert.IsTrue(error.Tags.ContainsKey("ExceptionType"));
+        Assert.IsTrue(error.Tags.ContainsKey("Step"));
+        Assert.IsTrue(error.Tags.ContainsKey("AdditionalInfo"));
+    }
+
+    #endregion
+
+    #region Immutability Tests
+
+    [TestMethod]
+    public void Immutability_OriginalInstanceNeverModified()
+    {
+        // Arrange
+        var exception = new Exception("Test");
+        var original = new ExceptionError("Original", exception);
+
+        // Act
+        var modified = original
+            .WithMessage("Modified")
+            .WithTags("Key", "Value");
+
+        // Assert
+        Assert.AreEqual("Original", original.Message);
+        Assert.AreEqual(1, original.Tags.Count); // Only ExceptionType
+        
+        Assert.AreEqual("Modified", modified.Message);
+        Assert.AreEqual(2, modified.Tags.Count); // ExceptionType + Key
+    }
+
+    [TestMethod]
+    public void Immutability_Exception_PreservedThroughAllTransformations()
+    {
+        // Arrange
+        var exception = new InvalidOperationException("Test");
+        var e0 = new ExceptionError(exception);
+
+        // Act
+        var e1 = e0.WithMessage("M1");
+        var e2 = e1.WithTags("T1", 1);
+        var e3 = e2.WithMessage("M2");
+
+        // Assert - All instances reference same exception
+        Assert.AreSame(exception, e0.Exception);
+        Assert.AreSame(exception, e1.Exception);
+        Assert.AreSame(exception, e2.Exception);
+        Assert.AreSame(exception, e3.Exception);
     }
 
     #endregion
@@ -338,7 +441,17 @@ public sealed class ExceptionErrorTests
     }
 
     [TestMethod]
-    public void ExceptionError_CRTP()
+    public void ExceptionError_ImplementsIReason()
+    {
+        // Arrange
+        var error = new ExceptionError(new Exception());
+
+        // Assert
+        Assert.IsInstanceOfType<IReason>(error);
+    }
+
+    [TestMethod]
+    public void ExceptionError_InheritsFromReasonOfExceptionError()
     {
         // Arrange
         var error = new ExceptionError(new Exception());
@@ -363,7 +476,7 @@ public sealed class ExceptionErrorTests
 
         // Assert
         Assert.IsTrue(result.IsFailed);
-        Assert.HasCount(1, result.Errors);
+        Assert.AreEqual(1, result.Errors.Count);
         Assert.AreEqual("Database error", result.Errors[0].Message);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
     }
@@ -401,7 +514,7 @@ public sealed class ExceptionErrorTests
 
         // Assert
         Assert.IsTrue(mapped.IsFailed);
-        Assert.HasCount(1, mapped.Errors);
+        Assert.AreEqual(1, mapped.Errors.Count);
         var exceptionError = mapped.Errors[0] as ExceptionError;
         Assert.IsNotNull(exceptionError);
         Assert.AreSame(expectedException, exceptionError!.Exception);
@@ -435,7 +548,6 @@ public sealed class ExceptionErrorTests
         Exception exception;
         try
         {
-            // Simulate database operation
             throw new InvalidOperationException("Cannot connect to database");
         }
         catch (Exception ex)
@@ -455,7 +567,7 @@ public sealed class ExceptionErrorTests
         Assert.IsTrue(result.IsFailed);
         Assert.AreEqual("Database operation failed", result.Errors[0].Message);
         Assert.AreEqual("localhost", result.Errors[0].Tags["Server"]);
-        Assert.Contains("InvalidOperationException", (string)result.Errors[0].Tags["ExceptionType"]);
+        Assert.IsTrue(result.Errors[0].Tags.ContainsKey("ExceptionType"));
     }
 
     [TestMethod]
@@ -527,7 +639,7 @@ public sealed class ExceptionErrorTests
     public void ExceptionError_WithAggregateException()
     {
         // Arrange
-        SystemException[] innerExceptions = new SystemException[]
+        var innerExceptions = new Exception[]
         {
             new InvalidOperationException("Error 1"),
             new ArgumentException("Error 2")
@@ -538,7 +650,7 @@ public sealed class ExceptionErrorTests
         var error = new ExceptionError(aggregateException);
 
         // Assert
-        Assert.StartsWith("Multiple errors", error.Message);
+        Assert.IsTrue(error.Message.StartsWith("Multiple errors"));
         Assert.AreEqual("AggregateException", error.Tags["ExceptionType"]);
         Assert.IsInstanceOfType<AggregateException>(error.Exception);
     }
@@ -555,6 +667,26 @@ public sealed class ExceptionErrorTests
         // Assert
         Assert.AreEqual("Business rule violation", error.Message);
         Assert.AreEqual("CustomBusinessException", error.Tags["ExceptionType"]);
+    }
+
+    #endregion
+
+    #region CRTP Pattern Tests
+
+    [TestMethod]
+    public void CRTP_FluentMethods_ReturnExceptionErrorType()
+    {
+        // Arrange
+        var exception = new Exception("Test");
+        var error = new ExceptionError(exception);
+
+        // Act
+        ExceptionError e1 = error.WithMessage("M1");
+        ExceptionError e2 = e1.WithTags("K", "V");
+
+        // Assert - All return ExceptionError
+        Assert.IsInstanceOfType<ExceptionError>(e1);
+        Assert.IsInstanceOfType<ExceptionError>(e2);
     }
 
     #endregion

@@ -3,9 +3,8 @@ namespace REslava.Result;
 public partial class Result<TValue> : Result, IResult<TValue>
 {
     public static Result<TValue> Ok(TValue value)
-    {
-        var result = new Result<TValue>() { Value = value };
-        return result;
+    {        
+        return new Result<TValue>(value, []);        
     }
 
     public static Result<TValue> FromResult(Result result)
@@ -19,7 +18,7 @@ public partial class Result<TValue> : Result, IResult<TValue>
                 "Use Result<TValue>.Ok() with a value instead.");
         }
 
-        var typedResult = new Result<TValue>();
+        var typedResult = new Result<TValue>(default(TValue), []);
         typedResult.Reasons.AddRange(result.Reasons);
 
         return typedResult;

@@ -1,48 +1,82 @@
+using System.Collections.Immutable;
 using REslava.Result;
 
+// ============================================================================
+// ExceptionError (Immutable - Corrected Implementation)
+// ============================================================================
 public class ExceptionError : Reason<ExceptionError>, IError
 {
     public Exception Exception { get; }
 
-    // Public constructors
+    // ========================================================================
+    // Public Constructor - Exception message becomes Error message
+    // ========================================================================
     public ExceptionError(Exception exception)
-        : base(exception?.Message ?? "An exception occurred")
+        : base(
+            exception?.Message ?? "An exception occurred",
+            CreateExceptionTags(exception))
     {
         Exception = exception ?? throw new ArgumentNullException(nameof(exception));
     }
 
+    // ========================================================================
+    // Public Constructor - Custom message
+    // ========================================================================
     public ExceptionError(string message, Exception exception)
-        : base(message)
+        : base(
+            message,
+            CreateExceptionTags(exception))
     {
         Exception = exception ?? throw new ArgumentNullException(nameof(exception));
     }
 
-    // Private constructor for creating copies (needed for fluent API)
+    // ========================================================================
+    // Private Constructor - For immutable copies (used by WithMessage/WithTags)
+    // ========================================================================
     private ExceptionError(
         string message,
-        Dictionary<string, object> tags,
+        ImmutableDictionary<string, object> tags,
         Exception exception)
         : base(message, tags)
     {
         Exception = exception;
     }
 
-    // Override CreateNew to include Exception
+    // ========================================================================
+    // Factory Method - Required by CRTP
+    // ========================================================================
     protected override ExceptionError CreateNew(
         string message,
-        Dictionary<string, object> tags)
+        ImmutableDictionary<string, object> tags)
     {
+        // When creating new instances (via WithMessage/WithTags),
+        // preserve the original Exception
         return new ExceptionError(message, tags, Exception);
     }
 
-    // Custom fluent methods specific to ExceptionError
-    public ExceptionError WithExceptionType(string type)
+    // ========================================================================
+    // Helper Method - Create tags from Exception (static for clarity)
+    // ========================================================================
+    private static ImmutableDictionary<string, object> CreateExceptionTags(Exception? exception)
     {
-        return WithTags("ExceptionType", type);
-    }
+        if (exception == null)
+        {
+            throw new ArgumentNullException(nameof(exception));
+        }
 
-    public ExceptionError WithStackTrace()
-    {
-        return WithTags("StackTrace", Exception.StackTrace ?? "(Stack trace unavailable)");
+        var tags = ImmutableDictionary<string, object>.Empty
+            .Add("ExceptionType", exception.GetType().Name);
+
+        if (exception.StackTrace != null)
+        {
+            tags = tags.Add("StackTrace", exception.StackTrace);
+        }
+
+        if (exception.InnerException != null)
+        {
+            tags = tags.Add("InnerException", exception.InnerException.Message);
+        }
+
+        return tags;
     }
 }
