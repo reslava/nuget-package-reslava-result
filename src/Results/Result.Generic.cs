@@ -1,20 +1,22 @@
+using System.Collections.Immutable;
 namespace REslava.Result;
 
 public partial class Result<TValue> : Result, IResult<TValue>
-{
-    public TValue? ValueOrDefault { get; private set; }
+{    
+        
+    public TValue? ValueOrDefault { get; private init; }
     public TValue? Value
     {
         get
         {
             ThrowIfFailed();
             return ValueOrDefault;
-        }
-
-        private set => ValueOrDefault = value;
+        }        
     }
-
-    public Result() { }
+    public Result(TValue? value, ImmutableList<IReason> reasons) : base(reasons)
+    {
+        ValueOrDefault = value;
+    }   
 
     private void ThrowIfFailed()
     {
@@ -24,17 +26,17 @@ public partial class Result<TValue> : Result, IResult<TValue>
         }
     }
 
-    public override string ToString()
-    {
-        var baseString = base.ToString();
-        var valueString = $"{nameof(Value)} = {ValueOrDefault}";
-        return $"{baseString}, {valueString}";
-    }
+    // public override string ToString()
+    // {
+    //     var baseString = base.ToString();
+    //     var valueString = $"{nameof(Value)} = {ValueOrDefault}";
+    //     return $"{baseString}, {valueString}";
+    // }
 
     public new Result<TValue> WithSuccess(string message) { return (Result<TValue>)base.WithSuccess(message); }
     public new Result<TValue> WithError(string message) { return (Result<TValue>)base.WithError(message); }
     public new Result<TValue> WithSuccess(ISuccess success) { return (Result<TValue>)base.WithSuccess(success); }
     public new Result<TValue> WithError(IError error) { return (Result<TValue>)base.WithError(error); }
-    public new Result<TValue> WithSuccesses(IEnumerable<ISuccess> sucesses) { return (Result<TValue>)base.WithSuccesses(sucesses); }
+    public new Result<TValue> WithSuccesses(IEnumerable<ISuccess> successes) { return (Result<TValue>)base.WithSuccesses(successes); }
     public new Result<TValue> WithErrors(IEnumerable<IError> errors) { return (Result<TValue>)base.WithErrors(errors); }
 }

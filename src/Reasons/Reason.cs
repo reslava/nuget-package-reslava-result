@@ -1,25 +1,25 @@
-using System.Diagnostics;
+using System.Collections.Immutable;
 
 namespace REslava.Result;
 
-// Base class - defines the contract
+// ============================================================================
+// Base Reason (Non-generic)
+// ============================================================================
 public abstract class Reason : IReason
 {
-    private readonly Dictionary<string, object> _tags;
-
-    public string Message { get; protected set; }
-    public IReadOnlyDictionary<string, object> Tags => _tags;
+    public string Message { get; }
+    public ImmutableDictionary<string, object> Tags { get; }
 
     protected Reason(string message)
     {
         Message = message ?? string.Empty;
-        _tags = [];
+        Tags = ImmutableDictionary<string, object>.Empty;
     }
 
-    protected Reason(string message, Dictionary<string, object> tags)
+    protected Reason(string message, ImmutableDictionary<string, object> tags)
     {
         Message = message ?? string.Empty;
-        _tags = new Dictionary<string, object>(tags); // Defensive copy
+        Tags = tags ?? ImmutableDictionary<string, object>.Empty;
     }
 }
 

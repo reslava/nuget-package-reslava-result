@@ -1,7 +1,8 @@
+using System.Collections.Immutable;
 namespace REslava.Result;
 
 public interface IReason
 {
     string Message { get; }
-    IReadOnlyDictionary<string, object> Tags { get; }
+    ImmutableDictionary<string, object> Tags { get; }
 }

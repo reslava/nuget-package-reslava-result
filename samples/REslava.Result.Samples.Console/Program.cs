@@ -1,13 +1,13 @@
 using System.ComponentModel;
 using REslava.Result;
-using REslava.Result.Samples.Console.Examples;
+//using REslava.Result.Samples.Console.Examples;
 
 Console.WriteLine("===========================================");
 Console.WriteLine("REslava.Result - Sample Examples");
 Console.WriteLine("===========================================\n");
 
 // Run examples
-await RunExample("01. Basic Usage", BasicUsage.Run);
+//await RunExample("01. Basic Usage", BasicUsage.Run);
 //await RunExample("02. Validation Pipeline", ValidationPipeline.Run);
 //await RunExample("03. Error Handling", ErrorHandling.Run);
 //await RunExample("04. Async Operations", AsyncOperations.Run);
