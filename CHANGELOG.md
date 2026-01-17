@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.16](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.15...v0.4.16) (2026-01-17)
+
+
+### 🐛 Bug Fixes
+
+* **core:** Use Immutable Collections for Reasons in Result ([75068f9](https://github.com/reslava/nuget-package-reslava-result/commit/75068f9f8797f54c2401e01e6237d926b2b73086))
+* **reason:** immutability ([997cd35](https://github.com/reslava/nuget-package-reslava-result/commit/997cd351924557a3161407344f519f12f89f5779))
+* **reason:** immutability ([00b6fda](https://github.com/reslava/nuget-package-reslava-result/commit/00b6fdacc218afe2d916cfb7445435a11ebc16aa))
+* **reason:** immutability, new tests ([9f32cbc](https://github.com/reslava/nuget-package-reslava-result/commit/9f32cbcdd97943ba966dbd7f711c65cb623eceb6))
+
 ## [0.4.15](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.13...v0.4.15) (2026-01-13)
 
 
