@@ -28,12 +28,12 @@ public abstract class Reason<TReason> : Reason
     /// </summary>
     public TReason WithTags(string key, object value)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(key, nameof(key));        
-
-        if (Tags.ContainsKey(key))
-        {
-            throw new ArgumentException($"Tag with key '{key}' already exists", nameof(key));
-        }
+        //ArgumentException.ThrowIfNullOrWhiteSpace(key, nameof(key));        
+        ValidationExtensions.ThrowIfKeyAlreadyExists(Tags, key, nameof(key));
+        //if (Tags.ContainsKey(key))
+        //{
+        //    throw new ArgumentException($"Tag with key '{key}' already exists", nameof(key));
+        //}
 
         return CreateNew(Message, Tags.Add(key, value));
     }

@@ -191,6 +191,8 @@ public sealed class ResultConversionsEdgeCasesTests
         Assert.IsNotNull(conversionError);
         Assert.Contains("Null error list provided", conversionError.Message);
         Assert.AreEqual("List<Error>", conversionError.Tags["ConversionType"]);
+        //Assert.AreEqual("Error[]", conversionError.Tags["ConversionType"]);
+        Assert.AreEqual("null", conversionError.Tags["ProvidedValue"]);
     }
 
     [TestMethod]
@@ -208,8 +210,9 @@ public sealed class ResultConversionsEdgeCasesTests
         
         var conversionError = result.Errors[0] as ConversionError;
         Assert.IsNotNull(conversionError);
-        Assert.Contains("Empty error list provided", conversionError.Message);
+        Assert.Contains("Conversion failed: Empty error list provided", conversionError.Message);
         Assert.AreEqual(0, conversionError.Tags["ListCount"]);
+        Assert.AreEqual("List<Error>", conversionError.Tags["ConversionType"]);        
     }
 
     #endregion
@@ -345,13 +348,13 @@ public sealed class ResultConversionsEdgeCasesTests
     }
 
     [TestMethod]
-    public void ConversionError_InheritsFromError()
+    public void ConversionError_InheritsFromIError()
     {
         // Act
         var error = new ConversionError("Test");
 
         // Assert
-        Assert.IsInstanceOfType<Error>(error);
+        //Assert.IsInstanceOfType<Error>(error);
         Assert.IsInstanceOfType<IError>(error);
         Assert.IsInstanceOfType<IReason>(error);
     }

@@ -235,7 +235,7 @@ public sealed class ErrorImmutableTests
         var exception = Assert.Throws<ArgumentException>(() => 
             withTag.WithTags("Key", "Value2"));
         
-        Assert.AreEqual("Tag with key 'Key' already exists (Parameter 'key')", exception.Message);
+        Assert.AreEqual("Tag with key 'Key' already exists. (Parameter 'key')", exception.Message);
     }
 
     #endregion
