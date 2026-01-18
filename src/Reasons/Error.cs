@@ -5,7 +5,7 @@ namespace REslava.Result;
 // Error
 // ============================================================================
 public class Error : Reason<Error>, IError
-{
+{        
     public Error() : base(string.Empty) { }
     
     public Error(string message) : base(message) { }

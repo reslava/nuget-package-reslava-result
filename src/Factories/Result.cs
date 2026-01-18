@@ -1,55 +1,74 @@
+using System.Collections.Immutable;
+
 namespace REslava.Result;
 
-public partial class Result : IResult
+// Factory methods for Result (non-generic)
+public partial class Result
 {
-    public static Result Ok()
+    public static Result Ok() => new Result();
+    
+    public static Result Ok(string message)
     {
-        return new Result();
-    }       
+        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        return new Result(new Success(message));
+    }
+
+    public static Result Ok(ISuccess success) 
+    {
+        ArgumentNullException.ThrowIfNull(success, nameof(success));
+        return new Result(success);
+    }
+
+    public static Result Ok(IEnumerable<string> messages)
+    {
+        ArgumentNullException.ThrowIfNull(messages, nameof(messages));
+        var messageList = messages.ToList();
+        if (messageList.Count == 0)
+            throw new ArgumentException("The success messages list cannot be empty", nameof(messages));
+        
+        return new Result(messageList.Select(m => new Success(m)).ToImmutableList<IReason>());
+    }
+
+    public static Result Ok(IEnumerable<ISuccess> successes)
+    {
+        ArgumentNullException.ThrowIfNull(successes, nameof(successes));
+        var successList = successes.ToList();
+        if (successList.Count == 0)
+            throw new ArgumentException("The successes list cannot be empty", nameof(successes));
+        
+        return new Result(successList.ToImmutableList<IReason>());
+    }
 
     public static Result Fail(string message)
     {
-        var result = new Result();
-        result.Reasons.Add(new Error(message));
-        return result;
+        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        return new Result(new Error(message));
     }
 
-    public static Result Fail(IError error)
-    {
-        var result = new Result();
-        result.Reasons.Add(error);
-        return result;
+    public static Result Fail(IError error) 
+    {        
+        ArgumentNullException.ThrowIfNull(error, nameof(error));
+        return new Result(error);
     }
 
     public static Result Fail(IEnumerable<string> messages)
-    {
-        if (messages is null)
-        { 
-            throw new ArgumentNullException(nameof(messages), "The error messages list can not be null");
-        }
-        if (!messages.Any())
-        { 
-            throw new ArgumentException("The error messages list can not be empty", nameof(messages));
-        }
-
-        var result = new Result();
-        result.Reasons.AddRange(messages.Select(errorMessage => new Error(errorMessage)));
-        return result;
+    {        
+        ArgumentNullException.ThrowIfNull(messages, nameof(messages));
+        var messageList = messages.ToList();
+        if (messageList.Count == 0)
+            throw new ArgumentException("The error messages list cannot be empty", nameof(messages));
+        
+        return new Result(messageList.Select(m => new Error(m)).ToImmutableList<IReason>());
     }
 
     public static Result Fail(IEnumerable<IError> errors)
     {
-        if (errors is null)
-        {
-            throw new ArgumentNullException(nameof(errors), "The errors list can not be null");
-        }
-        if (!errors.Any())
-        {
-            throw new ArgumentException("The errors list can not be empty", nameof(errors));
-        }
-
-        var result = new Result();
-        result.Reasons.AddRange(errors);
-        return result;
+        ArgumentNullException.ThrowIfNull(errors, nameof(errors));
+        var errorList = errors.ToList();
+        if (errorList.Count == 0)
+            throw new ArgumentException("The errors list cannot be empty", nameof(errors));
+        
+        return new Result(errorList.ToImmutableList<IReason>());
     }
 }
+

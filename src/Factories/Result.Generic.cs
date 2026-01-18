@@ -1,15 +1,48 @@
-namespace REslava.Result;
+using System.Collections.Immutable;
 
-public partial class Result<TValue> : Result, IResult<TValue>
+namespace REslava.Result;
+// Factory methods for Result<TValue>
+public partial class Result<TValue>
 {
     public static Result<TValue> Ok(TValue value)
     {        
-        return new Result<TValue>(value, []);        
+        return new Result<TValue>(value, ImmutableList<IReason>.Empty);
+    }
+
+    public static Result<TValue> Ok(TValue value, string message)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        return new Result<TValue>(value, new Success(message));
+    }
+
+    public static Result<TValue> Ok(TValue value, ISuccess success)
+    {        
+        ArgumentNullException.ThrowIfNull(success, nameof(success));
+        return new Result<TValue>(value, success);
+    }
+
+    public static Result<TValue> Ok(TValue value, IEnumerable<string> messages)
+    {
+        ArgumentNullException.ThrowIfNull(messages, nameof(messages));
+        var messageList = messages.ToList();
+        if (messageList.Count == 0)
+            throw new ArgumentException("The success messages list cannot be empty", nameof(messages));
+        
+        return new Result<TValue>(value, messageList.Select(m => new Success(m)).ToImmutableList<IReason>());
+    }
+
+    public static Result<TValue> Ok(TValue value, ImmutableList<ISuccess> successes)
+    {
+        ArgumentNullException.ThrowIfNull(successes, nameof(successes));
+        if (successes.Count == 0)
+            throw new ArgumentException("The successes list cannot be empty", nameof(successes));
+        
+        return new Result<TValue>(value, successes.ToImmutableList<IReason>());
     }
 
     public static Result<TValue> FromResult(Result result)
     {
-        ArgumentNullException.ThrowIfNull(result);
+        ArgumentNullException.ThrowIfNull(result, nameof(result));
 
         if (result.IsSuccess)
         {
@@ -18,10 +51,7 @@ public partial class Result<TValue> : Result, IResult<TValue>
                 "Use Result<TValue>.Ok() with a value instead.");
         }
 
-        var typedResult = new Result<TValue>(default(TValue), []);
-        typedResult.Reasons.AddRange(result.Reasons);
-
-        return typedResult;
+        return new Result<TValue>(default, result.Reasons);
     }
 
     public static new Result<TValue> Fail(string message)

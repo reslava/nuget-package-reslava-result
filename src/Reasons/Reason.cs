@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
 
 namespace REslava.Result;
 
@@ -7,18 +8,21 @@ namespace REslava.Result;
 // ============================================================================
 public abstract class Reason : IReason
 {
-    public string Message { get; }
-    public ImmutableDictionary<string, object> Tags { get; }
-
+    [Required]
+    public string Message { get; init; }
+    public ImmutableDictionary<string, object> Tags { get; init; }    
+    
     protected Reason(string message)
     {
-        Message = message ?? string.Empty;
+        ArgumentException.ThrowIfNullOrWhiteSpace(message, nameof(message));
+        Message = message;
         Tags = ImmutableDictionary<string, object>.Empty;
     }
 
     protected Reason(string message, ImmutableDictionary<string, object> tags)
     {
-        Message = message ?? string.Empty;
+        ArgumentException.ThrowIfNullOrWhiteSpace(message, nameof(message));
+        Message = message;
         Tags = tags ?? ImmutableDictionary<string, object>.Empty;
     }
 }

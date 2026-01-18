@@ -5,7 +5,7 @@ namespace REslava.Result;
 // Success
 // ============================================================================
 public class Success : Reason<Success>, ISuccess
-{
+{       
     public Success() : base(string.Empty) { }
     
     public Success(string message) : base(message) { }

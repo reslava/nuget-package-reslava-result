@@ -7,11 +7,18 @@ public partial class Result
     /// <summary>
     /// Returns Ok if condition is true, otherwise Fail with message.
     /// </summary>
+    /// <param name="condition">The condition to evaluate.</param>
+    /// <param name="errorMessage">The error message if condition is false.</param>
+    /// <returns>Ok if condition is true, otherwise a failed result.</returns>
     /// <example>
+    /// <code>
     /// var result = Result.OkIf(age >= 18, "Must be 18 or older");
+    /// </code>
     /// </example>
     public static Result OkIf(bool condition, string errorMessage)
     {
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
+        
         return condition 
             ? Result.Ok() 
             : Result.Fail(errorMessage);
@@ -22,7 +29,8 @@ public partial class Result
     /// </summary>
     public static Result OkIf(bool condition, IError error)
     {
-        ArgumentNullException.ThrowIfNull(error);
+        ArgumentNullException.ThrowIfNull(error, nameof(error));
+        
         return condition 
             ? Result.Ok() 
             : Result.Fail(error);
@@ -36,8 +44,11 @@ public partial class Result
         string errorMessage, 
         string successMessage)
     {
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
+        ArgumentException.ThrowIfNullOrEmpty(successMessage, nameof(successMessage));
+        
         return condition 
-            ? Result.Ok().WithSuccess(successMessage)
+            ? Result.Ok(successMessage)
             : Result.Fail(errorMessage);
     }
 
@@ -46,7 +57,8 @@ public partial class Result
     /// </summary>
     public static Result OkIf(Func<bool> predicate, string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate);
+        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
         
         try
         {
@@ -67,7 +79,8 @@ public partial class Result
         Func<Task<bool>> predicate, 
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate);
+        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
         
         try
         {
@@ -90,10 +103,14 @@ public partial class Result
     /// Returns Fail if condition is true, otherwise Ok.
     /// </summary>
     /// <example>
+    /// <code>
     /// var result = Result.FailIf(age &lt; 18, "Must be 18 or older");
+    /// </code>
     /// </example>
     public static Result FailIf(bool condition, string errorMessage)
     {
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
+        
         return condition 
             ? Result.Fail(errorMessage)
             : Result.Ok();
@@ -104,7 +121,8 @@ public partial class Result
     /// </summary>
     public static Result FailIf(bool condition, IError error)
     {
-        ArgumentNullException.ThrowIfNull(error);
+        ArgumentNullException.ThrowIfNull(error, nameof(error));
+        
         return condition 
             ? Result.Fail(error)
             : Result.Ok();
@@ -118,9 +136,12 @@ public partial class Result
         string errorMessage, 
         string successMessage)
     {
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
+        ArgumentException.ThrowIfNullOrEmpty(successMessage, nameof(successMessage));
+        
         return condition 
             ? Result.Fail(errorMessage)
-            : Result.Ok().WithSuccess(successMessage);
+            : Result.Ok(successMessage);
     }
 
     /// <summary>
@@ -128,7 +149,8 @@ public partial class Result
     /// </summary>
     public static Result FailIf(Func<bool> predicate, string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate);
+        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
         
         try
         {
@@ -149,7 +171,8 @@ public partial class Result
         Func<Task<bool>> predicate, 
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate);
+        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
         
         try
         {
@@ -175,17 +198,21 @@ public partial class Result<TValue>
     /// Returns Ok with value if condition is true, otherwise Fail.
     /// </summary>
     /// <example>
+    /// <code>
     /// var result = Result&lt;User&gt;.OkIf(
     ///     user != null, 
     ///     user!, 
     ///     "User not found"
     /// );
+    /// </code>
     /// </example>
     public static Result<TValue> OkIf(
         bool condition, 
         TValue value, 
         string errorMessage)
     {
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
+        
         return condition 
             ? Result<TValue>.Ok(value)
             : Result<TValue>.Fail(errorMessage);
@@ -199,7 +226,8 @@ public partial class Result<TValue>
         TValue value, 
         IError error)
     {
-        ArgumentNullException.ThrowIfNull(error);
+        ArgumentNullException.ThrowIfNull(error, nameof(error));
+        
         return condition 
             ? Result<TValue>.Ok(value)
             : Result<TValue>.Fail(error);
@@ -207,13 +235,15 @@ public partial class Result<TValue>
 
     /// <summary>
     /// Evaluates value lazily - only creates value if condition is true.
+    /// Useful when value creation is expensive.
     /// </summary>
     public static Result<TValue> OkIf(
         bool condition, 
         Func<TValue> valueFactory, 
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(valueFactory);
+        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
         
         if (!condition)
         {
@@ -238,7 +268,8 @@ public partial class Result<TValue>
         Func<Task<TValue>> valueFactory,
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(valueFactory);
+        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
         
         if (!condition)
         {
@@ -247,6 +278,62 @@ public partial class Result<TValue>
 
         try
         {
+            var value = await valueFactory();
+            return Result<TValue>.Ok(value);
+        }
+        catch (Exception ex)
+        {
+            return Result<TValue>.Fail(new ExceptionError(ex));
+        }
+    }
+
+    /// <summary>
+    /// Evaluates both condition and value lazily.
+    /// </summary>
+    public static Result<TValue> OkIf(
+        Func<bool> predicate,
+        Func<TValue> valueFactory,
+        string errorMessage)
+    {
+        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
+
+        try
+        {
+            if (!predicate())
+            {
+                return Result<TValue>.Fail(errorMessage);
+            }
+
+            return Result<TValue>.Ok(valueFactory());
+        }
+        catch (Exception ex)
+        {
+            return Result<TValue>.Fail(new ExceptionError(ex));
+        }
+    }
+
+    /// <summary>
+    /// Async version - evaluates both condition and value asynchronously.
+    /// </summary>
+    public static async Task<Result<TValue>> OkIfAsync(
+        Func<Task<bool>> predicate,
+        Func<Task<TValue>> valueFactory,
+        string errorMessage)
+    {
+        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
+
+        try
+        {
+            var condition = await predicate();
+            if (!condition)
+            {
+                return Result<TValue>.Fail(errorMessage);
+            }
+
             var value = await valueFactory();
             return Result<TValue>.Ok(value);
         }
@@ -268,8 +355,25 @@ public partial class Result<TValue>
         string errorMessage, 
         TValue value)
     {
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
+        
         return condition 
             ? Result<TValue>.Fail(errorMessage)
+            : Result<TValue>.Ok(value);
+    }
+
+    /// <summary>
+    /// Returns Fail if condition is true, otherwise Ok with error.
+    /// </summary>
+    public static Result<TValue> FailIf(
+        bool condition,
+        IError error,
+        TValue value)
+    {
+        ArgumentNullException.ThrowIfNull(error, nameof(error));
+
+        return condition
+            ? Result<TValue>.Fail(error)
             : Result<TValue>.Ok(value);
     }
 
@@ -281,7 +385,8 @@ public partial class Result<TValue>
         string errorMessage,
         Func<TValue> valueFactory)
     {
-        ArgumentNullException.ThrowIfNull(valueFactory);
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
+        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
         
         if (condition)
         {
@@ -291,6 +396,62 @@ public partial class Result<TValue>
         try
         {
             return Result<TValue>.Ok(valueFactory());
+        }
+        catch (Exception ex)
+        {
+            return Result<TValue>.Fail(new ExceptionError(ex));
+        }
+    }
+
+    /// <summary>
+    /// Evaluates both condition and value lazily.
+    /// </summary>
+    public static Result<TValue> FailIf(
+        Func<bool> predicate,
+        string errorMessage,
+        Func<TValue> valueFactory)
+    {
+        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
+        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
+
+        try
+        {
+            if (predicate())
+            {
+                return Result<TValue>.Fail(errorMessage);
+            }
+
+            return Result<TValue>.Ok(valueFactory());
+        }
+        catch (Exception ex)
+        {
+            return Result<TValue>.Fail(new ExceptionError(ex));
+        }
+    }
+
+    /// <summary>
+    /// Async version - evaluates both condition and value asynchronously.
+    /// </summary>
+    public static async Task<Result<TValue>> FailIfAsync(
+        Func<Task<bool>> predicate,
+        string errorMessage,
+        Func<Task<TValue>> valueFactory)
+    {
+        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
+        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
+
+        try
+        {
+            var condition = await predicate();
+            if (condition)
+            {
+                return Result<TValue>.Fail(errorMessage);
+            }
+
+            var value = await valueFactory();
+            return Result<TValue>.Ok(value);
         }
         catch (Exception ex)
         {

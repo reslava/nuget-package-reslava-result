@@ -86,7 +86,7 @@ public sealed class ReasonGenericTests
             reason.WithMessage(null!));
             
         
-        Assert.AreEqual("Message cannot be empty (Parameter 'message')", exception.Message);
+        Assert.AreEqual("Value cannot be null. (Parameter 'message')", exception.Message);
     }
 
     [TestMethod]
@@ -99,7 +99,7 @@ public sealed class ReasonGenericTests
         var exception = Assert.Throws<ArgumentException>(() => 
             reason.WithMessage(""));
         
-        Assert.AreEqual("Message cannot be empty (Parameter 'message')", exception.Message);
+        Assert.AreEqual("The value cannot be an empty string or composed entirely of whitespace. (Parameter 'message')", exception.Message);
     }
 
     [TestMethod]
@@ -112,7 +112,7 @@ public sealed class ReasonGenericTests
         var exception = Assert.Throws<ArgumentException>(() => 
             reason.WithMessage("   "));
         
-        Assert.AreEqual("Message cannot be empty (Parameter 'message')", exception.Message);
+        Assert.AreEqual("The value cannot be an empty string or composed entirely of whitespace. (Parameter 'message')", exception.Message);
     }
 
     [TestMethod]

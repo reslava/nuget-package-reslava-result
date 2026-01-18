@@ -2,11 +2,11 @@ using System.Collections.Immutable;
 using REslava.Result;
 
 // ============================================================================
-// ExceptionError (Immutable - Corrected Implementation)
+// ExceptionError (Immutable)
 // ============================================================================
 public class ExceptionError : Reason<ExceptionError>, IError
-{
-    public Exception Exception { get; }
+{    
+    public Exception Exception { get; init; }
 
     // ========================================================================
     // Public Constructor - Exception message becomes Error message
@@ -59,10 +59,7 @@ public class ExceptionError : Reason<ExceptionError>, IError
     // ========================================================================
     private static ImmutableDictionary<string, object> CreateExceptionTags(Exception? exception)
     {
-        if (exception == null)
-        {
-            throw new ArgumentNullException(nameof(exception));
-        }
+        ArgumentNullException.ThrowIfNull(exception, "Exception cannot be null");        
 
         var tags = ImmutableDictionary<string, object>.Empty
             .Add("ExceptionType", exception.GetType().Name);

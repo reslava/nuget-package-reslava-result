@@ -1,126 +1,122 @@
-// using System;
+using System.Collections.Immutable;
 
-// namespace REslava.Result;
+namespace REslava.Result;
 
-// public partial class Result<TValue> : Result, IResult<TValue>
-// {
-//     /// <summary>
-//     /// Chains another operation that returns a Result, allowing for sequential operations.
-//     /// Preserves success reasons from the original result in all cases.
-//     /// Also known as FlatMap or SelectMany.
-//     /// </summary>
-//     /// <typeparam name="TOut">The type of the output value.</typeparam>
-//     /// <param name="binder">The function that returns a new Result.</param>
-//     /// <returns>The result of the binder function with accumulated success reasons, or a failed result.</returns>
-//     public Result<TOut> Bind<TOut>(Func<TValue, Result<TOut>> binder)
-//     {
-//         ArgumentNullException.ThrowIfNull(binder);
+public partial class Result<TValue> : Result, IResult<TValue>
+{
+    /// <summary>
+    /// Chains another operation that returns a Result, allowing for sequential operations.
+    /// Preserves success reasons from the original result in all cases.
+    /// Also known as FlatMap or SelectMany.
+    /// </summary>
+    /// <typeparam name="TOut">The type of the output value.</typeparam>
+    /// <param name="binder">The function that returns a new Result.</param>
+    /// <returns>The result of the binder function with accumulated success reasons, or a failed result.</returns>
+    public Result<TOut> Bind<TOut>(Func<TValue, Result<TOut>> binder)
+    {
+        ArgumentNullException.ThrowIfNull(binder, nameof(binder));
 
-//         // If already failed, convert to new type with same errors
-//         if (IsFailed)
-//         {
-//             var failedResult = new Result<TOut>();
-//             failedResult.Reasons.AddRange(Reasons);
-//             return failedResult;
-//         }
+        // If already failed, convert to new type with same reasons
+        if (IsFailed)
+        {
+            return new Result<TOut>(default, Reasons);
+        }
 
-//         try
-//         {
-//             var bindResult = binder(Value!);
+        try
+        {
+            var bindResult = binder(Value!);
 
-//             // Always preserve original success reasons if they exist
-//             if (Successes.Any())
-//             {
-//                 var resultWithSuccesses = bindResult.IsSuccess
-//                     ? Result<TOut>.Ok(bindResult.Value!)
-//                     : new Result<TOut>();
+            // If original result has success reasons, preserve them
+            if (Successes.Count > 0)
+            {
+                // Combine original successes with bind result's reasons
+                // Order: original successes first (chronological), then new reasons
+                var combinedReasons = Successes.ToImmutableList<IReason>()
+                    .AddRange(bindResult.Reasons);
 
-//                 // Add original success reasons first (chronological order)
-//                 resultWithSuccesses.Reasons.AddRange(Successes);
-//                 // Then add new reasons (both successes and errors)
-//                 resultWithSuccesses.Reasons.AddRange(bindResult.Reasons);
+                // Determine the value based on bind result's success/failure
+                var value = bindResult.IsSuccess ? bindResult.Value : default;
+                
+                return new Result<TOut>(value, combinedReasons);
+            }
 
-//                 return resultWithSuccesses;
-//             }
-
-//             // No original successes to preserve
-//             return bindResult;
-//         }
-//         catch (Exception ex)
-//         {            
-//             var errorResult = Result<TOut>.Fail(new ExceptionError(ex));
+            // No original successes to preserve - return bind result as-is
+            return bindResult;
+        }
+        catch (Exception ex)
+        {            
+            var exceptionError = new ExceptionError(ex);
             
-//             // Even on exception, preserve original success reasons
-//             if (Successes.Any())
-//             {
-//                 errorResult.Reasons.InsertRange(0, Successes);
-//             }
+            // Even on exception, preserve original success reasons
+            if (Successes.Count > 0)
+            {
+                // Combine: original successes + exception error
+                var combinedReasons = Successes.ToImmutableList<IReason>()
+                    .Add(exceptionError);
+                
+                return new Result<TOut>(default, combinedReasons);
+            }
             
-//             return errorResult;
-//         }
-//     }
+            // No successes to preserve
+            return Result<TOut>.Fail(exceptionError);
+        }
+    }
 
-//     /// <summary>
-//     /// Asynchronously chains another operation that returns a Result, allowing for sequential operations.
-//     /// Preserves success reasons from the original result in all cases.
-//     /// Also known as FlatMap or SelectMany.
-//     /// </summary>
-//     /// <typeparam name="TOut">The type of the output value.</typeparam>
-//     /// <param name="binder">The async function that returns a new Result.</param>
-//     /// <returns>The result of the binder function with accumulated success reasons, or a failed result.</returns>
-//     public async Task<Result<TOut>> BindAsync<TOut>(Func<TValue, Task<Result<TOut>>> binder)
-//     {
-//         ArgumentNullException.ThrowIfNull(binder);
+    /// <summary>
+    /// Asynchronously chains another operation that returns a Result, allowing for sequential operations.
+    /// Preserves success reasons from the original result in all cases.
+    /// Also known as FlatMap or SelectMany.
+    /// </summary>
+    /// <typeparam name="TOut">The type of the output value.</typeparam>
+    /// <param name="binder">The async function that returns a new Result.</param>
+    /// <returns>The result of the binder function with accumulated success reasons, or a failed result.</returns>
+    public async Task<Result<TOut>> BindAsync<TOut>(Func<TValue, Task<Result<TOut>>> binder)
+    {
+        ArgumentNullException.ThrowIfNull(binder, nameof(binder));
 
-//         // If already failed, convert to new type with same errors
-//         if (IsFailed)
-//         {
-//             var failedResult = new Result<TOut>();
-//             failedResult.Reasons.AddRange(Reasons);
-//             return failedResult;
-//         }
+        // If already failed, convert to new type with same reasons
+        if (IsFailed)
+        {
+            return new Result<TOut>(default, Reasons);
+        }
 
-//         try
-//         {
-//             var bindResult = await binder(Value!);
+        try
+        {
+            var bindResult = await binder(Value!);
 
-//             // Always preserve original success reasons if they exist
-//             if (Successes.Any())
-//             {
-//                 var resultWithSuccesses = bindResult.IsSuccess
-//                     ? Result<TOut>.Ok(bindResult.Value!)
-//                     : new Result<TOut>();
+            // If original result has success reasons, preserve them
+            if (Successes.Count > 0)
+            {
+                // Combine original successes with bind result's reasons
+                // Order: original successes first (chronological), then new reasons
+                var combinedReasons = Successes.ToImmutableList<IReason>()
+                    .AddRange(bindResult.Reasons);
 
-//                 // Add original success reasons first (chronological order)
-//                 resultWithSuccesses.Reasons.AddRange(Successes);
-//                 // Then add new reasons (both successes and errors)
-//                 resultWithSuccesses.Reasons.AddRange(bindResult.Reasons);
+                // Determine the value based on bind result's success/failure
+                var value = bindResult.IsSuccess ? bindResult.Value : default;                
+                
+                return new Result<TOut>(value, combinedReasons);
+            }
 
-//                 return resultWithSuccesses;
-//             }
-
-//             // No original successes to preserve
-//             return bindResult;
-//         }
-//         catch (Exception ex)
-//         {
-//             var errorResult = Result<TOut>.Fail(new ExceptionError(ex));
+            // No original successes to preserve - return bind result as-is
+            return bindResult;
+        }
+        catch (Exception ex)
+        {
+            var exceptionError = new ExceptionError(ex);
             
-//             // Even on exception, preserve original success reasons
-//             if (Successes.Any())
-//             {
-//                 errorResult.Reasons.InsertRange(0, Successes);
-//             }
+            // Even on exception, preserve original success reasons
+            if (Successes.Count > 0)
+            {
+                // Combine: original successes + exception error
+                var combinedReasons = Successes.ToImmutableList<IReason>()
+                    .Add(exceptionError);
+                
+                return new Result<TOut>(default, combinedReasons);
+            }
             
-//             return errorResult;
-//         }
-//     }
-
-
-
-
-
-
-
-    
-// }
+            // No successes to preserve
+            return Result<TOut>.Fail(exceptionError);
+        }
+    }
+}
