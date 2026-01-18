@@ -120,7 +120,13 @@ public static class ResultExtensions
             action(result.Errors);
         return result;
     }
-
+    public static Result<T> TapBoth<T>(
+    this Result<T> result,
+    Action<Result<T>> action)
+    {
+        action(result);
+        return result;
+    }
 
     #endregion
 }

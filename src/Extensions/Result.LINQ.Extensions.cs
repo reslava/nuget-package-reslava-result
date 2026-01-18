@@ -482,6 +482,56 @@ public static class ResultLINQExtensions
         {
             return Result<S>.Fail(new ExceptionError(ex));
         }
+    }       
+
+    #endregion
+
+    #region Task<Result<T>> Extensions for LINQ
+
+    /// <summary>
+    /// Awaits the result then filters based on a predicate.
+    /// </summary>
+    public static async Task<Result<S>> WhereAsync<S>(
+        this Task<Result<S>> resultTask,
+        Func<S, bool> predicate,
+        string errorMessage)
+    {
+        var result = await resultTask;
+        return result.Where(predicate, errorMessage);
+    }
+
+    /// <summary>
+    /// Awaits the result then filters based on an async predicate.
+    /// </summary>
+    public static async Task<Result<S>> WhereAsync<S>(
+        this Task<Result<S>> resultTask,
+        Func<S, Task<bool>> predicate,
+        string errorMessage)
+    {
+        var result = await resultTask;
+        return await result.WhereAsync(predicate, errorMessage);
+    }
+
+    /// <summary>
+    /// Awaits the result then projects to a new value.
+    /// </summary>
+    public static async Task<Result<T>> SelectAsync<S, T>(
+        this Task<Result<S>> resultTask,
+        Func<S, T> selector)
+    {
+        var result = await resultTask;
+        return result.Select(selector);
+    }
+
+    /// <summary>
+    /// Awaits the result then projects to a new value asynchronously.
+    /// </summary>
+    public static async Task<Result<T>> SelectAsync<S, T>(
+        this Task<Result<S>> resultTask,
+        Func<S, Task<T>> selector)
+    {
+        var result = await resultTask;
+        return await result.SelectAsync(selector);
     }
 
     #endregion

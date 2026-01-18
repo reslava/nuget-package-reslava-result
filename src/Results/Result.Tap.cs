@@ -36,7 +36,7 @@ public partial class Result<TValue>
     /// <summary>
     /// Executes a side effect without modifying the result.
     /// </summary>
-    public Result<TValue> Tap<T>(Action<TValue> action)
+    public Result<TValue> Tap(Action<TValue> action)
     {
         if (IsSuccess)
         {
@@ -48,7 +48,7 @@ public partial class Result<TValue>
     /// <summary>
     /// Executes an async side effect without modifying the result.
     /// </summary>
-    public async Task<Result<TValue>> TapAsync<T>(Func<TValue, Task> action)
+    public async Task<Result<TValue>> TapAsync(Func<TValue, Task> action)
     {
         if (IsSuccess)
         {

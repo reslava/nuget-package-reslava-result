@@ -155,7 +155,7 @@ public static class ValidationExtensions
     /// <summary>
     /// Ensures the array is not null, returning the validated array.
     /// </summary>
-    public static T[] EnsureNotNull<T>(
+    public static T[] EnsureArrayNotNull<T>(
         this T[]? value,
         string paramName,
         string? message = null)
