@@ -1,0 +1,27 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace REslava.Result.Extensions;
+
+public static class ResultBindExtensions
+{
+    /// <summary>
+    /// Chains async operations on Task&lt;Result&lt;T&gt;&gt;.
+    /// </summary>
+    /// <typeparam name="T">The source value type.</typeparam>
+    /// <typeparam name="U">The target value type.</typeparam>
+    /// <param name="resultTask">The task containing the result to bind.</param>
+    /// <param name="binder">The function that returns a new result.</param>
+    /// <returns>A task containing the bound result.</returns>
+    public static async Task<Result<U>> BindAsync<T, U>(
+            this Task<Result<T>> resultTask,
+            Func<T, Task<Result<U>>> binder)
+    {
+        ArgumentNullException.ThrowIfNull(resultTask, nameof(resultTask));
+        ArgumentNullException.ThrowIfNull(binder, nameof(binder));
+
+        var result = await resultTask;
+        return await result.BindAsync(binder);
+    }
+}

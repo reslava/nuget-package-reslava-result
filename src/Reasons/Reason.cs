@@ -14,15 +14,13 @@ public abstract class Reason : IReason
     
     protected Reason(string message)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(message, nameof(message));
-        Message = message;
+        Message = message.EnsureNotNullOrWhiteSpace(nameof(message));
         Tags = ImmutableDictionary<string, object>.Empty;
     }
 
     protected Reason(string message, ImmutableDictionary<string, object> tags)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(message, nameof(message));
-        Message = message;
+        Message = message.EnsureNotNullOrWhiteSpace(nameof(message));
         Tags = tags ?? ImmutableDictionary<string, object>.Empty;
     }
 }

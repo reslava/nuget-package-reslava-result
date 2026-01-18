@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace REslava.Result;
 
-public partial class Result<TValue> : Result, IResult<TValue>
+public partial class Result<TValue> 
 {
     /// <summary>
     /// Transform the value of a successful result using a specific mapper function.
@@ -100,81 +100,3 @@ public partial class Result<TValue> : Result, IResult<TValue>
     }
 }
 
-/// <summary>
-/// Extension methods for working with Task&lt;Result&lt;T&gt;&gt;.
-/// </summary>
-public static class ResultTaskExtensions
-{
-    /// <summary>
-    /// Maps the value inside a Task&lt;Result&lt;T&gt;&gt; to a new value of type U.
-    /// </summary>
-    /// <typeparam name="T">The source value type.</typeparam>
-    /// <typeparam name="U">The target value type.</typeparam>
-    /// <param name="resultTask">The task containing the result to map.</param>
-    /// <param name="mapper">The function to transform the value.</param>
-    /// <returns>A task containing the mapped result.</returns>
-    public static async Task<Result<U>> Map<T, U>(
-        this Task<Result<T>> resultTask,
-        Func<T, U> mapper)
-    {
-        ArgumentNullException.ThrowIfNull(resultTask, nameof(resultTask));
-        ArgumentNullException.ThrowIfNull(mapper, nameof(mapper));
-        
-        var result = await resultTask;
-        return result.Map(mapper);
-    }
-
-    /// <summary>
-    /// Asynchronously maps the value inside a Task&lt;Result&lt;T&gt;&gt; to a new value.
-    /// </summary>
-    public static async Task<Result<U>> MapAsync<T, U>(
-        this Task<Result<T>> resultTask,
-        Func<T, Task<U>> mapper)
-    {
-        ArgumentNullException.ThrowIfNull(resultTask, nameof(resultTask));
-        ArgumentNullException.ThrowIfNull(mapper, nameof(mapper));
-        
-        var result = await resultTask;
-        return await result.MapAsync(mapper);
-    }
-
-    /// <summary>
-    /// Chains async operations on Task&lt;Result&lt;T&gt;&gt;.
-    /// </summary>
-    /// <typeparam name="T">The source value type.</typeparam>
-    /// <typeparam name="U">The target value type.</typeparam>
-    /// <param name="resultTask">The task containing the result to bind.</param>
-    /// <param name="binder">The function that returns a new result.</param>
-    /// <returns>A task containing the bound result.</returns>
-    public static async Task<Result<U>> BindAsync<T, U>(
-        this Task<Result<T>> resultTask,
-        Func<T, Task<Result<U>>> binder)
-    {
-        ArgumentNullException.ThrowIfNull(resultTask, nameof(resultTask));
-        ArgumentNullException.ThrowIfNull(binder, nameof(binder));
-        
-        var result = await resultTask;
-        return await result.BindAsync(binder);
-    }
-
-    /// <summary>
-    /// Validates the value inside Task&lt;Result&lt;T&gt;&gt;.
-    /// </summary>
-    /// <typeparam name="T">The value type.</typeparam>
-    /// <param name="resultTask">The task containing the result to validate.</param>
-    /// <param name="predicate">The validation predicate.</param>
-    /// <param name="errorMessage">The error message if validation fails.</param>
-    /// <returns>A task containing the validated result.</returns>
-    public static async Task<Result<T>> Ensure<T>(
-        this Task<Result<T>> resultTask,
-        Func<T, bool> predicate,
-        string errorMessage)
-    {
-        ArgumentNullException.ThrowIfNull(resultTask, nameof(resultTask));
-        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
-        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
-        
-        var result = await resultTask;
-        return result.Ensure(predicate, errorMessage);
-    }
-}

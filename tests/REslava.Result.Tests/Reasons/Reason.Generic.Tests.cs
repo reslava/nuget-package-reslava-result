@@ -83,10 +83,9 @@ public sealed class ReasonGenericTests
 
         // Act & Assert        
         var exception = Assert.Throws<ArgumentException>(() => 
-            reason.WithMessage(null!));
-            
+            reason.WithMessage(null!));                    
         
-        Assert.AreEqual("Value cannot be null. (Parameter 'message')", exception.Message);
+        Assert.Contains(ValidationExtensions.DefaultNullMessage, exception.Message);
     }
 
     [TestMethod]
@@ -97,9 +96,9 @@ public sealed class ReasonGenericTests
 
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => 
-            reason.WithMessage(""));
+            reason.WithMessage(""));        
         
-        Assert.AreEqual("The value cannot be an empty string or composed entirely of whitespace. (Parameter 'message')", exception.Message);
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, exception.Message);
     }
 
     [TestMethod]
@@ -111,8 +110,8 @@ public sealed class ReasonGenericTests
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => 
             reason.WithMessage("   "));
-        
-        Assert.AreEqual("The value cannot be an empty string or composed entirely of whitespace. (Parameter 'message')", exception.Message);
+
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, exception.Message);        
     }
 
     [TestMethod]
@@ -375,8 +374,8 @@ public sealed class ReasonGenericTests
                 ("Valid", "Value"),
                 (null!, "Value2")
             ));
-        
-        Assert.AreEqual("Value cannot be null. (Parameter 'key')", exception.Message);
+
+        Assert.Contains(ValidationExtensions.DefaultNullMessage, exception.Message);        
     }
 
     [TestMethod]
@@ -391,8 +390,8 @@ public sealed class ReasonGenericTests
                 ("Valid", "Value"),
                 ("", "Value2")
             ));
-        
-        Assert.AreEqual("The value cannot be an empty string or composed entirely of whitespace. (Parameter 'key')", exception.Message);
+
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, exception.Message);        
     }
 
     [TestMethod]
@@ -407,8 +406,7 @@ public sealed class ReasonGenericTests
                 ("Key1", "Value1"),
                 ("Key1", "Value2")  // Duplicate
             ));
-        
-        Assert.AreEqual("Tag with key 'Key1' already exists (Parameter 'key')", exception.Message);
+        Assert.Contains(ValidationExtensions.DefaultKeyExistsMessage, exception.Message);        
     }
 
     [TestMethod]
@@ -425,8 +423,8 @@ public sealed class ReasonGenericTests
                 ("New", "NewValue"),
                 ("Existing", "DuplicateValue")
             ));
-        
-        Assert.AreEqual("Tag with key 'Existing' already exists (Parameter 'key')", exception.Message);
+
+        Assert.Contains(ValidationExtensions.DefaultKeyExistsMessage, exception.Message);        
     }
 
     #endregion

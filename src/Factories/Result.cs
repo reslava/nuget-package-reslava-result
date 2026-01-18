@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace REslava.Result;
 
@@ -9,66 +10,46 @@ public partial class Result
     
     public static Result Ok(string message)
     {
-        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        message = message.EnsureNotNullOrEmpty(nameof(message));
         return new Result(new Success(message));
     }
-
-    public static Result Ok(ISuccess success) 
-    {
-        ArgumentNullException.ThrowIfNull(success, nameof(success));
-        return new Result(success);
-    }
-
-    public static Result Ok(IEnumerable<string> messages)
-    {
-        ArgumentNullException.ThrowIfNull(messages, nameof(messages));
-        var messageList = messages.ToList();
-        if (messageList.Count == 0)
-            throw new ArgumentException("The success messages list cannot be empty", nameof(messages));
-        
-        return new Result(messageList.Select(m => new Success(m)).ToImmutableList<IReason>());
-    }
-
-    public static Result Ok(IEnumerable<ISuccess> successes)
-    {
-        ArgumentNullException.ThrowIfNull(successes, nameof(successes));
-        var successList = successes.ToList();
-        if (successList.Count == 0)
-            throw new ArgumentException("The successes list cannot be empty", nameof(successes));
-        
-        return new Result(successList.ToImmutableList<IReason>());
-    }
-
     public static Result Fail(string message)
     {
         ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
         return new Result(new Error(message));
     }
 
-    public static Result Fail(IError error) 
-    {        
+    public static Result Ok(ISuccess success) 
+    {
+        success = success.EnsureNotNull(nameof(success));
+        return new Result(success);
+    }
+    public static Result Fail(IError error)
+    {
         ArgumentNullException.ThrowIfNull(error, nameof(error));
         return new Result(error);
     }
 
+    public static Result Ok(IEnumerable<string> messages)
+    {
+        messages = messages.EnsureNotNullOrEmpty(nameof(messages));
+        return new Result(messages.Select(m => new Success(m)).ToImmutableList<IReason>());
+    }
     public static Result Fail(IEnumerable<string> messages)
-    {        
-        ArgumentNullException.ThrowIfNull(messages, nameof(messages));
-        var messageList = messages.ToList();
-        if (messageList.Count == 0)
-            throw new ArgumentException("The error messages list cannot be empty", nameof(messages));
-        
-        return new Result(messageList.Select(m => new Error(m)).ToImmutableList<IReason>());
+    {
+        messages = messages.EnsureNotNullOrEmpty(nameof(messages));
+        return new Result(messages.Select(m => new Error(m)).ToImmutableList<IReason>());
     }
 
-    public static Result Fail(IEnumerable<IError> errors)
+    public static Result Ok(IEnumerable<ISuccess> successes)
     {
-        ArgumentNullException.ThrowIfNull(errors, nameof(errors));
-        var errorList = errors.ToList();
-        if (errorList.Count == 0)
-            throw new ArgumentException("The errors list cannot be empty", nameof(errors));
-        
-        return new Result(errorList.ToImmutableList<IReason>());
+        successes = successes.EnsureNotNullOrEmpty(nameof(successes));
+        return new Result(successes.ToImmutableList<IReason>());
+    } 
+    public static Result Fail(IEnumerable<IError> errors)
+    {        
+        errors = errors.EnsureNotNullOrEmpty(nameof(errors));
+        return new Result(errors.ToImmutableList<IReason>());
     }
 }
 

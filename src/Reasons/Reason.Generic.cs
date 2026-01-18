@@ -18,7 +18,7 @@ public abstract class Reason<TReason> : Reason
     /// </summary>
     public TReason WithMessage(string message)
     {
-        //ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));        
+        message = message.EnsureNotNullOrWhiteSpace(nameof(message));
         return CreateNew(message, Tags);
     }
 
@@ -28,13 +28,7 @@ public abstract class Reason<TReason> : Reason
     /// </summary>
     public TReason WithTags(string key, object value)
     {
-        //ArgumentException.ThrowIfNullOrWhiteSpace(key, nameof(key));        
-        ValidationExtensions.ThrowIfKeyAlreadyExists(Tags, key, nameof(key));
-        //if (Tags.ContainsKey(key))
-        //{
-        //    throw new ArgumentException($"Tag with key '{key}' already exists", nameof(key));
-        //}
-
+        key = key.EnsureValidDictionaryKey(Tags, nameof(key));        
         return CreateNew(Message, Tags.Add(key, value));
     }
 
@@ -53,14 +47,8 @@ public abstract class Reason<TReason> : Reason
 
         foreach (var (key, value) in tags)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(key, nameof(key));
-
-            if (builder.ContainsKey(key))
-            {                                
-                throw new ArgumentException($"Tag with key '{key}' already exists", nameof(key));
-            }
-
-            builder.Add(key, value);
+            var validKey = key.EnsureValidDictionaryKey(builder, nameof(key));
+            builder.Add(validKey, value);
         }
 
         return CreateNew(Message, builder.ToImmutable());
