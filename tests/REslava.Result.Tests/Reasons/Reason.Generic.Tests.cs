@@ -210,7 +210,7 @@ public sealed class ReasonGenericTests
         var exception = Assert.Throws<ArgumentException>(() => 
             reason.WithTags(null!, "Value"));
         
-        Assert.AreEqual("Tag key cannot be empty (Parameter 'key')", exception.Message);
+        Assert.AreEqual("key cannot be null or whitespace. (Parameter 'key')", exception.Message);
     }
 
     [TestMethod]
@@ -223,7 +223,8 @@ public sealed class ReasonGenericTests
         var exception = Assert.Throws<ArgumentException>(() => 
             reason.WithTags("", "Value"));
         
-        Assert.AreEqual("Tag key cannot be empty (Parameter 'key')", exception.Message);
+        //Assert.AreEqual($"{key cannot be null or whitespace. (Parameter 'key')}", exception.Message);
+        Assert.AreEqual($"{ValidationExtensions.DefaultNullOrWhitespaceMessage}", exception.Message);
     }
 
     [TestMethod]
@@ -236,7 +237,7 @@ public sealed class ReasonGenericTests
         var exception = Assert.Throws<ArgumentException>(() => 
             reason.WithTags("   ", "Value"));
         
-        Assert.AreEqual("Tag key cannot be empty (Parameter 'key')", exception.Message);
+        Assert.AreEqual("key cannot be null or whitespace. (Parameter 'key')", exception.Message);
     }
 
     [TestMethod]
@@ -251,7 +252,7 @@ public sealed class ReasonGenericTests
         var exception = Assert.Throws<ArgumentException>(() => 
             reason.WithTags("Existing", "Value2"));
         
-        Assert.AreEqual("Tag with key 'Existing' already exists (Parameter 'key')", exception.Message);
+        Assert.AreEqual("Tag with key 'Existing' already exists. (Parameter 'key')", exception.Message);
     }
 
     [TestMethod]
@@ -375,7 +376,7 @@ public sealed class ReasonGenericTests
                 (null!, "Value2")
             ));
         
-        Assert.AreEqual("Tag key cannot be empty", exception.Message);
+        Assert.AreEqual("Value cannot be null. (Parameter 'key')", exception.Message);
     }
 
     [TestMethod]
@@ -391,7 +392,7 @@ public sealed class ReasonGenericTests
                 ("", "Value2")
             ));
         
-        Assert.AreEqual("Tag key cannot be empty", exception.Message);
+        Assert.AreEqual("The value cannot be an empty string or composed entirely of whitespace. (Parameter 'key')", exception.Message);
     }
 
     [TestMethod]
