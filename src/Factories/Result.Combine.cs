@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace REslava.Result;
 
 public partial class Result 
@@ -9,6 +11,7 @@ public partial class Result
     /// Returns failed if ANY result is failed, success only if ALL succeeded.
     /// </summary>
     /// <example>
+    /// <code>
     /// var results = new[] { 
     ///     Result.Ok().WithSuccess("Step 1"),
     ///     Result.Ok().WithSuccess("Step 2"),
@@ -18,30 +21,29 @@ public partial class Result
     /// // merged.IsFailed == true
     /// // merged.Errors contains "Error in step 3"
     /// // merged.Successes contains "Step 1", "Step 2"
+    /// </code>
     /// </example>
     public static Result Merge(IEnumerable<Result> results)
     {
-        ArgumentNullException.ThrowIfNull(results);
+        ArgumentNullException.ThrowIfNull(results, nameof(results));
         
         var resultsList = results.ToList();
-        if (!resultsList.Any())
+        if (resultsList.Count == 0)
         {
             return Result.Ok();
         }
 
-        var merged = new Result();
-        
-        // Collect all reasons from all results
-        foreach (var result in resultsList)
-        {
-            merged.Reasons.AddRange(result.Reasons);
-        }
+        // ✅ Collect all reasons immutably
+        var allReasons = resultsList
+            .SelectMany(r => r.Reasons)
+            .ToImmutableList();
 
-        return merged;
+        // ✅ Create new result with combined reasons (immutable)
+        return new Result(allReasons);
     }
 
     /// <summary>
-    /// Merges multiple results with params syntax
+    /// Merges multiple results with params syntax.
     /// </summary>
     public static Result Merge(params Result[] results)
     {
@@ -58,41 +60,48 @@ public partial class Result
     /// Only preserves success reasons if ALL succeeded.
     /// </summary>
     /// <example>
+    /// <code>
     /// var validation = Result.Combine(
     ///     ValidateEmail(email),
     ///     ValidateAge(age),
     ///     ValidateName(name)
     /// );
+    /// </code>
     /// </example>
     public static Result Combine(IEnumerable<Result> results)
     {
-        ArgumentNullException.ThrowIfNull(results);
+        ArgumentNullException.ThrowIfNull(results, nameof(results));
         
         var resultsList = results.ToList();
-        if (!resultsList.Any())
+        if (resultsList.Count == 0)
         {
             return Result.Ok();
         }
 
         var failures = resultsList.Where(r => r.IsFailed).ToList();
         
-        if (failures.Any())
+        if (failures.Count > 0)
         {
-            // Return failed result with all errors
+            // ✅ Return failed result with all errors (immutable)
             var allErrors = failures.SelectMany(f => f.Errors);
             return Result.Fail(allErrors);
         }
 
-        // All succeeded - preserve all success reasons
-        var combined = Result.Ok();
-        var allSuccesses = resultsList.SelectMany(r => r.Successes);
-        combined.Reasons.AddRange(allSuccesses);
-        
-        return combined;
+        // ✅ All succeeded - collect and preserve all success reasons (immutable)
+        var allSuccesses = resultsList
+            .SelectMany(r => r.Successes)
+            .ToImmutableList<IReason>();
+
+        if (allSuccesses.Count > 0)
+        {
+            return new Result(allSuccesses);
+        }
+
+        return Result.Ok();
     }
 
     /// <summary>
-    /// Combines results with params syntax
+    /// Combines results with params syntax.
     /// </summary>
     public static Result Combine(params Result[] results)
     {
@@ -110,10 +119,10 @@ public partial class Result
     public static async Task<Result> CombineParallelAsync(
         IEnumerable<Task<Result>> resultTasks)
     {
-        ArgumentNullException.ThrowIfNull(resultTasks);
+        ArgumentNullException.ThrowIfNull(resultTasks, nameof(resultTasks));
         
         var tasks = resultTasks.ToList();
-        if (!tasks.Any())
+        if (tasks.Count == 0)
         {
             return Result.Ok();
         }
@@ -136,44 +145,53 @@ public partial class Result<TValue>
     /// Returns Result&lt;IEnumerable&lt;T&gt;&gt; with all values if all succeeded.
     /// </summary>
     /// <example>
+    /// <code>
     /// var users = Result&lt;User&gt;.Combine(
     ///     GetUser(id1),
     ///     GetUser(id2),
     ///     GetUser(id3)
     /// );
     /// // users: Result&lt;IEnumerable&lt;User&gt;&gt;
+    /// </code>
     /// </example>
     public static Result<IEnumerable<TValue>> Combine(
         IEnumerable<Result<TValue>> results)
     {
-        ArgumentNullException.ThrowIfNull(results);
+        ArgumentNullException.ThrowIfNull(results, nameof(results));
         
         var resultsList = results.ToList();
-        if (!resultsList.Any())
+        if (resultsList.Count == 0)
         {
             return Result<IEnumerable<TValue>>.Ok(Enumerable.Empty<TValue>());
         }
 
         var failures = resultsList.Where(r => r.IsFailed).ToList();
         
-        if (failures.Any())
+        if (failures.Count > 0)
         {
+            // ✅ Return failed result with all errors (immutable)
             var allErrors = failures.SelectMany(f => f.Errors);
             return Result<IEnumerable<TValue>>.Fail(allErrors);
         }
 
-        // All succeeded - collect values and successes
-        var values = resultsList.Select(r => r.Value!);
-        var combined = Result<IEnumerable<TValue>>.Ok(values);
+        // ✅ All succeeded - collect values and successes (immutable)
+        var values = resultsList.Select(r => r.Value);
         
-        var allSuccesses = resultsList.SelectMany(r => r.Successes);
-        combined.Reasons.AddRange(allSuccesses);
-        
-        return combined;
+        var allSuccesses = resultsList
+            .SelectMany(r => r.Successes)
+            .ToImmutableList<IReason>();
+
+        // Create result with values and all success reasons
+        if (allSuccesses.Count > 0)
+        {
+            return new Result<IEnumerable<TValue>>(values, allSuccesses);
+        }
+
+        return Result<IEnumerable<TValue>>.Ok(values);
     }
 
     /// <summary>
-    /// Combines results with params syntax
+    /// Combines results with params syntax.
     /// </summary>
     public static Result<IEnumerable<TValue>> Combine(
         params Result<TValue>[] results)
@@ -182,15 +200,15 @@ public partial class Result<TValue>
     }
 
     /// <summary>
-    /// Combines results from parallel async operations
+    /// Combines results from parallel async operations.
     /// </summary>
     public static async Task<Result<IEnumerable<TValue>>> CombineParallelAsync(
         IEnumerable<Task<Result<TValue>>> resultTasks)
     {
-        ArgumentNullException.ThrowIfNull(resultTasks);
+        ArgumentNullException.ThrowIfNull(resultTasks, nameof(resultTasks));
         
         var tasks = resultTasks.ToList();
-        if (!tasks.Any())
+        if (tasks.Count == 0)
         {
             return Result<IEnumerable<TValue>>.Ok(Enumerable.Empty<TValue>());
         }

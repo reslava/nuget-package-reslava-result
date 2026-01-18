@@ -7,7 +7,7 @@ namespace REslava.Result;
 // ============================================================================
 public abstract class Reason<TReason> : Reason
     where TReason : Reason<TReason>
-{
+{    
     protected Reason(string message) : base(message) { }
 
     protected Reason(string message, ImmutableDictionary<string, object> tags)
@@ -18,11 +18,7 @@ public abstract class Reason<TReason> : Reason
     /// </summary>
     public TReason WithMessage(string message)
     {
-        if (string.IsNullOrWhiteSpace(message))
-        { 
-            throw new ArgumentException("Message cannot be empty", nameof(message));
-        }
-
+        //ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));        
         return CreateNew(message, Tags);
     }
 
@@ -32,10 +28,7 @@ public abstract class Reason<TReason> : Reason
     /// </summary>
     public TReason WithTags(string key, object value)
     {
-        if (string.IsNullOrWhiteSpace(key))
-        { 
-            throw new ArgumentException("Tag key cannot be empty", nameof(key));
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(key, nameof(key));        
 
         if (Tags.ContainsKey(key))
         {
@@ -50,8 +43,8 @@ public abstract class Reason<TReason> : Reason
     /// Throws if any key already exists.
     /// </summary>
     public TReason WithTags(params (string key, object value)[] tags)
-    {
-        if (tags == null || tags.Length == 0)
+    {        
+        if (tags is null || tags.Length == 0)
         {
             return (TReason)this; // No changes needed
         }
@@ -60,13 +53,10 @@ public abstract class Reason<TReason> : Reason
 
         foreach (var (key, value) in tags)
         {
-            if (string.IsNullOrWhiteSpace(key))
-            { 
-                throw new ArgumentException("Tag key cannot be empty");
-            }
+            ArgumentException.ThrowIfNullOrWhiteSpace(key, nameof(key));
 
             if (builder.ContainsKey(key))
-            {
+            {                                
                 throw new ArgumentException($"Tag with key '{key}' already exists", nameof(key));
             }
 

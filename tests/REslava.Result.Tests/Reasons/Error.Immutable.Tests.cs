@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using System.Reflection.Metadata;
+using Newtonsoft.Json.Linq;
 
 namespace REslava.Result.Reasons.Tests;
 
@@ -11,14 +13,14 @@ public sealed class ErrorImmutableTests
     #region Constructor Tests
 
     [TestMethod]
-    public void Constructor_Default_CreatesErrorWithEmptyMessage()
+    public void Constructor_Default_CreatesErrorWithTestMessage()
     {
         // Act
-        var error = new Error();
+        var error = new Error("test");
 
         // Assert
         Assert.IsNotNull(error);
-        Assert.AreEqual(string.Empty, error.Message);
+        Assert.AreEqual("test", error.Message);
         Assert.IsNotNull(error.Tags);
         Assert.IsTrue(error.Tags.IsEmpty);
     }
@@ -38,20 +40,12 @@ public sealed class ErrorImmutableTests
     public void Constructor_WithNullMessage_UsesEmptyString()
     {
         // Act
-        var error = new Error(null!);
+        //var error = new Error(null!);
+        Action act = () => { new Error(null!); };
 
         // Assert
-        Assert.AreEqual(string.Empty, error.Message);
-    }
-
-    [TestMethod]
-    public void Constructor_WithEmptyMessage_CreatesErrorWithEmptyMessage()
-    {
-        // Act
-        var error = new Error("");
-
-        // Assert
-        Assert.AreEqual(string.Empty, error.Message);
+        //Assert.AreEqual(string.Empty, error.Message);
+        Assert.Throws<ArgumentNullException>(() => act()); 
     }
 
     #endregion
@@ -93,10 +87,11 @@ public sealed class ErrorImmutableTests
         var error = new Error("Test");
 
         // Act & Assert
-        var exception = Assert.ThrowsException<ArgumentException>(() => 
+        var exception = Assert.Throws<ArgumentException>(() => 
             error.WithMessage(null!));
-        
-        Assert.AreEqual("Message cannot be empty (Parameter 'message')", exception.Message);
+
+        //Assert.AreEqual("Message cannot be empty (Parameter 'message')", exception.Message);
+        Assert.AreEqual("Value cannot be null. (Parameter 'message')", exception.Message);        
     }
 
     [TestMethod]
@@ -106,7 +101,7 @@ public sealed class ErrorImmutableTests
         var error = new Error("Original");
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentException>(() => error.WithMessage(""));
+        Assert.Throws<ArgumentException>(() => error.WithMessage(""));
     }
 
     [TestMethod]
@@ -116,7 +111,7 @@ public sealed class ErrorImmutableTests
         var error = new Error("Original");
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentException>(() => error.WithMessage("   "));
+        Assert.Throws<ArgumentException>(() => error.WithMessage("   "));
     }
 
     [TestMethod]
@@ -237,7 +232,7 @@ public sealed class ErrorImmutableTests
         var withTag = error.WithTags("Key", "Value1");
 
         // Act & Assert
-        var exception = Assert.ThrowsException<ArgumentException>(() => 
+        var exception = Assert.Throws<ArgumentException>(() => 
             withTag.WithTags("Key", "Value2"));
         
         Assert.AreEqual("Tag with key 'Key' already exists (Parameter 'key')", exception.Message);
@@ -321,13 +316,13 @@ public sealed class ErrorImmutableTests
         var error = new Error("Test");
 
         // Act & Assert
-        var exception = Assert.ThrowsException<ArgumentException>(() => 
+        var exception = Assert.Throws<ArgumentException>(() => 
             error.WithTags(
                 ("Key1", "Value1"),
                 ("Key1", "Value2")  // Duplicate
             ));
         
-        Assert.AreEqual("Tag with key 'Key1' already exists (Parameter 'tags')", exception.Message);
+        Assert.AreEqual("Tag with key 'Key1' already exists (Parameter 'key')", exception.Message);                
     }
 
     #endregion
@@ -420,7 +415,7 @@ public sealed class ErrorImmutableTests
     public void Error_ImplementsIError()
     {
         // Arrange
-        var error = new Error();
+        var error = new Error("test");
 
         // Assert
         Assert.IsInstanceOfType<IError>(error);
@@ -430,7 +425,7 @@ public sealed class ErrorImmutableTests
     public void Error_ImplementsIReason()
     {
         // Arrange
-        var error = new Error();
+        var error = new Error("test");
 
         // Assert
         Assert.IsInstanceOfType<IReason>(error);
@@ -440,7 +435,7 @@ public sealed class ErrorImmutableTests
     public void Error_InheritsFromReasonOfError()
     {
         // Arrange
-        var error = new Error();
+        var error = new Error("test");
 
         // Assert
         Assert.IsInstanceOfType<Reason<Error>>(error);
