@@ -24,6 +24,30 @@ public partial class Result
 
         return result;
     }
+    /// <summary>
+    /// Converts this Result to a Result with a value from a func valueFactory.
+    /// </summary>    
+    public Result<TValue> ToResult<TValue>(Func<TValue> valueFactory)
+    {
+        ValidationExtensions.EnsureNotNull(valueFactory, nameof(valueFactory));
+
+        if (IsFailed)
+        {
+            return new Result<TValue>(default, Reasons);
+        }
+
+        try
+        {
+            var value = valueFactory();
+            return Successes.Count > 0
+                ? new Result<TValue>(value, Reasons)
+                : Result<TValue>.Ok(value);
+        }
+        catch (Exception ex)
+        {
+            return Result<TValue>.Fail(new ExceptionError(ex));
+        }
+    }
 }
 
 public partial class Result<TValue>

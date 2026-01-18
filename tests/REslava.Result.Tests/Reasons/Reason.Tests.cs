@@ -7,19 +7,50 @@ namespace REslava.Result.Reasons.Tests;
 /// </summary>
 [TestClass]
 public sealed class ReasonTests
-{
+{    
     #region Test Helper Class
 
     // Concrete implementation for testing abstract Reason class
-    private class TestReason : Reason
+    private class TestReason : Reason<TestReason>, IReason
     {
         public TestReason(string message) : base(message) { }
 
         public TestReason(string message, ImmutableDictionary<string, object> tags)
             : base(message, tags) { }
+
+        protected override TestReason CreateNew(string message, ImmutableDictionary<string, object> tags)
+        {
+            return new TestReason(message, tags);
+        }
     }
 
     #endregion
+
+    [TestMethod]
+    public void WithTags_EmptyKey_ThrowsConsistentException()
+    {
+        var reason = new TestReason("Test");
+
+        var ex = Assert.Throws<ArgumentException>(() =>
+            reason.WithTags("", "value"));
+
+        // ✅ Use constant for assertion
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, ex.Message);
+        // Or: Assert.AreEqual("Key cannot be null or whitespace (Parameter 'key')", ex.Message);
+    }
+
+    [TestMethod]
+    public void WithTags_DuplicateKey_ThrowsConsistentException()
+    {
+        var reason = new TestReason("Test").WithTags("Key1", "Value1");
+
+        var ex = Assert.Throws<ArgumentException>(() =>
+            reason.WithTags("Key1", "Value2"));
+
+        // ✅ Check for consistent message
+        Assert.Contains("Key1", ex.Message);
+        Assert.Contains(ValidationExtensions.DefaultKeyExistsMessage, ex.Message);
+    }
 
     #region Constructor Tests - Message Only
 
