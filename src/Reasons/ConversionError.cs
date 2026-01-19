@@ -74,7 +74,7 @@ public class ConversionError : Reason<ConversionError>, IError
     /// </summary>
     public ConversionError WithConversionType(string conversionType)
     {
-        return WithTags("ConversionType", conversionType);
+        return WithTag("ConversionType", conversionType);
     }
 
     /// <summary>
@@ -83,6 +83,6 @@ public class ConversionError : Reason<ConversionError>, IError
     /// </summary>
     public ConversionError WithProvidedValue(object? value)
     {
-        return WithTags("ProvidedValue", value?.ToString() ?? "null");
+        return WithTag("ProvidedValue", value?.ToString() ?? "null");
     }
 }

@@ -123,7 +123,7 @@ public partial class Result<TValue>
         {
             var conversionError = new ConversionError("Empty error array provided")
                 .WithConversionType("Error[]")
-                .WithTags("ArrayLength", errors.Length);  // ✅ Use ArrayLength tag
+                .WithTag("ArrayLength", errors.Length);  // ✅ Use ArrayLength tag
 
             return Fail(conversionError);
         }
@@ -151,7 +151,7 @@ public partial class Result<TValue>
         {
             var conversionError = new ConversionError("Empty error list provided")
                 .WithConversionType("List<Error>")
-                .WithTags("ListCount", errors.Count);  // ✅ Use ListCount tag
+                .WithTag("ListCount", errors.Count);  // ✅ Use ListCount tag
 
             return Fail(conversionError);
         }
@@ -178,7 +178,7 @@ public partial class Result<TValue>
         {
             var conversionError = new ConversionError("Empty exception error array provided")
                 .WithConversionType("ExceptionError[]")
-                .WithTags("ArrayLength", errors.Length);  // ✅ Use ArrayLength tag
+                .WithTag("ArrayLength", errors.Length);  // ✅ Use ArrayLength tag
 
             return Fail(conversionError);
         }
@@ -205,7 +205,7 @@ public partial class Result<TValue>
         {
             var conversionError = new ConversionError("Empty exception error list provided")
                 .WithConversionType("List<ExceptionError>")
-                .WithTags("ListCount", errors.Count);  // ✅ Use ListCount tag
+                .WithTag("ListCount", errors.Count);  // ✅ Use ListCount tag
 
             return Fail(conversionError);
         }

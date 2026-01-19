@@ -143,7 +143,7 @@ public sealed class ErrorImmutableTests
         var original = new Error("Validation failed");
 
         // Act
-        var updated = original.WithTags("Field", "Email");
+        var updated = original.WithTag("Field", "Email");
 
         // Assert
         Assert.AreNotSame(original, updated);
@@ -160,7 +160,7 @@ public sealed class ErrorImmutableTests
         var error = new Error("Test");
 
         // Act
-        var result = error.WithTags("Key", "Value");
+        var result = error.WithTag("Key", "Value");
 
         // Assert
         Assert.IsInstanceOfType<Error>(result);
@@ -173,7 +173,7 @@ public sealed class ErrorImmutableTests
         var error = new Error("Original message");
 
         // Act
-        var updated = error.WithTags("Key", "Value");
+        var updated = error.WithTag("Key", "Value");
 
         // Assert
         Assert.AreEqual("Original message", updated.Message);
@@ -187,9 +187,9 @@ public sealed class ErrorImmutableTests
 
         // Act
         var result = error
-            .WithTags("Key1", "Value1")
-            .WithTags("Key2", 42)
-            .WithTags("Key3", true);
+            .WithTag("Key1", "Value1")
+            .WithTag("Key2", 42)
+            .WithTag("Key3", true);
 
         // Assert
         Assert.AreEqual(3, result.Tags.Count);
@@ -207,12 +207,12 @@ public sealed class ErrorImmutableTests
 
         // Act
         var result = error
-            .WithTags("String", "text")
-            .WithTags("Int", 123)
-            .WithTags("Double", 3.14)
-            .WithTags("Bool", false)
-            .WithTags("DateTime", dateTime)
-            .WithTags("Null", null!);
+            .WithTag("String", "text")
+            .WithTag("Int", 123)
+            .WithTag("Double", 3.14)
+            .WithTag("Bool", false)
+            .WithTag("DateTime", dateTime)
+            .WithTag("Null", null!);
 
         // Assert
         Assert.AreEqual(6, result.Tags.Count);
@@ -229,11 +229,11 @@ public sealed class ErrorImmutableTests
     {
         // Arrange
         var error = new Error("Test");
-        var withTag = error.WithTags("Key", "Value1");
+        var withTag = error.WithTag("Key", "Value1");
 
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => 
-            withTag.WithTags("Key", "Value2"));
+            withTag.WithTag("Key", "Value2"));
         
         Assert.AreEqual("Tag with key 'Key' already exists. (Parameter 'key')", exception.Message);
     }
@@ -334,10 +334,10 @@ public sealed class ErrorImmutableTests
     {
         // Act
         var error = new Error("Validation failed")
-            .WithTags("Field", "Email")
-            .WithTags("Code", 422)
+            .WithTag("Field", "Email")
+            .WithTag("Code", 422)
             .WithMessage("Email validation failed")
-            .WithTags("Regex", "^[a-z]+@[a-z]+\\.[a-z]+$");
+            .WithTag("Regex", "^[a-z]+@[a-z]+\\.[a-z]+$");
 
         // Assert
         Assert.AreEqual("Email validation failed", error.Message);
@@ -352,10 +352,10 @@ public sealed class ErrorImmutableTests
         // Act
         var error = new Error("Step 0")
             .WithMessage("Step 1")
-            .WithTags("A", 1)
+            .WithTag("A", 1)
             .WithMessage("Step 2")
-            .WithTags("B", 2)
-            .WithTags("C", 3)
+            .WithTag("B", 2)
+            .WithTag("C", 3)
             .WithMessage("Final");
 
         // Assert
@@ -379,7 +379,7 @@ public sealed class ErrorImmutableTests
         // Act
         var modified = original
             .WithMessage("Modified")
-            .WithTags("Key", "Value");
+            .WithTag("Key", "Value");
 
         // Assert
         Assert.AreEqual("Original", original.Message);
@@ -396,9 +396,9 @@ public sealed class ErrorImmutableTests
         var e0 = new Error("E0");
 
         // Act
-        var e1 = e0.WithTags("T1", 1);
-        var e2 = e1.WithTags("T2", 2);
-        var e1b = e1.WithTags("T1B", "1b");
+        var e1 = e0.WithTag("T1", 1);
+        var e2 = e1.WithTag("T2", 2);
+        var e1b = e1.WithTag("T1B", "1b");
 
         // Assert - e2 unaffected by e1b
         Assert.AreEqual(1, e1.Tags.Count);
@@ -450,8 +450,8 @@ public sealed class ErrorImmutableTests
     {
         // Arrange
         var error = new Error("Database connection failed")
-            .WithTags("Server", "localhost")
-            .WithTags("Port", 5432);
+            .WithTag("Server", "localhost")
+            .WithTag("Port", 5432);
 
         // Act
         var result = Result.Fail(error);
@@ -469,7 +469,7 @@ public sealed class ErrorImmutableTests
     {
         // Arrange
         var error = new Error("Validation failed")
-            .WithTags("Field", "Email");
+            .WithTag("Field", "Email");
 
         // Act
         var result = Result<string>.Fail(error);
@@ -519,7 +519,7 @@ public sealed class ErrorImmutableTests
         var result = error;
         for (int i = 0; i < 100; i++)
         {
-            result = result.WithTags($"Key{i}", i);
+            result = result.WithTag($"Key{i}", i);
         }
 
         // Assert
@@ -542,7 +542,7 @@ public sealed class ErrorImmutableTests
 
         // Act
         Error e1 = error.WithMessage("M1");
-        Error e2 = e1.WithTags("K", "V");
+        Error e2 = e1.WithTag("K", "V");
         Error e3 = e2.WithTags(("K2", "V2"));
 
         // Assert - All return Error, enabling fluent chaining
