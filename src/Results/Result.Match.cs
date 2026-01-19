@@ -127,6 +127,7 @@ public partial class Result<TValue> : Result, IResult<TValue>
             onFailure(Errors);
         }
     }
+    
 
     /// <summary>
     /// Asynchronously matches the result to one of two async functions based on success or failure.
@@ -168,5 +169,5 @@ public partial class Result<TValue> : Result, IResult<TValue>
         {
             await onFailure(Errors);
         }
-    }
+    }    
 }

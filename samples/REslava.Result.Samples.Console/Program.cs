@@ -1,14 +1,15 @@
 using System.ComponentModel;
 using REslava.Result;
-//using REslava.Result.Samples.Console.Examples;
+
+using REslava.Result.Samples.Console;
 
 Console.WriteLine("===========================================");
 Console.WriteLine("REslava.Result - Sample Examples");
 Console.WriteLine("===========================================\n");
 
 // Run examples
-//await RunExample("01. Basic Usage", BasicUsage.Run);
-//await RunExample("02. Validation Pipeline", ValidationPipeline.Run);
+await RunExample("01. Basic Usage", BasicUsageSamples.Run);
+await RunExample("02. Validation Pipeline", ValidationPipelineSamples.Run);
 //await RunExample("03. Error Handling", ErrorHandling.Run);
 //await RunExample("04. Async Operations", AsyncOperations.Run);
 //await RunExample("05. LINQ Syntax", LinqSyntax.Run);
@@ -21,14 +22,14 @@ Console.WriteLine("===========================================");
 
 static async Task RunExample(string name, Func<Task> example)
 {
-    Console.WriteLine($"\\n--- {name} ---");
+    Console.WriteLine($"\n--- {name} ---");
     try
     {
         await example();
-        Console.WriteLine($"✓ {name} completed\\n");
+        Console.WriteLine($"✓ {name} completed\n");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"✗ {name} failed: {ex.Message}\\n");
+        Console.WriteLine($"✗ {name} failed: {ex.Message}\n");
     }
 }

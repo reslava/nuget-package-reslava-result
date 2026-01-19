@@ -147,7 +147,7 @@ public sealed class ReasonGenericTests
         var original = new TestReason("Test");
 
         // Act
-        var updated = original.WithTags("Key", "Value");
+        var updated = original.WithTag("Key", "Value");
 
         // Assert
         Assert.AreNotSame(original, updated);
@@ -163,7 +163,7 @@ public sealed class ReasonGenericTests
         var reason = new TestReason("Test");
 
         // Act
-        var result = reason.WithTags("Key", "Value");
+        var result = reason.WithTag("Key", "Value");
 
         // Assert
         Assert.IsInstanceOfType<TestReason>(result);
@@ -176,7 +176,7 @@ public sealed class ReasonGenericTests
         var reason = new TestReason("Original message");
 
         // Act
-        var updated = reason.WithTags("Key", "Value");
+        var updated = reason.WithTag("Key", "Value");
 
         // Assert
         Assert.AreEqual("Original message", updated.Message);
@@ -191,7 +191,7 @@ public sealed class ReasonGenericTests
         var reason = new TestReason("Test", tags);
 
         // Act
-        var updated = reason.WithTags("New", "NewValue");
+        var updated = reason.WithTag("New", "NewValue");
 
         // Assert
         Assert.AreEqual(2, updated.Tags.Count);
@@ -207,7 +207,7 @@ public sealed class ReasonGenericTests
 
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => 
-            reason.WithTags(null!, "Value"));
+            reason.WithTag(null!, "Value"));
         
         Assert.AreEqual("key cannot be null or whitespace. (Parameter 'key')", exception.Message);
     }
@@ -220,7 +220,7 @@ public sealed class ReasonGenericTests
 
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => 
-            reason.WithTags("", "Value"));
+            reason.WithTag("", "Value"));
         
         //Assert.AreEqual($"{key cannot be null or whitespace. (Parameter 'key')}", exception.Message);
         Assert.AreEqual($"{ValidationExtensions.DefaultNullOrWhitespaceMessage}", exception.Message);
@@ -234,7 +234,7 @@ public sealed class ReasonGenericTests
 
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => 
-            reason.WithTags("   ", "Value"));
+            reason.WithTag("   ", "Value"));
         
         Assert.AreEqual("key cannot be null or whitespace. (Parameter 'key')", exception.Message);
     }
@@ -249,7 +249,7 @@ public sealed class ReasonGenericTests
 
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => 
-            reason.WithTags("Existing", "Value2"));
+            reason.WithTag("Existing", "Value2"));
         
         Assert.AreEqual("Tag with key 'Existing' already exists. (Parameter 'key')", exception.Message);
     }
@@ -261,7 +261,7 @@ public sealed class ReasonGenericTests
         var reason = new TestReason("Test");
 
         // Act
-        var updated = reason.WithTags("Key", null!);
+        var updated = reason.WithTag("Key", null!);
 
         // Assert
         Assert.AreEqual(1, updated.Tags.Count);
@@ -277,10 +277,10 @@ public sealed class ReasonGenericTests
         var now = DateTime.UtcNow;
 
         // Act
-        var r1 = reason.WithTags("String", "text");
-        var r2 = r1.WithTags("Int", 42);
-        var r3 = r2.WithTags("Bool", true);
-        var r4 = r3.WithTags("DateTime", now);
+        var r1 = reason.WithTag("String", "text");
+        var r2 = r1.WithTag("Int", 42);
+        var r3 = r2.WithTag("Bool", true);
+        var r4 = r3.WithTag("DateTime", now);
 
         // Assert
         Assert.AreEqual("text", r4.Tags["String"]);
@@ -440,8 +440,8 @@ public sealed class ReasonGenericTests
         // Act
         var result = original
             .WithMessage("Updated")
-            .WithTags("Key1", "Value1")
-            .WithTags("Key2", 42)
+            .WithTag("Key1", "Value1")
+            .WithTag("Key2", 42)
             .WithMessage("Final");
 
         // Assert
@@ -462,9 +462,9 @@ public sealed class ReasonGenericTests
         var step0 = new TestReason("Step 0");
 
         // Act
-        var step1 = step0.WithTags("S1", 1);
+        var step1 = step0.WithTag("S1", 1);
         var step2 = step1.WithMessage("Step 2");
-        var step3 = step2.WithTags("S3", 3);
+        var step3 = step2.WithTag("S3", 3);
         var step4 = step3.WithTags(
             ("S4A", "4a"),
             ("S4B", "4b")
@@ -495,7 +495,7 @@ public sealed class ReasonGenericTests
 
         // Act & Assert - Each method returns TestReason
         TestReason r1 = reason.WithMessage("M1");
-        TestReason r2 = r1.WithTags("K1", "V1");
+        TestReason r2 = r1.WithTag("K1", "V1");
         TestReason r3 = r2.WithTags(("K2", "V2"), ("K3", "V3"));
 
         Assert.IsInstanceOfType<TestReason>(r1);
@@ -518,7 +518,7 @@ public sealed class ReasonGenericTests
         // Act
         var modified = original
             .WithMessage("New Message")
-            .WithTags("New", "NewValue");
+            .WithTag("New", "NewValue");
 
         // Assert - Original completely unchanged
         Assert.AreEqual("Original Message", original.Message);
@@ -540,12 +540,12 @@ public sealed class ReasonGenericTests
         var r0 = new TestReason("R0");
 
         // Act
-        var r1 = r0.WithTags("T1", 1);
-        var r2 = r1.WithTags("T2", 2);
-        var r3 = r2.WithTags("T3", 3);
+        var r1 = r0.WithTag("T1", 1);
+        var r2 = r1.WithTag("T2", 2);
+        var r3 = r2.WithTag("T3", 3);
 
         // Now modify r1 again
-        var r1b = r1.WithTags("T1B", "1b");
+        var r1b = r1.WithTag("T1B", "1b");
 
         // Assert - r2 and r3 should be unaffected by r1b
         Assert.AreEqual(1, r1.Tags.Count);
@@ -575,7 +575,7 @@ public sealed class ReasonGenericTests
         Assert.IsInstanceOfType<TestReason>(result);
         
         // Can call TestReason methods directly
-        var result2 = result.WithTags("Key", "Value");
+        var result2 = result.WithTag("Key", "Value");
         Assert.IsInstanceOfType<TestReason>(result2);
     }
 
@@ -586,7 +586,7 @@ public sealed class ReasonGenericTests
         var reason = new TestReason("Test");
 
         // Act
-        var result = reason.WithTags("Key", "Value");
+        var result = reason.WithTag("Key", "Value");
 
         // Assert
         Assert.IsInstanceOfType<TestReason>(result);
@@ -655,7 +655,7 @@ public sealed class ReasonGenericTests
         var result = reason;
         for (int i = 0; i < 100; i++)
         {
-            result = result.WithTags($"Key{i}", i);
+            result = result.WithTag($"Key{i}", i);
         }
         result = result.WithMessage("End");
 

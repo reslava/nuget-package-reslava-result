@@ -138,7 +138,7 @@ public sealed class SuccessImmutableTests
         var original = new Success("User created");
 
         // Act
-        var updated = original.WithTags("UserId", "12345");
+        var updated = original.WithTag("UserId", "12345");
 
         // Assert
         Assert.AreNotSame(original, updated);
@@ -155,7 +155,7 @@ public sealed class SuccessImmutableTests
         var success = new Success("Test");
 
         // Act
-        var result = success.WithTags("Key", "Value");
+        var result = success.WithTag("Key", "Value");
 
         // Assert
         Assert.IsInstanceOfType<Success>(result);
@@ -168,7 +168,7 @@ public sealed class SuccessImmutableTests
         var success = new Success("Original message");
 
         // Act
-        var updated = success.WithTags("Key", "Value");
+        var updated = success.WithTag("Key", "Value");
 
         // Assert
         Assert.AreEqual("Original message", updated.Message);
@@ -182,9 +182,9 @@ public sealed class SuccessImmutableTests
 
         // Act
         var result = success
-            .WithTags("Timestamp", DateTime.Now)
-            .WithTags("RecordCount", 42)
-            .WithTags("IsPartialSave", false);
+            .WithTag("Timestamp", DateTime.Now)
+            .WithTag("RecordCount", 42)
+            .WithTag("IsPartialSave", false);
 
         // Assert
         Assert.AreEqual(3, result.Tags.Count);
@@ -200,13 +200,13 @@ public sealed class SuccessImmutableTests
 
         // Act
         var result = success
-            .WithTags("String", "text")
-            .WithTags("Int", 123)
-            .WithTags("Double", 3.14)
-            .WithTags("Bool", true)
-            .WithTags("DateTime", dateTime)
-            .WithTags("TimeSpan", timeSpan)
-            .WithTags("Null", null!);
+            .WithTag("String", "text")
+            .WithTag("Int", 123)
+            .WithTag("Double", 3.14)
+            .WithTag("Bool", true)
+            .WithTag("DateTime", dateTime)
+            .WithTag("TimeSpan", timeSpan)
+            .WithTag("Null", null!);
 
         // Assert
         Assert.AreEqual(7, result.Tags.Count);
@@ -224,11 +224,11 @@ public sealed class SuccessImmutableTests
     {
         // Arrange
         var success = new Success("Test");
-        var withTag = success.WithTags("Key", "Value1");
+        var withTag = success.WithTag("Key", "Value1");
 
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => 
-            withTag.WithTags("Key", "Value2"));
+            withTag.WithTag("Key", "Value2"));
         
         Assert.AreEqual("Tag with key 'Key' already exists (Parameter 'key')", exception.Message);
     }
@@ -327,10 +327,10 @@ public sealed class SuccessImmutableTests
     {
         // Act
         var success = new Success("Initial message")
-            .WithTags("UserId", "user-123")
-            .WithTags("Action", "Create")
+            .WithTag("UserId", "user-123")
+            .WithTag("Action", "Create")
             .WithMessage("User created successfully")
-            .WithTags("CreatedAt", DateTime.Now);
+            .WithTag("CreatedAt", DateTime.Now);
 
         // Assert
         Assert.AreEqual("User created successfully", success.Message);
@@ -345,10 +345,10 @@ public sealed class SuccessImmutableTests
         // Act
         var success = new Success("Step 0")
             .WithMessage("Step 1")
-            .WithTags("A", 1)
+            .WithTag("A", 1)
             .WithMessage("Step 2")
-            .WithTags("B", 2)
-            .WithTags("C", 3)
+            .WithTag("B", 2)
+            .WithTag("C", 3)
             .WithMessage("Final step");
 
         // Assert
@@ -372,7 +372,7 @@ public sealed class SuccessImmutableTests
         // Act
         var modified = original
             .WithMessage("Modified")
-            .WithTags("Key", "Value");
+            .WithTag("Key", "Value");
 
         // Assert
         Assert.AreEqual("Original", original.Message);
@@ -389,9 +389,9 @@ public sealed class SuccessImmutableTests
         var s0 = new Success("S0");
 
         // Act
-        var s1 = s0.WithTags("T1", 1);
-        var s2 = s1.WithTags("T2", 2);
-        var s1b = s1.WithTags("T1B", "1b");
+        var s1 = s0.WithTag("T1", 1);
+        var s2 = s1.WithTag("T2", 2);
+        var s1b = s1.WithTag("T1B", "1b");
 
         // Assert - s2 unaffected by s1b
         Assert.AreEqual(1, s1.Tags.Count);
@@ -443,8 +443,8 @@ public sealed class SuccessImmutableTests
     {
         // Arrange
         var success = new Success("Email sent successfully")
-            .WithTags("RecipientCount", 5)
-            .WithTags("MessageId", "MSG-12345");
+            .WithTag("RecipientCount", 5)
+            .WithTag("MessageId", "MSG-12345");
 
         // Act
         var result = Result.Ok()
@@ -463,7 +463,7 @@ public sealed class SuccessImmutableTests
     {
         // Arrange
         var success = new Success("Record created")
-            .WithTags("RecordId", "REC-001");
+            .WithTag("RecordId", "REC-001");
 
         // Act
         var result = Result<int>.Ok(42)
@@ -481,9 +481,9 @@ public sealed class SuccessImmutableTests
     {
         // Arrange
         var success1 = new Success("Step 1 completed")
-            .WithTags("Step", 1);
+            .WithTag("Step", 1);
         var success2 = new Success("Step 2 completed")
-            .WithTags("Step", 2);
+            .WithTag("Step", 2);
 
         // Act
         var result = Result<string>.Ok("Final result")
@@ -538,11 +538,11 @@ public sealed class SuccessImmutableTests
     {
         // Arrange & Act
         var success = new Success("Batch processing completed")
-            .WithTags("TotalRecords", 1000)
-            .WithTags("ProcessedRecords", 1000)
-            .WithTags("FailedRecords", 0)
-            .WithTags("Duration", TimeSpan.FromMinutes(5))
-            .WithTags("BatchId", "BATCH-20250111-001");
+            .WithTag("TotalRecords", 1000)
+            .WithTag("ProcessedRecords", 1000)
+            .WithTag("FailedRecords", 0)
+            .WithTag("Duration", TimeSpan.FromMinutes(5))
+            .WithTag("BatchId", "BATCH-20250111-001");
 
         var result = Result<int>.Ok(1000)
             .WithSuccess(success);
@@ -563,10 +563,10 @@ public sealed class SuccessImmutableTests
 
         // Act
         var success = new Success("User login successful")
-            .WithTags("UserId", userId)
-            .WithTags("Timestamp", timestamp)
-            .WithTags("IPAddress", "192.168.1.1")
-            .WithTags("UserAgent", "Mozilla/5.0");
+            .WithTag("UserId", userId)
+            .WithTag("Timestamp", timestamp)
+            .WithTag("IPAddress", "192.168.1.1")
+            .WithTag("UserAgent", "Mozilla/5.0");
 
         // Assert
         Assert.AreEqual(userId, success.Tags["UserId"]);
@@ -579,10 +579,10 @@ public sealed class SuccessImmutableTests
     {
         // Arrange & Act
         var result = Result<string>.Ok("Order-12345")
-            .WithSuccess(new Success("Order validated").WithTags("Step", "Validation"))
-            .WithSuccess(new Success("Payment processed").WithTags("Step", "Payment"))
-            .WithSuccess(new Success("Inventory reserved").WithTags("Step", "Inventory"))
-            .WithSuccess(new Success("Order confirmed").WithTags("Step", "Confirmation"));
+            .WithSuccess(new Success("Order validated").WithTag("Step", "Validation"))
+            .WithSuccess(new Success("Payment processed").WithTag("Step", "Payment"))
+            .WithSuccess(new Success("Inventory reserved").WithTag("Step", "Inventory"))
+            .WithSuccess(new Success("Order confirmed").WithTag("Step", "Confirmation"));
 
         // Assert
         Assert.IsTrue(result.IsSuccess);
@@ -604,7 +604,7 @@ public sealed class SuccessImmutableTests
         var result = success;
         for (int i = 0; i < 100; i++)
         {
-            result = result.WithTags($"Key{i}", i);
+            result = result.WithTag($"Key{i}", i);
         }
 
         // Assert
@@ -627,7 +627,7 @@ public sealed class SuccessImmutableTests
 
         // Act
         Success s1 = success.WithMessage("M1");
-        Success s2 = s1.WithTags("K", "V");
+        Success s2 = s1.WithTag("K", "V");
         Success s3 = s2.WithTags(("K2", "V2"));
 
         // Assert - All return Success, enabling fluent chaining

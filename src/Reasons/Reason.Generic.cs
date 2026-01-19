@@ -26,7 +26,7 @@ public abstract class Reason<TReason> : Reason
     /// Creates a new instance with an additional tag (immutable).
     /// Throws if key already exists.
     /// </summary>
-    public TReason WithTags(string key, object value)
+    public TReason WithTag(string key, object value)
     {
         key = key.EnsureValidDictionaryKey(Tags, nameof(key));        
         return CreateNew(Message, Tags.Add(key, value));
@@ -55,8 +55,22 @@ public abstract class Reason<TReason> : Reason
     }
 
     /// <summary>
+    /// Creates a new instance with multiple additional tags (immutable).
+    /// Throws if any key already exists.
+    /// </summary>
+    public TReason WithTagsFrom(ImmutableDictionary<string, object> tags)
+    {
+        if (tags is null || tags.Count == 0)
+        {
+            return (TReason)this; // No changes needed
+        }        
+
+        return CreateNew(Message, Tags.AddRange(tags));        
+    }
+
+    /// <summary>
     /// Factory method for creating new instances (maintains immutability).
     /// Must be implemented by derived classes.
     /// </summary>
-    protected abstract TReason CreateNew(string message, ImmutableDictionary<string, object> tags);
+    protected abstract TReason CreateNew(string message, ImmutableDictionary<string, object> tags);    
 }

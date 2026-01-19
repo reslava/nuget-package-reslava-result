@@ -32,7 +32,7 @@ public sealed class ReasonTests
         var reason = new TestReason("Test");
 
         var ex = Assert.Throws<ArgumentException>(() =>
-            reason.WithTags("", "value"));
+            reason.WithTag("", "value"));
 
         // ✅ Use constant for assertion
         Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, ex.Message);
@@ -42,10 +42,10 @@ public sealed class ReasonTests
     [TestMethod]
     public void WithTags_DuplicateKey_ThrowsConsistentException()
     {
-        var reason = new TestReason("Test").WithTags("Key1", "Value1");
+        var reason = new TestReason("Test").WithTag("Key1", "Value1");
 
         var ex = Assert.Throws<ArgumentException>(() =>
-            reason.WithTags("Key1", "Value2"));
+            reason.WithTag("Key1", "Value2"));
 
         // ✅ Check for consistent message
         Assert.Contains("Key1", ex.Message);

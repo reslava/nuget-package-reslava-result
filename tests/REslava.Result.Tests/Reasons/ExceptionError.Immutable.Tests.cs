@@ -336,7 +336,7 @@ public sealed class ExceptionErrorImmutableTests
         var original = new ExceptionError(exception);
 
         // Act
-        var updated = original.WithTags("UserId", "user-123");
+        var updated = original.WithTag("UserId", "user-123");
 
         // Assert
         Assert.AreNotSame(original, updated);
@@ -354,8 +354,8 @@ public sealed class ExceptionErrorImmutableTests
 
         // Act
         var error = new ExceptionError(exception)
-            .WithTags("UserId", "user-123")
-            .WithTags("Operation", "SaveData");
+            .WithTag("UserId", "user-123")
+            .WithTag("Operation", "SaveData");
 
         // Assert
         Assert.IsTrue(error.Tags.ContainsKey("ExceptionType"));
@@ -373,9 +373,9 @@ public sealed class ExceptionErrorImmutableTests
 
         // Act
         var error = new ExceptionError("Custom message", exception)
-            .WithTags("Step", 1)
+            .WithTag("Step", 1)
             .WithMessage("Updated message")
-            .WithTags("AdditionalInfo", "Info");
+            .WithTag("AdditionalInfo", "Info");
 
         // Assert
         Assert.AreEqual("Updated message", error.Message);
@@ -399,7 +399,7 @@ public sealed class ExceptionErrorImmutableTests
         // Act
         var modified = original
             .WithMessage("Modified")
-            .WithTags("Key", "Value");
+            .WithTag("Key", "Value");
 
         // Assert
         Assert.AreEqual("Original", original.Message);
@@ -418,7 +418,7 @@ public sealed class ExceptionErrorImmutableTests
 
         // Act
         var e1 = e0.WithMessage("M1");
-        var e2 = e1.WithTags("T1", 1);
+        var e2 = e1.WithTag("T1", 1);
         var e3 = e2.WithMessage("M2");
 
         // Assert - All instances reference same exception
@@ -561,9 +561,9 @@ public sealed class ExceptionErrorImmutableTests
 
         // Act
         var error = new ExceptionError("Database operation failed", exception)
-            .WithTags("Server", "localhost")
-            .WithTags("Database", "ProductionDB")
-            .WithTags("Operation", "SaveOrder");
+            .WithTag("Server", "localhost")
+            .WithTag("Database", "ProductionDB")
+            .WithTag("Operation", "SaveOrder");
 
         var result = Result<int>.Fail(error);
 
@@ -583,9 +583,9 @@ public sealed class ExceptionErrorImmutableTests
 
         // Act
         var error = new ExceptionError(outerException)
-            .WithTags("Endpoint", "/api/users")
-            .WithTags("Method", "POST")
-            .WithTags("RetryCount", 3);
+            .WithTag("Endpoint", "/api/users")
+            .WithTag("Method", "POST")
+            .WithTag("RetryCount", 3);
 
         // Assert
         Assert.AreEqual("API call failed", error.Message);
@@ -688,7 +688,7 @@ public sealed class ExceptionErrorImmutableTests
 
         // Act
         ExceptionError e1 = error.WithMessage("M1");
-        ExceptionError e2 = e1.WithTags("K", "V");
+        ExceptionError e2 = e1.WithTag("K", "V");
 
         // Assert - All return ExceptionError
         Assert.IsInstanceOfType<ExceptionError>(e1);
