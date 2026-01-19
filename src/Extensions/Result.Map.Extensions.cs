@@ -41,4 +41,40 @@ public static class ResultTaskExtensions
         var result = await resultTask;
         return await result.MapAsync(mapper);
     }
+
+    /// <summary>
+    /// Adds a success reason to a Task&lt;Result&lt;T&gt;&gt;.
+    /// </summary>
+    /// <typeparam name="T">The value type.</typeparam>
+    /// <param name="resultTask">The task containing the result to add success to.</param>
+    /// <param name="message">The success message to add.</param>
+    /// <returns>A task containing the result with the added success reason.</returns>
+    public static async Task<Result<T>> WithSuccess<T>(
+        this Task<Result<T>> resultTask,
+        string message)
+    {
+        ArgumentNullException.ThrowIfNull(resultTask, nameof(resultTask));
+        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+
+        var result = await resultTask;
+        return result.WithSuccess(message);
+    }
+
+    /// <summary>
+    /// Adds a success reason to a Task&lt;Result&lt;T&gt;&gt;.
+    /// </summary>
+    /// <typeparam name="T">The value type.</typeparam>
+    /// <param name="resultTask">The task containing the result to add success to.</param>
+    /// <param name="success">The success reason to add.</param>
+    /// <returns>A task containing the result with the added success reason.</returns>
+    public static async Task<Result<T>> WithSuccess<T>(
+        this Task<Result<T>> resultTask,
+        ISuccess success)
+    {
+        ArgumentNullException.ThrowIfNull(resultTask, nameof(resultTask));
+        ArgumentNullException.ThrowIfNull(success, nameof(success));
+
+        var result = await resultTask;
+        return result.WithSuccess(success);
+    }
 }

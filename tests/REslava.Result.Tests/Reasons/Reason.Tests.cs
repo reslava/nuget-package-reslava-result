@@ -67,34 +67,27 @@ public sealed class ReasonTests
     }
 
     [TestMethod]
-    public void Constructor_WithNullMessage_UsesEmptyString()
+    public void Constructor_WithNullMessage_ThrowsArgumentException()
     {
-        // Act
-        var reason = new TestReason(null!);
-
-        // Assert
-        Assert.AreEqual(string.Empty, reason.Message);
-        Assert.IsNotNull(reason.Tags);
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() => new TestReason(null!));
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, ex.Message);
     }
 
     [TestMethod]
-    public void Constructor_WithEmptyMessage_UsesEmptyString()
+    public void Constructor_WithEmptyMessage_ThrowsArgumentException()
     {
-        // Act
-        var reason = new TestReason("");
-
-        // Assert
-        Assert.AreEqual(string.Empty, reason.Message);
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() => new TestReason(""));
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, ex.Message);
     }
 
     [TestMethod]
-    public void Constructor_WithWhitespaceMessage_PreservesWhitespace()
+    public void Constructor_WithWhitespaceMessage_ThrowsArgumentException()
     {
-        // Act
-        var reason = new TestReason("   ");
-
-        // Assert
-        Assert.AreEqual("   ", reason.Message);
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() => new TestReason("   "));
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, ex.Message);
     }
 
     #endregion
@@ -156,13 +149,13 @@ public sealed class ReasonTests
         // Arrange
         var reason = new TestReason("Original");
 
-        // Assert - Message property should be get-only
+        // Assert - Message property value
         Assert.AreEqual("Original", reason.Message);
         
-        // Verify through reflection that there's no public setter
+        // With init-only setters, SetMethod exists but is init-only
         var messageProperty = typeof(Reason).GetProperty("Message");
         Assert.IsNotNull(messageProperty);
-        Assert.IsNull(messageProperty!.SetMethod);
+        Assert.IsNotNull(messageProperty!.SetMethod);
     }
 
     [TestMethod]
@@ -200,10 +193,10 @@ public sealed class ReasonTests
             .Add("Key", "Value");
         var reason = new TestReason("Test", tags);
 
-        // Assert - Tags property should be get-only
+        // Assert - With init-only setters, SetMethod exists but is init-only
         var tagsProperty = typeof(Reason).GetProperty("Tags");
         Assert.IsNotNull(tagsProperty);
-        Assert.IsNull(tagsProperty!.SetMethod);
+        Assert.IsNotNull(tagsProperty!.SetMethod);
     }
 
     [TestMethod]
@@ -460,16 +453,14 @@ public sealed class ReasonTests
     #region Null Safety Tests
 
     [TestMethod]
-    public void Message_NeverNull_AlwaysEmptyStringAtMinimum()
+    public void Message_InvalidInputs_ThrowArgumentException()
     {
-        // Arrange & Act
-        var reason1 = new TestReason(null!);
-        var reason2 = new TestReason("");
-        var reason3 = new TestReason("Actual message");
+        // Arrange & Act & Assert
+        Assert.Throws<ArgumentException>(() => new TestReason(null!));
+        Assert.Throws<ArgumentException>(() => new TestReason(""));
+        Assert.Throws<ArgumentException>(() => new TestReason("   "));
 
-        // Assert
-        Assert.IsNotNull(reason1.Message);
-        Assert.IsNotNull(reason2.Message);
+        var reason3 = new TestReason("Actual message");
         Assert.IsNotNull(reason3.Message);
     }
 

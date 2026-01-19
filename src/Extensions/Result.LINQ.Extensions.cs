@@ -534,5 +534,75 @@ public static class ResultLINQExtensions
         return await result.SelectAsync(selector);
     }
 
+    /// <summary>
+    /// Awaits the result then projects each element into a new Result.
+    /// </summary>
+    public static async Task<Result<T>> SelectManyAsync<S, T>(
+        this Task<Result<S>> resultTask,
+        Func<S, Result<T>> selector)
+    {
+        var result = await resultTask;
+        return result.SelectMany(selector);
+    }
+
+    /// <summary>
+    /// Awaits the result then asynchronously projects each element into a new Result.
+    /// </summary>
+    public static async Task<Result<T>> SelectManyAsync<S, T>(
+        this Task<Result<S>> resultTask,
+        Func<S, Task<Result<T>>> selector)
+    {
+        var result = await resultTask;
+        return await result.SelectManyAsync(selector);
+    }
+
+    /// <summary>
+    /// Awaits the result then projects with query syntax support (sync selector, sync resultSelector).
+    /// </summary>
+    public static async Task<Result<T>> SelectManyAsync<S, I, T>(
+        this Task<Result<S>> resultTask,
+        Func<S, Result<I>> selector,
+        Func<S, I, T> resultSelector)
+    {
+        var result = await resultTask;
+        return result.SelectMany(selector, resultSelector);
+    }
+
+    /// <summary>
+    /// Awaits the result then projects with query syntax support (async selector, sync resultSelector).
+    /// </summary>
+    public static async Task<Result<T>> SelectManyAsync<S, I, T>(
+        this Task<Result<S>> resultTask,
+        Func<S, Task<Result<I>>> selector,
+        Func<S, I, T> resultSelector)
+    {
+        var result = await resultTask;
+        return await result.SelectManyAsync(selector, resultSelector);
+    }
+
+    /// <summary>
+    /// Awaits the result then projects with query syntax support (sync selector, async resultSelector).
+    /// </summary>
+    public static async Task<Result<T>> SelectManyAsync<S, I, T>(
+        this Task<Result<S>> resultTask,
+        Func<S, Result<I>> selector,
+        Func<S, I, Task<T>> resultSelector)
+    {
+        var result = await resultTask;
+        return await result.SelectManyAsync(selector, resultSelector);
+    }
+
+    /// <summary>
+    /// Awaits the result then projects with query syntax support (both selector and resultSelector are async).
+    /// </summary>
+    public static async Task<Result<T>> SelectManyAsync<S, I, T>(
+        this Task<Result<S>> resultTask,
+        Func<S, Task<Result<I>>> selector,
+        Func<S, I, Task<T>> resultSelector)
+    {
+        var result = await resultTask;
+        return await result.SelectManyAsync(selector, resultSelector);
+    }
+
     #endregion
 }

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using REslava.Result;
 using REslava.Result.Extensions;
 
@@ -113,7 +114,7 @@ public static class RealWorldScenariosSamples
                 new BusinessRuleError("MinimumAge", "Must be 18 or older")
                     .WithTag("MinimumAge", 18)
             )
-            .TapAsync(r => System.Console.WriteLine("  Validation complete"))
+            .Tap(r => System.Console.WriteLine("  Validation complete"))
             // Check email uniqueness
             .EnsureAsync(
                 async r => await IsEmailUniqueAsync(r.Email),
@@ -495,7 +496,7 @@ public static class RealWorldScenariosSamples
                 .BindAsync(async id => await GetUserFromDatabaseAsync(id))
                 .BindAsync(async user =>
                 {
-                    return await Result.TryAsync(
+                    return (await Result<object>.TryAsync(
                         async () =>
                         {
                             await Task.Delay(10); // Simulate update
@@ -505,11 +506,12 @@ public static class RealWorldScenariosSamples
                             {
                                 throw new Exception("Connection timeout");
                             }
+                            return new object(); // Return dummy value
                         },
                         ex => new DatabaseError($"Update failed: {ex.Message}")
                             .WithQuery($"UPDATE Users SET Email = @email WHERE Id = @id")
                             .WithRetryCount(attempt)
-                    )
+                    ))
                     .Map(_ => user);
                 });
 
@@ -848,27 +850,118 @@ public static class RealWorldScenariosSamples
     private class ApiError : Reason<ApiError>, IError
     {
         public ApiError(string message) : base(message) { }
+        public ApiError(string message, ImmutableDictionary<string, object> tags) : base(message, tags) { }
 
         public ApiError WithEndpoint(string endpoint) => WithTag("Endpoint", endpoint);
         public ApiError WithHttpMethod(string method) => WithTag("HttpMethod", method);
         public ApiError WithStatusCode(int code) => WithTag("StatusCode", code);
         public ApiError WithRetryAfter(int seconds) => WithTag("RetryAfter", seconds);
+
+        protected override ApiError CreateNew(string message, System.Collections.Immutable.ImmutableDictionary<string, object> tags)
+        {
+            return new ApiError(message, tags);
+        }
     }
 
     private class InventoryError : Reason<InventoryError>, IError
     {
-        public InventoryError(string code, string message) : base(message)
-        {
-            WithTag("ErrorCode", code);
-        }
+       public InventoryError(string code, string message) : base(message)
+       {
+           WithTag("ErrorCode", code);
+       }
+       public InventoryError(string code, string message, ImmutableDictionary<string, object> tags) : base(message, tags) 
+       {
+           WithTag("ErrorCode", code);
+       }
+       public InventoryError(string message, ImmutableDictionary<string, object> tags) : base(message, tags) { }
 
-        public InventoryError WithProductId(string id) => WithTag("ProductId", id);
-        public InventoryError WithRequestedQuantity(int qty) => WithTag("RequestedQuantity", qty);
+
+       public InventoryError WithProductId(string id) => WithTag("ProductId", id);
+       public InventoryError WithRequestedQuantity(int qty) => WithTag("RequestedQuantity", qty);
+
+       protected override InventoryError CreateNew(string message, ImmutableDictionary<string, object> tags)
+       {
+           return new InventoryError(message, tags);
+       }
     }
+    // // private class InventoryError : Reason<InventoryError>, IError
+    // // {
+    // //     // Private constructor - only factory methods can create instances
+    // //     private InventoryError(string message, ImmutableDictionary<string, object> tags)
+    // //         : base(message, tags) { }
 
+    // //     // Factory methods for common scenarios
+    // //     public static InventoryError OutOfStock(string productId, int requested, int available)
+    // //     {
+    // //         var tags = ImmutableDictionary<string, object>.Empty
+    // //             .Add("ErrorCode", "OUT_OF_STOCK")
+    // //             .Add("ProductId", productId)
+    // //             .Add("RequestedQuantity", requested)
+    // //             .Add("AvailableQuantity", available);
+
+    // //         return new InventoryError(
+    // //             $"Insufficient stock for {productId}. Requested: {requested}, Available: {available}",
+    // //             tags);
+    // //     }
+
+    // //     public static InventoryError InvalidQuantity(string productId, int quantity)
+    // //     {
+    // //         var tags = ImmutableDictionary<string, object>.Empty
+    // //             .Add("ErrorCode", "INVALID_QUANTITY")
+    // //             .Add("ProductId", productId)
+    // //             .Add("Quantity", quantity);
+
+    // //         return new InventoryError(
+    // //             $"Invalid quantity {quantity} for product {productId}",
+    // //             tags);
+    // //     }
+
+    // //     public static InventoryError ProductNotFound(string productId)
+    // //     {
+    // //         var tags = ImmutableDictionary<string, object>.Empty
+    // //             .Add("ErrorCode", "PRODUCT_NOT_FOUND")
+    // //             .Add("ProductId", productId);
+
+    // //         return new InventoryError(
+    // //             $"Product {productId} not found in inventory",
+    // //             tags);
+    // //     }
+
+    // //     // CRTP factory method
+    // //     protected override InventoryError CreateNew(
+    // //         string message,
+    // //         ImmutableDictionary<string, object> tags)
+    // //     {
+    // //         return new InventoryError(message, tags);
+    // //     }
+    // // }
+
+    // Usage:
+    //////public Result<Order> ProcessOrder(string productId, int quantity)
+    //////{
+    //////    var available = GetAvailableQuantity(productId);
+
+    //////    if (available < quantity)
+    //////    {
+    //////        return Result<Order>.Fail(
+    //////            InventoryError.OutOfStock(productId, quantity, available)
+    //////                .WithTag("WarehouseId", "WH-5")  // Can still add more tags
+    //////        );
+    //////    }
+
+    //////    // ... rest of order processing
+    //////}
     private class FileError : Reason<FileError>, IError
     {
         public FileError(string message) : base(message) { }
+
+        private FileError(string message, ImmutableDictionary<string, object> tags) 
+            : base(message, tags) { }
+
+        protected override FileError CreateNew(string message, ImmutableDictionary<string, object> tags)
+        {
+            return new FileError(message, tags);
+        }
 
         public FileError WithFilePath(string path) => WithTag("FilePath", path);
     }
@@ -876,6 +969,14 @@ public static class RealWorldScenariosSamples
     private class DatabaseError : Reason<DatabaseError>, IError
     {
         public DatabaseError(string message) : base(message) { }
+
+        private DatabaseError(string message, ImmutableDictionary<string, object> tags) 
+            : base(message, tags) { }
+
+        protected override DatabaseError CreateNew(string message, ImmutableDictionary<string, object> tags)
+        {
+            return new DatabaseError(message, tags);
+        }
 
         public DatabaseError WithQuery(string query) => WithTag("Query", query);
         public DatabaseError WithRetryCount(int count) => WithTag("RetryCount", count);
@@ -885,6 +986,14 @@ public static class RealWorldScenariosSamples
     {
         public FraudDetectedError(string message) : base(message) { }
 
+        private FraudDetectedError(string message, ImmutableDictionary<string, object> tags) 
+            : base(message, tags) { }
+
+        protected override FraudDetectedError CreateNew(string message, ImmutableDictionary<string, object> tags)
+        {
+            return new FraudDetectedError(message, tags);
+        }
+
         public FraudDetectedError WithRiskScore(double score) => WithTag("RiskScore", score);
     }
 
@@ -892,12 +1001,15 @@ public static class RealWorldScenariosSamples
     {
         public EmailError(string message) : base(message) { }
 
-        public EmailError WithRecipient(string email) => WithTag("Recipient", email);
+        private EmailError(string message, ImmutableDictionary<string, object> tags) 
+            : base(message, tags) { }
 
-        protected override EmailError CreateNew(string message, System.Collections.Immutable.ImmutableDictionary<string, object> tags)
+        protected override EmailError CreateNew(string message, ImmutableDictionary<string, object> tags)
         {
-            throw new NotImplementedException();
+            return new EmailError(message, tags);
         }
+
+        public EmailError WithRecipient(string email) => WithTag("Recipient", email);
     }
 
     #endregion
@@ -947,7 +1059,7 @@ public static class RealWorldScenariosSamples
 
     private class FileProcessingResult
     {
-        public int RecorRecordCount { get; set; }
+        public int RecordCount { get; set; }
         public int ValidRecords { get; set; }
         public int InvalidRecords { get; set; }
         public List<CsvRecord> Records { get; set; } = new();

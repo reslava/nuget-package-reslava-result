@@ -37,15 +37,10 @@ public sealed class ErrorImmutableTests
     }
 
     [TestMethod]
-    public void Constructor_WithNullMessage_UsesEmptyString()
+    public void Constructor_WithNullMessage_ThrowsArgumentException()
     {
-        // Act
-        //var error = new Error(null!);
-        Action act = () => { new Error(null!); };
-
-        // Assert
-        //Assert.AreEqual(string.Empty, error.Message);
-        Assert.Throws<ArgumentNullException>(() => act()); 
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => new Error(null!));
     }
 
     #endregion
@@ -90,8 +85,7 @@ public sealed class ErrorImmutableTests
         var exception = Assert.Throws<ArgumentException>(() => 
             error.WithMessage(null!));
 
-        //Assert.AreEqual("Message cannot be empty (Parameter 'message')", exception.Message);
-        Assert.AreEqual("Value cannot be null. (Parameter 'message')", exception.Message);        
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, exception.Message);
     }
 
     [TestMethod]
@@ -235,7 +229,8 @@ public sealed class ErrorImmutableTests
         var exception = Assert.Throws<ArgumentException>(() => 
             withTag.WithTag("Key", "Value2"));
         
-        Assert.AreEqual("Tag with key 'Key' already exists. (Parameter 'key')", exception.Message);
+        Assert.Contains("Key", exception.Message);
+        Assert.Contains(ValidationExtensions.DefaultKeyExistsMessage, exception.Message);
     }
 
     #endregion
@@ -322,7 +317,8 @@ public sealed class ErrorImmutableTests
                 ("Key1", "Value2")  // Duplicate
             ));
         
-        Assert.AreEqual("Tag with key 'Key1' already exists (Parameter 'key')", exception.Message);                
+        Assert.Contains("Key1", exception.Message);
+        Assert.Contains(ValidationExtensions.DefaultKeyExistsMessage, exception.Message);
     }
 
     #endregion

@@ -11,16 +11,10 @@ public sealed class SuccessImmutableTests
     #region Constructor Tests
 
     [TestMethod]
-    public void Constructor_Default_CreatesSuccessWithEmptyMessage()
+    public void Constructor_Default_ThrowsArgumentException()
     {
-        // Act
-        var success = new Success();
-
-        // Assert
-        Assert.IsNotNull(success);
-        Assert.AreEqual(string.Empty, success.Message);
-        Assert.IsNotNull(success.Tags);
-        Assert.IsTrue(success.Tags.IsEmpty);
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => new Success());
     }
 
     [TestMethod]
@@ -35,23 +29,19 @@ public sealed class SuccessImmutableTests
     }
 
     [TestMethod]
-    public void Constructor_WithNullMessage_UsesEmptyString()
+    public void Constructor_WithNullMessage_ThrowsArgumentException()
     {
-        // Act
-        var success = new Success(null!);
-
-        // Assert
-        Assert.AreEqual(string.Empty, success.Message);
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() => new Success(null!));
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, ex.Message);
     }
 
     [TestMethod]
-    public void Constructor_WithEmptyMessage_CreatesSuccessWithEmptyMessage()
+    public void Constructor_WithEmptyMessage_ThrowsArgumentException()
     {
-        // Act
-        var success = new Success("");
-
-        // Assert
-        Assert.AreEqual(string.Empty, success.Message);
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() => new Success(""));
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, ex.Message);
     }
 
     #endregion
@@ -96,7 +86,7 @@ public sealed class SuccessImmutableTests
         var exception = Assert.Throws<ArgumentException>(() => 
             success.WithMessage(null!));
         
-        Assert.AreEqual("Message cannot be empty (Parameter 'message')", exception.Message);
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, exception.Message);
     }
 
     [TestMethod]
@@ -230,7 +220,8 @@ public sealed class SuccessImmutableTests
         var exception = Assert.Throws<ArgumentException>(() => 
             withTag.WithTag("Key", "Value2"));
         
-        Assert.AreEqual("Tag with key 'Key' already exists (Parameter 'key')", exception.Message);
+        Assert.Contains("Key", exception.Message);
+        Assert.Contains(ValidationExtensions.DefaultKeyExistsMessage, exception.Message);
     }
 
     #endregion
@@ -315,7 +306,8 @@ public sealed class SuccessImmutableTests
                 ("Key1", "Value2")
             ));
         
-        Assert.AreEqual("Tag with key 'Key1' already exists (Parameter 'key')", exception.Message);
+        Assert.Contains("Key1", exception.Message);
+        Assert.Contains(ValidationExtensions.DefaultKeyExistsMessage, exception.Message);
     }
 
     #endregion
@@ -408,30 +400,24 @@ public sealed class SuccessImmutableTests
     public void Success_ImplementsISuccess()
     {
         // Arrange
-        var success = new Success();
-
-        // Assert
-        Assert.IsInstanceOfType<ISuccess>(success);
+        // Act & Assert
+        Assert.IsInstanceOfType<ISuccess>(new Success("X"));
     }
 
     [TestMethod]
     public void Success_ImplementsIReason()
     {
         // Arrange
-        var success = new Success();
-
-        // Assert
-        Assert.IsInstanceOfType<IReason>(success);
+        // Act & Assert
+        Assert.IsInstanceOfType<IReason>(new Success("X"));
     }
 
     [TestMethod]
     public void Success_InheritsFromReasonOfSuccess()
     {
         // Arrange
-        var success = new Success();
-
-        // Assert
-        Assert.IsInstanceOfType<Reason<Success>>(success);
+        // Act & Assert
+        Assert.IsInstanceOfType<Reason<Success>>(new Success("X"));
     }
 
     #endregion

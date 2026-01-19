@@ -307,6 +307,24 @@ public sealed class ExceptionErrorImmutableTests
         // Only immediate inner exception is captured
     }
 
+    [TestMethod]
+    public void Tags_InnerExceptionWithoutStackTrace_ContainsOnlyTypeAndInner()
+    {
+        // Arrange: create exception without throwing to avoid stack trace
+        var inner = new Exception("Inner only");
+        var outer = new Exception("Outer", inner);
+
+        // Act
+        var error = new ExceptionError(outer);
+
+        // Assert
+        Assert.AreEqual(2, error.Tags.Count); // ExceptionType + InnerException
+        Assert.IsTrue(error.Tags.ContainsKey("ExceptionType"));
+        Assert.IsTrue(error.Tags.ContainsKey("InnerException"));
+        Assert.IsFalse(error.Tags.ContainsKey("StackTrace"));
+        Assert.AreEqual("Inner only", error.Tags["InnerException"]);
+    }
+
     #endregion
 
     #region Fluent Interface Tests (Immutability)
@@ -383,6 +401,39 @@ public sealed class ExceptionErrorImmutableTests
         Assert.IsTrue(error.Tags.ContainsKey("ExceptionType"));
         Assert.IsTrue(error.Tags.ContainsKey("Step"));
         Assert.IsTrue(error.Tags.ContainsKey("AdditionalInfo"));
+    }
+
+    [TestMethod]
+    public void FluentInterface_WithTag_DuplicateKey_Throws()
+    {
+        // Arrange
+        var exception = new Exception("Test");
+        var original = new ExceptionError(exception).WithTag("K", "V1");
+
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() => original.WithTag("K", "V2"));
+        Assert.Contains("K", ex.Message);
+        Assert.Contains(ValidationExtensions.DefaultKeyExistsMessage, ex.Message);
+    }
+
+    [TestMethod]
+    public void FluentInterface_WithMessage_PreservesAllExistingTags()
+    {
+        // Arrange
+        var exception = new Exception("Test");
+        var original = new ExceptionError(exception).WithTag("A", 1);
+
+        // Act
+        var updated = original.WithMessage("New message");
+
+        // Assert
+        Assert.AreNotSame(original, updated);
+        Assert.AreEqual("New message", updated.Message);
+        Assert.AreSame(original.Exception, updated.Exception);
+        // Tags preserved exactly
+        Assert.AreEqual(original.Tags.Count, updated.Tags.Count);
+        Assert.AreEqual(1, updated.Tags["A"]);
+        Assert.AreEqual(original.Tags["ExceptionType"], updated.Tags["ExceptionType"]);
     }
 
     #endregion
@@ -662,6 +713,25 @@ public sealed class ExceptionErrorImmutableTests
     }
 
     [TestMethod]
+    public void ExceptionError_WithAggregateException_InnerMessageIsFirstInner()
+    {
+        // Arrange
+        var innerExceptions = new Exception[]
+        {
+            new InvalidOperationException("First inner"),
+            new ArgumentException("Second inner")
+        };
+        var aggregateException = new AggregateException("Aggregated", innerExceptions);
+
+        // Act
+        var error = new ExceptionError(aggregateException);
+
+        // Assert
+        Assert.IsTrue(error.Tags.ContainsKey("InnerException"));
+        Assert.AreEqual("First inner", error.Tags["InnerException"]);
+    }
+
+    [TestMethod]
     public void ExceptionError_WithCustomException()
     {
         // Arrange
@@ -673,6 +743,19 @@ public sealed class ExceptionErrorImmutableTests
         // Assert
         Assert.AreEqual("Business rule violation", error.Message);
         Assert.AreEqual("CustomBusinessException", error.Tags["ExceptionType"]);
+    }
+
+    [TestMethod]
+    public void ExceptionError_WithDerivedCustomException_RecordsExactTypeName()
+    {
+        // Arrange
+        var custom = new VeryCustomException("Boom");
+
+        // Act
+        var error = new ExceptionError(custom);
+
+        // Assert
+        Assert.AreEqual("VeryCustomException", error.Tags["ExceptionType"]);
     }
 
     #endregion
@@ -707,6 +790,11 @@ public sealed class ExceptionErrorImmutableTests
     private class CustomBusinessException : Exception
     {
         public CustomBusinessException(string message) : base(message) { }
+    }
+
+    private class VeryCustomException : InvalidOperationException
+    {
+        public VeryCustomException(string message) : base(message) { }
     }
 
     #endregion

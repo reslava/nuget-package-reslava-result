@@ -303,7 +303,7 @@ public static class AsyncOperationsSamples
         System.Console.WriteLine("--- MatchAsync ---");
 
         // Async Match on async result (with return value)
-        var message1 = await GetUserAsync(1)
+        var message1 = await (await GetUserAsync(1))
             .MatchAsync(
                 onSuccess: async user =>
                 {
@@ -320,7 +320,7 @@ public static class AsyncOperationsSamples
         System.Console.WriteLine($"MatchAsync with return: {message1}");
 
         // Async Match (actions only)
-        await GetUserAsync(1)
+        await (await GetUserAsync(1))
             .MatchAsync(
                 onSuccess: async user =>
                 {
@@ -426,7 +426,7 @@ public static class AsyncOperationsSamples
 
         var result = await Result<int>.Ok(userId, "User ID received")
             .WithSuccess("Request validated")
-            .TapAsync(id => System.Console.WriteLine($"  Processing user ID: {id}"))
+            .Tap(id => System.Console.WriteLine($"  Processing user ID: {id}"))
             .BindAsync(async id =>
             {
                 System.Console.WriteLine("  Fetching user...");
@@ -471,7 +471,7 @@ public static class AsyncOperationsSamples
         System.Console.WriteLine("\n--- Failed Pipeline ---");
 
         var failedResult = await Result<int>.Ok(999)
-            .TapAsync(id => System.Console.WriteLine($"  Processing ID: {id}"))
+            .Tap(id => System.Console.WriteLine($"  Processing ID: {id}"))
             .BindAsync(async id =>
             {
                 System.Console.WriteLine("  Attempting to fetch user...");

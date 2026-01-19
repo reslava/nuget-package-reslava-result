@@ -85,7 +85,7 @@ public sealed class ReasonGenericTests
         var exception = Assert.Throws<ArgumentException>(() => 
             reason.WithMessage(null!));                    
         
-        Assert.Contains(ValidationExtensions.DefaultNullMessage, exception.Message);
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, exception.Message);
     }
 
     [TestMethod]
@@ -209,7 +209,7 @@ public sealed class ReasonGenericTests
         var exception = Assert.Throws<ArgumentException>(() => 
             reason.WithTag(null!, "Value"));
         
-        Assert.AreEqual("key cannot be null or whitespace. (Parameter 'key')", exception.Message);
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, exception.Message);
     }
 
     [TestMethod]
@@ -222,8 +222,7 @@ public sealed class ReasonGenericTests
         var exception = Assert.Throws<ArgumentException>(() => 
             reason.WithTag("", "Value"));
         
-        //Assert.AreEqual($"{key cannot be null or whitespace. (Parameter 'key')}", exception.Message);
-        Assert.AreEqual($"{ValidationExtensions.DefaultNullOrWhitespaceMessage}", exception.Message);
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, exception.Message);
     }
 
     [TestMethod]
@@ -236,7 +235,7 @@ public sealed class ReasonGenericTests
         var exception = Assert.Throws<ArgumentException>(() => 
             reason.WithTag("   ", "Value"));
         
-        Assert.AreEqual("key cannot be null or whitespace. (Parameter 'key')", exception.Message);
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, exception.Message);
     }
 
     [TestMethod]
@@ -251,7 +250,8 @@ public sealed class ReasonGenericTests
         var exception = Assert.Throws<ArgumentException>(() => 
             reason.WithTag("Existing", "Value2"));
         
-        Assert.AreEqual("Tag with key 'Existing' already exists. (Parameter 'key')", exception.Message);
+        Assert.Contains("Existing", exception.Message);
+        Assert.Contains(ValidationExtensions.DefaultKeyExistsMessage, exception.Message);
     }
 
     [TestMethod]
@@ -375,7 +375,7 @@ public sealed class ReasonGenericTests
                 (null!, "Value2")
             ));
 
-        Assert.Contains(ValidationExtensions.DefaultNullMessage, exception.Message);        
+        Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, exception.Message);        
     }
 
     [TestMethod]

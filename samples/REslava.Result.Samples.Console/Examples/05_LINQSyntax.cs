@@ -223,13 +223,13 @@ public static class LINQSyntaxSamples
                      where userId > 0
                      from user in GetUser(userId)
                      where user.Age >= 18
-                     from email in GetUserEmail(user)
-                     where email.Contains("@")
+                     from userEmail in GetUserEmail(user)
+                     where userEmail.Contains("@")
                      select new UserProfile
                      {
                          Id = userId,
                          Name = user.Name,
-                         Email = email,
+                         Email = userEmail,
                          IsAdult = user.Age >= 18
                      };
 
