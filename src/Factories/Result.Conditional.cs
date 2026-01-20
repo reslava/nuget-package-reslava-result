@@ -27,6 +27,15 @@ public partial class Result
     /// <summary>
     /// Returns Ok if condition is true, otherwise Fail with error.
     /// </summary>
+    /// <param name="condition">The condition to evaluate.</param>
+    /// <param name="error">The error to return if condition is false.</param>
+    /// <returns>Ok if condition is true, otherwise a failed result.</returns>
+    /// <example>
+    /// <code>
+    /// var error = new ValidationError("User must be active");
+    /// var result = Result.OkIf(user.IsActive, error);
+    /// </code>
+    /// </example>
     public static Result OkIf(bool condition, IError error)
     {
         ArgumentNullException.ThrowIfNull(error, nameof(error));
@@ -39,6 +48,19 @@ public partial class Result
     /// <summary>
     /// Returns Ok with success message if condition is true, otherwise Fail.
     /// </summary>
+    /// <param name="condition">The condition to evaluate.</param>
+    /// <param name="errorMessage">The error message if condition is false.</param>
+    /// <param name="successMessage">The success message if condition is true.</param>
+    /// <returns>Ok with success message if condition is true, otherwise a failed result.</returns>
+    /// <example>
+    /// <code>
+    /// var result = Result.OkIf(
+    ///     age >= 18, 
+    ///     "Must be 18 or older",
+    ///     "Age validation passed"
+    /// );
+    /// </code>
+    /// </example>
     public static Result OkIf(
         bool condition, 
         string errorMessage, 
@@ -55,6 +77,17 @@ public partial class Result
     /// <summary>
     /// Evaluates condition lazily - useful for expensive checks.
     /// </summary>
+    /// <param name="predicate">Function that returns the condition to evaluate.</param>
+    /// <param name="errorMessage">The error message if condition is false.</param>
+    /// <returns>Ok if condition is true, otherwise a failed result.</returns>
+    /// <example>
+    /// <code>
+    /// var result = Result.OkIf(
+    ///     () => _database.IsUserActive(userId),
+    ///     "User is not active"
+    /// );
+    /// </code>
+    /// </example>
     public static Result OkIf(Func<bool> predicate, string errorMessage)
     {
         ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
@@ -75,6 +108,17 @@ public partial class Result
     /// <summary>
     /// Async version - evaluates condition asynchronously.
     /// </summary>
+    /// <param name="predicate">Async function that returns the condition to evaluate.</param>
+    /// <param name="errorMessage">The error message if condition is false.</param>
+    /// <returns>A task containing Ok if condition is true, otherwise a failed result.</returns>
+    /// <example>
+    /// <code>
+    /// var result = await Result.OkIfAsync(
+    ///     () => _api.CheckUserExistsAsync(userId),
+    ///     "User does not exist"
+    /// );
+    /// </code>
+    /// </example>
     public static async Task<Result> OkIfAsync(
         Func<Task<bool>> predicate, 
         string errorMessage)
@@ -119,6 +163,15 @@ public partial class Result
     /// <summary>
     /// Returns Fail if condition is true, otherwise Ok with error.
     /// </summary>
+    /// <param name="condition">The condition to evaluate.</param>
+    /// <param name="error">The error to return if condition is true.</param>
+    /// <returns>Fail if condition is true, otherwise Ok.</returns>
+    /// <example>
+    /// <code>
+    /// var error = new ValidationError("Account is suspended");
+    /// var result = Result.FailIf(user.IsSuspended, error);
+    /// </code>
+    /// </example>
     public static Result FailIf(bool condition, IError error)
     {
         ArgumentNullException.ThrowIfNull(error, nameof(error));
@@ -131,6 +184,19 @@ public partial class Result
     /// <summary>
     /// Returns Fail if condition is true, otherwise Ok with success message.
     /// </summary>
+    /// <param name="condition">The condition to evaluate.</param>
+    /// <param name="errorMessage">The error message if condition is true.</param>
+    /// <param name="successMessage">The success message if condition is false.</param>
+    /// <returns>Fail if condition is true, otherwise Ok with success message.</returns>
+    /// <example>
+    /// <code>
+    /// var result = Result.FailIf(
+    ///     age &lt; 18,
+    ///     "Must be 18 or older",
+    ///     "Age validation passed"
+    /// );
+    /// </code>
+    /// </example>
     public static Result FailIf(
         bool condition, 
         string errorMessage, 
@@ -147,6 +213,17 @@ public partial class Result
     /// <summary>
     /// Evaluates condition lazily.
     /// </summary>
+    /// <param name="predicate">Function that returns the condition to evaluate.</param>
+    /// <param name="errorMessage">The error message if condition is true.</param>
+    /// <returns>Fail if condition is true, otherwise Ok.</returns>
+    /// <example>
+    /// <code>
+    /// var result = Result.FailIf(
+    ///     () => _database.IsAccountSuspended(userId),
+    ///     "Account is suspended"
+    /// );
+    /// </code>
+    /// </example>
     public static Result FailIf(Func<bool> predicate, string errorMessage)
     {
         ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
@@ -167,6 +244,17 @@ public partial class Result
     /// <summary>
     /// Async version.
     /// </summary>
+    /// <param name="predicate">Async function that returns the condition to evaluate.</param>
+    /// <param name="errorMessage">The error message if condition is true.</param>
+    /// <returns>A task containing Fail if condition is true, otherwise Ok.</returns>
+    /// <example>
+    /// <code>
+    /// var result = await Result.FailIfAsync(
+    ///     () => _api.IsAccountSuspendedAsync(userId),
+    ///     "Account is suspended"
+    /// );
+    /// </code>
+    /// </example>
     public static async Task<Result> FailIfAsync(
         Func<Task<bool>> predicate, 
         string errorMessage)

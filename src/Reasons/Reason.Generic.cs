@@ -55,9 +55,21 @@ public abstract class Reason<TReason> : Reason
     }
 
     /// <summary>
-    /// Creates a new instance with multiple additional tags (immutable).
+    /// Creates a new instance with additional tags from a dictionary (immutable).
     /// Throws if any key already exists.
     /// </summary>
+    /// <param name="tags">Dictionary containing tags to add.</param>
+    /// <returns>A new instance with the added tags.</returns>
+    /// <example>
+    /// <code>
+    /// var error = new ValidationError("Invalid input")
+    ///     .WithTagsFrom(new Dictionary&lt;string, object&gt;
+    ///     {
+    ///         ["Field"] = "Email",
+    ///         ["Value"] = "invalid-email"
+    ///     });
+    /// </code>
+    /// </example>
     public TReason WithTagsFrom(ImmutableDictionary<string, object> tags)
     {
         if (tags is null || tags.Count == 0)

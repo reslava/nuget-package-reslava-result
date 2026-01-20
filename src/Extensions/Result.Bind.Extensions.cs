@@ -14,6 +14,12 @@ public static class ResultBindExtensions
     /// <param name="resultTask">The task containing the result to bind.</param>
     /// <param name="binder">The function that returns a new result.</param>
     /// <returns>A task containing the bound result.</returns>
+    /// <example>
+    /// <code>
+    /// var result = await GetUserAsync(userId)
+    ///     .BindAsync(user => SaveUserAsync(user));
+    /// </code>
+    /// </example>
     public static async Task<Result<U>> BindAsync<T, U>(
             this Task<Result<T>> resultTask,
             Func<T, Task<Result<U>>> binder)

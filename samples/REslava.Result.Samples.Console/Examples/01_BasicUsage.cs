@@ -7,7 +7,7 @@ namespace REslava.Result.Samples.Console;
 /// </summary>
 public static class BasicUsageSamples
 {
-    public static async Task Run()
+    public static Task Run()
     {
         System.Console.WriteLine("=== Basic Usage Samples ===\n");
 
@@ -21,6 +21,7 @@ public static class BasicUsageSamples
         ErrorMetadata();
 
         System.Console.WriteLine("\n=== Basic Usage Complete ===\n");
+        return Task.CompletedTask;
     }
 
     #region Success Results
