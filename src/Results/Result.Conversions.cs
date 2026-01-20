@@ -52,7 +52,7 @@ public partial class Result
 
 public partial class Result<TValue>
 {
-    #region Implicit Conversions - Simple Types (Never Throw)
+    #region Implicit Conversions - Simple Types (Throws for null)
 
     /// <summary>
     /// Implicitly converts a value to a successful Result.
@@ -62,62 +62,37 @@ public partial class Result<TValue>
 
     /// <summary>
     /// Implicitly converts an Error to a failed Result.
-    /// Returns a ConversionError if the error is null.
+    /// Throws for null input to fail fast for programmer errors.
     /// </summary>
     public static implicit operator Result<TValue>(Error error)
     {
-        // ✅ Graceful handling: null becomes ConversionError
-        if (error == null)
-        {
-            var conversionError = new ConversionError("Null error provided")
-                .WithConversionType("Error")
-                .WithProvidedValue("null");
-
-            return Fail(conversionError);
-        }
-
+        ValidationExtensions.EnsureNotNull(error, nameof(error));
         return Fail(error);
     }
 
     /// <summary>
     /// Implicitly converts an ExceptionError to a failed Result.
-    /// Returns a ConversionError if the error is null.
+    /// Throws for null input to fail fast for programmer errors.
     /// </summary>
     public static implicit operator Result<TValue>(ExceptionError error)
     {
-        // ✅ Graceful handling: null becomes ConversionError
-        if (error == null)
-        {
-            var conversionError = new ConversionError("Null exception error provided")
-                .WithConversionType("ExceptionError")
-                .WithProvidedValue("null");
-
-            return Fail(conversionError);
-        }
-
+        ValidationExtensions.EnsureNotNull(error, nameof(error));
         return Fail(error);
     }
 
     #endregion
 
-    #region Implicit Conversions - Collections (Never Throw)
+    #region Implicit Conversions - Collections (Throws for null, handles empty gracefully)
 
     /// <summary>
     /// Implicitly converts an array of Errors to a failed Result.
-    /// Returns a ConversionError if the array is null or empty.
+    /// Throws for null input to fail fast for programmer errors.
+    /// Returns a ConversionError if the array is empty.
     /// </summary>
     public static implicit operator Result<TValue>(Error[] errors)
     {
-        // ✅ NULL case: Return ConversionError
-        if (errors == null)
-        {
-            var conversionError = new ConversionError("Null error array provided")
-                .WithConversionType("Error[]")
-                .WithProvidedValue("null");
-
-            return Fail(conversionError);
-        }
-
+        ValidationExtensions.EnsureArrayNotNull(errors, nameof(errors));
+        
         // ✅ EMPTY case: Return ConversionError
         if (errors.Length == 0)
         {
@@ -134,19 +109,13 @@ public partial class Result<TValue>
 
     /// <summary>
     /// Implicitly converts a List of Errors to a failed Result.
-    /// Returns a ConversionError if the list is null or empty.
+    /// Throws for null input to fail fast for programmer errors.
+    /// Returns a ConversionError if the list is empty.
     /// </summary>
     public static implicit operator Result<TValue>(List<Error> errors)
     {
-        if (errors == null)
-        {
-            var conversionError = new ConversionError("Null error list provided")
-                .WithConversionType("List<Error>")
-                .WithProvidedValue("null");
-
-            return Fail(conversionError);
-        }
-
+        ValidationExtensions.EnsureNotNull(errors, nameof(errors));
+        
         if (errors.Count == 0)
         {
             var conversionError = new ConversionError("Empty error list provided")
@@ -161,19 +130,13 @@ public partial class Result<TValue>
 
     /// <summary>
     /// Implicitly converts an array of ExceptionErrors to a failed Result.
-    /// Returns a ConversionError if the array is null or empty.
+    /// Throws for null input to fail fast for programmer errors.
+    /// Returns a ConversionError if the array is empty.
     /// </summary>
     public static implicit operator Result<TValue>(ExceptionError[] errors)
     {
-        if (errors == null)
-        {
-            var conversionError = new ConversionError("Null exception error array provided")
-                .WithConversionType("ExceptionError[]")
-                .WithProvidedValue("null");
-
-            return Fail(conversionError);
-        }
-
+        ValidationExtensions.EnsureArrayNotNull(errors, nameof(errors));
+        
         if (errors.Length == 0)
         {
             var conversionError = new ConversionError("Empty exception error array provided")
@@ -188,19 +151,13 @@ public partial class Result<TValue>
 
     /// <summary>
     /// Implicitly converts a List of ExceptionErrors to a failed Result.
-    /// Returns a ConversionError if the list is null or empty.
+    /// Throws for null input to fail fast for programmer errors.
+    /// Returns a ConversionError if the list is empty.
     /// </summary>
     public static implicit operator Result<TValue>(List<ExceptionError> errors)
     {
-        if (errors == null)
-        {
-            var conversionError = new ConversionError("Null exception error list provided")
-                .WithConversionType("List<ExceptionError>")
-                .WithProvidedValue("null");
-
-            return Fail(conversionError);
-        }
-
+        ValidationExtensions.EnsureNotNull(errors, nameof(errors));
+        
         if (errors.Count == 0)
         {
             var conversionError = new ConversionError("Empty exception error list provided")

@@ -49,41 +49,29 @@ public sealed class ResultConversionsEdgeCasesTests
     }
 
     [TestMethod]
-    public void ImplicitConversion_FromNullError_CreatesConversionError()
+    public void ImplicitConversion_FromNullError_ThrowsArgumentNullException()
     {
         // Arrange
         Error error = null!;
 
-        // Act
-        Result<int> result = error;
-
-        // Assert
-        Assert.IsTrue(result.IsFailed);
-        Assert.HasCount(1, result.Errors);
-        
-        var conversionError = result.Errors[0] as ConversionError;
-        Assert.IsNotNull(conversionError);
-        Assert.Contains("Null error provided", conversionError.Message);
-        Assert.AreEqual("Error", conversionError.Tags["ConversionType"]);
-        Assert.AreEqual("null", conversionError.Tags["ProvidedValue"]);
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() =>
+        {
+            Result<int> result = error;
+        });
     }
 
     [TestMethod]
-    public void ImplicitConversion_FromNullExceptionError_CreatesConversionError()
+    public void ImplicitConversion_FromNullExceptionError_ThrowsArgumentNullException()
     {
         // Arrange
         ExceptionError error = null!;
 
-        // Act
-        Result<string> result = error;
-
-        // Assert
-        Assert.IsTrue(result.IsFailed);
-        Assert.HasCount(1, result.Errors);
-        
-        var conversionError = result.Errors[0] as ConversionError;
-        Assert.IsNotNull(conversionError);
-        Assert.Contains("Null exception error provided", conversionError.Message);
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() =>
+        {
+            Result<string> result = error;
+        });
     }
 
     #endregion
@@ -111,24 +99,16 @@ public sealed class ResultConversionsEdgeCasesTests
     }
 
     [TestMethod]
-    public void ImplicitConversion_FromNullErrorArray_CreatesConversionError()
+    public void ImplicitConversion_FromNullErrorArray_ThrowsArgumentNullException()
     {
         // Arrange
         Error[] errors = null!;
 
-        // Act
-        Result<int> result = errors;
-
-        // Assert
-        Assert.IsTrue(result.IsFailed);
-        Assert.HasCount(1, result.Errors);
-        
-        var conversionError = result.Errors[0] as ConversionError;
-        Assert.IsNotNull(conversionError);
-        Assert.Contains("Null error array provided", conversionError.Message);
-        Assert.AreEqual("Error[]", conversionError.Tags["ConversionType"]);
-        Assert.AreEqual("null", conversionError.Tags["ProvidedValue"]);
-        Assert.AreEqual("Warning", conversionError.Tags["Severity"]);
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() =>
+        {
+            Result<int> result = errors;
+        });
     }
 
     [TestMethod]
@@ -175,24 +155,16 @@ public sealed class ResultConversionsEdgeCasesTests
     }
 
     [TestMethod]
-    public void ImplicitConversion_FromNullErrorList_CreatesConversionError()
+    public void ImplicitConversion_FromNullErrorList_ThrowsArgumentNullException()
     {
         // Arrange
         List<Error> errors = null!;
 
-        // Act
-        Result<string> result = errors;
-
-        // Assert
-        Assert.IsTrue(result.IsFailed);
-        Assert.HasCount(1, result.Errors);
-        
-        var conversionError = result.Errors[0] as ConversionError;
-        Assert.IsNotNull(conversionError);
-        Assert.Contains("Null error list provided", conversionError.Message);
-        Assert.AreEqual("List<Error>", conversionError.Tags["ConversionType"]);
-        //Assert.AreEqual("Error[]", conversionError.Tags["ConversionType"]);
-        Assert.AreEqual("null", conversionError.Tags["ProvidedValue"]);
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() =>
+        {
+            Result<string> result = errors;
+        });
     }
 
     [TestMethod]
@@ -238,19 +210,16 @@ public sealed class ResultConversionsEdgeCasesTests
     }
 
     [TestMethod]
-    public void ImplicitConversion_FromNullExceptionErrorArray_CreatesConversionError()
+    public void ImplicitConversion_FromNullExceptionErrorArray_ThrowsArgumentNullException()
     {
         // Arrange
         ExceptionError[] errors = null!;
 
-        // Act
-        Result<int> result = errors;
-
-        // Assert
-        Assert.IsTrue(result.IsFailed);
-        var conversionError = result.Errors[0] as ConversionError;
-        Assert.IsNotNull(conversionError);
-        Assert.Contains("Null exception error array provided", conversionError.Message);
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() =>
+        {
+            Result<int> result = errors;
+        });
     }
 
     [TestMethod]
@@ -270,19 +239,16 @@ public sealed class ResultConversionsEdgeCasesTests
     }
 
     [TestMethod]
-    public void ImplicitConversion_FromNullExceptionErrorList_CreatesConversionError()
+    public void ImplicitConversion_FromNullExceptionErrorList_ThrowsArgumentNullException()
     {
         // Arrange
         List<ExceptionError> errors = null!;
 
-        // Act
-        Result<int> result = errors;
-
-        // Assert
-        Assert.IsTrue(result.IsFailed);
-        var conversionError = result.Errors[0] as ConversionError;
-        Assert.IsNotNull(conversionError);
-        Assert.Contains("Null exception error list provided", conversionError.Message);
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() =>
+        {
+            Result<int> result = errors;
+        });
     }
 
     [TestMethod]
@@ -334,8 +300,8 @@ public sealed class ResultConversionsEdgeCasesTests
     [TestMethod]
     public void ConversionError_CanBeDetectedByType()
     {
-        // Arrange
-        Error[] errors = null!;
+        // Arrange: Use empty array to create ConversionError (not null)
+        var errors = Array.Empty<Error>();
         Result<int> result = errors;
 
         // Act
@@ -452,25 +418,16 @@ public sealed class ResultConversionsEdgeCasesTests
     }
 
     [TestMethod]
-    public void RealWorld_NullCheckPattern_HandlesNullGracefully()
+    public void RealWorld_NullCheckPattern_ThrowsForNull()
     {
         // Arrange: Simulating method that might return null error
         Error error = GetErrorOrNull(shouldReturnNull: true);
 
-        // Act: Implicit conversion with null
-        Result<string> result = error;
-
-        // Assert: Should get ConversionError with diagnostic info
-        Assert.IsTrue(result.IsFailed);
-        var conversionError = result.Errors[0] as ConversionError;
-        Assert.IsNotNull(conversionError);
-        
-        // Can detect and log this issue
-        if (conversionError != null)
+        // Act & Assert: Should throw for null input (fail-fast)
+        Assert.Throws<ArgumentNullException>(() =>
         {
-            // In real code: _logger.LogWarning($"Conversion issue: {conversionError.Tags["ProvidedValue"]}");
-            Assert.AreEqual("null", conversionError.Tags["ProvidedValue"]);
-        }
+            Result<string> result = error;
+        });
     }
 
     [TestMethod]
@@ -487,11 +444,12 @@ public sealed class ResultConversionsEdgeCasesTests
     [TestMethod]
     public void RealWorld_ImplicitVsExplicit_Comparison()
     {
-        // Scenario 1: Implicit conversion (user doesn't see it)
+        // Scenario 1: Implicit conversion (now throws for null)
         Error[] nullArray = null!;
-        Result<int> implicitResult = nullArray; // ✅ No exception
-        Assert.IsTrue(implicitResult.IsFailed);
-        Assert.IsInstanceOfType<ConversionError>(implicitResult.Errors[0]);
+        Assert.Throws<ArgumentNullException>(() => 
+        {
+            Result<int> implicitResult = nullArray; // ✅ Now throws - fail fast
+        });
 
         // Scenario 2: Explicit factory call (user sees it)
         List<IError> emptyList = new();
