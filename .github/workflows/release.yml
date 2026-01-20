@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: ['8.0.x', '9.0.x', '10.0.x']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build with Documentation
+        run: dotnet build --configuration Release --no-restore -p:GenerateDocumentationFile=true -p:NoWarn=$(NoWarn);1591
+
+      - name: Test
+        run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
+
+      - name: Pack
+        run: dotnet pack --configuration Release --no-build --output ./artifacts -p:GenerateDocumentationFile=true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages-${{ matrix.dotnet-version }}
+          path: ./artifacts/*.nupkg
+          retention-days: 1
+
+  publish:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./downloaded-artifacts
+
+      - name: Push to NuGet
+        run: |
+          find ./downloaded-artifacts -name "*.nupkg" -exec dotnet nuget push {} --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate \;

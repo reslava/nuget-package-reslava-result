@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Version>0.5.1</Version>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <Version>1.0.0</Version>
     <RootNamespace>REslava.Result</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -18,7 +18,40 @@
     <Nullable>enable</Nullable>
 
     <!-- Documentation -->
+    <!-- Package Metadata -->
+    <PackageId>REslava.Result</PackageId>
+    <Title>REslava.Result - Railway-Oriented Programming for .NET</Title>
+    <Authors>Rafael Eslava</Authors>
+    <Company>REslava</Company>
+    <Product>REslava.Result</Product>
+    <Description>A clean, fluent, and type-safe Result pattern library for functional error handling in C#. Avoid exception-based control flow with immutable results, railway-oriented programming, and comprehensive LINQ support.</Description>
+    <Copyright>Copyright (c) 2025 Rafa Eslava</Copyright>
+    <PackageProjectUrl>https://github.com/reslava/nuget-package-reslava-result</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>result;monad;railway;functional;error-handling;validation;either;option;maybe;fp</PackageTags>
+    <PackageReleaseNotes>https://github.com/reslava/nuget-package-reslava-result/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>    
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+<NoWarn>$(NoWarn);1591</NoWarn> <!-- Optional: Suppress missing XML docs warnings -->
+
+
+    <!-- Source Link -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>    
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\images\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+  </ItemGroup>
 
 </Project>
