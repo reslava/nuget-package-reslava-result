@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.5.0](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.20...v0.5.0) (2026-01-20)
+
+
+### 🐛 Bug Fixes
+
+* **result.conversion:** now throw null ex instead of masking ([6a6cd52](https://github.com/reslava/nuget-package-reslava-result/commit/6a6cd5254558b90b47daa9730215b1bace4e794b))
+* **samples tests linq map:** fix ([ca050d4](https://github.com/reslava/nuget-package-reslava-result/commit/ca050d4fb0fe7b16a309b294698c5843fa5170a9))
+
+
+### 📚 Documentation
+
+* **core:** add update XML documentation with examples ([65b51a6](https://github.com/reslava/nuget-package-reslava-result/commit/65b51a6566117e90734e4c1c0e1c566617406f2f))
+
+
+### ♻️ Code Refactoring
+
+* **core:** use Validation.Extensions.cs ([52f5868](https://github.com/reslava/nuget-package-reslava-result/commit/52f58688322294d333fda2cc482059df59a128e5))
+* **reason:** success error delete parameterless constructor, always require at least a message ([491a450](https://github.com/reslava/nuget-package-reslava-result/commit/491a450a9cf08798ff411cb864570e275d2b4727))
+
 ## [0.4.20](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.19...v0.4.20) (2026-01-19)
 
 
