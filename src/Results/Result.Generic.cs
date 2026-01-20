@@ -51,16 +51,41 @@ public partial class Result<TValue> : Result, IResult<TValue>
     // ============================================
     // CONSTRUCTORS
     // ============================================
+    /// <summary>
+    /// Initializes a new instance of the Result&lt;TValue&gt; class with a default value.
+    /// This constructor is protected and used internally for creating failed results.
+    /// </summary>
     protected Result() : base()
     {
         _value = default;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the Result&lt;TValue&gt; class with a value and multiple reasons.
+    /// </summary>
+    /// <param name="value">The value to store.</param>
+    /// <param name="reasons">The reasons associated with this result.</param>
+    /// <example>
+    /// <code>
+    /// var reasons = ImmutableList.Create&lt;IReason&gt;(new Success("User created"));
+    /// var result = new Result&lt;User&gt;(user, reasons);
+    /// </code>
+    /// </example>
     public Result(TValue? value, ImmutableList<IReason> reasons) : base(reasons)
     {
         _value = value;
     }   
 
+    /// <summary>
+    /// Initializes a new instance of the Result&lt;TValue&gt; class with a value and a single reason.
+    /// </summary>
+    /// <param name="value">The value to store.</param>
+    /// <param name="reason">The reason associated with this result.</param>
+    /// <example>
+    /// <code>
+    /// var result = new Result&lt;User&gt;(user, new Success("User found"));
+    /// </code>
+    /// </example>
     public Result(TValue? value, IReason reason) : base(reason)
     {
         _value = value;        
@@ -124,7 +149,22 @@ public partial class Result<TValue> : Result, IResult<TValue>
 
     /// <summary>
     /// Tries to get the value using the standard .NET try pattern.
+    /// This is useful when you prefer the conventional TryGetValue pattern over GetValueOr.
     /// </summary>
+    /// <param name="value">When this method returns, contains the value if the result is successful; otherwise, contains the default value.</param>
+    /// <returns>true if the result is successful and value was obtained; false if the result is failed.</returns>
+    /// <example>
+    /// <code>
+    /// if (result.TryGetValue(out var user))
+    /// {
+    ///     Console.WriteLine($"User: {user.Name}");
+    /// }
+    /// else
+    /// {
+    ///     Console.WriteLine("Operation failed");
+    /// }
+    /// </code>
+    /// </example>
     public bool TryGetValue(out TValue value)
     {
         if (IsSuccess)
@@ -139,12 +179,35 @@ public partial class Result<TValue> : Result, IResult<TValue>
     // ============================================
     // FLUENT METHODS - All use _value internally
     // ============================================
+    /// <summary>
+    /// Adds a reason to the result while preserving the value.
+    /// </summary>
+    /// <param name="reason">The reason to add.</param>
+    /// <returns>A new Result&lt;TValue&gt; with the added reason.</returns>
+    /// <example>
+    /// <code>
+    /// var result = Result&lt;User&gt;.Ok(user)
+    ///     .WithReason(new Success("User created successfully"));
+    /// </code>
+    /// </example>
     public new Result<TValue> WithReason(IReason reason)
     {
         reason = reason.EnsureNotNull(nameof(reason));
         return new Result<TValue>(_value, Reasons.Add(reason));
     }
 
+    /// <summary>
+    /// Adds multiple reasons to the result while preserving the value.
+    /// </summary>
+    /// <param name="reasons">The reasons to add.</param>
+    /// <returns>A new Result&lt;TValue&gt; with the added reasons.</returns>
+    /// <exception cref="ArgumentException">Thrown when the reasons list is empty.</exception>
+    /// <example>
+    /// <code>
+    /// var reasons = new List&lt;IReason&gt; { new Success("Validated"), new Success("Processed") };
+    /// var result = Result&lt;User&gt;.Ok(user).WithReasons(reasons);
+    /// </code>
+    /// </example>
     public new Result<TValue> WithReasons(ImmutableList<IReason> reasons)
     {
         reasons = reasons.EnsureNotNull(nameof(reasons));
@@ -153,18 +216,58 @@ public partial class Result<TValue> : Result, IResult<TValue>
         return new Result<TValue>(_value, Reasons.AddRange(reasons));
     }
 
+    /// <summary>
+    /// Adds a success reason with a message to the result while preserving the value.
+    /// </summary>
+    /// <param name="message">The success message.</param>
+    /// <returns>A new Result&lt;TValue&gt; with the added success reason.</returns>
+    /// <exception cref="ArgumentException">Thrown when the message is null or empty.</exception>
+    /// <example>
+    /// <code>
+    /// var result = Result&lt;User&gt;.Ok(user)
+    ///     .WithSuccess("User profile updated successfully");
+    /// </code>
+    /// </example>
     public new Result<TValue> WithSuccess(string message) 
     { 
         ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
         return new Result<TValue>(_value, Reasons.Add(new Success(message))); 
     }
 
+    /// <summary>
+    /// Adds a success reason to the result while preserving the value.
+    /// </summary>
+    /// <param name="success">The success reason to add.</param>
+    /// <returns>A new Result&lt;TValue&gt; with the added success reason.</returns>
+    /// <example>
+    /// <code>
+    /// var success = new Success("Operation completed").WithTag("UserId", user.Id);
+    /// var result = Result&lt;User&gt;.Ok(user).WithSuccess(success);
+    /// </code>
+    /// </example>
     public new Result<TValue> WithSuccess(ISuccess success) 
     { 
         success = success.EnsureNotNull(nameof(success));
         return new Result<TValue>(_value, Reasons.Add(success)); 
     }
 
+    /// <summary>
+    /// Adds multiple success reasons to the result while preserving the value.
+    /// </summary>
+    /// <param name="successes">The success reasons to add.</param>
+    /// <returns>A new Result&lt;TValue&gt; with the added success reasons.</returns>
+    /// <exception cref="ArgumentException">Thrown when the successes list is empty.</exception>
+    /// <example>
+    /// <code>
+    /// var successes = new List&lt;ISuccess&gt; 
+    /// {
+    ///     new Success("Validated"),
+    ///     new Success("Processed"),
+    ///     new Success("Saved")
+    /// };
+    /// var result = Result&lt;User&gt;.Ok(user).WithSuccesses(successes);
+    /// </code>
+    /// </example>
     public new Result<TValue> WithSuccesses(IEnumerable<ISuccess> successes) 
     { 
         successes = successes.EnsureNotNull(nameof(successes));
@@ -175,6 +278,20 @@ public partial class Result<TValue> : Result, IResult<TValue>
         return new Result<TValue>(_value, Reasons.AddRange(successList)); 
     }
 
+    /// <summary>
+    /// Adds an error reason with a message to the result while preserving the value.
+    /// Note: This will make the result failed if it wasn't already.
+    /// </summary>
+    /// <param name="message">The error message.</param>
+    /// <returns>A new Result&lt;TValue&gt; with the added error reason.</returns>
+    /// <exception cref="ArgumentException">Thrown when the message is null or empty.</exception>
+    /// <example>
+    /// <code>
+    /// var result = Result&lt;User&gt;.Ok(user)
+    ///     .WithError("User validation failed");
+    /// // result.IsFailed will be true
+    /// </code>
+    /// </example>
     public new Result<TValue> WithError(string message) 
     { 
         ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
@@ -182,12 +299,44 @@ public partial class Result<TValue> : Result, IResult<TValue>
         return new Result<TValue>(_value, Reasons.Add(new Error(message))); 
     }
 
+    /// <summary>
+    /// Adds an error reason to the result while preserving the value.
+    /// Note: This will make the result failed if it wasn't already.
+    /// </summary>
+    /// <param name="error">The error reason to add.</param>
+    /// <returns>A new Result&lt;TValue&gt; with the added error reason.</returns>
+    /// <example>
+    /// <code>
+    /// var error = new Error("Database connection failed")
+    ///     .WithTag("Database", "Users");
+    /// var result = Result&lt;User&gt;.Ok(user).WithError(error);
+    /// // result.IsFailed will be true
+    /// </code>
+    /// </example>
     public new Result<TValue> WithError(IError error) 
     { 
         error = error.EnsureNotNull(nameof(error));
         return new Result<TValue>(_value, Reasons.Add(error)); 
     }
 
+    /// <summary>
+    /// Adds multiple error reasons to the result while preserving the value.
+    /// Note: This will make the result failed if it wasn't already.
+    /// </summary>
+    /// <param name="errors">The error reasons to add.</param>
+    /// <returns>A new Result&lt;TValue&gt; with the added error reasons.</returns>
+    /// <exception cref="ArgumentException">Thrown when the errors list is empty.</exception>
+    /// <example>
+    /// <code>
+    /// var errors = new List&lt;IError&gt; 
+    /// {
+    ///     new Error("Invalid email"),
+    ///     new Error("Password too short")
+    /// };
+    /// var result = Result&lt;User&gt;.Ok(user).WithErrors(errors);
+    /// // result.IsFailed will be true
+    /// </code>
+    /// </example>
     public new Result<TValue> WithErrors(IEnumerable<IError> errors) 
     { 
         errors = errors.EnsureNotNull(nameof(errors));
@@ -200,6 +349,17 @@ public partial class Result<TValue> : Result, IResult<TValue>
     // ============================================
     // TOSTRING
     // ============================================
+    /// <summary>
+    /// Returns a string representation of the Result including the value.
+    /// </summary>
+    /// <returns>A string containing the result state and value information.</returns>
+    /// <example>
+    /// <code>
+    /// var result = Result&lt;string&gt;.Ok("Hello World");
+    /// Console.WriteLine(result.ToString());
+    /// // Output: Result: IsSuccess='True', Reasons=, Value = Hello World
+    /// </code>
+    /// </example>
     public override string ToString()
     {
         var baseString = base.ToString();

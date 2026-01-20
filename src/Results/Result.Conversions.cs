@@ -6,7 +6,20 @@ public partial class Result
 {
     /// <summary>
     /// Converts this Result to a Result with a value.
+    /// If this Result is failed, returns a failed Result&lt;TValue&gt; with the same reasons.
+    /// If this Result is successful, returns a successful Result&lt;TValue&gt; with the provided value.
     /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="value">The value to use for the successful case.</param>
+    /// <returns>A new Result&lt;TValue&gt; with the provided value or the original errors.</returns>
+    /// <example>
+    /// <code>
+    /// var result = Result.Ok();
+    /// var userResult = result.ToResult(new User { Name = "John" });
+    /// // userResult.IsSuccess == true
+    /// // userResult.Value.Name == "John"
+    /// </code>
+    /// </example>
     public Result<TValue> ToResult<TValue>(TValue value)
     {
         if (IsFailed)
@@ -26,7 +39,20 @@ public partial class Result
     }
     /// <summary>
     /// Converts this Result to a Result with a value from a func valueFactory.
-    /// </summary>    
+    /// If this Result is failed, returns a failed Result&lt;TValue&gt; with the same reasons.
+    /// If this Result is successful, executes the valueFactory to create the value.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="valueFactory">Function to create the value for the successful case.</param>
+    /// <returns>A new Result&lt;TValue&gt; with the factory-created value or the original errors.</returns>
+    /// <example>
+    /// <code>
+    /// var result = Result.Ok();
+    /// var userResult = result.ToResult(() => CreateUserFromDatabase());
+    /// // userResult.IsSuccess == true
+    /// // userResult.Value contains the user from database
+    /// </code>
+    /// </example>
     public Result<TValue> ToResult<TValue>(Func<TValue> valueFactory)
     {
         ValidationExtensions.EnsureNotNull(valueFactory, nameof(valueFactory));
@@ -176,7 +202,18 @@ public partial class Result<TValue>
 
     /// <summary>
     /// Converts this Result&lt;TValue&gt; to a non-generic Result, discarding the value.
+    /// This is useful when you want to pass the result to methods that only care about success/failure.
+    /// All reasons (successes and errors) are preserved.
     /// </summary>
+    /// <returns>A non-generic Result with the same reasons.</returns>
+    /// <example>
+    /// <code>
+    /// var userResult = Result&lt;User&gt;.Ok(user);
+    /// var result = userResult.ToResult();
+    /// // result.IsSuccess == true
+    /// // result contains the same reasons as userResult
+    /// </code>
+    /// </example>
     public Result ToResult()
     {
         // Use internal constructor to preserve all reasons
