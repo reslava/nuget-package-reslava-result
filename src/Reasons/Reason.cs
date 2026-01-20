@@ -23,13 +23,13 @@ public abstract class Reason : IReason
         Message = message.EnsureNotNullOrWhiteSpace(nameof(message));
         Tags = tags ?? ImmutableDictionary<string, object>.Empty;
     }
-}
 
-    //public override string ToString()
-    //{
-    //    var tagsString = Tags.Any() ?
-    //        $" {nameof(Tags)}: {string.Join(", ", Tags)}" :
-    //        string.Empty;
+    public override string ToString()
+    {
+        var tagsString = Tags.Any()
+            ? $", Tags: [{string.Join(", ", Tags.Select(t => $"{t.Key}={t.Value}"))}]"
+            : string.Empty;
 
-    //    return $"{GetType().Name}: {Message}{tagsString}";
-    //}
+        return $"{GetType().Name}: {Message}{tagsString}";
+    }
+}    
