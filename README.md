@@ -186,9 +186,9 @@ var result = await Result<User>.TryAsync(async () =>
 var result = Result.Try(
     () => File.Delete(path),
     ex => new FileSystemError($"Failed to delete file: {ex.Message}")
-        .WithFilePath(path)
-        .WithOperation("DELETE")
-        .WithRetryCount(3)
+        .WithTag("FilePath", path)
+        .WithTag("Operation", "DELETE")
+        .WithTag("RetryCount", 3)
 );
 ```
 
@@ -198,11 +198,11 @@ Add structured context to errors for better debugging and monitoring:
 
 ```csharp
 var error = new ValidationError("Email", "Invalid format")
-    .WithField("Email")
-    .WithValue(email)
-    .WithTimestamp(DateTime.UtcNow)
-    .WithUserId(userId)
-    .WithErrorCode("VAL_001");
+    .WithTag("Field", "Email")
+    .WithTag("Value", email)
+    .WithTag("Timestamp", DateTime.UtcNow)
+    .WithTag("UserId", userId)
+    .WithTag("ErrorCode", "VAL_001");
 
 Result<User>.Fail(error);
 
@@ -277,9 +277,9 @@ public class ValidationError : Error
     public ValidationError(string field, string message) 
         : base($"{field}: {message}")
     {
-        WithField(field)
-            .WithErrorType("Validation")
-            .WithSeverity("Warning");
+        WithTag("Field", field)
+            .WithTag("ErrorType", "Validation")
+            .WithTag("Severity", "Warning");
     }
 }
 
@@ -288,9 +288,9 @@ public class NotFoundError : Error
     public NotFoundError(string entityType, string id) 
         : base($"{entityType} with id '{id}' not found")
     {
-        WithEntityType(entityType)
-            .WithEntityId(id)
-            .WithStatusCode(404);
+        WithTag("EntityType", entityType)
+            .WithTag("EntityId", id)
+            .WithTag("StatusCode", 404);
     }
 }
 
@@ -309,13 +309,13 @@ public class DatabaseError : Reason<DatabaseError>, IError
     // Custom fluent methods that return DatabaseError, not Error
     public DatabaseError WithQuery(string query)
     {
-        WithTags("Query", query);
+        WithTag("Query", query);
         return this;
     }
 
     public DatabaseError WithRetryCount(int count)
     {
-        WithTags("RetryCount", count);
+        WithTag("RetryCount", count);
         return this;
     }
 }
@@ -323,8 +323,7 @@ public class DatabaseError : Reason<DatabaseError>, IError
 // Usage with custom fluent API
 var error = new DatabaseError()
     .WithQuery("SELECT * FROM Users")
-    .WithRetryCount(3)
-    .WithServer("localhost");
+    .WithRetryCount(3);
 ```
 
 ## 📦 Quick Start
@@ -366,7 +365,7 @@ Console.WriteLine(failure.IsFailed); // true
 Console.WriteLine(failure.Errors[0].Message); // "Something went wrong"
 
 // Pattern matching
-var message = result.Match(
+var message = success.Match(
     onSuccess: value => $"Success: {value}",
     onFailure: errors => $"Failed: {errors[0].Message}"
 );
