@@ -6,8 +6,12 @@ namespace REslava.Result;
 // ============================================================================
 public class Success : Reason<Success>, ISuccess
 {       
-    public Success() : base(string.Empty) { }
+    // NO parameterless constructor
     
+    /// <summary>
+    /// Creates a success reason with a specific message.
+    /// </summary>
+    /// <param name="message">Description of the successful operation.</param>
     public Success(string message) : base(message) { }
 
     private Success(string message, ImmutableDictionary<string, object> tags)

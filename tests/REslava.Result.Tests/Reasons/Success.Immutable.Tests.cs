@@ -9,14 +9,7 @@ namespace REslava.Result.Reasons.Tests;
 public sealed class SuccessImmutableTests
 {
     #region Constructor Tests
-
-    [TestMethod]
-    public void Constructor_Default_ThrowsArgumentException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentException>(() => new Success());
-    }
-
+    
     [TestMethod]
     public void Constructor_WithMessage_CreatesSuccessWithMessage()
     {

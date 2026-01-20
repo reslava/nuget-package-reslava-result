@@ -6,7 +6,12 @@ namespace REslava.Result;
 // ============================================================================
 public class Error : Reason<Error>, IError
 {        
-    public Error() : base(string.Empty) { }
+    // NO parameterless constructor
+    
+    /// <summary>
+    /// Creates an error reason with a specific message.
+    /// </summary>
+    /// <param name="message">Description of the error.</param>
     
     public Error(string message) : base(message) { }
 
