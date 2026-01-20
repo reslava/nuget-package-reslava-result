@@ -33,7 +33,7 @@ public partial class Result<TValue> : Result, IResult<TValue>
     /// );
     /// </code>
     /// </example>
-    public TValue Value
+    public TValue? Value
     {
         get
         {

@@ -136,7 +136,7 @@ public partial class Result
     #endregion
 }
 
-public partial class Result<TValue>
+public partial class Result<TValue> : IResult<TValue>
 {
     #region Combine with values
 
@@ -175,7 +175,7 @@ public partial class Result<TValue>
         }
 
         // ✅ All succeeded - collect values and successes (immutable)
-        var values = resultsList.Select(r => r.Value);
+        var values = resultsList.Select(r => r.Value!); // Value is not null when IsSuccess is true
         
         var allSuccesses = resultsList
             .SelectMany(r => r.Successes)
@@ -187,7 +187,7 @@ public partial class Result<TValue>
             return new Result<IEnumerable<TValue>>(values, allSuccesses);
         }
 
-        return Result<IEnumerable<TValue>>.Ok(values);
+        return Result<IEnumerable<TValue>>.Ok(values!); // values is not null here
     }
 
     /// <summary>

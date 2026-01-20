@@ -1,4 +1,5 @@
 using REslava.Result;
+using REslava.Result.Extensions;
 
 namespace REslava.Result.Samples.Console;
 
