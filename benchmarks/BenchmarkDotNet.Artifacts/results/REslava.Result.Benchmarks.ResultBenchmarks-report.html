@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>REslava.Result.Benchmarks.ResultBenchmarks-20260121-004424</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.26200.7623)
+AMD Ryzen 5 4600G with Radeon Graphics, 1 CPU, 12 logical and 6 physical cores
+.NET SDK 10.0.102
+  [Host]     : .NET 8.0.23 (8.0.2325.60607), X64 RyuJIT AVX2
+  DefaultJob : .NET 8.0.23 (8.0.2325.60607), X64 RyuJIT AVX2
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method         </th><th>Mean </th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>ExceptionChaining</td><td>34.35 &mu;s</td><td>0.673 &mu;s</td><td>1.231 &mu;s</td><td>1.00</td><td>0.00</td><td>30.5786</td><td>62.5 KB</td><td>1.00</td>
+</tr><tr><td>REslavaResultChaining</td><td>1,140.76 &mu;s</td><td>21.691 &mu;s</td><td>22.275 &mu;s</td><td>33.10</td><td>1.42</td><td>1113.2813</td><td>2273.44 KB</td><td>36.38</td>
+</tr></tbody></table>
+</body>
+</html>
