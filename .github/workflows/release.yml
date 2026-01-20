@@ -23,7 +23,7 @@ jobs:
         run: dotnet restore
 
       - name: Build with Documentation
-        run: dotnet build --configuration Release --no-restore -p:GenerateDocumentationFile=true -p:NoWarn=$(NoWarn);1591
+        run: dotnet build --configuration Release --no-restore -p:GenerateDocumentationFile=true
 
       - name: Test
         run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
