@@ -10,7 +10,7 @@ namespace REslava.Result.Extensions;
 public static class ResultTaskExtensions
 {
     /// <summary>
-    /// Maps the value inside a Task&lt;Result&lt;T&gt;&gt; to a new value of type U.
+    /// Asynchronously maps the value inside a Task&lt;Result&lt;T&gt;&gt; to a new value of type U.
     /// </summary>
     /// <typeparam name="T">The source value type.</typeparam>
     /// <typeparam name="U">The target value type.</typeparam>
@@ -20,10 +20,10 @@ public static class ResultTaskExtensions
     /// <example>
     /// <code>
     /// var result = await GetUserAsync(userId)
-    ///     .Map(user => user.Name);
+    ///     .MapAsync(user => user.Name);
     /// </code>
     /// </example>
-    public static async Task<Result<U>> Map<T, U>(
+    public static async Task<Result<U>> MapAsync<T, U>(
         this Task<Result<T>> resultTask,
         Func<T, U> mapper)
     {
@@ -60,7 +60,7 @@ public static class ResultTaskExtensions
     }
 
     /// <summary>
-    /// Adds a success reason to a Task&lt;Result&lt;T&gt;&gt;.
+    /// Asynchronously adds a success reason to a Task&lt;Result&lt;T&gt;&gt;.
     /// </summary>
     /// <typeparam name="T">The value type.</typeparam>
     /// <param name="resultTask">The task containing the result to add success to.</param>
@@ -69,10 +69,10 @@ public static class ResultTaskExtensions
     /// <example>
     /// <code>
     /// var result = await SaveUserAsync(user)
-    ///     .WithSuccess("User saved successfully");
+    ///     .WithSuccessAsync("User saved successfully");
     /// </code>
     /// </example>
-    public static async Task<Result<T>> WithSuccess<T>(
+    public static async Task<Result<T>> WithSuccessAsync<T>(
         this Task<Result<T>> resultTask,
         string message)
     {
@@ -84,7 +84,7 @@ public static class ResultTaskExtensions
     }
 
     /// <summary>
-    /// Adds a success reason to a Task&lt;Result&lt;T&gt;&gt;.
+    /// Asynchronously adds a success reason to a Task&lt;Result&lt;T&gt;&gt;.
     /// </summary>
     /// <typeparam name="T">The value type.</typeparam>
     /// <param name="resultTask">The task containing the result to add success to.</param>
@@ -94,10 +94,10 @@ public static class ResultTaskExtensions
     /// <code>
     /// var success = new Success("User created");
     /// var result = await CreateUserAsync(user)
-    ///     .WithSuccess(success);
+    ///     .WithSuccessAsync(success);
     /// </code>
     /// </example>
-    public static async Task<Result<T>> WithSuccess<T>(
+    public static async Task<Result<T>> WithSuccessAsync<T>(
         this Task<Result<T>> resultTask,
         ISuccess success)
     {

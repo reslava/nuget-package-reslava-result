@@ -134,14 +134,14 @@ public static class RealWorldScenariosSamples
                     CreatedAt = DateTime.UtcNow
                 };
             })
-            .WithSuccess("User created")
+            .WithSuccessAsync("User created")
             .TapAsync(u => System.Console.WriteLine($"  User ID generated: {u.Id}"))
             // Save to database
             .BindAsync(async u => await SaveUserToDatabaseAsync(u))
             .TapAsync(u => System.Console.WriteLine("  Saved to database"))
             // Send welcome email
             .TapAsync(async u => await SendWelcomeEmailAsync(u.Email))
-            .WithSuccess("Welcome email sent");
+            .WithSuccessAsync("Welcome email sent");
     }
 
     #endregion
@@ -196,8 +196,8 @@ public static class RealWorldScenariosSamples
             .WithSuccess("Order validated")
             // Verify customer
             .BindAsync(async r => await VerifyCustomerAsync(r.CustomerId)
-                .Map(_ => r))
-            .WithSuccess("Customer verified")
+                .MapAsync(_ => r))
+            .WithSuccessAsync("Customer verified")
             // Check inventory
             .BindAsync(async r =>
             {
@@ -215,9 +215,9 @@ public static class RealWorldScenariosSamples
                 }
                 return Result<CreateOrderRequest>.Ok(r);
             })
-            .WithSuccess("Inventory confirmed")
+            .WithSuccessAsync("Inventory confirmed")
             // Calculate total
-            .Map(r => new
+            .MapAsync(r => new
             {
                 Request = r,
                 Total = r.Items!.Sum(i => i.Price * i.Quantity)
@@ -228,7 +228,7 @@ public static class RealWorldScenariosSamples
                 var paymentResult = await AuthorizePaymentAsync(data.Request.CustomerId, data.Total);
                 return paymentResult.Map(_ => data);
             })
-            .WithSuccess("Payment authorized")
+            .WithSuccessAsync("Payment authorized")
             // Reserve inventory
             .TapAsync(async data =>
             {
@@ -237,9 +237,9 @@ public static class RealWorldScenariosSamples
                     await ReserveInventoryAsync(item.ProductId, item.Quantity);
                 }
             })
-            .WithSuccess("Inventory reserved")
+            .WithSuccessAsync("Inventory reserved")
             // Create order record
-            .Map(data => new ProcessedOrder
+            .MapAsync(data => new ProcessedOrder
             {
                 OrderId = Guid.NewGuid().ToString(),
                 CustomerId = data.Request.CustomerId,
@@ -248,7 +248,7 @@ public static class RealWorldScenariosSamples
                 Status = "Confirmed",
                 CreatedAt = DateTime.UtcNow
             })
-            .WithSuccess("Order created");
+            .WithSuccessAsync("Order created");
     }
 
     #endregion
@@ -414,9 +414,9 @@ public static class RealWorldScenariosSamples
                         .WithFilePath(path)
                 );
             })
-            .WithSuccess("File read successfully")
+            .WithSuccessAsync("File read successfully")
             // Parse records
-            .Map(lines =>
+            .MapAsync(lines =>
             {
                 var records = new List<CsvRecord>();
                 var invalidCount = 0;
@@ -447,7 +447,7 @@ public static class RealWorldScenariosSamples
                     Records = records
                 };
             })
-            .WithSuccess("Records parsed");
+            .WithSuccessAsync("Records parsed");
     }
 
     #endregion
@@ -592,7 +592,7 @@ public static class RealWorldScenariosSamples
                 }
                 return Result<PaymentRequest>.Ok(r);
             })
-            .WithSuccess("Fraud check passed")
+            .WithSuccessAsync("Fraud check passed")
             // Process payment
             .MapAsync(async r =>
             {
@@ -606,7 +606,7 @@ public static class RealWorldScenariosSamples
                     ProcessedAt = DateTime.UtcNow
                 };
             })
-            .WithSuccess("Payment processed");
+            .WithSuccessAsync("Payment processed");
     }
 
     #endregion
@@ -730,7 +730,7 @@ public static class RealWorldScenariosSamples
                 await SetCacheAsync($"user:{userId}", user, TimeSpan.FromMinutes(5));
                 System.Console.WriteLine("  Cached for 5 minutes");
             })
-            .WithSuccess("Retrieved from database");
+            .WithSuccessAsync("Retrieved from database");
     }
 
     #endregion

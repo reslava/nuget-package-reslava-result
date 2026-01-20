@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace REslava.Result.Reasons.Tests;
 
 /// <summary>
-/// Comprehensive tests for the generic Reason<TReason> class (CRTP pattern)
+/// Comprehensive tests for the generic Reason&lt;TReason&gt; class (CRTP pattern)
 /// </summary>
 [TestClass]
 public sealed class ReasonGenericTests

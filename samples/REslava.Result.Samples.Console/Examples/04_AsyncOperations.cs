@@ -113,7 +113,7 @@ public static class AsyncOperationsSamples
 
         // Sync Map on async result
         var result3 = await GetUserAsync(1)
-            .Map(u => u.Name);
+            .MapAsync(u => u.Name);
 
         System.Console.WriteLine($"Sync Map on async result: {result3.Value}");
 

@@ -277,27 +277,4 @@ public static class ResultValidationExtensions
     }
 
     #endregion
-
-    #region Working with Tasks
-    /// <summary>
-    /// Validates the value inside Task&lt;Result&lt;T&gt;&gt;.
-    /// </summary>
-    /// <typeparam name="T">The value type.</typeparam>
-    /// <param name="resultTask">The task containing the result to validate.</param>
-    /// <param name="predicate">The validation predicate.</param>
-    /// <param name="errorMessage">The error message if validation fails.</param>
-    /// <returns>A task containing the validated result.</returns>
-    public static async Task<Result<T>> Ensure<T>(
-        this Task<Result<T>> resultTask,
-        Func<T, bool> predicate,
-        string errorMessage)
-    {
-        resultTask = resultTask.EnsureNotNull(nameof(resultTask));
-        predicate = predicate.EnsureNotNull(nameof(predicate));
-        ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
-
-        var result = await resultTask;
-        return result.Ensure(predicate, errorMessage);
-    }
-    #endregion
 }
