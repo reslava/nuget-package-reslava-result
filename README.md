@@ -99,7 +99,7 @@ Write natural, readable code that flows like poetry:
 var result = Result<User>.Ok(user)
     .WithSuccess("User validated successfully")
     .Tap(u => _logger.LogInfo($"Processing user {u.Id}"))
-    .Bind(u => SaveToDatabaseAsync(u))
+    .BindAsync(u => SaveToDatabaseAsync(u))
     .Map(u => new UserDto(u))
     .Match(
         onSuccess: dto => Ok(dto),
@@ -126,9 +126,9 @@ Result<int>.Ok(42)
 ```csharp
 Result<string>.Ok("user@example.com")
     .WithSuccess("Email received")
-    .Bind(email => ValidateEmailAsync(email))      // Returns Result<Email>
-    .Bind(email => FindUserAsync(email))           // Returns Result<User>
-    .Bind(user => AuthenticateUserAsync(user));    // Returns Result<Session>
+    .BindAsync(email => ValidateEmailAsync(email))      // Returns Result<Email>
+    .BindAsync(email => FindUserAsync(email))           // Returns Result<User>
+    .BindAsync(user => AuthenticateUserAsync(user));    // Returns Result<Session>
 // All success reasons preserved through the chain!
 ```
 
@@ -137,8 +137,8 @@ Result<string>.Ok("user@example.com")
 Result<Order>.Ok(order)
     .Tap(o => _logger.LogInfo($"Processing order {o.Id}"))
     .Tap(o => _metrics.RecordOrder(o))
-    .Bind(o => ProcessPaymentAsync(o))
-    .Tap(o => SendConfirmationEmailAsync(o));
+    .BindAsync(o => ProcessPaymentAsync(o))
+    .TapAsync(o => SendConfirmationEmailAsync(o));
 ```
 
 ### ✅ Comprehensive Validation
@@ -424,13 +424,13 @@ public class UserService
                 Age = r.Age,
                 CreatedAt = DateTime.UtcNow
             })
-            .WithSuccessAsync("User account created")
+            .WithSuccess("User account created")
             // Save to database
             .BindAsync(async user => await _userRepository.SaveAsync(user))
-            .WithSuccessAsync("User saved to database")
+            .WithSuccess("User saved to database")
             // Send welcome email
             .TapAsync(async user => await _emailService.SendWelcomeEmailAsync(user.Email))
-            .WithSuccessAsync("Welcome email sent");
+            .WithSuccess("Welcome email sent");
     }
 }
 ```
@@ -504,10 +504,10 @@ public int WithExceptions()
 public async Task<Result<Order>> ProcessOrderAsync(OrderRequest request)
 {
     return await Result<OrderRequest>.Ok(request)
-        .Bind(ValidateOrder)
-        .Bind(CheckInventory)
-        .Bind(ProcessPayment)
-        .Bind(ShipOrder);  // Each step is ~50ns even on failure
+        .BindAsync(ValidateOrder)
+        .BindAsync(CheckInventory)
+        .BindAsync(ProcessPayment)
+        .BindAsync(ShipOrder);  // Each step is ~50ns even on failure
 }
 ```
 
