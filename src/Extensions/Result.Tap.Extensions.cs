@@ -1,8 +1,11 @@
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
-namespace REslava.Result;
+namespace REslava.Result.Extensions;
 
+/// <summary>
+/// Extension methods for tap operations on Result types.
+/// </summary>
 public static class ResultExtensions
 {
     #region Tap - Non-Generic Result    

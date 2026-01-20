@@ -1,5 +1,8 @@
-namespace REslava.Result;
+namespace REslava.Result.Extensions;
 
+/// <summary>
+/// Extension methods for validation operations on Result types.
+/// </summary>
 public static class ResultValidationExtensions
 {
     #region Ensure - Sync with Error

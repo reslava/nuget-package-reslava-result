@@ -4,6 +4,9 @@ using System.Text;
 
 namespace REslava.Result.Extensions;
 
+/// <summary>
+/// Extension methods for binding operations on Result types.
+/// </summary>
 public static class ResultBindExtensions
 {
     /// <summary>
