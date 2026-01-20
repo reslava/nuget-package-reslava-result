@@ -11,7 +11,7 @@ public partial class Result
     /// </summary>    
     public Result Tap(Action action)
     {
-        ArgumentNullException.ThrowIfNull(action);
+        action = action.EnsureNotNull(nameof(action));
         if (IsSuccess)
         {
             action();
@@ -23,7 +23,7 @@ public partial class Result
     /// </summary>
     public async Task<Result> TapAsync(Func<Task> action)
     {
-        ArgumentNullException.ThrowIfNull(action);
+        action = action.EnsureNotNull(nameof(action));
         if (IsSuccess)
         {
             await action();

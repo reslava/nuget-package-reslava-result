@@ -26,7 +26,7 @@ public partial class Result<TValue>
         Func<TValue> operation,
         Func<Exception, IError>? errorHandler = null)
     {
-        ArgumentNullException.ThrowIfNull(operation);
+        operation = operation.EnsureNotNull(nameof(operation));
 
         try
         {
@@ -58,7 +58,7 @@ public partial class Result<TValue>
         Func<Task<TValue>> operation,
         Func<Exception, IError>? errorHandler = null)
     {
-        ArgumentNullException.ThrowIfNull(operation);
+        operation = operation.EnsureNotNull(nameof(operation));
 
         try
         {

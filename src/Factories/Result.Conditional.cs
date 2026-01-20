@@ -38,7 +38,7 @@ public partial class Result
     /// </example>
     public static Result OkIf(bool condition, IError error)
     {
-        ArgumentNullException.ThrowIfNull(error, nameof(error));
+        error = error.EnsureNotNull(nameof(error));
         
         return condition 
             ? Result.Ok() 
@@ -90,7 +90,7 @@ public partial class Result
     /// </example>
     public static Result OkIf(Func<bool> predicate, string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        predicate = predicate.EnsureNotNull(nameof(predicate));
         ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
         
         try
@@ -123,7 +123,7 @@ public partial class Result
         Func<Task<bool>> predicate, 
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        predicate = predicate.EnsureNotNull(nameof(predicate));
         ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
         
         try
@@ -174,7 +174,7 @@ public partial class Result
     /// </example>
     public static Result FailIf(bool condition, IError error)
     {
-        ArgumentNullException.ThrowIfNull(error, nameof(error));
+        error = error.EnsureNotNull(nameof(error));
         
         return condition 
             ? Result.Fail(error)
@@ -226,7 +226,7 @@ public partial class Result
     /// </example>
     public static Result FailIf(Func<bool> predicate, string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        predicate = predicate.EnsureNotNull(nameof(predicate));
         ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
         
         try
@@ -259,7 +259,7 @@ public partial class Result
         Func<Task<bool>> predicate, 
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        predicate = predicate.EnsureNotNull(nameof(predicate));
         ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
         
         try
@@ -314,7 +314,7 @@ public partial class Result<TValue>
         TValue value, 
         IError error)
     {
-        ArgumentNullException.ThrowIfNull(error, nameof(error));
+        error = error.EnsureNotNull(nameof(error));
         
         return condition 
             ? Result<TValue>.Ok(value)
@@ -330,7 +330,7 @@ public partial class Result<TValue>
         Func<TValue> valueFactory, 
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
+        valueFactory = valueFactory.EnsureNotNull(nameof(valueFactory));
         ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
         
         if (!condition)
@@ -356,7 +356,7 @@ public partial class Result<TValue>
         Func<Task<TValue>> valueFactory,
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
+        valueFactory = valueFactory.EnsureNotNull(nameof(valueFactory));
         ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
         
         if (!condition)
@@ -383,8 +383,8 @@ public partial class Result<TValue>
         Func<TValue> valueFactory,
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
-        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
+        predicate = predicate.EnsureNotNull(nameof(predicate));
+        valueFactory = valueFactory.EnsureNotNull(nameof(valueFactory));
         ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
 
         try
@@ -410,8 +410,8 @@ public partial class Result<TValue>
         Func<Task<TValue>> valueFactory,
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
-        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
+        predicate = predicate.EnsureNotNull(nameof(predicate));
+        valueFactory = valueFactory.EnsureNotNull(nameof(valueFactory));
         ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
 
         try
@@ -458,7 +458,7 @@ public partial class Result<TValue>
         IError error,
         TValue value)
     {
-        ArgumentNullException.ThrowIfNull(error, nameof(error));
+        error = error.EnsureNotNull(nameof(error));
 
         return condition
             ? Result<TValue>.Fail(error)
@@ -474,7 +474,7 @@ public partial class Result<TValue>
         Func<TValue> valueFactory)
     {
         ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
-        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
+        valueFactory = valueFactory.EnsureNotNull(nameof(valueFactory));
         
         if (condition)
         {
@@ -499,9 +499,9 @@ public partial class Result<TValue>
         string errorMessage,
         Func<TValue> valueFactory)
     {
-        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        predicate = predicate.EnsureNotNull(nameof(predicate));
         ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
-        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
+        valueFactory = valueFactory.EnsureNotNull(nameof(valueFactory));
 
         try
         {
@@ -526,9 +526,9 @@ public partial class Result<TValue>
         string errorMessage,
         Func<Task<TValue>> valueFactory)
     {
-        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        predicate = predicate.EnsureNotNull(nameof(predicate));
         ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
-        ArgumentNullException.ThrowIfNull(valueFactory, nameof(valueFactory));
+        valueFactory = valueFactory.EnsureNotNull(nameof(valueFactory));
 
         try
         {

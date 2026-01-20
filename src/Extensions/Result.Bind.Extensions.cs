@@ -24,8 +24,8 @@ public static class ResultBindExtensions
             this Task<Result<T>> resultTask,
             Func<T, Task<Result<U>>> binder)
     {
-        ArgumentNullException.ThrowIfNull(resultTask, nameof(resultTask));
-        ArgumentNullException.ThrowIfNull(binder, nameof(binder));
+        resultTask = resultTask.EnsureNotNull(nameof(resultTask));
+        binder = binder.EnsureNotNull(nameof(binder));
 
         var result = await resultTask;
         return await result.BindAsync(binder);

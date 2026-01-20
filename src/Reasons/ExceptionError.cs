@@ -59,7 +59,7 @@ public class ExceptionError : Reason<ExceptionError>, IError
     // ========================================================================
     private static ImmutableDictionary<string, object> CreateExceptionTags(Exception? exception)
     {
-        ArgumentNullException.ThrowIfNull(exception, "Exception cannot be null");        
+        exception = exception.EnsureNotNull("Exception cannot be null");        
 
         var tags = ImmutableDictionary<string, object>.Empty
             .Add("ExceptionType", exception.GetType().Name);

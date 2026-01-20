@@ -14,7 +14,7 @@ public partial class Result<TValue> : Result, IResult<TValue>
     /// <returns>The result of the binder function with accumulated success reasons, or a failed result.</returns>
     public Result<TOut> Bind<TOut>(Func<TValue, Result<TOut>> binder)
     {
-        ArgumentNullException.ThrowIfNull(binder, nameof(binder));
+        binder = binder.EnsureNotNull(nameof(binder));
 
         // If already failed, convert to new type with same reasons
         if (IsFailed)
@@ -72,7 +72,7 @@ public partial class Result<TValue> : Result, IResult<TValue>
     /// <returns>The result of the binder function with accumulated success reasons, or a failed result.</returns>
     public async Task<Result<TOut>> BindAsync<TOut>(Func<TValue, Task<Result<TOut>>> binder)
     {
-        ArgumentNullException.ThrowIfNull(binder, nameof(binder));
+        binder = binder.EnsureNotNull(nameof(binder));
 
         // If already failed, convert to new type with same reasons
         if (IsFailed)

@@ -25,7 +25,7 @@ public partial class Result
     /// </example>
     public static Result Merge(IEnumerable<Result> results)
     {
-        ArgumentNullException.ThrowIfNull(results, nameof(results));
+        results = results.EnsureNotNull(nameof(results));
         
         var resultsList = results.ToList();
         if (resultsList.Count == 0)
@@ -70,7 +70,7 @@ public partial class Result
     /// </example>
     public static Result Combine(IEnumerable<Result> results)
     {
-        ArgumentNullException.ThrowIfNull(results, nameof(results));
+        results = results.EnsureNotNull(nameof(results));
         
         var resultsList = results.ToList();
         if (resultsList.Count == 0)
@@ -119,7 +119,7 @@ public partial class Result
     public static async Task<Result> CombineParallelAsync(
         IEnumerable<Task<Result>> resultTasks)
     {
-        ArgumentNullException.ThrowIfNull(resultTasks, nameof(resultTasks));
+        resultTasks = resultTasks.EnsureNotNull(nameof(resultTasks));
         
         var tasks = resultTasks.ToList();
         if (tasks.Count == 0)
@@ -157,7 +157,7 @@ public partial class Result<TValue>
     public static Result<IEnumerable<TValue>> Combine(
         IEnumerable<Result<TValue>> results)
     {
-        ArgumentNullException.ThrowIfNull(results, nameof(results));
+        results = results.EnsureNotNull(nameof(results));
         
         var resultsList = results.ToList();
         if (resultsList.Count == 0)
@@ -205,7 +205,7 @@ public partial class Result<TValue>
     public static async Task<Result<IEnumerable<TValue>>> CombineParallelAsync(
         IEnumerable<Task<Result<TValue>>> resultTasks)
     {
-        ArgumentNullException.ThrowIfNull(resultTasks, nameof(resultTasks));
+        resultTasks = resultTasks.EnsureNotNull(nameof(resultTasks));
         
         var tasks = resultTasks.ToList();
         if (tasks.Count == 0)

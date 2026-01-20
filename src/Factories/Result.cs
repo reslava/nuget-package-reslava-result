@@ -82,7 +82,7 @@ public partial class Result
     /// </example>
     public static Result Fail(IError error)
     {
-        ArgumentNullException.ThrowIfNull(error, nameof(error));
+        error = error.EnsureNotNull(nameof(error));
         return new Result(error);
     }
 

@@ -54,7 +54,7 @@ public partial class Result<TValue>
     /// </example>
     public static Result<TValue> Ok(TValue value, ISuccess success)
     {        
-        ArgumentNullException.ThrowIfNull(success, nameof(success));
+        success = success.EnsureNotNull(nameof(success));
         return new Result<TValue>(value, success);
     }
 
@@ -73,7 +73,7 @@ public partial class Result<TValue>
     /// </example>
     public static Result<TValue> Ok(TValue value, IEnumerable<string> messages)
     {
-        ArgumentNullException.ThrowIfNull(messages, nameof(messages));
+        messages = messages.EnsureNotNull(nameof(messages));
         var messageList = messages.ToList();
         if (messageList.Count == 0)
             throw new ArgumentException("The success messages list cannot be empty", nameof(messages));
@@ -100,7 +100,7 @@ public partial class Result<TValue>
     /// </example>
     public static Result<TValue> Ok(TValue value, ImmutableList<ISuccess> successes)
     {
-        ArgumentNullException.ThrowIfNull(successes, nameof(successes));
+        successes = successes.EnsureNotNull(nameof(successes));
         if (successes.Count == 0)
             throw new ArgumentException("The successes list cannot be empty", nameof(successes));
         
@@ -123,7 +123,7 @@ public partial class Result<TValue>
     /// </example>
     public static Result<TValue> FromResult(Result result)
     {
-        ArgumentNullException.ThrowIfNull(result, nameof(result));
+        result = result.EnsureNotNull(nameof(result));
 
         if (result.IsSuccess)
         {

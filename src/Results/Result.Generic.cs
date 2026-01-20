@@ -100,7 +100,7 @@ public partial class Result<TValue> : Result, IResult<TValue>
     /// </example>
     public TValue GetValueOr(Func<TValue> defaultValueFactory)
     {
-        ArgumentNullException.ThrowIfNull(defaultValueFactory, nameof(defaultValueFactory));
+        defaultValueFactory = defaultValueFactory.EnsureNotNull(nameof(defaultValueFactory));
         return IsSuccess ? _value! : defaultValueFactory();
     }
 
@@ -118,7 +118,7 @@ public partial class Result<TValue> : Result, IResult<TValue>
     /// </example>
     public TValue GetValueOr(Func<ImmutableList<IError>, TValue> errorHandler)
     {
-        ArgumentNullException.ThrowIfNull(errorHandler, nameof(errorHandler));
+        errorHandler = errorHandler.EnsureNotNull(nameof(errorHandler));
         return IsSuccess ? _value! : errorHandler(Errors);
     }
 
@@ -141,13 +141,13 @@ public partial class Result<TValue> : Result, IResult<TValue>
     // ============================================
     public new Result<TValue> WithReason(IReason reason)
     {
-        ArgumentNullException.ThrowIfNull(reason, nameof(reason));
+        reason = reason.EnsureNotNull(nameof(reason));
         return new Result<TValue>(_value, Reasons.Add(reason));
     }
 
     public new Result<TValue> WithReasons(ImmutableList<IReason> reasons)
     {
-        ArgumentNullException.ThrowIfNull(reasons, nameof(reasons));
+        reasons = reasons.EnsureNotNull(nameof(reasons));
         if (reasons.Count == 0)
             throw new ArgumentException("The reasons list cannot be empty", nameof(reasons));
         return new Result<TValue>(_value, Reasons.AddRange(reasons));
@@ -161,13 +161,13 @@ public partial class Result<TValue> : Result, IResult<TValue>
 
     public new Result<TValue> WithSuccess(ISuccess success) 
     { 
-        ArgumentNullException.ThrowIfNull(success, nameof(success));
+        success = success.EnsureNotNull(nameof(success));
         return new Result<TValue>(_value, Reasons.Add(success)); 
     }
 
     public new Result<TValue> WithSuccesses(IEnumerable<ISuccess> successes) 
     { 
-        ArgumentNullException.ThrowIfNull(successes, nameof(successes));
+        successes = successes.EnsureNotNull(nameof(successes));
         var successList = successes.ToList();
         if (successList.Count == 0)
             throw new ArgumentException("The successes list cannot be empty", nameof(successes));
@@ -184,13 +184,13 @@ public partial class Result<TValue> : Result, IResult<TValue>
 
     public new Result<TValue> WithError(IError error) 
     { 
-        ArgumentNullException.ThrowIfNull(error, nameof(error));
+        error = error.EnsureNotNull(nameof(error));
         return new Result<TValue>(_value, Reasons.Add(error)); 
     }
 
     public new Result<TValue> WithErrors(IEnumerable<IError> errors) 
     { 
-        ArgumentNullException.ThrowIfNull(errors, nameof(errors));
+        errors = errors.EnsureNotNull(nameof(errors));
         var errorList = errors.ToList();
         if (errorList.Count == 0)
             throw new ArgumentException("The errors list cannot be empty", nameof(errors));

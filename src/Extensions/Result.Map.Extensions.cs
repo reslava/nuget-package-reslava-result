@@ -27,8 +27,8 @@ public static class ResultTaskExtensions
         this Task<Result<T>> resultTask,
         Func<T, U> mapper)
     {
-        ArgumentNullException.ThrowIfNull(resultTask, nameof(resultTask));
-        ArgumentNullException.ThrowIfNull(mapper, nameof(mapper));
+        resultTask = resultTask.EnsureNotNull(nameof(resultTask));
+        mapper = mapper.EnsureNotNull(nameof(mapper));
 
         var result = await resultTask;
         return result.Map(mapper);
@@ -52,8 +52,8 @@ public static class ResultTaskExtensions
         this Task<Result<T>> resultTask,
         Func<T, Task<U>> mapper)
     {
-        ArgumentNullException.ThrowIfNull(resultTask, nameof(resultTask));
-        ArgumentNullException.ThrowIfNull(mapper, nameof(mapper));
+        resultTask = resultTask.EnsureNotNull(nameof(resultTask));
+        mapper = mapper.EnsureNotNull(nameof(mapper));
 
         var result = await resultTask;
         return await result.MapAsync(mapper);
@@ -76,7 +76,7 @@ public static class ResultTaskExtensions
         this Task<Result<T>> resultTask,
         string message)
     {
-        ArgumentNullException.ThrowIfNull(resultTask, nameof(resultTask));
+        resultTask = resultTask.EnsureNotNull(nameof(resultTask));
         ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
 
         var result = await resultTask;
@@ -101,8 +101,8 @@ public static class ResultTaskExtensions
         this Task<Result<T>> resultTask,
         ISuccess success)
     {
-        ArgumentNullException.ThrowIfNull(resultTask, nameof(resultTask));
-        ArgumentNullException.ThrowIfNull(success, nameof(success));
+        resultTask = resultTask.EnsureNotNull(nameof(resultTask));
+        success = success.EnsureNotNull(nameof(success));
 
         var result = await resultTask;
         return result.WithSuccess(success);

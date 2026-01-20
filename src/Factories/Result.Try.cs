@@ -26,7 +26,7 @@ public partial class Result
         Action operation,
         Func<Exception, IError>? errorHandler = null)
     {
-        ArgumentNullException.ThrowIfNull(operation);
+        operation = operation.EnsureNotNull(nameof(operation));
 
         try
         {
@@ -66,7 +66,7 @@ public partial class Result
         Func<Task> operation,
         Func<Exception, IError>? errorHandler = null)
     {
-        ArgumentNullException.ThrowIfNull(operation);
+        operation = operation.EnsureNotNull(nameof(operation));
 
         try
         {

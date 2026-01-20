@@ -15,8 +15,8 @@ public partial class Result : IResult
         Func<TOut> onSuccess, 
         Func<ImmutableList<IError>, TOut> onFailure)
     {
-        ArgumentNullException.ThrowIfNull(onSuccess, nameof(onSuccess));
-        ArgumentNullException.ThrowIfNull(onFailure, nameof(onFailure));
+        onSuccess = onSuccess.EnsureNotNull(nameof(onSuccess));
+        onFailure = onFailure.EnsureNotNull(nameof(onFailure));
 
         return IsSuccess ? onSuccess() : onFailure(Errors);
     }
@@ -30,8 +30,8 @@ public partial class Result : IResult
         Action onSuccess, 
         Action<ImmutableList<IError>> onFailure)
     {
-        ArgumentNullException.ThrowIfNull(onSuccess, nameof(onSuccess));
-        ArgumentNullException.ThrowIfNull(onFailure, nameof(onFailure));
+        onSuccess = onSuccess.EnsureNotNull(nameof(onSuccess));
+        onFailure = onFailure.EnsureNotNull(nameof(onFailure));
 
         if (IsSuccess)
         { 
@@ -54,8 +54,8 @@ public partial class Result : IResult
         Func<Task<TOut>> onSuccess,
         Func<ImmutableList<IError>, Task<TOut>> onFailure)
     {
-        ArgumentNullException.ThrowIfNull(onSuccess, nameof(onSuccess));
-        ArgumentNullException.ThrowIfNull(onFailure, nameof(onFailure));
+        onSuccess = onSuccess.EnsureNotNull(nameof(onSuccess));
+        onFailure = onFailure.EnsureNotNull(nameof(onFailure));
 
         return IsSuccess 
             ? await onSuccess() 
@@ -72,8 +72,8 @@ public partial class Result : IResult
         Func<Task> onSuccess,
         Func<ImmutableList<IError>, Task> onFailure)
     {
-        ArgumentNullException.ThrowIfNull(onSuccess, nameof(onSuccess));
-        ArgumentNullException.ThrowIfNull(onFailure, nameof(onFailure));
+        onSuccess = onSuccess.EnsureNotNull(nameof(onSuccess));
+        onFailure = onFailure.EnsureNotNull(nameof(onFailure));
 
         if (IsSuccess)
         {
@@ -99,8 +99,8 @@ public partial class Result<TValue> : Result, IResult<TValue>
         Func<TValue, TOut> onSuccess, 
         Func<ImmutableList<IError>, TOut> onFailure)
     {
-        ArgumentNullException.ThrowIfNull(onSuccess, nameof(onSuccess));
-        ArgumentNullException.ThrowIfNull(onFailure, nameof(onFailure));
+        onSuccess = onSuccess.EnsureNotNull(nameof(onSuccess));
+        onFailure = onFailure.EnsureNotNull(nameof(onFailure));
 
         // Use Value property (throws if failed) instead of ValueOrDefault with null-forgiving
         return IsSuccess ? onSuccess(Value!) : onFailure(Errors);
@@ -115,8 +115,8 @@ public partial class Result<TValue> : Result, IResult<TValue>
         Action<TValue> onSuccess, 
         Action<ImmutableList<IError>> onFailure)
     {
-        ArgumentNullException.ThrowIfNull(onSuccess, nameof(onSuccess));
-        ArgumentNullException.ThrowIfNull(onFailure, nameof(onFailure));
+        onSuccess = onSuccess.EnsureNotNull(nameof(onSuccess));
+        onFailure = onFailure.EnsureNotNull(nameof(onFailure));
 
         if (IsSuccess)
         { 
@@ -140,8 +140,8 @@ public partial class Result<TValue> : Result, IResult<TValue>
         Func<TValue, Task<TOut>> onSuccess,
         Func<ImmutableList<IError>, Task<TOut>> onFailure)
     {
-        ArgumentNullException.ThrowIfNull(onSuccess, nameof(onSuccess));
-        ArgumentNullException.ThrowIfNull(onFailure, nameof(onFailure));
+        onSuccess = onSuccess.EnsureNotNull(nameof(onSuccess));
+        onFailure = onFailure.EnsureNotNull(nameof(onFailure));
 
         return IsSuccess 
             ? await onSuccess(Value!) 
@@ -158,8 +158,8 @@ public partial class Result<TValue> : Result, IResult<TValue>
         Func<TValue, Task> onSuccess,
         Func<ImmutableList<IError>, Task> onFailure)
     {
-        ArgumentNullException.ThrowIfNull(onSuccess, nameof(onSuccess));
-        ArgumentNullException.ThrowIfNull(onFailure, nameof(onFailure));
+        onSuccess = onSuccess.EnsureNotNull(nameof(onSuccess));
+        onFailure = onFailure.EnsureNotNull(nameof(onFailure));
 
         if (IsSuccess)
         {

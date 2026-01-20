@@ -12,8 +12,8 @@ public static class ResultValidationExtensions
         Func<T, bool> predicate,
         Error error)
     {
-        ArgumentNullException.ThrowIfNull(predicate);
-        ArgumentNullException.ThrowIfNull(error);
+        predicate = predicate.EnsureNotNull(nameof(predicate));
+        error = error.EnsureNotNull(nameof(error));
 
         if (result.IsFailed)
         {
@@ -35,7 +35,7 @@ public static class ResultValidationExtensions
         Func<T, bool> predicate,
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate);
+        predicate = predicate.EnsureNotNull(nameof(predicate));
 
         if (result.IsFailed)
         {
@@ -56,8 +56,8 @@ public static class ResultValidationExtensions
         this Result<T> result,
         params (Func<T, bool> predicate, Error error)[] validations)
     {
-        ArgumentNullException.ThrowIfNull(result);
-        ArgumentNullException.ThrowIfNull(validations);
+        result = result.EnsureNotNull(nameof(result));
+        validations = validations.EnsureNotNull(nameof(validations));
         
         if (validations.Length == 0)
         {
@@ -106,8 +106,8 @@ public static class ResultValidationExtensions
         Func<T, bool> predicate,
         Error error)
     {
-        ArgumentNullException.ThrowIfNull(predicate);
-        ArgumentNullException.ThrowIfNull(error);
+        predicate = predicate.EnsureNotNull(nameof(predicate));
+        error = error.EnsureNotNull(nameof(error));
 
         var result = await resultTask;
 
@@ -127,7 +127,7 @@ public static class ResultValidationExtensions
         Func<T, bool> predicate,
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate);
+        predicate = predicate.EnsureNotNull(nameof(predicate));
 
         var result = await resultTask;
 
@@ -162,8 +162,8 @@ public static class ResultValidationExtensions
         Func<T, Task<bool>> predicate,
         Error error)
     {
-        ArgumentNullException.ThrowIfNull(predicate);
-        ArgumentNullException.ThrowIfNull(error);
+        predicate = predicate.EnsureNotNull(nameof(predicate));
+        error = error.EnsureNotNull(nameof(error));
 
         if (result.IsFailed)
         {
@@ -182,7 +182,7 @@ public static class ResultValidationExtensions
         Func<T, Task<bool>> predicate,
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate);
+        predicate = predicate.EnsureNotNull(nameof(predicate));
 
         if (result.IsFailed)
         {
@@ -213,8 +213,8 @@ public static class ResultValidationExtensions
         Func<T, Task<bool>> predicate,
         Error error)
     {
-        ArgumentNullException.ThrowIfNull(predicate);
-        ArgumentNullException.ThrowIfNull(error);
+        predicate = predicate.EnsureNotNull(nameof(predicate));
+        error = error.EnsureNotNull(nameof(error));
 
         var result = await resultTask;
 
@@ -235,7 +235,7 @@ public static class ResultValidationExtensions
         Func<T, Task<bool>> predicate,
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(predicate);
+        predicate = predicate.EnsureNotNull(nameof(predicate));
 
         var result = await resultTask;
 
@@ -292,8 +292,8 @@ public static class ResultValidationExtensions
         Func<T, bool> predicate,
         string errorMessage)
     {
-        ArgumentNullException.ThrowIfNull(resultTask, nameof(resultTask));
-        ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+        resultTask = resultTask.EnsureNotNull(nameof(resultTask));
+        predicate = predicate.EnsureNotNull(nameof(predicate));
         ArgumentException.ThrowIfNullOrEmpty(errorMessage, nameof(errorMessage));
 
         var result = await resultTask;

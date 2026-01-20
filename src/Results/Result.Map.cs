@@ -14,7 +14,7 @@ public partial class Result<TValue>
     /// <returns>A new result with the transformed value or the original errors.</returns>
     public Result<TOut> Map<TOut>(Func<TValue, TOut> mapper)
     {
-        ArgumentNullException.ThrowIfNull(mapper, nameof(mapper));
+        mapper = mapper.EnsureNotNull(nameof(mapper));
 
         // If already failed, propagate all reasons to new type
         if (IsFailed)
@@ -63,7 +63,7 @@ public partial class Result<TValue>
     /// <returns>A task containing a new result with the transformed value or the original errors.</returns>
     public async Task<Result<TOut>> MapAsync<TOut>(Func<TValue, Task<TOut>> mapper)
     {
-        ArgumentNullException.ThrowIfNull(mapper, nameof(mapper));
+        mapper = mapper.EnsureNotNull(nameof(mapper));
 
         // If already failed, propagate all reasons to new type
         if (IsFailed)

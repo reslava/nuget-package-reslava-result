@@ -27,20 +27,20 @@ public partial class Result : IResult
 
     protected Result(IReason reason)
     {
-        ArgumentNullException.ThrowIfNull(reason, nameof(reason));
+        reason = reason.EnsureNotNull(nameof(reason));
         Reasons = ImmutableList.Create(reason);
     }
 
     // Fluent methods - all return NEW instances (immutability)
     public Result WithReason(IReason reason) 
     { 
-        ArgumentNullException.ThrowIfNull(reason, nameof(reason));
+        reason = reason.EnsureNotNull(nameof(reason));
         return new Result(Reasons.Add(reason)); 
     }
 
     public Result WithReasons(ImmutableList<IReason> reasons) 
     { 
-        ArgumentNullException.ThrowIfNull(reasons, nameof(reasons));
+        reasons = reasons.EnsureNotNull(nameof(reasons));
         if (reasons.Count == 0) 
              throw new ArgumentException("The reasons list cannot be empty", nameof(reasons));        
         
@@ -55,13 +55,13 @@ public partial class Result : IResult
 
     public Result WithSuccess(ISuccess success) 
     { 
-        ArgumentNullException.ThrowIfNull(success, nameof(success));
+        success = success.EnsureNotNull(nameof(success));
         return new Result(Reasons.Add(success)); 
     }
 
     public Result WithSuccesses(IEnumerable<ISuccess> successes) 
     { 
-        ArgumentNullException.ThrowIfNull(successes, nameof(successes));
+        successes = successes.EnsureNotNull(nameof(successes));
         var successList = successes.ToList();
         if (successList.Count == 0)
             throw new ArgumentException("The successes list cannot be empty", nameof(successes));
@@ -76,13 +76,13 @@ public partial class Result : IResult
 
     public Result WithError(IError error) 
     { 
-        ArgumentNullException.ThrowIfNull(error, nameof(error));
+        error = error.EnsureNotNull(nameof(error));
         return new Result(Reasons.Add(error)); 
     }
 
     public Result WithErrors(IEnumerable<IError> errors) 
     { 
-        ArgumentNullException.ThrowIfNull(errors, nameof(errors));
+        errors = errors.EnsureNotNull(nameof(errors));
         var errorList = errors.ToList();
         if (errorList.Count == 0)
             throw new ArgumentException("The errors list cannot be empty", nameof(errors));
