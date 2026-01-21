@@ -1,7 +1,6 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using REslava.Result;
-using REslava.Result.Extensions;
 
 namespace REslava.Result.Benchmarks;
 
