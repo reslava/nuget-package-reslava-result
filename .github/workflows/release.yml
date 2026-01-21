@@ -38,6 +38,13 @@ jobs:
           path: ./artifacts/*.nupkg
           retention-days: 1
 
+      - name: Upload symbol artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: symbol-packages-${{ matrix.dotnet-version }}
+          path: ./artifacts/*.snupkg
+          retention-days: 1
+
   publish:
     needs: release
     runs-on: ubuntu-latest
@@ -50,3 +57,4 @@ jobs:
       - name: Push to NuGet
         run: |
           find ./downloaded-artifacts -name "*.nupkg" -exec dotnet nuget push {} --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate \;
+          find ./downloaded-artifacts -name "*.snupkg" -exec dotnet nuget push {} --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate \;
