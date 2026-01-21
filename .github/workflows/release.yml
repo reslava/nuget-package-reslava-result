@@ -62,7 +62,12 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
+          body: |
+            ## Changes in this release
+            - Fixed NuGet package health indicators
+            - Added deterministic builds
+            - Included source link symbols
+            - Embedded compiler flags
           files: |
             ./downloaded-artifacts/*/*.nupkg
             ./downloaded-artifacts/*/*.snupkg
