@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.2.1](https://github.com/reslava/nuget-package-reslava-result/compare/v1.2.0...v1.2.1) (2026-01-21)
+
+
+### 🐛 Bug Fixes
+
+* update GitHub release action version and file paths ([2ec8bec](https://github.com/reslava/nuget-package-reslava-result/commit/2ec8becba6c12db421e7d53f00c0a5b306b0aa33))
+
 ## [1.2.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.1.2...v1.2.0) (2026-01-21)
 
 
