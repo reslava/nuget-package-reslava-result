@@ -65,8 +65,8 @@ jobs:
           body: |
             ## Changes in this release
             See CHANGELOG.md for detailed changes
-          files: |
-            ./downloaded-artifacts/*/*.nupkg
-            ./downloaded-artifacts/*/*.snupkg
+            
+            ### NuGet Package
+            📦 [View on NuGet.org](https://www.nuget.org/packages/REslava.Result)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
