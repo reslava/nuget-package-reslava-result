@@ -24,6 +24,8 @@ classDiagram
     
     class Success:::concrete
     class Error:::concrete
+    class ExceptionError:::concrete
+    class ConversionError:::concrete
     class Result:::concrete
     class Result_TValue:::concrete
     class TValue:::type  
@@ -36,8 +38,12 @@ classDiagram
     Reason <|-- Reason_TReason : extends
     Reason_TReason <|-- Success : extends~Success~
     Reason_TReason <|-- Error : extends~Error~
+    Reason_TReason <|-- ExceptionError : extends~Error~
+    Reason_TReason <|-- ConversionError : extends~Error~
     Success ..|> ISuccess : implements
     Error ..|> IError : implements
+    ExceptionError ..|> IError : implements
+    ConversionError ..|> IError : implements
     
     IResult <|.. Result : implements
     Result <|-- Result_TValue : extends
@@ -48,6 +54,6 @@ classDiagram
 
     classDef interface fill:#e1f5ff,stroke:#0288d1,stroke-width:2px,color:black
     classDef abstract fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:black
-    classDef concrete fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:black
+    classDef concrete fill:#d4edda,stroke:#388e3c,stroke-width:2px,color:black
     classDef type fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:black
 ```
