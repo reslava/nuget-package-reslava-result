@@ -23,13 +23,13 @@ jobs:
         run: dotnet restore
 
       - name: Build with Documentation
-        run: dotnet build --configuration Release --no-restore -p:GenerateDocumentationFile=true
+        run: dotnet build --configuration Release --no-restore -p:GenerateDocumentationFile=true -p:ContinuousIntegrationBuild=true
 
       - name: Test
         run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
 
       - name: Pack
-        run: dotnet pack --configuration Release --no-build --output ./artifacts -p:GenerateDocumentationFile=true
+        run: dotnet pack --configuration Release --no-build --output ./artifacts --include-symbols -p:GenerateDocumentationFile=true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
