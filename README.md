@@ -1059,10 +1059,18 @@ npm run commit
 
 ## 📚 Documentation
 
+### 📖 API Reference
+- [API Overview](docs/API-Overview.md) - Complete API reference and quick navigation
+- [Reasons API](docs/API-Reasons.md) - All reason types (Success, Error, ExceptionError, ConversionError)
+- [Result Methods API](docs/API-Result-Methods.md) - Core instance methods (Map, Tap, Match, Bind, Conversions)
+- [Result Factories API](docs/API-Result-Factories.md) - Static factory methods (Ok, Fail, Combine, Conditional, Try)
+- [Result Extensions API](docs/API-Result-Extensions.md) - Extension methods (LINQ, Validation, Async operations)
+
+### 📋 Guides & Architecture
 - [Quick Start Guide](QUICK-START.md)
 - [Branching Strategy](BRANCHING-STRATEGY.md)
-- [Full UML Diagram](docs/UML.md)
-- [Simplified UML](docs/UML-simple.md)
+- [Full UML Diagram](docs/UML-v1.0.0.md)
+- [Simplified UML](docs/UML-simple-v1.0.0.md)
 
 ## 📕 References & Inspiration
 
