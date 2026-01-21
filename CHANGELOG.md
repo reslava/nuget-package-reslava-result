@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.1.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.0.0...v1.1.0) (2026-01-21)
+
+
+### ✨ Features
+
+* add CRTP advantage documentation and performance benchmarks ([c03f660](https://github.com/reslava/nuget-package-reslava-result/commit/c03f660f5a8a2eda17bf86b0a1982734c9419bfc))
+
+
+### 🐛 Bug Fixes
+
+* add deterministic build settings for NuGet package health ([8325a06](https://github.com/reslava/nuget-package-reslava-result/commit/8325a06656c49a19243edeefdcbf2e31480ba583))
+
+
+### 📚 Documentation
+
+* add comprehensive API reference documentation ([480e871](https://github.com/reslava/nuget-package-reslava-result/commit/480e871c1128022294d229e7282d7e60a32400c3))
+* add versioned UML diagram files ([95a100c](https://github.com/reslava/nuget-package-reslava-result/commit/95a100cd898e620ab21a8d9cc1ef71f2b3323b52))
+* **readme:** fix all incorrect examples and API usage ([04efa85](https://github.com/reslava/nuget-package-reslava-result/commit/04efa85f0ab1e511fc7b7970d5dfd4b2be74bf61))
+* **readme:** fix async examples ([37ca4a5](https://github.com/reslava/nuget-package-reslava-result/commit/37ca4a56fc60674fb33c164c2c916f4ba32673d4))
+* update UML diagrams to reflect actual implementation ([5ac8ddd](https://github.com/reslava/nuget-package-reslava-result/commit/5ac8ddd9b2a0832fb6faaca890c2436010cabae7))
+
 ## [1.0.0](https://github.com/reslava/nuget-package-reslava-result/compare/v0.5.1...v1.0.0) (2026-01-20)
 
 ## [0.5.1](https://github.com/reslava/nuget-package-reslava-result/compare/v0.5.0...v0.5.1) (2026-01-20)
