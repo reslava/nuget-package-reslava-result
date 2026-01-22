@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.4.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.3.1...v1.4.0) (2026-01-22)
+
+
+### ✨ Features
+
+* update NuGet package icon ([94c3e4d](https://github.com/reslava/nuget-package-reslava-result/commit/94c3e4d9a70a1540caa0ebf69a3b3b0470acc07c))
+
 ## [1.3.1](https://github.com/reslava/nuget-package-reslava-result/compare/v1.3.0...v1.3.1) (2026-01-21)
 
 
