@@ -62,37 +62,30 @@ public Result<User> CreateUser(string email, int age)
 }
 ```
 
-## 🚀 Why CRTP Makes REslava.Result Superior
+## 🚀 CRTP Benefits in REslava.Result
 
-Most Result libraries lose type information during fluent chaining. **REslava.Result uses the Curiously Recurring Template Pattern (CRTP) to preserve exact types** throughout your operation pipeline.
+REslava.Result uses the Curiously Recurring Template Pattern (CRTP) in its **Reason system** to enable fluent, type-safe APIs for errors and successes.
 
-### The Type Preservation Problem
+### The Fluent API Problem
 
 ```csharp
-// ❌ Other libraries - Type erosion during chaining
-var result = FluentResults.Result.Ok<User>(user)
-    .Bind(u => SomeOperation(u))        // Returns Result<User>, but...
-    .Bind(u => AnotherOperation(u))     // Type information gets fuzzy
-    .Map(u => Transform(u));            // Compile-time safety lost
-
-// ❌ OneOf - Requires explicit type casting
-OneOf<User, Error> result = userOp
-    .Bind(u => SomeOperation(u))        // Returns OneOf<User, Error>
-    .Bind(u => AnotherOperation(u))     // Type becomes OneOf<User, Error>
-    .Map(u => Transform(u));            // Complex type inference
+// ❌ Without CRTP - Type information lost in fluent chain
+Reason reason = new Error("Something went wrong")
+    .WithMessage("Updated message")  // Returns Reason, not Error
+    .WithTag("Code", 404);           // Can't call Error-specific methods
 ```
 
 ### ✅ REslava.Result CRTP Advantage
 
 ```csharp
 // ✅ Perfect type preservation with CRTP
-Result<User> result = Result<User>.Ok(user)
-    .Bind(u => SomeOperation(u))        // Still Result<User>
-    .Bind(u => AnotherOperation(u))     // Type stays Result<User>
-    .Map(u => Transform(u));            // Perfect compile-time safety
+Error error = new Error("Something went wrong")
+    .WithMessage("Updated message")  // Returns Error
+    .WithTag("Code", 404)           // Still Error - can chain more
+    .WithTag("Field", "Email");   // Perfect fluent API
 
-// The compiler knows EXACTLY what type you have at each step
-// No casting, no type inference issues, no surprises
+// The compiler knows the exact type at each step
+// No casting, no type inference issues
 ```
 
 ### Real-World Impact
@@ -126,38 +119,36 @@ var mapped = text.Map(s => s.Length);  // Result<int> - compiler knows this
 // - No reflection or dynamic typing
 ```
 
-### Technical Comparison
-
-| Feature | REslava.Result (CRTP) | FluentResults | OneOf | CSharpFunctionalExtensions |
-|---------|----------------------|---------------|-------|---------------------------|
-| **Type Preservation** | ✅ Perfect | ⚠️ Partial | ⚠️ Complex | ⚠️ Partial |
-| **Compile-Time Safety** | ✅ Full | ⚠️ Limited | ⚠️ Complex | ⚠️ Limited |
-| **IDE Support** | ✅ Excellent | ⚠️ Good | ⚠️ Fair | ⚠️ Good |
-| **Learning Curve** | ⚠️ Moderate | ✅ Easy | ⚠️ Complex | ⚠️ Moderate |
-
 ### The CRTP Magic Explained
 
 ```csharp
-// Your implementation uses CRTP inheritance:
-public partial class Result<TValue> : Result, IResult<TValue>
+// CRTP is used in Reason<TReason> for fluent APIs:
+public abstract class Reason<TReason> : Reason
+    where TReason : Reason<TReason>
 {
-    // Each method returns the exact type:
-    public Result<TOut> Map<TOut>(Func<TValue, TOut> mapper)
-    {
-        // Returns Result<TOut> - compiler knows this exactly
+    public TReason WithMessage(string message) 
+    { 
+        Message = message; 
+        return (TReason)this;  // Returns derived type, not base Reason
     }
     
-    public Result<TOut> Bind<TOut>(Func<TValue, Result<TOut>> binder)
-    {
-        // Returns Result<TOut> - no type information lost
+    public TReason WithTag(string key, object value) 
+    { 
+        Tags.Add(key, value); 
+        return (TReason)this;  // Perfect fluent chaining
     }
 }
+
+// Usage:
+Error error = new Error("Something went wrong")
+    .WithMessage("Updated")  // Returns Error
+    .WithTag("Code", 404);   // Still Error
 ```
 
 This means:
-- **No type erasure** during chaining
-- **Perfect method resolution** 
-- **Compile-time type safety**
+- **No type erasure** in Reason fluent methods
+- **Perfect method resolution** for custom error types
+- **Compile-time type safety** for fluent APIs
 
 ```csharp
 // ✅ Explicit, composable, and testable error handling
@@ -826,33 +817,43 @@ foreach (var success in result.Successes)
 
 ##  Architecture and Design
 
-### CRTP (Curiously Recurring Template Pattern)
+### Dual Architecture: Result & Reason
 
-REslava.Result leverages CRTP to achieve type-safe fluent interfaces without code duplication:
+REslava.Result uses two complementary patterns:
 
+#### 1. Result<TValue> - Generic Container Pattern
+```csharp
+public partial class Result<TValue> : Result, IResult<TValue>
+{
+    // Uses regular inheritance + generic methods
+    public Result<TOut> Map<TOut>(Func<TValue, TOut> mapper) { ... }
+    public Result<TOut> Bind<TOut>(Func<TValue, Result<TOut>> binder) { ... }
+}
+```
+
+**Design Decision**: Result uses **regular inheritance** because:
+- ✅ **Generic methods already preserve types** perfectly
+- ✅ **No need for CRTP** - type safety comes from generics
+- ✅ **Simple, clean design** without unnecessary complexity
+- ✅ **Natural API** - `Map<TOut>()` returns `Result<TOut>`
+
+#### 2. Reason<TReason> - CRTP Fluent Pattern
 ```csharp
 public abstract class Reason<TReason> : Reason
     where TReason : Reason<TReason>
 {
-    public TReason WithMessage(string message) 
-    { 
-        Message = message; 
-        return (TReason)this; 
-    }
-    
-    public TReason WithTags(string key, object value) 
-    { 
-        Tags.Add(key, value); 
-        return (TReason)this; 
-    }
+    public TReason WithMessage(string message) { ... }
+    public TReason WithTag(string key, object value) { ... }
 }
-
-public class Error : Reason<Error>, IError { }
-public class Success : Reason<Success>, ISuccess { }
 ```
 
-**Benefits of CRTP:**
-- ✅ **Type-safe fluent chaining**: Each method returns the correct derived type
+**Design Decision**: Reason uses **CRTP** because:
+- ✅ **Fluent methods must return derived types** (Error, Success, etc.)
+- ✅ **Custom error types need their own fluent APIs**
+- ✅ **Type preservation in fluent chains** is essential
+- ✅ **Enables domain-specific error types** with custom methods
+
+### Why This Dual Approach Works
 - ✅ **Zero code duplication**: Shared behavior in base class
 - ✅ **Compile-time safety**: No runtime type checking needed
 - ✅ **Natural API**: `error.WithTags(...).WithMessage(...)` works perfectly
@@ -1034,7 +1035,7 @@ foreach (var success in result.Successes)
 - [ ] **Circuit Breaker**: Fault tolerance patterns integration
 - [ ] **Serialization Support**: JSON/XML serialization for Result types
 - [ ] **ASP.NET Core Integration**: Middleware and ActionFilters
-- [ ] **FluentValidation Integration**: Seamless integration with FluentValidation
+- [ ] **Validation Integration**: Seamless integration with validation frameworks
 
 ### 🌟 Version 2.0.0 (Q4 2026)
 - [ ] **SignalR Support**: Result pattern for real-time communication
