@@ -88,37 +88,6 @@ Error error = new Error("Something went wrong")
 // No casting, no type inference issues
 ```
 
-### Real-World Impact
-
-#### 1. **Compile-Time Safety**
-```csharp
-// REslava.Result - Compiler catches type mistakes
-Result<string> text = Result<string>.Ok("hello");
-var mapped = text.Map(s => s.Length);  // Result<int> - compiler knows this
-
-// Other libraries might lose this precision
-```
-
-#### 2. **IDE Intelligence**
-```csharp
-// With REslava.Result, your IDE provides accurate:
-// - Auto-completion
-// - Type hints  
-// - Refactoring support
-// - Error detection
-
-// Because the type system knows exactly what you're working with
-```
-
-#### 3. **Type System Benefits**
-```csharp
-// CRTP enables:
-// - Type-safe fluent chaining (no boxing/unboxing)
-
-// - Compile-time method resolution
-// - No reflection or dynamic typing
-```
-
 ### The CRTP Magic Explained
 
 ```csharp
@@ -461,7 +430,7 @@ dotnet add package REslava.Result
 Install-Package REslava.Result
 
 # PackageReference
-<PackageReference Include="REslava.Result" Version="1.4.2" />
+<PackageReference Include="REslava.Result" Version="1.4.3" />
 ```
 
 ### 🎯 Supported .NET Versions
@@ -774,35 +743,6 @@ if (result.IsFailed)
 }
 ```
 
-### 🔧 Custom Fluent APIs
-
-Create domain-specific error types with their own fluent methods using our CRTP pattern - something other libraries don't support:
-
-```csharp
-public class DatabaseError : Reason<DatabaseError>, IError
-{
-    public DatabaseError() : base("Database error occurred") { }
-
-    // Custom fluent methods that return DatabaseError, not Error
-    public DatabaseError WithQuery(string query)
-    {
-        WithTag("Query", query);
-        return this;
-    }
-
-    public DatabaseError WithRetryCount(int count)
-    {
-        WithTag("RetryCount", count);
-        return this;
-    }
-}
-
-// Usage with custom fluent API
-var error = new DatabaseError()
-    .WithQuery("SELECT * FROM Users")
-    .WithRetryCount(3);
-```
-
 ### 🎯 Perfect Type Preservation
 
 Our CRTP implementation ensures **zero type information loss** during chaining - a level of type safety competitors can't match:
@@ -1036,21 +976,23 @@ foreach (var success in result.Successes)
 
 ## 🔮 Roadmap
 
-### 🚀 Version 1.4.2 (Current - Production Ready)
+### 🚀 Version 1.4.3 (Current - Production Ready)
 - ✅ **Core Result pattern** with full async support
 - ✅ **Rich error context** with tags and metadata
 - ✅ **Custom error types** with fluent APIs
 - ✅ **Comprehensive validation** with multiple error collection
 - ✅ **LINQ extensions** for functional programming
+- ✅ **Async LINQ Extensions**: `SelectAsync()`, `WhereAsync()` for collections
 - ✅ **Exception integration** for legacy code migration
+- ✅ **Result aggregation**: `Combine()` and `Merge()` for multiple results
 - ✅ **Zero dependencies** for maximum security
 
 ### 🔮 Version 1.5.0 (Q2 2026)
-- [ ] **Result Aggregation**: `Combine()` and `Merge()` for multiple results
-- [ ] **Async LINQ Extensions**: `SelectAsync()`, `WhereAsync()` for collections
 - [ ] **Validation Rules Engine**: Declarative validation with rule builders
 - [ ] **Enhanced Diagnostics**: Built-in performance metrics and tracing
 - [ ] **Source Generators**: Compile-time code generation for common patterns
+- [ ] **Result Transformers**: Custom transformation pipelines
+- [ ] **Advanced Error Patterns**: Either, Maybe, and other functional types
 
 ### 🚀 Version 1.6.0 (Q3 2026)
 - [ ] **Retry Policies**: Built-in retry mechanisms with exponential backoff
