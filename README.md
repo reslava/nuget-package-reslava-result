@@ -42,7 +42,6 @@ public User CreateUser(string email, int age)
 
 **Costs of exception-based code:**
 - 🐛 **Hidden failures** - Exceptions get swallowed or cause crashes
-- 🐌 **Performance overhead** - Exceptions are 100-1000x slower than return values
 - 🔧 **Hard to test** - Need complex try-catch setups in tests
 - 📖 **Poor documentation** - Method signatures don't show possible failures
 
@@ -118,12 +117,12 @@ var mapped = text.Map(s => s.Length);  // Result<int> - compiler knows this
 // Because the type system knows exactly what you're working with
 ```
 
-#### 3. **Performance Benefits**
+#### 3. **Type System Benefits**
 ```csharp
 // CRTP enables:
-// - Zero-allocation chaining (no boxing/unboxing)
-// - Stack-allocated operations where possible
-// - Optimized JIT compilation paths
+// - Type-safe fluent chaining (no boxing/unboxing)
+
+// - Compile-time method resolution
 // - No reflection or dynamic typing
 ```
 
@@ -134,7 +133,6 @@ var mapped = text.Map(s => s.Length);  // Result<int> - compiler knows this
 | **Type Preservation** | ✅ Perfect | ⚠️ Partial | ⚠️ Complex | ⚠️ Partial |
 | **Compile-Time Safety** | ✅ Full | ⚠️ Limited | ⚠️ Complex | ⚠️ Limited |
 | **IDE Support** | ✅ Excellent | ⚠️ Good | ⚠️ Fair | ⚠️ Good |
-| **Performance** | ✅ Optimized | ⚠️ Good | ⚠️ Good | ⚠️ Good |
 | **Learning Curve** | ⚠️ Moderate | ✅ Easy | ⚠️ Complex | ⚠️ Moderate |
 
 ### The CRTP Magic Explained
@@ -159,8 +157,7 @@ public partial class Result<TValue> : Result, IResult<TValue>
 This means:
 - **No type erasure** during chaining
 - **Perfect method resolution** 
-- **Optimized compilation**
-- **Better runtime performance**
+- **Compile-time type safety**
 
 ```csharp
 // ✅ Explicit, composable, and testable error handling
@@ -190,7 +187,6 @@ return result.Match(
 | Benefit | Traditional Code | REslava.Result |
 |---------|------------------|----------------|
 | **Error Visibility** | Hidden in documentation | Explicit in method signature |
-| **Performance** | 100-1000x slower for failures | Fast, consistent performance |
 | **Composability** | Complex nested try-catch | Fluent, chainable operations |
 | **Testing** | Complex exception setups | Simple result assertions |
 | **Debugging** | Stack traces from exceptions | Clear error context with tags |
@@ -198,9 +194,8 @@ return result.Match(
 
 ### 🎯 Real-World Impact
 
-- **🏢 Enterprise Teams**: Reduce production bugs by 73% with explicit error handling
-- **⚡ High-Performance Systems**: 100x faster error handling for high-throughput APIs
-- **🧪 Test-Driven Development**: 50% faster test writing with predictable results
+- **🏢 Enterprise Teams**: Better error handling with explicit failure tracking
+- **🧪 Test-Driven Development**: Easier testing with predictable result patterns
 - **👥 Team Collaboration**: Clear contracts between services and components
 
 ## ✨ Features
@@ -555,42 +550,75 @@ public class UserService
 - 🎯 **Clear error responses** - Structured error data for frontend
 - 🧪 **Easy testing** - Each step can be unit tested independently
 
-## ⚡ Performance & Production Benefits
+## ⚡ Production Benefits
 
-### 🚀 Blazing Fast Error Handling
+### 🎯 Type Safety & Predictability
 
-REslava.Result is designed for high-performance scenarios where every microsecond counts:
+REslava.Result provides compile-time guarantees about error handling that exceptions can't match:
 
-| Scenario | Exception-Based | REslava.Result | Performance Gain |
-|----------|------------------|----------------|------------------|
-| **Success Path** | ~1ns | ~1ns | Same |
-| **Error Path** | ~10,000ns | ~50ns | **200x faster** |
-| **Memory Allocation** | High (stack trace) | Minimal | **10x less memory** |
-| **GC Pressure** | Significant | Negligible | **90% reduction** |
+| Feature | Traditional Exceptions | REslava.Result |
+|---------|----------------------|----------------|
+| **Error Visibility** | Hidden in documentation | Explicit in method signature |
+| **Compile-Time Safety** | Runtime exceptions only | Compiler catches error handling gaps |
+| **API Contracts** | Implicit, easy to break | Explicit, enforced by type system |
+| **Refactoring Safety** | Fragile, breaks easily | Robust, compiler validates changes |
 
-### 📊 Real-World Benchmarks
+### 🛡️ Better Error Handling
 
+**Structured Error Context**
 ```csharp
-// Benchmark: 1,000,000 operations with 10% failure rate
-[Benchmark]
-public Result<int> WithResultPattern() => 
-    _input % 10 == 0 
-        ? Result<int>.Fail("Validation failed")
-        : Result<int>.Ok(_input);
+var error = new ValidationError("Email", "Invalid format")
+    .WithTag("Field", "Email")
+    .WithTag("Value", email)
+    .WithTag("ErrorCode", "VAL_001");
 
-[Benchmark]
-public int WithExceptions()
+// Rich context available for debugging and monitoring
+```
+
+**Multiple Error Collection**
+```csharp
+Result<string>.Ok(password)
+    .Ensure(
+        (p => p.Length >= 8, new ValidationError("Password", "Min 8 characters")),
+        (p => p.Any(char.IsDigit), new ValidationError("Password", "Requires digit")),
+        (p => p.Any(char.IsUpper), new ValidationError("Password", "Requires uppercase"))
+    );
+// Returns ALL validation errors, not just the first one
+```
+
+### 🧪 Testing Advantages
+
+**Simple Unit Tests**
+```csharp
+// Result pattern - easy to test both paths
+[TestMethod]
+public void ValidateEmail_ValidEmail_ReturnsSuccess()
 {
-    if (_input % 10 == 0)
-        throw new ValidationException("Validation failed");
-    return _input;
+    var result = EmailService.Validate("user@example.com");
+    Assert.IsTrue(result.IsSuccess);
+    Assert.AreEqual("user@example.com", result.Value);
+}
+
+[TestMethod]
+public void ValidateEmail_InvalidEmail_ReturnsError()
+{
+    var result = EmailService.Validate("invalid");
+    Assert.IsTrue(result.IsFailed);
+    Assert.AreEqual("Invalid email format", result.Errors[0].Message);
 }
 ```
 
-**Results (lower is better):**
-- **REslava.Result**: 47ms total, 0.047μs per operation
-- **Exceptions**: 9,843ms total, 9.843μs per operation
-- **Performance improvement**: **209x faster**
+**vs Complex Exception Testing**
+```csharp
+// Exception handling - more complex setup
+[TestMethod]
+[ExpectedException(typeof(ValidationException))]
+public void ValidateEmail_InvalidEmail_ThrowsException()
+{
+    EmailService.Validate("invalid");
+    // Can't easily test the error message or context
+}
+```
 
 ### 🏢 Production-Ready Features
 
@@ -602,37 +630,36 @@ public int WithExceptions()
 #### Memory Efficient
 - **Immutable by design** - Thread-safe without locks
 - **Structural equality** - Fast comparisons
-- **Minimal allocations** - Reduced GC pressure
+- **Predictable memory usage** - Consistent allocation patterns
 
 #### Comprehensive Testing
 - **95%+ code coverage** - Reliable in production
-- **Performance tests** - Guarantees speed claims
+- **Integration tests** - Ensures compatibility with common patterns
 - **Memory leak tests** - Ensures long-running stability
 
-### 🎯 When Performance Matters
+### 🎯 When Type Safety Matters
 
-**High-Throughput APIs**
+**Business Logic APIs**
 ```csharp
-// Handle 10,000+ requests/second without performance degradation
-public async Task<Result<Order>> ProcessOrderAsync(OrderRequest request)
+// Clear error contracts for API consumers
+public async Task<Result<User>> CreateUserAsync(CreateUserRequest request)
 {
-    return await Result<OrderRequest>.Ok(request)
-        .BindAsync(ValidateOrder)
-        .BindAsync(CheckInventory)
-        .BindAsync(ProcessPayment)
-        .BindAsync(ShipOrder);  // Each step is ~50ns even on failure
+    return await Result<CreateUserRequest>.Ok(request)
+        .Ensure(r => IsValidEmail(r.Email), "Invalid email format")
+        .EnsureAsync(async r => !await EmailExistsAsync(r.Email), "Email already exists")
+        .BindAsync(async r => await SaveUserAsync(r));
 }
 ```
 
 **Data Processing Pipelines**
 ```csharp
-// Process millions of records efficiently
+// Composable operations with explicit error handling
 public Result<ProcessedData> ProcessRecord(RawRecord record)
 {
     return Result<RawRecord>.Ok(record)
         .Ensure(r => r.IsValid, "Invalid record format")
         .Map(r => r.Transform())
-        .Bind(r => SaveToDatabase(r));  // No exception overhead
+        .Bind(r => SaveToDatabase(r));
 }
 ```
 
@@ -661,30 +688,6 @@ return await GetUserAsync(id)
     .Ensure(u => u != null, new NotFoundError("User", id))
     .Ensure(u => u.IsActive, new BusinessError("User inactive"))
     .Match(
-        onSuccess: user => Ok(user),
-        onFailure: errors => MapToErrorResponse(errors)
-    );
-```
-
-### REslava.Result vs Other Libraries
-
-| Feature | REslava.Result | ErrorOr | FluentResults | OneOf |
-|---------|----------------|----------|---------------|-------|
-| **Zero Dependencies** | ✅ | ❌ | ❌ | ✅ |
-| **Rich Error Context** | ✅ | ✅ | ❌ | ❌ |
-| **Success Tracking** | ✅ | ❌ | ✅ | ❌ |
-| **Custom Fluent APIs** | ✅ | ❌ | ❌ | ❌ |
-| **Async Support** | ✅ | ✅ | ✅ | ✅ |
-| **LINQ Extensions** | ✅ | ❌ | ✅ | ✅ |
-| **Performance** | 🚀 Fast | 🐢 Slow | 🐢 Slow | 🚀 Fast |
-| **Learning Curve** | 📈 Low | 📈 Low | 📈 Low | 📈 High |
-
-### Migration Path from Exceptions
-
-**Phase 1: Gradual Introduction**
-```csharp
-// Start with new features
-public async Task<Result<User>> CreateUserAsync(CreateUserRequest request)
 {
     // Use Result pattern for new code
     return await ValidateRequest(request)
@@ -732,46 +735,96 @@ public async Task<Result<User>> GetUserAsync(int id)
 }
 ```
 
+## 🎯 What Makes REslava.Result Unique
 
-## 🗣️ What Developers Are Saying
+### ✅ Zero Dependencies
 
-### 🏆 Early Adopter Feedback
+Unlike other Result libraries that pull in additional packages, REslava.Result has **zero external dependencies** - keeping your application lean and secure.
 
-> **"REslava.Result transformed our API layer. Error handling went from complex try-catch blocks to elegant, composable chains. Our bug count dropped by 60% in the first month."**
-> 
-> — *Senior Software Engineer, Enterprise SaaS Company*
+### 🏷️ Rich Error Context with Tags
 
-> **"The performance gains are real. Our high-throughput API went from 2,000 to 8,000 requests/second just by replacing exceptions with Result pattern."**
-> 
-> — *Backend Lead, FinTech Startup*
+Our unique tagging system lets you attach structured metadata to errors for better debugging and monitoring:
 
-> **"Finally, a Result library that gets it right. Zero dependencies, fluent API, and amazing error context. This is how error handling should be done in C#."**
-> 
-> — *Principal Architect, E-commerce Platform*
+```csharp
+var error = new ValidationError("Email", "Invalid format")
+    .WithTag("Field", "Email")
+    .WithTag("Value", email)
+    .WithTag("ErrorCode", "VAL_001")
+    .WithTag("UserId", userId);
 
-> **"Testing became so much easier. No more complex exception setups in unit tests - just assert on Result values. Our test writing speed increased by 40%."**
-> 
-> — *QA Lead, Healthcare Technology Company*
+// Rich context available throughout your application
+if (result.IsFailed)
+{
+    var errorCode = result.Errors[0].Tags["ErrorCode"];
+    var field = result.Errors[0].Tags["Field"];
+}
+```
 
-### 📊 Adoption Statistics
+### 🔧 Custom Fluent APIs
 
-- 🚀 **10,000+** downloads in first month
-- 🏢 **50+** companies using in production
-- ⭐ **4.9/5** average rating from early adopters
-- 🐛 **73% reduction** in production bugs (average)
-- ⚡ **150% performance improvement** in high-throughput scenarios
+Create domain-specific error types with their own fluent methods using our CRTP pattern - something other libraries don't support:
 
-### 🎯 Use Cases in Production
+```csharp
+public class DatabaseError : Reason<DatabaseError>, IError
+{
+    public DatabaseError() : base("Database error occurred") { }
 
-| Industry | Use Case | Benefits Achieved |
-|----------|----------|------------------|
-| **FinTech** | Payment processing | 99.9% uptime, 200x faster error handling |
-| **E-commerce** | Order management | 60% fewer bugs, better UX with multiple validation errors |
-| **Healthcare** | Patient data processing | HIPAA compliance with detailed audit trails |
-| **Gaming** | Real-time multiplayer | 10x lower latency, zero exception crashes |
-| **IoT** | Device telemetry processing | 100M+ events processed daily with 99.99% reliability |
+    // Custom fluent methods that return DatabaseError, not Error
+    public DatabaseError WithQuery(string query)
+    {
+        WithTag("Query", query);
+        return this;
+    }
 
-## 📐 Architecture and Design
+    public DatabaseError WithRetryCount(int count)
+    {
+        WithTag("RetryCount", count);
+        return this;
+    }
+}
+
+// Usage with custom fluent API
+var error = new DatabaseError()
+    .WithQuery("SELECT * FROM Users")
+    .WithRetryCount(3);
+```
+
+### 🎯 Perfect Type Preservation
+
+Our CRTP implementation ensures **zero type information loss** during chaining - a level of type safety competitors can't match:
+
+```csharp
+// REslava.Result - Perfect type preservation
+Result<User> result = Result<User>.Ok(user)
+    .Bind(u => SomeOperation(u))        // Still Result<User>
+    .Bind(u => AnotherOperation(u))     // Type stays Result<User>
+    .Map(u => Transform(u));            // Perfect compile-time safety
+
+// The compiler knows EXACTLY what type you have at each step
+// No casting, no type inference issues, no surprises
+```
+
+### 📊 Comprehensive Success Tracking
+
+Track every step of your operation pipeline with detailed success messages:
+
+```csharp
+var result = Result<User>.Ok(user)
+    .WithSuccess("User validated")
+    .Tap(u => _db.Add(u))
+    .WithSuccess("User saved to database")
+    .Tap(u => _cache.Set(u))
+    .WithSuccess("User cached");
+
+// Audit trail of all successful operations
+foreach (var success in result.Successes)
+{
+    _logger.LogInfo(success.Message);
+}
+```
+
+
+##  Architecture and Design
 
 ### CRTP (Curiously Recurring Template Pattern)
 
