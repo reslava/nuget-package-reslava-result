@@ -5,6 +5,7 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);8764</NoWarn> <!-- Suppress CS8764 nullability override warning -->
   </PropertyGroup>
 
   <ItemGroup>
