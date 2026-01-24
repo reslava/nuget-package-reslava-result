@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.5.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.4.3...v1.5.0) (2026-01-24)
+
+
+### ✨ Features
+
+* Add Validation Rules Engine ([342c14b](https://github.com/reslava/nuget-package-reslava-result/commit/342c14bad98b75d3ccae7b506065ffb2f151cd80))
+* comprehensive test coverage improvements ([c6cb0e3](https://github.com/reslava/nuget-package-reslava-result/commit/c6cb0e39bb5114a4c3b985d955a0324cf0f8e36c))
+* comprehensive test coverage improvements (32% error reduction) ([f44fed3](https://github.com/reslava/nuget-package-reslava-result/commit/f44fed324f2872ac1d671cecbf3e96f6c0b1bc6a))
+* **core:** add comprehensive ValidationRules framework with modern test suite ([99f3b87](https://github.com/reslava/nuget-package-reslava-result/commit/99f3b879b764d18af05b14351c49048fafd53c21))
+
 ## [1.4.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.3.1...v1.4.0) (2026-01-22)
 
 
