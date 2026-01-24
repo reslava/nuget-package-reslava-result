@@ -36,7 +36,7 @@ public class ValidatorRuleSet<T>
     /// Initializes a new instance of the ValidatorRuleSet with the specified rules.
     /// </summary>
     /// <param name="rules">The immutable collection of validation rules.</param>
-    internal ValidatorRuleSet(ImmutableList<IValidatorRule<T>> rules)
+    public ValidatorRuleSet(ImmutableList<IValidatorRule<T>> rules)
     {
         _rules = rules ?? ImmutableList<IValidatorRule<T>>.Empty;
     }

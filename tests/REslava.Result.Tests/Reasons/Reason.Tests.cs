@@ -108,7 +108,7 @@ public sealed class ReasonTests
         // Assert
         Assert.AreEqual("Test message", reason.Message);
         Assert.IsFalse(reason.Tags.IsEmpty);
-        Assert.AreEqual(2, reason.Tags.Count);
+        Assert.HasCount(2, reason.Tags);
         Assert.AreEqual("Value1", reason.Tags["Key1"]);
         Assert.AreEqual(42, reason.Tags["Key2"]);
     }
@@ -210,8 +210,8 @@ public sealed class ReasonTests
         var reason2 = new TestReason("R2", tags2);
 
         // Assert
-        Assert.AreEqual(1, reason1.Tags.Count);
-        Assert.AreEqual(1, reason2.Tags.Count);
+        Assert.HasCount(1, reason1.Tags);
+        Assert.HasCount(1, reason2.Tags);
         Assert.IsTrue(reason1.Tags.ContainsKey("A"));
         Assert.IsTrue(reason2.Tags.ContainsKey("B"));
         Assert.IsFalse(reason1.Tags.ContainsKey("B"));
@@ -234,12 +234,12 @@ public sealed class ReasonTests
         var modifiedTags = tags.Add("New", "NewValue");
 
         // Assert - Original reason unchanged
-        Assert.AreEqual(1, reason.Tags.Count);
+        Assert.HasCount(1, reason.Tags);
         Assert.IsTrue(reason.Tags.ContainsKey("Original"));
         Assert.IsFalse(reason.Tags.ContainsKey("New"));
         
         // New dictionary is different
-        Assert.AreEqual(2, modifiedTags.Count);
+        Assert.HasCount(2, modifiedTags);
     }
 
     [TestMethod]
@@ -256,8 +256,6 @@ public sealed class ReasonTests
         // Assert - Both reasons have independent tag collections
         Assert.AreEqual(reason1.Tags.Count, reason2.Tags.Count);
         Assert.AreEqual(reason1.Tags["Key"], reason2.Tags["Key"]);
-        
-        // But they're structurally equal (same content)
         Assert.IsTrue(reason1.Tags.SequenceEqual(reason2.Tags));
     }
 
@@ -293,7 +291,7 @@ public sealed class ReasonTests
         IReason reason = new TestReason("Test", tags);
 
         // Assert
-        Assert.AreEqual(1, reason.Tags.Count);
+        Assert.HasCount(1, reason.Tags);
         Assert.AreEqual("V", reason.Tags["K"]);
     }
 
@@ -353,7 +351,7 @@ public sealed class ReasonTests
         Assert.IsInstanceOfType<List<string>>(reason.Tags["List"]);
         
         var retrievedList = (List<string>)reason.Tags["List"];
-        Assert.AreEqual(3, retrievedList.Count);
+        Assert.HasCount(3, retrievedList);
     }
 
     #endregion
@@ -417,7 +415,7 @@ public sealed class ReasonTests
         var reason = new TestReason("Test", tags);
 
         // Assert
-        Assert.AreEqual(1000, reason.Tags.Count);
+        Assert.HasCount(1000, reason.Tags);
         Assert.AreEqual("Value500", reason.Tags["Key500"]);
     }
 

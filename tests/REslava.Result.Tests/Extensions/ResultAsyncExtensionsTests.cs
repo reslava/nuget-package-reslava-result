@@ -74,7 +74,7 @@ public sealed class ResultAsyncExtensionsTests
         // Assert
         Assert.IsTrue(result.IsSuccess);
         Assert.AreEqual(42, result.Value);
-        Assert.AreEqual(1, result.Successes.Count);
+        Assert.HasCount(1, result.Successes);
         Assert.AreEqual("Operation completed", result.Successes[0].Message);
     }
 
@@ -91,7 +91,7 @@ public sealed class ResultAsyncExtensionsTests
         // Assert
         Assert.IsTrue(result.IsSuccess);
         Assert.AreEqual(42, result.Value);
-        Assert.AreEqual(1, result.Successes.Count);
+        Assert.HasCount(1, result.Successes);
         Assert.AreSame(success, result.Successes[0]);
     }
 
@@ -313,7 +313,7 @@ public sealed class ResultAsyncExtensionsTests
         // Assert
         Assert.IsTrue(result.IsSuccess);
         Assert.AreEqual("84", result.Value);
-        Assert.AreEqual(3, result.Successes.Count);
+        Assert.HasCount(3, result.Successes);
         Assert.AreEqual("Initial success", result.Successes[0].Message);
         Assert.AreEqual("First operation", result.Successes[1].Message);
     }
@@ -334,7 +334,7 @@ public sealed class ResultAsyncExtensionsTests
         // Assert
         Assert.IsTrue(result.IsFailed);
         Assert.AreEqual("Value must be greater than 100", result.Errors[0].Message);
-        Assert.AreEqual(1, result.Successes.Count); // Only initial success
+        Assert.HasCount(1, result.Successes); // Only initial success
     }
 
     #endregion
