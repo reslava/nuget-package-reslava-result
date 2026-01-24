@@ -65,7 +65,7 @@ public sealed class ResultLINQExtensionsTests
         var source = Result<int>.Ok(42);
         
         // Act
-        var result = source.SelectMany(x => throw new InvalidOperationException("Selector error"));
+        var result = source.SelectMany<int, int>(x => throw new InvalidOperationException("Selector error"));
         
         // Assert
         Assert.IsTrue(result.IsFailed);
@@ -171,7 +171,7 @@ public sealed class ResultLINQExtensionsTests
         var source = Result<int>.Ok(42);
         
         // Act
-        var result = await source.SelectManyAsync(x => throw new InvalidOperationException("Async selector error"));
+        var result = await source.SelectManyAsync<int, int>(x => throw new InvalidOperationException("Async selector error"));
         
         // Assert
         Assert.IsTrue(result.IsFailed);
@@ -329,7 +329,7 @@ public sealed class ResultLINQExtensionsTests
         var source = Result<int>.Ok(42);
         
         // Act
-        var result = source.SelectMany(
+        var result = source.SelectMany<int, int, string>(
             x => throw new InvalidOperationException("Collection selector error"),
             (x, y) => "never reached");
         
@@ -347,7 +347,7 @@ public sealed class ResultLINQExtensionsTests
         var source = Result<int>.Ok(42);
         
         // Act
-        var result = source.SelectMany(
+        var result = source.SelectMany<int, string, string>(
             x => Result<string>.Ok(x.ToString()),
             (x, y) => throw new InvalidOperationException("Result selector error"));
         

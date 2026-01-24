@@ -38,7 +38,11 @@ public class AsyncPredicateValidatorRuleTests
         Func<TestEntity, string> propertySelector = null!;
         string ruleName = "Test";
         string errorMessage = "Error";
-        Func<string, Task<bool>> validator = s => Task.FromResult(true);
+        
+        // Suppress unused variable warnings - these are for constructor parameter validation
+        _ = propertySelector;
+        _ = ruleName;
+        _ = errorMessage;
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => new AsyncPredicateValidatorRule<TestEntity, string>(null!, "Test", "Error", async s => true));
@@ -52,6 +56,12 @@ public class AsyncPredicateValidatorRuleTests
         string ruleName = "Test";
         string errorMessage = "Error";
         Func<string, Task<bool>> validator = null!;
+        
+        // Suppress unused variable warnings
+        _ = propertySelector;
+        _ = ruleName;
+        _ = errorMessage;
+        _ = validator;
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => new AsyncPredicateValidatorRule<TestEntity, string>(propertySelector, ruleName, errorMessage, null!));
@@ -92,7 +102,7 @@ public class AsyncPredicateValidatorRuleTests
 
         // Assert
         Assert.IsFalse(result.IsValid);
-        Assert.AreEqual(1, result.ValidationErrors.Count);
+        Assert.HasCount(1, result.ValidationErrors);
         Assert.AreEqual("Name is required", result.ValidationErrors[0].Message);
     }
 
@@ -177,8 +187,8 @@ public class AsyncPredicateValidatorRuleTests
 
         // Assert
         Assert.IsFalse(result.IsValid);
-        Assert.AreEqual(1, result.ValidationErrors.Count);
-        Assert.IsTrue(result.ValidationErrors[0].Message.Contains("Validation error in rule 'NameRequired'"));
+        Assert.HasCount(1, result.ValidationErrors);
+        Assert.Contains(result.ValidationErrors[0].Message, "Validation error in rule 'NameRequired'");
     }
 
     [TestMethod]
@@ -197,9 +207,9 @@ public class AsyncPredicateValidatorRuleTests
 
         // Assert
         Assert.IsFalse(result.IsValid);
-        Assert.AreEqual(1, result.ValidationErrors.Count);
-        Assert.IsTrue(result.ValidationErrors[0].Message.Contains("Validation error in rule 'NameRequired'"));
-        Assert.IsTrue(result.ValidationErrors[0].Message.Contains("Async validator error"));
+        Assert.HasCount(1, result.ValidationErrors);
+        Assert.Contains(result.ValidationErrors[0].Message, "Validation error in rule 'NameRequired'");
+        Assert.Contains(result.ValidationErrors[0].Message, "Async validator error");
     }
 
     [TestMethod]

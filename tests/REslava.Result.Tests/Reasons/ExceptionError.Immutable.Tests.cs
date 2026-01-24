@@ -80,7 +80,7 @@ public sealed class ExceptionErrorImmutableTests
         Assert.IsNotNull(error.Tags["StackTrace"]);
         var stackTrace = error.Tags["StackTrace"] as string;
         Assert.IsNotNull(stackTrace);
-        Assert.IsTrue(stackTrace!.Length > 0);
+        Assert.IsGreaterThan(stackTrace!.Length, 0);
     }
 
     [TestMethod]
@@ -254,7 +254,7 @@ public sealed class ExceptionErrorImmutableTests
         var error = new ExceptionError(exception);
 
         // Assert
-        Assert.AreEqual(3, error.Tags.Count); // ExceptionType, StackTrace, InnerException
+        Assert.HasCount(3, error.Tags); // ExceptionType, StackTrace, InnerException
         Assert.IsTrue(error.Tags.ContainsKey("ExceptionType"));
         Assert.IsTrue(error.Tags.ContainsKey("StackTrace"));
         Assert.IsTrue(error.Tags.ContainsKey("InnerException"));
@@ -270,7 +270,7 @@ public sealed class ExceptionErrorImmutableTests
         var error = new ExceptionError(exception);
 
         // Assert
-        Assert.AreEqual(1, error.Tags.Count); // Only ExceptionType
+        Assert.HasCount(1, error.Tags); // Only ExceptionType
         Assert.IsTrue(error.Tags.ContainsKey("ExceptionType"));
         Assert.IsFalse(error.Tags.ContainsKey("StackTrace"));
         Assert.IsFalse(error.Tags.ContainsKey("InnerException"));
@@ -318,7 +318,7 @@ public sealed class ExceptionErrorImmutableTests
         var error = new ExceptionError(outer);
 
         // Assert
-        Assert.AreEqual(2, error.Tags.Count); // ExceptionType + InnerException
+        Assert.HasCount(2, error.Tags); // ExceptionType + InnerException
         Assert.IsTrue(error.Tags.ContainsKey("ExceptionType"));
         Assert.IsTrue(error.Tags.ContainsKey("InnerException"));
         Assert.IsFalse(error.Tags.ContainsKey("StackTrace"));
@@ -431,7 +431,7 @@ public sealed class ExceptionErrorImmutableTests
         Assert.AreEqual("New message", updated.Message);
         Assert.AreSame(original.Exception, updated.Exception);
         // Tags preserved exactly
-        Assert.AreEqual(original.Tags.Count, updated.Tags.Count);
+        Assert.HasCount(original.Tags.Count, updated.Tags);
         Assert.AreEqual(1, updated.Tags["A"]);
         Assert.AreEqual(original.Tags["ExceptionType"], updated.Tags["ExceptionType"]);
     }
@@ -454,10 +454,10 @@ public sealed class ExceptionErrorImmutableTests
 
         // Assert
         Assert.AreEqual("Original", original.Message);
-        Assert.AreEqual(1, original.Tags.Count); // Only ExceptionType
+        Assert.HasCount(1, original.Tags); // Only ExceptionType
         
         Assert.AreEqual("Modified", modified.Message);
-        Assert.AreEqual(2, modified.Tags.Count); // ExceptionType + Key
+        Assert.HasCount(2, modified.Tags); // ExceptionType + Key
     }
 
     [TestMethod]
@@ -529,7 +529,7 @@ public sealed class ExceptionErrorImmutableTests
 
         // Assert
         Assert.IsTrue(result.IsFailed);
-        Assert.AreEqual(1, result.Errors.Count);
+        Assert.HasCount(1, result.Errors);
         Assert.AreEqual("Database error", result.Errors[0].Message);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
     }
@@ -707,7 +707,7 @@ public sealed class ExceptionErrorImmutableTests
         var error = new ExceptionError(aggregateException);
 
         // Assert
-        Assert.IsTrue(error.Message.StartsWith("Multiple errors"));
+        Assert.StartsWith("Multiple errors", error.Message);
         Assert.AreEqual("AggregateException", error.Tags["ExceptionType"]);
         Assert.IsInstanceOfType<AggregateException>(error.Exception);
     }

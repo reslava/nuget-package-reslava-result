@@ -2,6 +2,7 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using REslava.Result;
 using REslava.Result.Reasons;
+using REslava.Result.Extensions;
 using System.Collections.Immutable;
 
 namespace REslava.Result.Tests.Extensions;
@@ -183,13 +184,13 @@ public sealed class ResultValidationExtensionsTests
         
         // Act
         var validatedResult = result
-            .Ensure(u => u.Id > 0, "User ID must be positive")
-            .Ensure(u => !string.IsNullOrEmpty(u.Name), "User name is required");
+            .Ensure(u => u.Id > 0, new Error("User ID must be positive"))
+            .Ensure(u => !string.IsNullOrEmpty(u.Name), new Error("User name is required"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsSuccess);
-        Assert.AreEqual(1, validatedResult.Value.Id);
-        Assert.AreEqual("John", validatedResult.Value.Name);
+        Assert.AreEqual(1, validatedResult.Value?.Id);
+        Assert.AreEqual("John", validatedResult.Value?.Name);
     }
 
     [TestMethod]
@@ -201,8 +202,8 @@ public sealed class ResultValidationExtensionsTests
         
         // Act
         var validatedResult = result
-            .Ensure(u => u.Id > 0, "User ID must be positive")
-            .Ensure(u => !string.IsNullOrEmpty(u.Name), "User name is required");
+            .Ensure(u => u.Id > 0, new Error("User ID must be positive"))
+            .Ensure(u => !string.IsNullOrEmpty(u.Name), new Error("User name is required"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsFailed);
@@ -221,7 +222,7 @@ public sealed class ResultValidationExtensionsTests
         var result = Result<DateTime>.Ok(new DateTime(2023, 1, 1));
         
         // Act
-        var validatedResult = result.Ensure(d => d.Year > 2000, "Date must be after 2000");
+        var validatedResult = result.Ensure(d => d.Year > 2000, new Error("Date must be after 2000"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsSuccess);
@@ -235,7 +236,7 @@ public sealed class ResultValidationExtensionsTests
         var result = Result<string>.Ok("test");
         
         // Act
-        var validatedResult = result.Ensure(s => s.Length > 0, "String must not be empty");
+        var validatedResult = result.Ensure(s => s.Length > 0, new Error("String must not be empty"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsSuccess);
@@ -247,10 +248,10 @@ public sealed class ResultValidationExtensionsTests
     {
         // Arrange
         string? value = null;
-        var result = Result<string>.Ok(value);
+        var result = Result<string>.Ok(value!);
         
         // Act
-        var validatedResult = result.Ensure(s => s != null, "String must not be null");
+        var validatedResult = result.Ensure(s => s != null, new Error("String must not be null"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsFailed);
@@ -265,7 +266,7 @@ public sealed class ResultValidationExtensionsTests
         var result = Result<string>.Ok("test");
         
         // Act
-        var validatedResult = result.Ensure(s => throw new InvalidOperationException("Validation error"), "Message");
+        var validatedResult = result.Ensure(s => throw new InvalidOperationException("Validation error"), new Error("Message"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsFailed);

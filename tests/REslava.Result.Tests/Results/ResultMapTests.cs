@@ -48,7 +48,7 @@ public sealed class ResultMapTests
         var result = new Result<int>(42, new Success("Initial"));
         
         // Act
-        var mappedResult = result.Map(x => throw new InvalidOperationException("Mapper error"));
+        var mappedResult = result.Map<int>(x => throw new InvalidOperationException("Mapper error"));
         
         // Assert
         Assert.IsTrue(mappedResult.IsFailed);
@@ -64,7 +64,7 @@ public sealed class ResultMapTests
         var result = new Result<int>(42, new Success("Initial"));
         
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => result.Map<int, string>(null!));
+        Assert.Throws<ArgumentNullException>(() => result.Map<int>(null!));
     }
 
     #endregion
@@ -99,7 +99,7 @@ public sealed class ResultMapTests
         // Act
         var result = initial
             .Map(x => x * 2)
-            .Map(x => throw new InvalidOperationException("Map error"))
+            .Map<int>(x => throw new InvalidOperationException("Map error"))
             .Map(x => x.ToString());
         
         // Assert
@@ -119,8 +119,8 @@ public sealed class ResultMapTests
         
         // Assert
         Assert.IsTrue(mappedResult.IsSuccess);
-        Assert.AreEqual(1, mappedResult.Value.Id);
-        Assert.AreEqual("John", mappedResult.Value.Name);
+        Assert.AreEqual(1, mappedResult.Value?.Id);
+        Assert.AreEqual("John", mappedResult.Value?.Name);
         Assert.HasCount(1, mappedResult.Successes);
     }
 

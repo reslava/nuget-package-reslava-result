@@ -70,7 +70,7 @@ public sealed class ReasonGenericTests
 
         // Assert
         Assert.AreEqual("Updated", updated.Message);
-        Assert.AreEqual(2, updated.Tags.Count);
+        Assert.HasCount(2, updated.Tags);
         Assert.AreEqual("Value1", updated.Tags["Key1"]);
         Assert.AreEqual(42, updated.Tags["Key2"]);
     }
@@ -152,7 +152,7 @@ public sealed class ReasonGenericTests
         // Assert
         Assert.AreNotSame(original, updated);
         Assert.IsTrue(original.Tags.IsEmpty);
-        Assert.AreEqual(1, updated.Tags.Count);
+        Assert.HasCount(1, updated.Tags);
         Assert.AreEqual("Value", updated.Tags["Key"]);
     }
 
@@ -194,7 +194,7 @@ public sealed class ReasonGenericTests
         var updated = reason.WithTag("New", "NewValue");
 
         // Assert
-        Assert.AreEqual(2, updated.Tags.Count);
+        Assert.HasCount(2, updated.Tags);
         Assert.AreEqual("ExistingValue", updated.Tags["Existing"]);
         Assert.AreEqual("NewValue", updated.Tags["New"]);
     }
@@ -264,7 +264,7 @@ public sealed class ReasonGenericTests
         var updated = reason.WithTag("Key", null!);
 
         // Assert
-        Assert.AreEqual(1, updated.Tags.Count);
+        Assert.HasCount(1, updated.Tags);
         Assert.IsTrue(updated.Tags.ContainsKey("Key"));
         Assert.IsNull(updated.Tags["Key"]);
     }
@@ -309,7 +309,7 @@ public sealed class ReasonGenericTests
         // Assert
         Assert.AreNotSame(original, updated);
         Assert.IsTrue(original.Tags.IsEmpty);
-        Assert.AreEqual(3, updated.Tags.Count);
+        Assert.HasCount(3, updated.Tags);
         Assert.AreEqual("Value1", updated.Tags["Key1"]);
         Assert.AreEqual(42, updated.Tags["Key2"]);
         Assert.IsTrue((bool)updated.Tags["Key3"]);
@@ -356,7 +356,7 @@ public sealed class ReasonGenericTests
         );
 
         // Assert
-        Assert.AreEqual(3, updated.Tags.Count);
+        Assert.HasCount(3, updated.Tags);
         Assert.AreEqual("ExistingValue", updated.Tags["Existing"]);
         Assert.AreEqual("Value1", updated.Tags["New1"]);
         Assert.AreEqual("Value2", updated.Tags["New2"]);
@@ -446,7 +446,7 @@ public sealed class ReasonGenericTests
 
         // Assert
         Assert.AreEqual("Final", result.Message);
-        Assert.AreEqual(2, result.Tags.Count);
+        Assert.HasCount(2, result.Tags);
         Assert.AreEqual("Value1", result.Tags["Key1"]);
         Assert.AreEqual(42, result.Tags["Key2"]);
         
@@ -475,16 +475,16 @@ public sealed class ReasonGenericTests
         Assert.IsTrue(step0.Tags.IsEmpty);
 
         Assert.AreEqual("Step 0", step1.Message);
-        Assert.AreEqual(1, step1.Tags.Count);
+        Assert.HasCount(1, step1.Tags);
 
         Assert.AreEqual("Step 2", step2.Message);
-        Assert.AreEqual(1, step2.Tags.Count);
+        Assert.HasCount(1, step2.Tags);
 
         Assert.AreEqual("Step 2", step3.Message);
-        Assert.AreEqual(2, step3.Tags.Count);
+        Assert.HasCount(2, step3.Tags);
 
         Assert.AreEqual("Step 2", step4.Message);
-        Assert.AreEqual(4, step4.Tags.Count);
+        Assert.HasCount(4, step4.Tags);
     }
 
     [TestMethod]
@@ -522,13 +522,13 @@ public sealed class ReasonGenericTests
 
         // Assert - Original completely unchanged
         Assert.AreEqual("Original Message", original.Message);
-        Assert.AreEqual(1, original.Tags.Count);
+        Assert.HasCount(1, original.Tags);
         Assert.AreEqual("OriginalValue", original.Tags["Original"]);
         Assert.IsFalse(original.Tags.ContainsKey("New"));
 
         // Modified is different
         Assert.AreEqual("New Message", modified.Message);
-        Assert.AreEqual(2, modified.Tags.Count);
+        Assert.HasCount(2, modified.Tags);
         Assert.AreEqual("OriginalValue", modified.Tags["Original"]);
         Assert.AreEqual("NewValue", modified.Tags["New"]);
     }
@@ -548,10 +548,10 @@ public sealed class ReasonGenericTests
         var r1b = r1.WithTag("T1B", "1b");
 
         // Assert - r2 and r3 should be unaffected by r1b
-        Assert.AreEqual(1, r1.Tags.Count);
-        Assert.AreEqual(2, r1b.Tags.Count);
-        Assert.AreEqual(2, r2.Tags.Count);
-        Assert.AreEqual(3, r3.Tags.Count);
+        Assert.HasCount(1, r1.Tags);
+        Assert.HasCount(2, r1b.Tags);
+        Assert.HasCount(2, r2.Tags);
+        Assert.HasCount(3, r3.Tags);
 
         Assert.IsFalse(r2.Tags.ContainsKey("T1B"));
         Assert.IsFalse(r3.Tags.ContainsKey("T1B"));
@@ -661,7 +661,7 @@ public sealed class ReasonGenericTests
 
         // Assert
         Assert.AreEqual("End", result.Message);
-        Assert.AreEqual(100, result.Tags.Count);
+        Assert.HasCount(100, result.Tags);
         Assert.AreEqual(0, result.Tags["Key0"]);
         Assert.AreEqual(99, result.Tags["Key99"]);
         
@@ -683,7 +683,7 @@ public sealed class ReasonGenericTests
         var result = reason.WithTags(tagArray);
 
         // Assert
-        Assert.AreEqual(1000, result.Tags.Count);
+        Assert.HasCount(1000, result.Tags);
         Assert.AreEqual(500, result.Tags["Key500"]);
     }
 

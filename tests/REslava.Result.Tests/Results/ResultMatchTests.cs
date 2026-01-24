@@ -134,7 +134,7 @@ public sealed class ResultMatchTests
     {
         // Arrange
         var errors = ImmutableList.Create<IReason>(new Error("Error 1"), new Error("Error 2"));
-        var result = new Result<int>(errors);
+        var result = new Result<int>(default(int), errors);
         
         // Act
         var output = result.Match(

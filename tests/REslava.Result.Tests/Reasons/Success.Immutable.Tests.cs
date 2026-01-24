@@ -126,7 +126,7 @@ public sealed class SuccessImmutableTests
         // Assert
         Assert.AreNotSame(original, updated);
         Assert.IsTrue(original.Tags.IsEmpty);
-        Assert.AreEqual(1, updated.Tags.Count);
+        Assert.HasCount(1, updated.Tags);
         Assert.IsTrue(updated.Tags.ContainsKey("UserId"));
         Assert.AreEqual("12345", updated.Tags["UserId"]);
     }
@@ -170,7 +170,7 @@ public sealed class SuccessImmutableTests
             .WithTag("IsPartialSave", false);
 
         // Assert
-        Assert.AreEqual(3, result.Tags.Count);
+        Assert.HasCount(3, result.Tags);
     }
 
     [TestMethod]
@@ -192,7 +192,7 @@ public sealed class SuccessImmutableTests
             .WithTag("Null", null!);
 
         // Assert
-        Assert.AreEqual(7, result.Tags.Count);
+        Assert.HasCount(7, result.Tags);
         Assert.AreEqual("text", result.Tags["String"]);
         Assert.AreEqual(123, result.Tags["Int"]);
         Assert.AreEqual(3.14, result.Tags["Double"]);
@@ -237,7 +237,7 @@ public sealed class SuccessImmutableTests
         // Assert
         Assert.AreNotSame(success, updated);
         Assert.IsTrue(success.Tags.IsEmpty);
-        Assert.AreEqual(3, updated.Tags.Count);
+        Assert.HasCount(3, updated.Tags);
         Assert.AreEqual(100, updated.Tags["ProcessedRecords"]);
         Assert.AreEqual(TimeSpan.FromSeconds(5), updated.Tags["Duration"]);
         Assert.AreEqual("BATCH-001", updated.Tags["BatchId"]);
@@ -281,7 +281,7 @@ public sealed class SuccessImmutableTests
             .WithTags(("Step3", "Completed"), ("Step4", "Completed"));
 
         // Assert
-        Assert.AreEqual(4, result.Tags.Count);
+        Assert.HasCount(4, result.Tags);
         Assert.AreEqual("Completed", result.Tags["Step1"]);
         Assert.AreEqual("Completed", result.Tags["Step4"]);
     }
@@ -319,7 +319,7 @@ public sealed class SuccessImmutableTests
 
         // Assert
         Assert.AreEqual("User created successfully", success.Message);
-        Assert.AreEqual(3, success.Tags.Count);
+        Assert.HasCount(3, success.Tags);
         Assert.AreEqual("user-123", success.Tags["UserId"]);
         Assert.AreEqual("Create", success.Tags["Action"]);
     }
@@ -338,7 +338,7 @@ public sealed class SuccessImmutableTests
 
         // Assert
         Assert.AreEqual("Final step", success.Message);
-        Assert.AreEqual(3, success.Tags.Count);
+        Assert.HasCount(3, success.Tags);
         Assert.AreEqual(1, success.Tags["A"]);
         Assert.AreEqual(2, success.Tags["B"]);
         Assert.AreEqual(3, success.Tags["C"]);
@@ -364,7 +364,7 @@ public sealed class SuccessImmutableTests
         Assert.IsTrue(original.Tags.IsEmpty);
         
         Assert.AreEqual("Modified", modified.Message);
-        Assert.AreEqual(1, modified.Tags.Count);
+        Assert.HasCount(1, modified.Tags);
     }
 
     [TestMethod]
@@ -379,9 +379,9 @@ public sealed class SuccessImmutableTests
         var s1b = s1.WithTag("T1B", "1b");
 
         // Assert - s2 unaffected by s1b
-        Assert.AreEqual(1, s1.Tags.Count);
-        Assert.AreEqual(2, s1b.Tags.Count);
-        Assert.AreEqual(2, s2.Tags.Count);
+        Assert.HasCount(1, s1.Tags);
+        Assert.HasCount(2, s1b.Tags);
+        Assert.HasCount(2, s2.Tags);
         Assert.IsFalse(s2.Tags.ContainsKey("T1B"));
     }
 
@@ -431,7 +431,7 @@ public sealed class SuccessImmutableTests
 
         // Assert
         Assert.IsTrue(result.IsSuccess);
-        Assert.AreEqual(1, result.Successes.Count);
+        Assert.HasCount(1, result.Successes);
         Assert.AreEqual("Email sent successfully", result.Successes[0].Message);
         Assert.AreEqual(5, result.Successes[0].Tags["RecipientCount"]);
         Assert.AreEqual("MSG-12345", result.Successes[0].Tags["MessageId"]);
@@ -451,7 +451,7 @@ public sealed class SuccessImmutableTests
         // Assert
         Assert.IsTrue(result.IsSuccess);
         Assert.AreEqual(42, result.Value);
-        Assert.AreEqual(1, result.Successes.Count);
+        Assert.HasCount(1, result.Successes);
         Assert.AreEqual("Record created", result.Successes[0].Message);
     }
 
@@ -471,7 +471,7 @@ public sealed class SuccessImmutableTests
 
         // Assert
         Assert.IsTrue(result.IsSuccess);
-        Assert.AreEqual(2, result.Successes.Count);
+        Assert.HasCount(2, result.Successes);
         Assert.AreEqual("Step 1 completed", result.Successes[0].Message);
         Assert.AreEqual("Step 2 completed", result.Successes[1].Message);
     }
@@ -504,8 +504,8 @@ public sealed class SuccessImmutableTests
 
         // Assert
         Assert.IsTrue(result.IsFailed); // Has error, so it's failed
-        Assert.AreEqual(1, result.Successes.Count);
-        Assert.AreEqual(1, result.Errors.Count);
+        Assert.HasCount(1, result.Successes);
+        Assert.HasCount(1, result.Errors);
     }
 
     #endregion
@@ -550,7 +550,7 @@ public sealed class SuccessImmutableTests
         // Assert
         Assert.AreEqual(userId, success.Tags["UserId"]);
         Assert.AreEqual(timestamp, success.Tags["Timestamp"]);
-        Assert.AreEqual(4, success.Tags.Count);
+        Assert.HasCount(4, success.Tags);
     }
 
     [TestMethod]
@@ -565,7 +565,7 @@ public sealed class SuccessImmutableTests
 
         // Assert
         Assert.IsTrue(result.IsSuccess);
-        Assert.AreEqual(4, result.Successes.Count);
+        Assert.HasCount(4, result.Successes);
         Assert.IsTrue(result.Successes.All(s => s.Tags.ContainsKey("Step")));
     }
 
@@ -587,7 +587,7 @@ public sealed class SuccessImmutableTests
         }
 
         // Assert
-        Assert.AreEqual(100, result.Tags.Count);
+        Assert.HasCount(100, result.Tags);
         Assert.AreEqual(50, result.Tags["Key50"]);
         
         // Original unchanged

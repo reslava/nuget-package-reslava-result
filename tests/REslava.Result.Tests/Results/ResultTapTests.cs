@@ -129,7 +129,7 @@ public sealed class ResultTapTests
         
         // Assert
         Assert.IsTrue(tappedResult.IsSuccess);
-        Assert.AreEqual("John", tappedResult.Value.Name);
+        Assert.AreEqual("John", tappedResult.Value?.Name);
         Assert.AreEqual("John", loggedName);
         Assert.HasCount(1, tappedResult.Successes);
     }

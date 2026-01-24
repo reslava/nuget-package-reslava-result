@@ -64,7 +64,8 @@ public sealed class ResultMapExtensionsTests
         var resultTask = Task.FromResult(Result<int>.Ok(42));
         
         // Act
-        var result = await resultTask.MapAsync(x => throw new InvalidOperationException("Mapper error"));
+        Func<int, string> throwingMapper = x => throw new InvalidOperationException("Mapper error");
+        var result = await resultTask.MapAsync(throwingMapper);
         
         // Assert
         Assert.IsTrue(result.IsFailed);
@@ -199,10 +200,10 @@ public sealed class ResultMapExtensionsTests
         var resultTask = Task.FromResult(Result<string>.Ok("test"));
         
         // Act
-        var result = await resultTask.MapAsync(async s =>
+        var result = await resultTask.MapAsync<string, User>(async s =>
         {
             await Task.Delay(10);
-            return null;
+            return null!;
         });
         
         // Assert
@@ -280,8 +281,8 @@ public sealed class ResultMapExtensionsTests
         
         // Assert
         Assert.IsTrue(result.IsSuccess);
-        Assert.AreEqual(1, result.Value.Id);
-        Assert.AreEqual("John", result.Value.Name);
+        Assert.AreEqual(1, result.Value?.Id);
+        Assert.AreEqual("John", result.Value?.Name);
     }
 
     [TestMethod]
@@ -291,7 +292,7 @@ public sealed class ResultMapExtensionsTests
         var resultTask = Task.FromException<Result<int>>(new InvalidOperationException("Task failed"));
         
         // Act & Assert
-        await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await resultTask.MapAsync(x => x.ToString()));
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await resultTask.MapAsync(x => x.ToString()));
     }
 
     [TestMethod]
@@ -303,7 +304,7 @@ public sealed class ResultMapExtensionsTests
         var resultTask = Task.FromCanceled<Result<int>>(cts.Token);
         
         // Act & Assert
-        await Assert.ThrowsExceptionAsync<TaskCanceledException>(async () => await resultTask.MapAsync(x => x.ToString()));
+        await Assert.ThrowsAsync<TaskCanceledException>(async () => await resultTask.MapAsync(x => x.ToString()));
     }
 
     [TestMethod]

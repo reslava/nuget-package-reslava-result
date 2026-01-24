@@ -23,7 +23,7 @@ public class ValidatorRuleSetTests
         // Assert
         Assert.IsNotNull(ruleSet);
         Assert.AreEqual(0, ruleSet.Count);
-        Assert.AreEqual(0, ruleSet.Rules.Count);
+        Assert.IsEmpty(ruleSet.Rules);
     }
 
     [TestMethod]
@@ -38,7 +38,7 @@ public class ValidatorRuleSetTests
         // Assert
         Assert.IsNotNull(ruleSet);
         Assert.AreEqual(0, ruleSet.Count);
-        Assert.AreEqual(0, ruleSet.Rules.Count);
+        Assert.IsEmpty(ruleSet.Rules);
     }
 
     [TestMethod]
@@ -63,7 +63,7 @@ public class ValidatorRuleSetTests
         // Assert
         Assert.IsNotNull(ruleSet);
         Assert.AreEqual(2, ruleSet.Count);
-        Assert.AreEqual(2, ruleSet.Rules.Count);
+        Assert.HasCount(2, ruleSet.Rules);
     }
 
     [TestMethod]
@@ -113,7 +113,7 @@ public class ValidatorRuleSetTests
 
         // Assert
         Assert.IsFalse(result.IsValid);
-        Assert.AreEqual(1, result.ValidationErrors.Count);
+        Assert.HasCount(1, result.ValidationErrors);
         Assert.AreEqual("Name is required", result.ValidationErrors[0].Message);
     }
 
@@ -132,7 +132,7 @@ public class ValidatorRuleSetTests
 
         // Assert
         Assert.IsFalse(result.IsValid);
-        Assert.AreEqual(1, result.ValidationErrors.Count);
+        Assert.HasCount(1, result.ValidationErrors);
         // Should fail on first rule (NameRequired)
         Assert.AreEqual("Name is required", result.ValidationErrors[0].Message);
     }
@@ -170,7 +170,7 @@ public class ValidatorRuleSetTests
 
         // Assert
         Assert.IsFalse(result.IsValid);
-        Assert.AreEqual(1, result.ValidationErrors.Count);
+        Assert.HasCount(1, result.ValidationErrors);
         Assert.AreEqual("Email already exists", result.ValidationErrors[0].Message);
     }
 
@@ -226,7 +226,7 @@ public class ValidatorRuleSetTests
 
         // Assert
         Assert.IsFalse(result.IsValid);
-        Assert.AreEqual(2, result.ValidationErrors.Count);
+        Assert.HasCount(2, result.ValidationErrors);
         Assert.AreEqual("Name is required", result.ValidationErrors[0].Message);
         Assert.AreEqual("Must be 18 or older", result.ValidationErrors[1].Message);
     }
@@ -246,7 +246,7 @@ public class ValidatorRuleSetTests
 
         // Assert
         Assert.IsFalse(result.IsValid);
-        Assert.AreEqual(1, result.ValidationErrors.Count);
+        Assert.HasCount(1, result.ValidationErrors);
         Assert.AreEqual("Must be 18 or older", result.ValidationErrors[0].Message);
     }
 
@@ -309,6 +309,6 @@ public class ValidatorRuleSetTests
         // Assert
         Assert.IsNotNull(rules);
         Assert.IsInstanceOfType(rules, typeof(System.Collections.Generic.IReadOnlyList<IValidatorRule<TestEntity>>));
-        Assert.AreEqual(1, rules.Count);
+        Assert.HasCount(1, rules);
     }
 }

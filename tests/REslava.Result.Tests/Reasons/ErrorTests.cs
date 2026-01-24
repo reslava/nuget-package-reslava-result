@@ -111,7 +111,7 @@ public sealed class ErrorTests
     {
         // Arrange
         var error = new Error("Test error");
-        var tags = new[] { ("Key1", "Value1"), ("Key2", "Value2") };
+        var tags = new[] { ("Key1", (object)"Value1"), ("Key2", (object)"Value2") };
         
         // Act
         var taggedError = error.WithTags(tags);
@@ -156,7 +156,7 @@ public sealed class ErrorTests
     {
         // Arrange
         var original = new Error("Test error");
-        var tags = new[] { ("Key", "Value") };
+        var tags = new[] { ("Key", (object)"Value") };
         
         // Act
         var modified = original.WithTags(tags);
@@ -182,12 +182,12 @@ public sealed class ErrorTests
             .WithTag("String", "value")
             .WithTag("Number", 42)
             .WithTag("Boolean", true)
-            .WithTag("Null", (object?)null);
+            .WithTag("Null", null!);
         
         // Assert
         Assert.AreEqual("value", taggedError.Tags["String"]);
         Assert.AreEqual(42, taggedError.Tags["Number"]);
-        Assert.AreEqual(true, taggedError.Tags["Boolean"]);
+        Assert.IsTrue((bool)taggedError.Tags["Boolean"]);
         Assert.IsNull(taggedError.Tags["Null"]);
     }
 

@@ -56,7 +56,7 @@ public sealed class ResultGenericTests
         var errors = ImmutableList.Create<IReason>(new Error("Something went wrong"));
         
         // Act
-        var result = new Result<int>(errors);
+        var result = new Result<int>(default(int), errors);
         
         // Assert
         Assert.IsFalse(result.IsSuccess);
@@ -89,8 +89,8 @@ public sealed class ResultGenericTests
         
         // Act & Assert
         var ex = Assert.Throws<InvalidOperationException>(() => result.Value);
-        Assert.IsTrue(ex.Message.Contains("Cannot access Value on a failed Result"));
-        Assert.IsTrue(ex.Message.Contains("Test error"));
+        Assert.Contains(ex.Message, "Cannot access Value on a failed Result");
+        Assert.Contains(ex.Message, "Test error");
     }
 
     [TestMethod]
@@ -98,12 +98,12 @@ public sealed class ResultGenericTests
     {
         // Arrange
         var errors = ImmutableList.Create<IReason>(new Error("Error 1"), new Error("Error 2"));
-        var result = new Result<int>(errors);
+        var result = new Result<int>(default(int), errors);
         
         // Act & Assert
         var ex = Assert.Throws<InvalidOperationException>(() => result.Value);
-        Assert.IsTrue(ex.Message.Contains("Error 1"));
-        Assert.IsTrue(ex.Message.Contains("Error 2"));
+        Assert.Contains(ex.Message, "Error 1");
+        Assert.Contains(ex.Message, "Error 2");
     }
 
     #endregion
@@ -143,7 +143,7 @@ public sealed class ResultGenericTests
     public void GetValueOr_WithFailedResultAndNullDefaultValue_ShouldReturnNull()
     {
         // Arrange
-        var result = new Result<string>(ImmutableList.Create<IReason>(new Error("Test error")));
+        var result = new Result<string>(default(string), ImmutableList.Create<IReason>(new Error("Test error")));
         string? defaultValue = null;
         
         // Act
@@ -171,7 +171,7 @@ public sealed class ResultGenericTests
     {
         // Arrange
         var errors = ImmutableList.Create<IReason>(new Error("Test error"));
-        var result = new Result<int>(errors);
+        var result = new Result<int>(default(int), errors);
         
         // Act
         var actualValue = result.GetValueOr(errorList => errorList.Count);
@@ -268,7 +268,7 @@ public sealed class ResultGenericTests
     public void WithReason_WithFailedResult_ShouldAddReason()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Initial")));
+        var result = new Result<int>(default(int), ImmutableList.Create<IReason>(new Error("Initial")));
         
         // Act
         var newResult = result.WithReason(new Error("Added"));
@@ -301,7 +301,7 @@ public sealed class ResultGenericTests
     public void WithSuccess_WithFailedResult_ShouldMakeSuccess()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Error")));
+        var result = new Result<int>(default(int), ImmutableList.Create<IReason>(new Error("Error")));
         
         // Act
         var newResult = result.WithSuccess("Success");
@@ -334,7 +334,7 @@ public sealed class ResultGenericTests
     public void WithError_WithFailedResult_ShouldAddError()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Initial")));
+        var result = new Result<int>(default(int), ImmutableList.Create<IReason>(new Error("Initial")));
         
         // Act
         var newResult = result.WithError("Added error");
@@ -358,8 +358,8 @@ public sealed class ResultGenericTests
         var resultString = result.ToString();
         
         // Assert
-        Assert.IsTrue(resultString.Contains("Success"));
-        Assert.IsTrue(resultString.Contains("42"));
+        Assert.Contains(resultString, "Success");
+        Assert.Contains(resultString, "42");
     }
 
     [TestMethod]
@@ -372,8 +372,8 @@ public sealed class ResultGenericTests
         var resultString = result.ToString();
         
         // Assert
-        Assert.IsTrue(resultString.Contains("Failed"));
-        Assert.IsTrue(resultString.Contains("Test error"));
+        Assert.Contains(resultString, "Failed");
+        Assert.Contains(resultString, "Test error");
     }
 
     #endregion
@@ -392,7 +392,7 @@ public sealed class ResultGenericTests
         // Assert
         Assert.IsTrue(result.IsSuccess);
         Assert.AreSame(value, result.Value);
-        Assert.HasCount(2, result.Value);
+        Assert.HasCount(2, result.Value!);
     }
 
     [TestMethod]
@@ -454,8 +454,8 @@ public sealed class ResultGenericTests
         
         // Assert
         Assert.IsTrue(result.IsSuccess);
-        Assert.AreEqual(1, result.Value.Id);
-        Assert.AreEqual("John", result.Value.Name);
+        Assert.AreEqual(1, result.Value?.Id);
+        Assert.AreEqual("John", result.Value?.Name);
         Assert.HasCount(1, result.Successes);
         Assert.AreEqual("User created", result.Successes[0].Message);
     }

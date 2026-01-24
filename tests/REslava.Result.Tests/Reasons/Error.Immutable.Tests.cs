@@ -142,7 +142,7 @@ public sealed class ErrorImmutableTests
         // Assert
         Assert.AreNotSame(original, updated);
         Assert.IsTrue(original.Tags.IsEmpty);
-        Assert.AreEqual(1, updated.Tags.Count);
+        Assert.HasCount(1, updated.Tags);
         Assert.IsTrue(updated.Tags.ContainsKey("Field"));
         Assert.AreEqual("Email", updated.Tags["Field"]);
     }
@@ -186,7 +186,7 @@ public sealed class ErrorImmutableTests
             .WithTag("Key3", true);
 
         // Assert
-        Assert.AreEqual(3, result.Tags.Count);
+        Assert.HasCount(3, result.Tags);
         Assert.AreEqual("Value1", result.Tags["Key1"]);
         Assert.AreEqual(42, result.Tags["Key2"]);
         Assert.IsTrue((bool)result.Tags["Key3"]);
@@ -209,7 +209,7 @@ public sealed class ErrorImmutableTests
             .WithTag("Null", null!);
 
         // Assert
-        Assert.AreEqual(6, result.Tags.Count);
+        Assert.HasCount(6, result.Tags);
         Assert.AreEqual("text", result.Tags["String"]);
         Assert.AreEqual(123, result.Tags["Int"]);
         Assert.AreEqual(3.14, result.Tags["Double"]);
@@ -253,7 +253,7 @@ public sealed class ErrorImmutableTests
         // Assert
         Assert.AreNotSame(error, updated);
         Assert.IsTrue(error.Tags.IsEmpty);
-        Assert.AreEqual(3, updated.Tags.Count);
+        Assert.HasCount(3, updated.Tags);
         Assert.AreEqual("Username", updated.Tags["Field"]);
         Assert.AreEqual(400, updated.Tags["Code"]);
         Assert.AreEqual("High", updated.Tags["Severity"]);
@@ -297,7 +297,7 @@ public sealed class ErrorImmutableTests
             .WithTags(("C", 3), ("D", 4));
 
         // Assert
-        Assert.AreEqual(4, result.Tags.Count);
+        Assert.HasCount(4, result.Tags);
         Assert.AreEqual(1, result.Tags["A"]);
         Assert.AreEqual(2, result.Tags["B"]);
         Assert.AreEqual(3, result.Tags["C"]);
@@ -337,7 +337,7 @@ public sealed class ErrorImmutableTests
 
         // Assert
         Assert.AreEqual("Email validation failed", error.Message);
-        Assert.AreEqual(3, error.Tags.Count);
+        Assert.HasCount(3, error.Tags);
         Assert.AreEqual("Email", error.Tags["Field"]);
         Assert.AreEqual(422, error.Tags["Code"]);
     }
@@ -356,7 +356,7 @@ public sealed class ErrorImmutableTests
 
         // Assert
         Assert.AreEqual("Final", error.Message);
-        Assert.AreEqual(3, error.Tags.Count);
+        Assert.HasCount(3, error.Tags);
         Assert.AreEqual(1, error.Tags["A"]);
         Assert.AreEqual(2, error.Tags["B"]);
         Assert.AreEqual(3, error.Tags["C"]);
@@ -382,7 +382,7 @@ public sealed class ErrorImmutableTests
         Assert.IsTrue(original.Tags.IsEmpty);
         
         Assert.AreEqual("Modified", modified.Message);
-        Assert.AreEqual(1, modified.Tags.Count);
+        Assert.HasCount(1, modified.Tags);
     }
 
     [TestMethod]
@@ -397,9 +397,9 @@ public sealed class ErrorImmutableTests
         var e1b = e1.WithTag("T1B", "1b");
 
         // Assert - e2 unaffected by e1b
-        Assert.AreEqual(1, e1.Tags.Count);
-        Assert.AreEqual(2, e1b.Tags.Count);
-        Assert.AreEqual(2, e2.Tags.Count);
+        Assert.HasCount(1, e1.Tags);
+        Assert.HasCount(2, e1b.Tags);
+        Assert.HasCount(2, e2.Tags);
         Assert.IsFalse(e2.Tags.ContainsKey("T1B"));
     }
 
@@ -454,7 +454,7 @@ public sealed class ErrorImmutableTests
 
         // Assert
         Assert.IsTrue(result.IsFailed);
-        Assert.AreEqual(1, result.Errors.Count);
+        Assert.HasCount(1, result.Errors);
         Assert.AreEqual("Database connection failed", result.Errors[0].Message);
         Assert.AreEqual("localhost", result.Errors[0].Tags["Server"]);
         Assert.AreEqual(5432, result.Errors[0].Tags["Port"]);
@@ -519,7 +519,7 @@ public sealed class ErrorImmutableTests
         }
 
         // Assert
-        Assert.AreEqual(100, result.Tags.Count);
+        Assert.HasCount(100, result.Tags);
         Assert.AreEqual(50, result.Tags["Key50"]);
         
         // Original unchanged

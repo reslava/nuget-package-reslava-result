@@ -49,7 +49,7 @@ public class ValidatorRuleBuilderTests
         var builder = new ValidatorRuleBuilder<TestEntity>();
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() => builder.AddRule(null!));
+        Assert.Throws<ArgumentNullException>(() => builder.AddRule(null!));
     }
 
     [TestMethod]
@@ -93,8 +93,8 @@ public class ValidatorRuleBuilderTests
         var builder = new ValidatorRuleBuilder<TestEntity>();
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            builder.Rule(null!, "Test", "Error", s => true));
+        Assert.Throws<ArgumentNullException>(() =>
+            builder.Rule<string>(null!, "Test", "Error", s => true));
     }
 
     [TestMethod]
@@ -104,7 +104,7 @@ public class ValidatorRuleBuilderTests
         var builder = new ValidatorRuleBuilder<TestEntity>();
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
+        Assert.Throws<ArgumentNullException>(() =>
             builder.Rule(e => e.Name, "Test", "Error", null!));
     }
 
@@ -115,8 +115,8 @@ public class ValidatorRuleBuilderTests
         var builder = new ValidatorRuleBuilder<TestEntity>();
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            builder.RuleAsync(null!, "Test", "Error", s => Task.FromResult(true)));
+        Assert.Throws<ArgumentNullException>(() =>
+            builder.RuleAsync<string>(null!, "Test", "Error", s => Task.FromResult(true)));
     }
 
     [TestMethod]
@@ -126,7 +126,7 @@ public class ValidatorRuleBuilderTests
         var builder = new ValidatorRuleBuilder<TestEntity>();
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
+        Assert.Throws<ArgumentNullException>(() =>
             builder.RuleAsync(e => e.Name, "Test", "Error", null!));
     }
 

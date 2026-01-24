@@ -66,7 +66,7 @@ public sealed class ResultBindTests
         var result = new Result<int>(42, new Success("Initial"));
         
         // Act
-        var boundResult = result.Bind(x => throw new InvalidOperationException("Binder error"));
+        var boundResult = result.Bind<int>(x => throw new InvalidOperationException("Binder error"));
         
         // Assert
         Assert.IsTrue(boundResult.IsFailed);
@@ -82,7 +82,7 @@ public sealed class ResultBindTests
         var result = new Result<int>(42, new Success("Initial"));
         
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => result.Bind<int, string>(null!));
+        Assert.Throws<ArgumentNullException>(() => result.Bind<int>(null!));
     }
 
     #endregion
@@ -116,7 +116,7 @@ public sealed class ResultBindTests
         // Act
         var result = initial
             .Bind(x => new Result<string>(x.ToString(), new Success("ToString")))
-            .Bind(s => new Result<int>(ImmutableList.Create<IReason>(middleError)))
+            .Bind(s => new Result<int>(default(int), ImmutableList.Create<IReason>(middleError)))
             .Bind(i => new Result<double>(i * 2.0, new Success("Never")));
         
         // Assert
@@ -137,8 +137,8 @@ public sealed class ResultBindTests
         
         // Assert
         Assert.IsTrue(boundResult.IsSuccess);
-        Assert.AreEqual(1, boundResult.Value.Id);
-        Assert.AreEqual("John", boundResult.Value.Name);
+        Assert.AreEqual(1, boundResult.Value?.Id);
+        Assert.AreEqual("John", boundResult.Value?.Name);
         Assert.HasCount(2, boundResult.Successes);
     }
 

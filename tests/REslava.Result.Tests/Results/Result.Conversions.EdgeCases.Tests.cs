@@ -403,10 +403,7 @@ public sealed class ResultConversionsEdgeCasesTests
         var validationErrors = new List<Error>();
         
         // Simulate conditional validation
-        if (false) // No validation errors
-        {
-            validationErrors.Add(new Error("Should not happen"));
-        }
+        // No validation errors in this test case
 
         // Act: Implicit conversion with empty list
         Result<User> result = validationErrors;

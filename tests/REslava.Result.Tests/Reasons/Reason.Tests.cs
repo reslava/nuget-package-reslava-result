@@ -254,7 +254,7 @@ public sealed class ReasonTests
         var reason2 = new TestReason("R2", tags);
 
         // Assert - Both reasons have independent tag collections
-        Assert.AreEqual(reason1.Tags.Count, reason2.Tags.Count);
+        Assert.HasCount(reason1.Tags.Count, reason2.Tags);
         Assert.AreEqual(reason1.Tags["Key"], reason2.Tags["Key"]);
         Assert.IsTrue(reason1.Tags.SequenceEqual(reason2.Tags));
     }
