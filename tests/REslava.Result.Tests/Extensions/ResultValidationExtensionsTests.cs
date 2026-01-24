@@ -18,7 +18,7 @@ public sealed class ResultValidationExtensionsTests
         var result = Result<int>.Ok(42);
         
         // Act
-        var validatedResult = result.Ensure(x => x > 0, "Value must be positive");
+        var validatedResult = result.Ensure(x => x > 0, new Error("Value must be positive"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsSuccess);
@@ -32,7 +32,7 @@ public sealed class ResultValidationExtensionsTests
         var result = Result<int>.Ok(-5);
         
         // Act
-        var validatedResult = result.Ensure(x => x > 0, "Value must be positive");
+        var validatedResult = result.Ensure(x => x > 0, new Error("Value must be positive"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsFailed);
@@ -47,7 +47,7 @@ public sealed class ResultValidationExtensionsTests
         var result = Result<int>.Fail(new Error("Original error"));
         
         // Act
-        var validatedResult = result.Ensure(x => x > 0, "Value must be positive");
+        var validatedResult = result.Ensure(x => x > 0, new Error("Value must be positive"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsFailed);
@@ -62,7 +62,7 @@ public sealed class ResultValidationExtensionsTests
         var result = Result<int>.Ok(42);
         
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => result.Ensure<int>(null!, "Message"));
+        Assert.Throws<ArgumentNullException>(() => result.Ensure<int>(null!, new Error("Message")));
     }
 
     [TestMethod]
@@ -72,7 +72,7 @@ public sealed class ResultValidationExtensionsTests
         var result = Result<int>.Ok(42);
         
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => result.Ensure(x => x > 0, null!));
+        Assert.Throws<ArgumentNullException>(() => result.Ensure(x => x > 0, (Error)null!));
     }
 
     #endregion
@@ -90,7 +90,7 @@ public sealed class ResultValidationExtensionsTests
         {
             await Task.Delay(10);
             return x > 0;
-        }, "Value must be positive");
+        }, new Error("Value must be positive"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsSuccess);
@@ -108,7 +108,7 @@ public sealed class ResultValidationExtensionsTests
         {
             await Task.Delay(10);
             return x > 0;
-        }, "Value must be positive");
+        }, new Error("Value must be positive"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsFailed);
@@ -127,7 +127,7 @@ public sealed class ResultValidationExtensionsTests
         {
             await Task.Delay(10);
             return x > 0;
-        }, "Value must be positive");
+        }, new Error("Value must be positive"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsFailed);
@@ -147,9 +147,9 @@ public sealed class ResultValidationExtensionsTests
         
         // Act
         var validatedResult = result
-            .Ensure(x => x > 0, "Value must be positive")
-            .Ensure(x => x < 100, "Value must be less than 100")
-            .Ensure(x => x % 2 == 0, "Value must be even");
+            .Ensure(x => x > 0, new Error("Value must be positive"))
+            .Ensure(x => x < 100, new Error("Value must be less than 100"))
+            .Ensure(x => x % 2 == 0, new Error("Value must be even"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsSuccess);
@@ -164,9 +164,9 @@ public sealed class ResultValidationExtensionsTests
         
         // Act
         var validatedResult = result
-            .Ensure(x => x > 0, "Value must be positive")
-            .Ensure(x => x < 100, "Value must be less than 100")
-            .Ensure(x => x % 2 == 0, "Value must be even");
+            .Ensure(x => x > 0, new Error("Value must be positive"))
+            .Ensure(x => x < 100, new Error("Value must be less than 100"))
+            .Ensure(x => x % 2 == 0, new Error("Value must be even"));
         
         // Assert
         Assert.IsTrue(validatedResult.IsFailed);

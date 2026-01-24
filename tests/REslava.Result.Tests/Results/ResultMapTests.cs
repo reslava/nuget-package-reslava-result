@@ -30,7 +30,7 @@ public sealed class ResultMapTests
     public void Map_WithFailedResult_ShouldPropagateFailure()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Original error")));
+        var result = new Result<int>(default, ImmutableList.Create<IReason>(new Error("Test error")));
         
         // Act
         var mappedResult = result.Map(x => x.ToString());

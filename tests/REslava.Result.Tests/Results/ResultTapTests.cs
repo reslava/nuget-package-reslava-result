@@ -32,7 +32,7 @@ public sealed class ResultTapTests
     public void Tap_WithFailedResult_ShouldNotExecuteAction()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Test error")));
+        var result = new Result<int>(default, ImmutableList.Create<IReason>(new Error("Test error")));
         var tappedValue = 0;
         
         // Act
@@ -67,7 +67,7 @@ public sealed class ResultTapTests
         var result = new Result<int>(42, new Success("Initial"));
         
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => result.Tap<int>(null!));
+        Assert.Throws<ArgumentNullException>(() => result.Tap(null!));
     }
 
     #endregion

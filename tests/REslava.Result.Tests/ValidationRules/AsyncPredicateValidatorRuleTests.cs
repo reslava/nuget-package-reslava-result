@@ -41,8 +41,7 @@ public class AsyncPredicateValidatorRuleTests
         Func<string, Task<bool>> validator = s => Task.FromResult(true);
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            new AsyncPredicateValidatorRule<TestEntity, string>(propertySelector, ruleName, errorMessage, validator));
+        Assert.Throws<ArgumentNullException>(() => new AsyncPredicateValidatorRule<TestEntity, string>(null!, "Test", "Error", async s => true));
     }
 
     [TestMethod]
@@ -55,8 +54,7 @@ public class AsyncPredicateValidatorRuleTests
         Func<string, Task<bool>> validator = null!;
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            new AsyncPredicateValidatorRule<TestEntity, string>(propertySelector, ruleName, errorMessage, validator));
+        Assert.Throws<ArgumentNullException>(() => new AsyncPredicateValidatorRule<TestEntity, string>(propertySelector, ruleName, errorMessage, null!));
     }
 
     [TestMethod]

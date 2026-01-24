@@ -40,8 +40,7 @@ public class PredicateValidatorRuleTests
         Func<string, bool> validator = s => true;
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            new PredicateValidatorRule<TestEntity, string>(propertySelector, ruleName, errorMessage, validator));
+        Assert.Throws<ArgumentNullException>(() => new PredicateValidatorRule<TestEntity, string>(null!, "Test", "Error", s => true));
     }
 
     [TestMethod]
@@ -54,8 +53,7 @@ public class PredicateValidatorRuleTests
         Func<string, bool> validator = null!;
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            new PredicateValidatorRule<TestEntity, string>(propertySelector, ruleName, errorMessage, validator));
+        Assert.Throws<ArgumentNullException>(() => new PredicateValidatorRule<TestEntity, string>(propertySelector, ruleName, errorMessage, validator));
     }
 
     [TestMethod]
@@ -68,8 +66,7 @@ public class PredicateValidatorRuleTests
         Func<string, bool> validator = s => true;
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            new PredicateValidatorRule<TestEntity, string>(propertySelector, ruleName, errorMessage, validator));
+        Assert.Throws<ArgumentNullException>(() => new PredicateValidatorRule<TestEntity, string>(propertySelector, ruleName, errorMessage, validator));
     }
 
     [TestMethod]
@@ -82,8 +79,7 @@ public class PredicateValidatorRuleTests
         Func<string, bool> validator = s => true;
 
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            new PredicateValidatorRule<TestEntity, string>(propertySelector, ruleName, errorMessage, validator));
+        Assert.Throws<ArgumentNullException>(() => new PredicateValidatorRule<TestEntity, string>(propertySelector, ruleName, errorMessage, validator));
     }
 
     [TestMethod]

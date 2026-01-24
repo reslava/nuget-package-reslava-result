@@ -35,7 +35,7 @@ public sealed class ResultMatchTests
     public void Match_WithFailedResult_ShouldExecuteOnFailure()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Test error")));
+        var result = new Result<int>(default, ImmutableList.Create<IReason>(new Error("Test error")));
         var successValue = string.Empty;
         var failureValue = string.Empty;
         
@@ -71,7 +71,7 @@ public sealed class ResultMatchTests
     public void Match_WithFailedResultAndErrors_ShouldExecuteOnFailureWithErrors()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Test error")));
+        var result = new Result<int>(default, ImmutableList.Create<IReason>(new Error("Test error")));
         
         // Act
         var output = result.Match(
@@ -100,7 +100,7 @@ public sealed class ResultMatchTests
     public void Match_WithNullOnFailure_ShouldThrowArgumentNullException()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Test error")));
+        var result = new Result<int>(default, ImmutableList.Create<IReason>(new Error("Test error")));
         
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => result.Match(

@@ -80,7 +80,7 @@ public sealed class ResultMapExtensionsTests
         Task<Result<int>> resultTask = null!;
         
         // Act & Assert
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await resultTask.MapAsync(x => x.ToString()));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await resultTask.MapAsync(x => x.ToString()));
     }
 
     [TestMethod]
@@ -90,7 +90,7 @@ public sealed class ResultMapExtensionsTests
         var resultTask = Task.FromResult(Result<int>.Ok(42));
         
         // Act & Assert
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await resultTask.MapAsync<int, string>(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await resultTask.MapAsync<int, string>((Func<int, string>)null!));
     }
 
     [TestMethod]
@@ -189,7 +189,7 @@ public sealed class ResultMapExtensionsTests
         var resultTask = Task.FromResult(Result<int>.Ok(42));
         
         // Act & Assert
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await resultTask.MapAsync<int, string>(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await resultTask.MapAsync<int, string>((Func<int, string>)null!));
     }
 
     [TestMethod]

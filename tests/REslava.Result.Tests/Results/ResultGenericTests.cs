@@ -85,7 +85,7 @@ public sealed class ResultGenericTests
     public void Value_WithFailedResult_ShouldThrowInvalidOperationException()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Test error")));
+        var result = new Result<int>(default, ImmutableList.Create<IReason>(new Error("Test error")));
         
         // Act & Assert
         var ex = Assert.Throws<InvalidOperationException>(() => result.Value);
@@ -129,7 +129,7 @@ public sealed class ResultGenericTests
     public void GetValueOr_WithFailedResult_ShouldReturnDefaultValue()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Test error")));
+        var result = new Result<int>(default, ImmutableList.Create<IReason>(new Error("Test error")));
         var defaultValue = 99;
         
         // Act
@@ -157,7 +157,7 @@ public sealed class ResultGenericTests
     public void GetValueOr_WithFactory_ShouldWorkCorrectly()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Test error")));
+        var result = new Result<int>(default, ImmutableList.Create<IReason>(new Error("Test error")));
         
         // Act
         var actualValue = result.GetValueOr(() => 42);
@@ -203,7 +203,7 @@ public sealed class ResultGenericTests
     public void TryGetValue_WithFailedResult_ShouldReturnFalse()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Test error")));
+        var result = new Result<int>(default, ImmutableList.Create<IReason>(new Error("Test error")));
         
         // Act
         var success = result.TryGetValue(out var actualValue);
@@ -366,7 +366,7 @@ public sealed class ResultGenericTests
     public void ToString_WithFailedResult_ShouldReturnFailureString()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Test error")));
+        var result = new Result<int>(default, ImmutableList.Create<IReason>(new Error("Test error")));
         
         // Act
         var resultString = result.ToString();

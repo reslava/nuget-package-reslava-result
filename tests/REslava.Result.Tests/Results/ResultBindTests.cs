@@ -32,7 +32,7 @@ public sealed class ResultBindTests
     public void Bind_WithFailedResult_ShouldPropagateFailure()
     {
         // Arrange
-        var result = new Result<int>(ImmutableList.Create<IReason>(new Error("Original error")));
+        var result = new Result<int>(default, ImmutableList.Create<IReason>(new Error("Original error")));
         
         // Act
         var boundResult = result.Bind(x => new Result<string>("never called", new Success("Never")));
