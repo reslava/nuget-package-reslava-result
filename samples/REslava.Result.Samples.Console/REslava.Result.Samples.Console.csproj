@@ -5,7 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <NoWarn>$(NoWarn);8602;8604</NoWarn> <!-- Suppress null reference warnings for samples -->
+    <NoWarn>$(NoWarn);8602;8604;CS8602;CS8604</NoWarn> <!-- Suppress null reference warnings for samples -->
   </PropertyGroup>
 
   <ItemGroup>
