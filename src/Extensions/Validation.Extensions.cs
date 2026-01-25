@@ -67,11 +67,12 @@ public static class ValidationExtensions
         string paramName,
         string? message = null)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        if (value is null || string.IsNullOrWhiteSpace(value))
         {
             var errorMessage = message ?? $"{paramName} {DefaultNullOrWhitespaceMessage}";
-            throw new ArgumentException(errorMessage, paramName);
+            throw new ArgumentNullException(paramName, errorMessage);
         }
+        
         return value;
     }
 
@@ -83,11 +84,12 @@ public static class ValidationExtensions
         string paramName,
         string? message = null)
     {
-        if (string.IsNullOrEmpty(value))
+        if (value is null || string.IsNullOrEmpty(value))
         {
             var errorMessage = message ?? $"{paramName} {DefaultNullOrEmptyMessage}";
-            throw new ArgumentException(errorMessage, paramName);
+            throw new ArgumentNullException(paramName, errorMessage);
         }
+        
         return value;
     }
 
@@ -426,7 +428,7 @@ public static class ValidationExtensions
         if (string.IsNullOrWhiteSpace(key))
         {
             var errorMessage = message ?? $"Key {DefaultNullOrWhitespaceMessage}";
-            throw new ArgumentException(errorMessage, paramName);
+            throw new ArgumentNullException(paramName, errorMessage);
         }
 
         if (dictionary.ContainsKey(key))
@@ -450,7 +452,7 @@ public static class ValidationExtensions
         if (string.IsNullOrWhiteSpace(key))
         {
             var errorMessage = message ?? $"Key {DefaultNullOrWhitespaceMessage}";
-            throw new ArgumentException(errorMessage, paramName);
+            throw new ArgumentNullException(paramName, errorMessage);
         }
 
         if (dictionary.ContainsKey(key))

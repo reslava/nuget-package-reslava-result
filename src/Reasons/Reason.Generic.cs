@@ -38,7 +38,9 @@ public abstract class Reason<TReason> : Reason
     /// </summary>
     public TReason WithTags(params (string key, object value)[] tags)
     {        
-        if (tags is null || tags.Length == 0)
+        tags = tags.EnsureNotNull(nameof(tags));
+        
+        if (tags.Length == 0)
         {
             return (TReason)this; // No changes needed
         }

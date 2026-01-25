@@ -65,6 +65,8 @@ public partial class Result<TValue>
     /// </example>
     public Result<TValue> Tap(Action<TValue> action)
     {
+        action = action.EnsureNotNull(nameof(action));
+        
         if (IsSuccess)
         {
             action(Value!);
@@ -86,6 +88,8 @@ public partial class Result<TValue>
     /// </example>
     public async Task<Result<TValue>> TapAsync(Func<TValue, Task> action)
     {
+        action = action.EnsureNotNull(nameof(action));
+        
         if (IsSuccess)
         {
             await action(Value!);
