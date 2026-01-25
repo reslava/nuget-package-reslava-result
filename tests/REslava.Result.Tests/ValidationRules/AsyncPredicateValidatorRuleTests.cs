@@ -253,9 +253,10 @@ public class AsyncPredicateValidatorRuleTests
     }
 
     // Helper method to simulate database email check
+    // Returns true if validation passes (email doesn't exist), false if validation fails (email exists)
     private async Task<bool> SimulateEmailExistsCheck(string email)
     {
         await Task.Delay(5); // Simulate database latency
-        return email == "existing@example.com";
+        return email != "existing@example.com"; // Validation passes if email is NOT the existing one
     }
 }
