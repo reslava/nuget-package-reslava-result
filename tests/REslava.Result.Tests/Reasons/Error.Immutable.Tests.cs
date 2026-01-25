@@ -273,16 +273,13 @@ public sealed class ErrorImmutableTests
     }
 
     [TestMethod]
-    public void WithTags_NullArray_ReturnsSameInstance()
+    public void WithTags_NullArray_ShouldThrowArgumentNullException()
     {
         // Arrange
         var error = new Error("Test");
 
-        // Act
-        var result = error.WithTags(null!);
-
-        // Assert
-        Assert.AreSame(error, result);
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => error.WithTags(null!));
     }
 
     [TestMethod]

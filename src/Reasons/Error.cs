@@ -22,4 +22,16 @@ public class Error : Reason<Error>, IError
     {
         return new Error(message, tags);
     }
+    
+    /// <summary>
+    /// Creates a new error with additional tags.
+    /// Error tags must not be null to ensure proper error tracking.
+    /// </summary>
+    /// <param name="tags">The tags to add to the error.</param>
+    /// <returns>A new error instance with the added tags.</returns>
+    public new Error WithTags(params (string key, object value)[] tags)
+    {
+        tags = tags.EnsureNotNull(nameof(tags));
+        return base.WithTags(tags);
+    }
 }

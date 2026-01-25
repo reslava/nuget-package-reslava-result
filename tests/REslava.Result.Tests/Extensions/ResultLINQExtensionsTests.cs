@@ -434,9 +434,10 @@ public sealed class ResultLINQExtensionsTests
         var source = Result<int>.Ok(42);
         
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(async () => await source.SelectManyAsync<int, string, string>(
+        Assert.Throws<ArgumentNullException>(async () => await ResultLINQExtensions.SelectManyAsync(
+            source,
             x => Task.FromResult(Result<string>.Ok(x.ToString())),
-            (x, y) => "result"));
+            (Func<int, string, string>)null!));
     }
 
     [TestMethod]
