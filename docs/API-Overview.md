@@ -37,7 +37,11 @@ var successWithMessage = Result.Ok("Operation completed");
 
 // Failure cases
 var failure = Result.Fail("Something went wrong");
-var failureWithError = Result<User>.Fail(new ValidationError("Invalid input"));
+var failureWithError = Result<User>.Fail(new ValidationError("Email", "Invalid format"));
+
+// Tags are immediately available with safe access:
+var field = failureWithError.Errors[0].GetTagString("Field"); // "Email"
+var errorType = failureWithError.Errors[0].GetTagString("ErrorType"); // "Validation"
 ```
 
 #### 2. Transformation

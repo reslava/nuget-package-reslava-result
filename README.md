@@ -298,12 +298,13 @@ var error = new ValidationError("Email", "Invalid format")
 
 Result<User>.Fail(error);
 
-// Access rich context later
+// Safe tag access with TagAccess extensions:
 if (result.IsFailed)
 {
-    var field = result.Errors[0].Tags["Field"];        // "Email"
-    var errorCode = result.Errors[0].Tags["ErrorCode"]; // "VAL_001"
-    var userId = result.Errors[0].Tags["UserId"];      // userId value
+    var field = result.Errors[0].GetTagString("Field");        // "Email"
+    var errorCode = result.Errors[0].GetTagString("ErrorCode"); // "VAL_001"
+    var userId = result.Errors[0].GetTagString("UserId");      // userId value
+    var timestamp = result.Errors[0].GetTag<DateTime>("Timestamp"); // DateTime value
 }
 ```
 
@@ -367,28 +368,74 @@ Create domain-specific errors with fluent APIs:
 public class ValidationError : Error
 {
     public ValidationError(string field, string message) 
-        : base($"{field}: {message}")
+        : base($"{field}: {message}", CreateInitialTags(field))
     {
-        WithTag("Field", field)
-            .WithTag("ErrorType", "Validation")
-            .WithTag("Severity", "Warning");
+    }
+
+    protected ValidationError(string message, ImmutableDictionary<string, object> tags)
+        : base(message, tags)
+    {
+    }
+
+    protected override ValidationError CreateNew(string message, ImmutableDictionary<string, object> tags)
+    {
+        return new ValidationError(message, tags);
+    }
+
+    public new ValidationError WithTags(params (string key, object value)[] tags)
+    {
+        return (ValidationError)base.WithTags(tags);
+    }
+
+    private static ImmutableDictionary<string, object> CreateInitialTags(string field)
+    {
+        return ImmutableDictionary<string, object>.Empty
+            .Add("Field", field)
+            .Add("ErrorType", "Validation")
+            .Add("Severity", "Warning");
     }
 }
 
 public class NotFoundError : Error
 {
     public NotFoundError(string entityType, string id) 
-        : base($"{entityType} with id '{id}' not found")
+        : base($"{entityType} with id '{id}' not found", CreateInitialTags(entityType, id))
     {
-        WithTag("EntityType", entityType)
-            .WithTag("EntityId", id)
-            .WithTag("StatusCode", 404);
+    }
+
+    protected NotFoundError(string message, ImmutableDictionary<string, object> tags)
+        : base(message, tags)
+    {
+    }
+
+    protected override NotFoundError CreateNew(string message, ImmutableDictionary<string, object> tags)
+    {
+        return new NotFoundError(message, tags);
+    }
+
+    public new NotFoundError WithTags(params (string key, object value)[] tags)
+    {
+        return (NotFoundError)base.WithTags(tags);
+    }
+
+    private static ImmutableDictionary<string, object> CreateInitialTags(string entityType, string id)
+    {
+        return ImmutableDictionary<string, object>.Empty
+            .Add("EntityType", entityType)
+            .Add("EntityId", id)
+            .Add("StatusCode", 404);
     }
 }
 
 // Usage
 return Result<User>.Fail(new NotFoundError("User", userId));
 return Result<User>.Fail(new ValidationError("Email", "Invalid format"));
+
+// Tags are immediately available:
+var error = new ValidationError("Email", "Invalid format");
+Console.WriteLine(error.GetTagString("Field"));        // "Email"
+Console.WriteLine(error.GetTagString("ErrorType"));    // "Validation"
+Console.WriteLine(error.GetTagString("Severity"));     // "Warning"
 ```
 
 #### Advanced Approach (For custom fluent methods)
@@ -555,7 +602,10 @@ var error = new ValidationError("Email", "Invalid format")
     .WithTag("Value", email)
     .WithTag("ErrorCode", "VAL_001");
 
-// Rich context available for debugging and monitoring
+// Safe tag access with TagAccess extensions:
+var field = error.GetTagString("Field");        // "Email"
+var errorCode = error.GetTagString("ErrorCode"); // "VAL_001"
+var value = error.GetTagString("Value");       // email value
 ```
 
 **Multiple Error Collection**
@@ -735,11 +785,12 @@ var error = new ValidationError("Email", "Invalid format")
     .WithTag("ErrorCode", "VAL_001")
     .WithTag("UserId", userId);
 
-// Rich context available throughout your application
+// Safe tag access with TagAccess extensions:
 if (result.IsFailed)
 {
-    var errorCode = result.Errors[0].Tags["ErrorCode"];
-    var field = result.Errors[0].Tags["Field"];
+    var errorCode = result.Errors[0].GetTagString("ErrorCode");
+    var field = result.Errors[0].GetTagString("Field");
+    var userId = result.Errors[0].GetTagString("UserId");
 }
 ```
 
