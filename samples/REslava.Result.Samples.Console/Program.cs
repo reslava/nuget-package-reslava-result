@@ -11,10 +11,10 @@ Console.WriteLine("===========================================\n");
 await RunExample("01. Basic Usage", BasicUsageSamples.Run);
 await RunExample("02. Validation Pipeline", ValidationPipelineSamples.Run);
 //await RunExample("03. Error Handling", ErrorHandlingSamples.Run);
-//await RunExample("04. Async Operations", AsyncOperationsSamples.Run);
-//await RunExample("05. LINQ Syntax", LinqSyntaxSamples.Run);
-//await RunExample("06. Custom Errors", CustomErrorsSamples.Run);
-//await RunExample("07. Real World Scenarios", RealWorldScenariosSamples.Run);
+await RunExample("04. Async Operations", AsyncOperationsSamples.Run);
+await RunExample("05. LINQ Syntax", LINQSyntaxSamples.Run);
+await RunExample("06. Custom Errors", CustomErrorsSamples.Run);
+await RunExample("07. Real World Scenarios", RealWorldScenariosSamples.Run);
 await RunExample("08. Validation Rules", ValidationRulesSamples.Run);
 
 Console.WriteLine("\\n===========================================");
