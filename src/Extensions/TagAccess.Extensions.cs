@@ -115,4 +115,12 @@ public static class TagAccessExtensions
     {
         return reason.GetTag<bool>(key, defaultValue);
     }
+
+    /// <summary>
+    /// Gets a decimal tag value safely.
+    /// </summary>
+    public static decimal GetTagDecimal(this IReason reason, string key, decimal defaultValue = 0)
+    {
+        return reason.GetTag<decimal>(key, defaultValue);
+    }
 }

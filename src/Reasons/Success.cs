@@ -14,7 +14,7 @@ public class Success : Reason<Success>, ISuccess
     /// <param name="message">Description of the successful operation.</param>
     public Success(string message) : base(message) { }
 
-    private Success(string message, ImmutableDictionary<string, object> tags)
+    protected Success(string message, ImmutableDictionary<string, object> tags)
         : base(message, tags) { }
 
     protected override Success CreateNew(string message, ImmutableDictionary<string, object> tags)

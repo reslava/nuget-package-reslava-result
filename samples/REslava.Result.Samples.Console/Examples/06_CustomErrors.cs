@@ -37,11 +37,9 @@ public static class CustomErrorsSamples
 
         System.Console.WriteLine($"NotFoundError: {result1.IsFailed}");
         System.Console.WriteLine($"  Message: {result1.Errors[0].Message}");
-        // Temporarily comment out tag access to avoid casting issues
-        // System.Console.WriteLine($"  Entity: {result1.Errors[0].Tags["EntityType"]}");
-        // System.Console.WriteLine($"  ID: {result1.Errors[0].Tags["EntityId"]}");
-        // System.Console.WriteLine($"  Status: {result1.Errors[0].Tags["StatusCode"]}");
-        System.Console.WriteLine("  Tags: Successfully added (tag access temporarily disabled)");
+        System.Console.WriteLine($"  Entity: {result1.Errors[0].GetTagString("EntityType")}");
+        System.Console.WriteLine($"  ID: {result1.Errors[0].GetTagString("EntityId")}");
+        System.Console.WriteLine($"  Status: {result1.Errors[0].GetTagInt("StatusCode")}");
 
         // ValidationError
         var validationError = new ValidationError("Email", "Invalid format");
@@ -49,19 +47,17 @@ public static class CustomErrorsSamples
 
         System.Console.WriteLine($"\nValidationError: {result2.IsFailed}");
         System.Console.WriteLine($"  Message: {result2.Errors[0].Message}");
-        // System.Console.WriteLine($"  Field: {result2.Errors[0].Tags["Field"]}");
-        // System.Console.WriteLine($"  Type: {result2.Errors[0].Tags["ErrorType"]}");
-        System.Console.WriteLine("  Tags: Successfully added (tag access temporarily disabled)");
+        System.Console.WriteLine($"  Field: {result2.Errors[0].GetTagString("Field")}");
+        System.Console.WriteLine($"  Type: {result2.Errors[0].GetTagString("ErrorType")}");
 
         // AuthorizationError
         var authError = new AuthorizationError("user-456", "admin:write");
-        var result3 = Result.Fail(authError);
+        var result3 = Result<string>.Fail(authError);
 
         System.Console.WriteLine($"\nAuthorizationError: {result3.IsFailed}");
         System.Console.WriteLine($"  Message: {result3.Errors[0].Message}");
-        // System.Console.WriteLine($"  User: {result3.Errors[0].Tags["UserId"]}");
-        // System.Console.WriteLine($"  Permission: {result3.Errors[0].Tags["RequiredPermission"]}");
-        System.Console.WriteLine("  Tags: Successfully added (tag access temporarily disabled)");
+        System.Console.WriteLine($"  User: {result3.Errors[0].GetTagString("UserId")}");
+        System.Console.WriteLine($"  Permission: {result3.Errors[0].GetTagString("RequiredPermission")}");
 
         System.Console.WriteLine();
     }
@@ -128,9 +124,8 @@ public static class CustomErrorsSamples
         System.Console.WriteLine($"Business rule error:");
         // System.Console.WriteLine($"  Rule: {result1.Errors[0].Tags["RuleCode"]}");
         System.Console.WriteLine($"  Message: {result1.Errors[0].Message}");
-        // System.Console.WriteLine($"  Required: ${result1.Errors[0].Tags["RequiredAmount"]}");
-        // System.Console.WriteLine($"  Available: ${result1.Errors[0].Tags["AvailableBalance"]}");
-        System.Console.WriteLine("  Tags: Successfully added (tag access temporarily disabled)");
+        System.Console.WriteLine($"  Required: ${result1.Errors[0].GetTagDecimal("RequiredAmount", 0)}");
+        System.Console.WriteLine($"  Available: ${result1.Errors[0].GetTagDecimal("AvailableBalance", 0)}");
 
         // Domain-specific errors
         var inventoryError = new InventoryError(
@@ -145,10 +140,9 @@ public static class CustomErrorsSamples
         System.Console.WriteLine($"\nInventory error:");
         // System.Console.WriteLine($"  Code: {result2.Errors[0].Tags["ErrorCode"]}");
         System.Console.WriteLine($"  Message: {result2.Errors[0].Message}");
-        // System.Console.WriteLine($"  Product: {result2.Errors[0].Tags["ProductId"]}");
-        // System.Console.WriteLine($"  Requested: {result2.Errors[0].Tags["RequestedQuantity"]}");
-        // System.Console.WriteLine($"  Available: {result2.Errors[0].Tags["AvailableQuantity"]}");
-        System.Console.WriteLine("  Tags: Successfully added (tag access temporarily disabled)");
+        System.Console.WriteLine($"  Product: {result2.Errors[0].GetTagString("ProductId", "Unknown")}");
+        System.Console.WriteLine($"  Requested: {result2.Errors[0].GetTagInt("RequestedQuantity", 0)}");
+        System.Console.WriteLine($"  Available: {result2.Errors[0].GetTagInt("AvailableQuantity", 0)}");
 
         System.Console.WriteLine();
     }
@@ -386,8 +380,18 @@ public static class CustomErrorsSamples
     private class NotFoundError : Error
     {
         public NotFoundError(string entityType, string entityId)
-            : base($"{entityType} with id '{entityId}' not found")
+            : base($"{entityType} with id '{entityId}' not found", CreateInitialTags(entityType, entityId))
         {
+        }
+
+        protected NotFoundError(string message, ImmutableDictionary<string, object> tags)
+            : base(message, tags)
+        {
+        }
+
+        protected override NotFoundError CreateNew(string message, ImmutableDictionary<string, object> tags)
+        {
+            return new NotFoundError(message, tags);
         }
 
         public new NotFoundError WithTags(params (string key, object value)[] tags)
@@ -395,42 +399,107 @@ public static class CustomErrorsSamples
             return (NotFoundError)base.WithTags(tags);
         }
 
-        public static NotFoundError Create(string entityType, string entityId)
+        private static ImmutableDictionary<string, object> CreateInitialTags(string entityType, string entityId)
         {
-            return new NotFoundError(entityType, entityId)
-                .WithTags(("EntityType", entityType), ("EntityId", entityId), ("StatusCode", 404), ("ErrorType", "NotFound"));
+            return ImmutableDictionary<string, object>.Empty
+                .Add("EntityType", entityType)
+                .Add("EntityId", entityId)
+                .Add("StatusCode", 404)
+                .Add("ErrorType", "NotFound");
         }
     }
 
     private class ValidationError : Error
     {
         public ValidationError(string field, string message)
-            : base($"{field}: {message}")
+            : base($"{field}: {message}", CreateInitialTags(field))
         {
-            WithTags(("Field", field), ("ErrorType", "Validation"));
+        }
+
+        protected ValidationError(string message, ImmutableDictionary<string, object> tags)
+            : base(message, tags)
+        {
+        }
+
+        protected override ValidationError CreateNew(string message, ImmutableDictionary<string, object> tags)
+        {
+            return new ValidationError(message, tags);
+        }
+
+        public new ValidationError WithTags(params (string key, object value)[] tags)
+        {
+            return (ValidationError)base.WithTags(tags);
+        }
+
+        private static ImmutableDictionary<string, object> CreateInitialTags(string field)
+        {
+            return ImmutableDictionary<string, object>.Empty
+                .Add("Field", field)
+                .Add("ErrorType", "Validation")
+                .Add("Severity", "Warning");
         }
     }
 
     private class AuthorizationError : Error
     {
         public AuthorizationError(string userId, string permission)
-            : base($"User '{userId}' lacks permission '{permission}'")
+            : base($"User '{userId}' lacks permission '{permission}'", CreateInitialTags(userId, permission))
         {
-            WithTag("UserId", userId);
-            WithTag("RequiredPermission", permission);
-            WithTag("StatusCode", 403);
-            WithTag("ErrorType", "Authorization");
+        }
+
+        protected AuthorizationError(string message, ImmutableDictionary<string, object> tags)
+            : base(message, tags)
+        {
+        }
+
+        protected override AuthorizationError CreateNew(string message, ImmutableDictionary<string, object> tags)
+        {
+            return new AuthorizationError(message, tags);
+        }
+
+        public new AuthorizationError WithTags(params (string key, object value)[] tags)
+        {
+            return (AuthorizationError)base.WithTags(tags);
+        }
+
+        private static ImmutableDictionary<string, object> CreateInitialTags(string userId, string permission)
+        {
+            return ImmutableDictionary<string, object>.Empty
+                .Add("UserId", userId)
+                .Add("RequiredPermission", permission)
+                .Add("StatusCode", 403)
+                .Add("ErrorType", "Authorization");
         }
     }
 
     private class BusinessRuleError : Error
     {
         public BusinessRuleError(string ruleCode, string message)
-            : base(message)
+            : base(message, CreateInitialTags(ruleCode))
         {
-            WithTag("RuleCode", ruleCode);
-            WithTag("ErrorType", "BusinessRule");
-            WithTag("Severity", "Error");
+        }
+
+        protected BusinessRuleError(string message, ImmutableDictionary<string, object> tags)
+            : base(message, tags)
+        {
+        }
+
+        protected override BusinessRuleError CreateNew(string message, ImmutableDictionary<string, object> tags)
+        {
+            return new BusinessRuleError(message, tags);
+        }
+
+        public new BusinessRuleError WithTags(params (string key, object value)[] tags)
+        {
+            return (BusinessRuleError)base.WithTags(tags);
+        }
+
+        private static ImmutableDictionary<string, object> CreateInitialTags(string ruleCode)
+        {
+            return ImmutableDictionary<string, object>.Empty
+                .Add("RuleCode", ruleCode)
+                .Add("ErrorType", "BusinessRule")
+                .Add("Severity", "Error");
         }
     }
 

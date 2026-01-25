@@ -440,22 +440,62 @@ public static class ErrorHandlingSamples
     private class ValidationError : Error
     {
         public ValidationError(string field, string message)
-            : base($"{field}: {message}")
+            : base($"{field}: {message}", CreateInitialTags(field))
         {
-            WithTag("Field", field)
-                .WithTag("ErrorType", "Validation")
-                .WithTag("Severity", "Warning");
+        }
+
+        protected ValidationError(string message, ImmutableDictionary<string, object> tags)
+            : base(message, tags)
+        {
+        }
+
+        protected override ValidationError CreateNew(string message, ImmutableDictionary<string, object> tags)
+        {
+            return new ValidationError(message, tags);
+        }
+
+        public new ValidationError WithTags(params (string key, object value)[] tags)
+        {
+            return (ValidationError)base.WithTags(tags);
+        }
+
+        private static ImmutableDictionary<string, object> CreateInitialTags(string field)
+        {
+            return ImmutableDictionary<string, object>.Empty
+                .Add("Field", field)
+                .Add("ErrorType", "Validation")
+                .Add("Severity", "Warning");
         }
     }
 
     private class NotFoundError : Error
     {
         private NotFoundError(string entityType, string id, string message)
-            : base(message)
+            : base(message, CreateInitialTags(entityType, id))
         {
-            WithTag("EntityType", entityType)
-                .WithTag("EntityId", id)
-                .WithTag("StatusCode", 404);
+        }
+
+        protected NotFoundError(string message, ImmutableDictionary<string, object> tags)
+            : base(message, tags)
+        {
+        }
+
+        protected override NotFoundError CreateNew(string message, ImmutableDictionary<string, object> tags)
+        {
+            return new NotFoundError(message, tags);
+        }
+
+        public new NotFoundError WithTags(params (string key, object value)[] tags)
+        {
+            return (NotFoundError)base.WithTags(tags);
+        }
+
+        private static ImmutableDictionary<string, object> CreateInitialTags(string entityType, string id)
+        {
+            return ImmutableDictionary<string, object>.Empty
+                .Add("EntityType", entityType)
+                .Add("EntityId", id)
+                .Add("StatusCode", 404);
         }
 
         public static NotFoundError User(string userId)
