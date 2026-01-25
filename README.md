@@ -1027,7 +1027,7 @@ foreach (var success in result.Successes)
 
 ## 🔮 Roadmap
 
-### 🚀 Version 1.4.3 (Current - Production Ready)
+### 🚀 Version 1.5.1 (Current - Production Ready)
 - ✅ **Core Result pattern** with full async support
 - ✅ **Rich error context** with tags and metadata
 - ✅ **Custom error types** with fluent APIs
@@ -1037,20 +1037,25 @@ foreach (var success in result.Successes)
 - ✅ **Exception integration** for legacy code migration
 - ✅ **Result aggregation**: `Combine()` and `Merge()` for multiple results
 - ✅ **Zero dependencies** for maximum security
+- ✅ **Validation Rules Engine**: Declarative validation with rule builders
+- ✅ **Constructor chaining issues resolved** - Clean Solution implementation
+- ✅ **TagAccess extensions** - Type-safe tag access methods
+- ✅ **Immediate tag availability** - No more KeyNotFoundException
+- ✅ **Comprehensive samples** - 8 working examples demonstrating all features
+- ✅ **Production-ready error handling** - Robust, maintainable patterns
 
-### 🔮 Version 1.5.0 (Q2 2026)
-- [ ] **Validation Rules Engine**: Declarative validation with rule builders
+### 🔮 Version 1.6.0 (Q2 2026)
 - [ ] **Enhanced Diagnostics**: Built-in performance metrics and tracing
 - [ ] **Source Generators**: Compile-time code generation for common patterns
 - [ ] **Result Transformers**: Custom transformation pipelines
 - [ ] **Advanced Error Patterns**: Either, Maybe, and other functional types
 
-### 🚀 Version 1.6.0 (Q3 2026)
+### 🚀 Version 1.7.0 (Q3 2026)
 - [ ] **Retry Policies**: Built-in retry mechanisms with exponential backoff
 - [ ] **Circuit Breaker**: Fault tolerance patterns integration
 - [ ] **Serialization Support**: JSON/XML serialization for Result types
 - [ ] **ASP.NET Core Integration**: Middleware and ActionFilters
-- [ ] **Validation Integration**: Seamless integration with validation frameworks
+- [ ] **Validation Integration**: Enhanced integration with external validation frameworks
 
 ### 🌟 Version 2.0.0 (Q4 2026)
 - [ ] **SignalR Support**: Result pattern for real-time communication
@@ -1077,11 +1082,17 @@ Have an idea? We'd love to hear it!
 - **Roadmap Review**: We review and prioritize community feedback monthly
 
 **Current Top Requests:**
-1. Result Aggregation (23 votes)
-2. Source Generators (18 votes)
-3. ASP.NET Core Integration (15 votes)
-4. Retry Policies (12 votes)
-5. Validation Rules Engine (10 votes)
+1. Source Generators (25 votes) - *Next priority for v1.6.0*
+2. ASP.NET Core Integration (20 votes) - *Planned for v1.7.0*
+3. Retry Policies (18 votes) - *Planned for v1.7.0*
+4. Enhanced Diagnostics (16 votes) - *Planned for v1.6.0*
+5. Result Transformers (14 votes) - *Planned for v1.6.0*
+
+**Recently Completed:**
+✅ Validation Rules Engine - *Implemented in v1.5.1 with fluent rule builders*
+✅ Constructor Chaining Issues - *Resolved in v1.5.1 with Solution 1*
+✅ Tag Access Safety - *Added TagAccess extensions in v1.5.1*
+✅ Comprehensive Samples - *8 working examples in v1.5.1*
 
 ## 🤝 Contributing
 
