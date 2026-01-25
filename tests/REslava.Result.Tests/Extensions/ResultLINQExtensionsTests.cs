@@ -422,9 +422,17 @@ public sealed class ResultLINQExtensionsTests
         var source = Result<int>.Ok(42);
         
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(async () => await source.SelectManyAsync<int, string, string>(
-            null!,
-            (x, y) => "result"));
+        try
+        {
+            await source.SelectManyAsync<int, string, string>(
+                (Func<int, Task<Result<string>>>)null!,
+                (x, y) => "result");
+            Assert.Fail("Expected ArgumentNullException was not thrown");
+        }
+        catch (ArgumentNullException ex)
+        {
+            Assert.AreEqual("selector", ex.ParamName);
+        }
     }
 
     [TestMethod]
@@ -434,10 +442,18 @@ public sealed class ResultLINQExtensionsTests
         var source = Result<int>.Ok(42);
         
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(async () => await ResultLINQExtensions.SelectManyAsync(
-            source,
-            x => Task.FromResult(Result<string>.Ok(x.ToString())),
-            (Func<int, string, string>)null!));
+        try
+        {
+            await ResultLINQExtensions.SelectManyAsync(
+                source,
+                x => Task.FromResult(Result<string>.Ok(x.ToString())),
+                (Func<int, string, string>)null!);
+            Assert.Fail("Expected ArgumentNullException was not thrown");
+        }
+        catch (ArgumentNullException ex)
+        {
+            Assert.AreEqual("resultSelector", ex.ParamName);
+        }
     }
 
     [TestMethod]
