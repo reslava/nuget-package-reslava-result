@@ -1,7 +1,8 @@
 using System.ComponentModel;
 using REslava.Result;
-
+using REslava.Result.AdvancedPatterns;
 using REslava.Result.Samples.Console;
+using REslava.Result.Samples.Console.Examples;
 
 Console.WriteLine("===========================================");
 Console.WriteLine("REslava.Result - Sample Examples");
@@ -16,6 +17,10 @@ await RunExample("05. LINQ Syntax", LINQSyntaxSamples.Run);
 await RunExample("06. Custom Errors", CustomErrorsSamples.Run);
 await RunExample("07. Real World Scenarios", RealWorldScenariosSamples.Run);
 await RunExample("08. Validation Rules", ValidationRulesSamples.Run);
+await RunExample("09. Advanced Patterns - Maybe<T>", AdvancedPatterns_Maybe.Run);
+await RunExample("10. Advanced Patterns - OneOf<T1, T2>", AdvancedPatterns_OneOf.Run);
+await RunExample("11. Advanced Patterns - OneOf<T1, T2, T3>", AdvancedPatterns_OneOf3.Run);
+await RunExample("12. Result ↔ OneOf Conversions", Result_OneOf_Conversions.Run);
 
 Console.WriteLine("\\n===========================================");
 Console.WriteLine("All examples completed!");
