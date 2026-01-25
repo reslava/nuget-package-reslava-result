@@ -12,7 +12,7 @@
 
 **🚀 Production-Ready Result Pattern for C# - Eliminate Exceptions for Predictable Code**
 
-[🎯 Why Choose REslava.Result?](#-why-choose-reslavaresult) • [⚡ Quick Start](#-quick-start) • [📚 Documentation](#-documentation) • [📐 Architecture](#-architecture-and-design) • [🤝 Contributing](#-contributing)
+[🎯 Why Choose REslava.Result?](#-why-choose-reslavaresult) • [⚡ Quick Start](#-quick-start) • [🔧 Validation Rules](#-validation-rules) • [📚 Documentation](#-documentation) • [📐 Architecture](#-architecture-and-design) • [🤝 Contributing](#-contributing)
 
 </div>
 
@@ -1075,6 +1075,213 @@ npm run commit
 
 **See our complete [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md).**
 
+## 🔧 Validation Rules
+
+**🎯 Declarative, composable validation with Result pattern integration**
+
+The Validation Rules Engine provides a powerful, fluent way to define and execute validation rules that integrate seamlessly with the Result pattern. Stop writing repetitive validation code and start building maintainable, testable validation logic.
+
+### ✨ Key Features
+
+- **🔗 Fluent Builder Pattern** - Chain validation rules intuitively
+- **⚡ Async Support** - Built-in async validation for database/API calls
+- **🎯 Type-Safe** - Compile-time validation of rule composition
+- **📝 Rich Error Messages** - Detailed validation feedback
+- **🔄 Reusable Rules** - Create once, use everywhere
+- **🎨 Composable** - Combine rules into complex validation scenarios
+
+### 🚀 Why Use Validation Rules?
+
+**❌ Traditional Validation:**
+```csharp
+public Result<User> CreateUser(string email, int age)
+{
+    var errors = new List<string>();
+    
+    if (string.IsNullOrEmpty(email))
+        errors.Add("Email is required");
+    else if (!email.Contains("@"))
+        errors.Add("Invalid email format");
+    else if (await EmailExists(email))
+        errors.Add("Email already exists");
+    
+    if (age < 18)
+        errors.Add("Must be 18 or older");
+    else if (age > 120)
+        errors.Add("Invalid age");
+    
+    if (errors.Any())
+        return Result<User>.Fail(errors.Select(e => new Error(e)));
+    
+    return Result<User>.Ok(new User(email, age));
+}
+```
+
+**✅ Validation Rules Approach:**
+```csharp
+public Result<User> CreateUser(string email, int age)
+{
+    var userValidator = ValidatorRulesBuilder<User>
+        .For(u => u.Email)
+            .Required("Email is required")
+            .Must(e => e.Contains("@"), "Invalid email format")
+            .MustAsync(EmailExists, "Email already exists")
+        .For(u => u.Age)
+            .Must(a => a >= 18, "Must be 18 or older")
+            .Must(a => a <= 120, "Invalid age")
+        .Build();
+
+    var user = new User(email, age);
+    return userValidator.Validate(user);
+}
+```
+
+### 📋 Quick Examples
+
+#### Basic Validation
+```csharp
+using REslava.Result.ValidationRules;
+
+// Simple synchronous validation
+var validator = ValidatorRulesBuilder<string>
+    .For(email => email)
+        .Required("Email is required")
+        .Must(e => e.Contains("@"), "Invalid email format")
+        .Must(e => !e.StartsWith("test"), "Test emails not allowed")
+    .Build();
+
+var result = validator.Validate("user@example.com");
+if (result.IsSuccess)
+{
+    Console.WriteLine($"Valid email: {result.Value}");
+}
+else
+{
+    Console.WriteLine("Validation failed:");
+    foreach (var error in result.ValidationErrors)
+        Console.WriteLine($"- {error.Message}");
+}
+```
+
+#### Async Validation
+```csharp
+// Async validation for database/API calls
+var userValidator = ValidatorRulesBuilder<User>
+    .For(u => u.Email)
+        .Required("Email is required")
+        .MustAsync(async email => !await EmailExistsAsync(email), "Email already exists")
+    .For(u => u.Username)
+        .Required("Username is required")
+        .MustAsync(async username => !await UsernameTakenAsync(username), "Username taken")
+    .Build();
+
+var result = await userValidator.ValidateAsync(user);
+```
+
+#### Custom Validation Rules
+```csharp
+// Create reusable validation rules
+var emailRule = PredicateValidatorRule<string>
+    .Create(email => email.Contains("@"), "Invalid email format");
+
+var strongPasswordRule = PredicateValidatorRule<string>
+    .Create(password => password.Length >= 8 
+        && char.IsUpper(password[0]) 
+        && char.IsDigit(password[^1]), 
+        "Password must be 8+ chars, start with uppercase, end with digit");
+
+var validator = ValidatorRulesBuilder<User>
+    .For(u => u.Email)
+        .AddRule(emailRule)
+    .For(u => u.Password)
+        .AddRule(strongPasswordRule)
+    .Build();
+```
+
+#### Complex Validation Scenarios
+```csharp
+// Multi-field validation with conditional rules
+var orderValidator = ValidatorRulesBuilder<Order>
+    .For(o => o.Total)
+        .Must(total => total > 0, "Order total must be positive")
+    .For(o => o.PaymentMethod)
+        .Required("Payment method required")
+    .For(o => o.CreditCard)
+        .MustWhen(
+            order => order.PaymentMethod == PaymentMethod.CreditCard,
+            card => card != null && card.IsValid(),
+            "Valid credit card required for credit card payments")
+    .For(o => o.BillingAddress)
+        .MustWhen(
+            order => order.PaymentMethod != PaymentMethod.Cash,
+            address => address != null,
+            "Billing address required for non-cash payments")
+    .Build();
+```
+
+### 🎯 Advanced Features
+
+#### Rule Composition
+```csharp
+// Combine multiple rule sets
+var personalInfoValidator = ValidatorRulesBuilder<User>
+    .For(u => u.FirstName).Required("First name required")
+    .For(u => u.LastName).Required("Last name required")
+    .For(u => u.Email).Must(e => e.Contains("@"), "Invalid email")
+    .Build();
+
+var securityValidator = ValidatorRulesBuilder<User>
+    .For(u => u.Password).Must(p => p.Length >= 8, "Password too short")
+    .For(u => u.SecurityQuestion).Required("Security question required")
+    .Build();
+
+// Combine validators
+var completeValidator = personalInfoValidator.Combine(securityValidator);
+var result = await completeValidator.ValidateAsync(user);
+```
+
+#### Custom Error Types
+```csharp
+// Use custom error types for better error handling
+var validator = ValidatorRulesBuilder<User>
+    .For(u => u.Email)
+        .Must(e => e.Contains("@"), new ValidationError("INVALID_EMAIL", "Email format is invalid"))
+        .MustAsync(EmailExists, new DuplicateError("EMAIL_EXISTS", "Email already registered"))
+    .Build();
+```
+
+### 📚 Best Practices
+
+1. **🎯 Be Specific** - Use clear, actionable error messages
+2. **🔄 Reuse Rules** - Create reusable validation rule libraries
+3. **⚡ Async Wisely** - Use async validation only when needed (database/API calls)
+4. **🧪 Test Rules** - Unit test validation rules separately
+5. **📝 Document** - Document complex validation business rules
+
+### 🔗 Integration with Result Pattern
+
+Validation Rules return `ValidationResult<T>` which integrates seamlessly with the Result pattern:
+
+```csharp
+public async Task<Result<User>> RegisterUserAsync(UserRegistrationDto dto)
+{
+    // Validate input
+    var validationResult = await userValidator.ValidateAsync(dto);
+    if (validationResult.IsFailed)
+        return Result<User>.Fail(validationResult.Errors);
+    
+    // Create user
+    var user = new User(dto.Email, dto.Name);
+    
+    // Save to database
+    var saveResult = await userRepository.SaveAsync(user);
+    if (saveResult.IsFailed)
+        return saveResult;
+    
+    return Result<User>.Ok(user);
+}
+```
+
 ## 📚 Documentation
 
 ### 📖 API Reference
@@ -1083,6 +1290,7 @@ npm run commit
 - [Result Methods API](docs/API-Result-Methods.md) - Core instance methods (Map, Tap, Match, Bind, Conversions)
 - [Result Factories API](docs/API-Result-Factories.md) - Static factory methods (Ok, Fail, Combine, Conditional, Try)
 - [Result Extensions API](docs/API-Result-Extensions.md) - Extension methods (LINQ, Validation, Async operations)
+- [Validation Rules API](docs/API-Validation-Rules.md) - Complete validation rules framework documentation
 
 ### 📋 Guides & Architecture
 - [Quick Start Guide](QUICK-START.md)
