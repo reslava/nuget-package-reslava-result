@@ -36,6 +36,7 @@ public class ValidatorRuleBuilder<T>
     /// </example>
     public ValidatorRuleBuilder<T> AddRule(IValidatorRule<T> rule)
     {
+        rule = rule.EnsureNotNull(nameof(rule));
         _rules.Add(rule);
         return this;
     }

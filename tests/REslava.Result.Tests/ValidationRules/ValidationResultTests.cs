@@ -234,18 +234,13 @@ public class ValidationResultTests
     }
 
     [TestMethod]
-    public void Failure_WithEmptyStringError_ShouldReturnInvalidResult()
+    public void Failure_WithEmptyStringError_ShouldThrowArgumentNullException()
     {
         // Arrange
         var errorMessage = string.Empty;
 
-        // Act
-        var result = ValidationResult<TestEntity>.Failure(errorMessage);
-
-        // Assert
-        Assert.IsFalse(result.IsValid);
-        Assert.HasCount(1, result.ValidationErrors);
-        Assert.AreEqual(string.Empty, result.ValidationErrors[0].Message);
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => ValidationResult<TestEntity>.Failure(errorMessage));
     }
 
     [TestMethod]
