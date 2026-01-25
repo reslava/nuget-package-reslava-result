@@ -23,7 +23,14 @@ public static class ResultValidationExtensions
             return result;
         }
 
-        return predicate(result.Value!) ? result : Result<T>.Fail(error);
+        try
+        {
+            return predicate(result.Value!) ? result : Result<T>.Fail(error);
+        }
+        catch (Exception ex)
+        {
+            return Result<T>.Fail(new ExceptionError(ex));
+        }
     }
 
     #endregion
@@ -45,7 +52,14 @@ public static class ResultValidationExtensions
             return result;
         }
 
-        return predicate(result.Value!) ? result : Result<T>.Fail(errorMessage);
+        try
+        {
+            return predicate(result.Value!) ? result : Result<T>.Fail(errorMessage);
+        }
+        catch (Exception ex)
+        {
+            return Result<T>.Fail(new ExceptionError(ex));
+        }
     }
 
     #endregion
@@ -119,7 +133,14 @@ public static class ResultValidationExtensions
             return result;
         }
 
-        return predicate(result.Value!) ? result : Result<T>.Fail(error);
+        try
+        {
+            return predicate(result.Value!) ? result : Result<T>.Fail(error);
+        }
+        catch (Exception ex)
+        {
+            return Result<T>.Fail(new ExceptionError(ex));
+        }
     }
 
     /// <summary>
@@ -139,7 +160,14 @@ public static class ResultValidationExtensions
             return result;
         }
 
-        return predicate(result.Value!) ? result : Result<T>.Fail(errorMessage);
+        try
+        {
+            return predicate(result.Value!) ? result : Result<T>.Fail(errorMessage);
+        }
+        catch (Exception ex)
+        {
+            return Result<T>.Fail(new ExceptionError(ex));
+        }
     }
 
     #endregion
