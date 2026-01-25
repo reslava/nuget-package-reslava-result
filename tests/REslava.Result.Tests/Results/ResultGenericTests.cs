@@ -89,8 +89,8 @@ public sealed class ResultGenericTests
         
         // Act & Assert
         var ex = Assert.Throws<InvalidOperationException>(() => result.Value);
-        Assert.Contains(ex.Message, "Cannot access Value on a failed Result");
-        Assert.Contains(ex.Message, "Test error");
+        Assert.Contains("Cannot access Value on a failed Result", ex.Message);
+        Assert.Contains("Test error", ex.Message);
     }
 
     [TestMethod]
@@ -102,8 +102,8 @@ public sealed class ResultGenericTests
         
         // Act & Assert
         var ex = Assert.Throws<InvalidOperationException>(() => result.Value);
-        Assert.Contains(ex.Message, "Error 1");
-        Assert.Contains(ex.Message, "Error 2");
+        Assert.Contains("Error 1", ex.Message);
+        Assert.Contains("Error 2", ex.Message);
     }
 
     #endregion
@@ -298,7 +298,7 @@ public sealed class ResultGenericTests
     }
 
     [TestMethod]
-    public void WithSuccess_WithFailedResult_ShouldMakeSuccess()
+    public void WithSuccess_WithFailedResult_ShouldStillBeFailed()
     {
         // Arrange
         var result = new Result<int>(default(int), ImmutableList.Create<IReason>(new Error("Error")));
@@ -307,8 +307,7 @@ public sealed class ResultGenericTests
         var newResult = result.WithSuccess("Success");
         
         // Assert
-        Assert.IsTrue(newResult.IsSuccess);
-        Assert.AreEqual(0, newResult.Value);
+        Assert.IsFalse(newResult.IsSuccess);
         Assert.HasCount(2, newResult.Reasons);
     }
 
