@@ -174,6 +174,7 @@ public sealed class ResultMapExtensionsTests
         {
             await Task.Delay(10);
             throw new InvalidOperationException("Async mapper error");
+            return "never reached"; // Add explicit return to help type inference
         });
         
         // Assert
@@ -315,7 +316,7 @@ public sealed class ResultMapExtensionsTests
         var resultTask = Task.FromResult(innerResult);
         
         // Act
-        var result = await resultTask.MapAsync(x => Task.FromResult(Result<string>.Ok(x.ToString())));
+        var result = await resultTask.MapAsync(x => Task.FromResult(x.ToString()));
         
         // Assert
         Assert.IsTrue(result.IsSuccess);

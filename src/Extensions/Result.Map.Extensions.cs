@@ -31,7 +31,15 @@ public static class ResultTaskExtensions
         mapper = mapper.EnsureNotNull(nameof(mapper));
 
         var result = await resultTask;
-        return result.Map(mapper);
+        
+        try
+        {
+            return result.Map(mapper);
+        }
+        catch (Exception ex)
+        {
+            return Result<U>.Fail(new ExceptionError(ex));
+        }
     }
 
     /// <summary>
@@ -56,7 +64,15 @@ public static class ResultTaskExtensions
         mapper = mapper.EnsureNotNull(nameof(mapper));
 
         var result = await resultTask;
-        return await result.MapAsync(mapper);
+        
+        try
+        {
+            return await result.MapAsync(mapper);
+        }
+        catch (Exception ex)
+        {
+            return Result<U>.Fail(new ExceptionError(ex));
+        }
     }
 
     /// <summary>
