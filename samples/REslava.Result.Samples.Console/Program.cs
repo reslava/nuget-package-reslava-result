@@ -10,12 +10,12 @@ Console.WriteLine("===========================================\n");
 // Run examples
 await RunExample("01. Basic Usage", BasicUsageSamples.Run);
 await RunExample("02. Validation Pipeline", ValidationPipelineSamples.Run);
-//await RunExample("03. Error Handling", ErrorHandling.Run);
-//await RunExample("04. Async Operations", AsyncOperations.Run);
-//await RunExample("05. LINQ Syntax", LinqSyntax.Run);
-//await RunExample("06. Custom Errors", CustomErrors.Run);
+//await RunExample("03. Error Handling", ErrorHandlingSamples.Run);
+//await RunExample("04. Async Operations", AsyncOperationsSamples.Run);
+//await RunExample("05. LINQ Syntax", LinqSyntaxSamples.Run);
+//await RunExample("06. Custom Errors", CustomErrorsSamples.Run);
 //await RunExample("07. Real World Scenarios", RealWorldScenariosSamples.Run);
-//await RunExample("08. Validation Rules", ValidationRulesExample.RunAsync);
+await RunExample("08. Validation Rules", ValidationRulesSamples.Run);
 
 Console.WriteLine("\\n===========================================");
 Console.WriteLine("All examples completed!");
