@@ -27,6 +27,8 @@ namespace REslava.Result;
 /// </example>
 public class ValidationResult<T> : Result<T>
 {
+    private readonly bool _isExplicitFailure;
+    
     /// <summary>
     /// Private constructor for successful validation results.
     /// </summary>
@@ -40,8 +42,12 @@ public class ValidationResult<T> : Result<T>
     /// Uses default(T) for the value since validation failed.
     /// </summary>
     /// <param name="reasons">The validation errors.</param>
-    private ValidationResult(ImmutableList<IReason> reasons) 
-        : base(default, reasons) { }  
+    /// <param name="isExplicitFailure">Whether this is explicitly a failure (even with no errors).</param>
+    private ValidationResult(ImmutableList<IReason> reasons, bool isExplicitFailure = true) 
+        : base(default, reasons) 
+    { 
+        _isExplicitFailure = isExplicitFailure;
+    }  
     
     /// <summary>
     /// Creates a successful validation result with the specified value and optional success reasons.
@@ -147,7 +153,8 @@ public class ValidationResult<T> : Result<T>
     /// </example>
     public static ValidationResult<T> Failure(params IReason[] errors)
     {
-        return new ValidationResult<T>(errors?.ToImmutableList() ?? ImmutableList<IReason>.Empty);
+        var errorList = errors?.ToImmutableList() ?? ImmutableList<IReason>.Empty;
+        return new ValidationResult<T>(errorList, true);
     }
     
     /// <summary>
@@ -172,7 +179,7 @@ public class ValidationResult<T> : Result<T>
     /// }
     /// </code>
     /// </example>
-    public bool IsValid => IsSuccess;
+    public bool IsValid => !_isExplicitFailure && IsSuccess;
     
     /// <summary>
     /// Gets the validation errors that caused the validation to fail.
