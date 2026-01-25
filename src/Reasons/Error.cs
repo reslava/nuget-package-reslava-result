@@ -15,7 +15,7 @@ public class Error : Reason<Error>, IError
     
     public Error(string message) : base(message) { }
 
-    private Error(string message, ImmutableDictionary<string, object> tags)
+    protected Error(string message, ImmutableDictionary<string, object> tags)
         : base(message, tags) { }
 
     protected override Error CreateNew(string message, ImmutableDictionary<string, object> tags)

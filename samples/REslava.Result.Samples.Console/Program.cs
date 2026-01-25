@@ -16,6 +16,7 @@ await RunExample("05. LINQ Syntax", LINQSyntaxSamples.Run);
 await RunExample("06. Custom Errors", CustomErrorsSamples.Run);
 await RunExample("07. Real World Scenarios", RealWorldScenariosSamples.Run);
 await RunExample("08. Validation Rules", ValidationRulesSamples.Run);
+await RunExample("09. Improved Tag Handling", ImprovedTagHandlingSamples.Run);
 
 Console.WriteLine("\\n===========================================");
 Console.WriteLine("All examples completed!");
