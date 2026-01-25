@@ -189,7 +189,7 @@ public class PredicateValidatorRuleTests
         // Assert
         Assert.IsFalse(result.IsValid);
         Assert.HasCount(1, result.ValidationErrors);
-        Assert.Contains(result.ValidationErrors[0].Message, "Validation error in rule 'NameRequired'");
+        Assert.Contains("Validation error in rule 'NameRequired'", result.ValidationErrors[0].Message);
     }
 
     [TestMethod]
@@ -209,8 +209,8 @@ public class PredicateValidatorRuleTests
         // Assert
         Assert.IsFalse(result.IsValid);
         Assert.HasCount(1, result.ValidationErrors);
-        Assert.Contains(result.ValidationErrors[0].Message, "Validation error in rule 'NameRequired'");
-        Assert.Contains(result.ValidationErrors[0].Message, "Validator error");
+        Assert.Contains("Validation error in rule 'NameRequired'", result.ValidationErrors[0].Message);
+        Assert.Contains("Validator error", result.ValidationErrors[0].Message);
     }
 
     [TestMethod]
