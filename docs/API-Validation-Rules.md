@@ -42,14 +42,17 @@ public class ValidationResult<T> : IResult<T>
 - `ValidationErrors` - Collection of validation errors (convenience property)
 - Inherits all standard Result<T> properties and methods
 
-## 🔧 ValidatorRulesBuilder<T>
+## 🔧 ValidatorRuleBuilder<T>
 
 The main entry point for building validation rules using a fluent API.
 
 ```csharp
-public static class ValidatorRulesBuilder<T>
+public class ValidatorRuleBuilder<T>
 {
-    public static ValidatorRuleSetBuilder<T> For<TProperty>(Expression<Func<T, TProperty>> propertySelector);
+    public ValidatorRuleBuilder<T> Rule<TProperty>(Expression<Func<T, TProperty>> propertySelector, string ruleName, string errorMessage, Func<TProperty, bool> validator);
+    public ValidatorRuleBuilder<T> RuleAsync<TProperty>(Expression<Func<T, TProperty>> propertySelector, string ruleName, string errorMessage, Func<TProperty, Task<bool>> validator);
+    public ValidatorRuleBuilder<T> AddRule(IValidatorRule<T> rule);
+    public ValidatorRuleSet<T> Build();
 }
 ```
 
@@ -203,14 +206,12 @@ public static class ResultValidationExtensions
 ### Basic Usage
 
 ```csharp
-using REslava.Result.ValidationRules;
+using REslava.Result;
 
 // Create a simple validator
-var emailValidator = ValidatorRulesBuilder<string>
-    .For(email => email)
-        .Required("Email is required")
-        .Must(e => e.Contains("@"), "Invalid email format")
-        .Must(e => !e.StartsWith("test"), "Test emails not allowed")
+var emailValidator = new ValidatorRuleBuilder<string>()
+    .Rule(email => email, "Required", "Email is required", email => !string.IsNullOrEmpty(email))
+    .Rule(email => email, "Format", "Invalid email format", email => email.Contains("@"))
     .Build();
 
 // Validate

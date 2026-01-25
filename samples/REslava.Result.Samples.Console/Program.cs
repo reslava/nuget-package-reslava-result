@@ -15,6 +15,7 @@ await RunExample("02. Validation Pipeline", ValidationPipelineSamples.Run);
 //await RunExample("05. LINQ Syntax", LinqSyntax.Run);
 //await RunExample("06. Custom Errors", CustomErrors.Run);
 //await RunExample("07. Real World Scenarios", RealWorldScenariosSamples.Run);
+//await RunExample("08. Validation Rules", ValidationRulesExample.RunAsync);
 
 Console.WriteLine("\\n===========================================");
 Console.WriteLine("All examples completed!");

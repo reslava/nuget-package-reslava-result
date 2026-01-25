@@ -1121,14 +1121,12 @@ public Result<User> CreateUser(string email, int age)
 ```csharp
 public Result<User> CreateUser(string email, int age)
 {
-    var userValidator = ValidatorRulesBuilder<User>
-        .For(u => u.Email)
-            .Required("Email is required")
-            .Must(e => e.Contains("@"), "Invalid email format")
-            .MustAsync(EmailExists, "Email already exists")
-        .For(u => u.Age)
-            .Must(a => a >= 18, "Must be 18 or older")
-            .Must(a => a <= 120, "Invalid age")
+    var userValidator = new ValidatorRuleBuilder<User>()
+        .Rule(u => u.Email, "Required", "Email is required", email => !string.IsNullOrEmpty(email))
+        .Rule(u => u.Email, "Format", "Invalid email format", email => email.Contains("@"))
+        .RuleAsync(u => u.Email, "Unique", "Email already exists", async email => !await EmailExists(email))
+        .Rule(u => u.Age, "MinAge", "Must be 18 or older", age => age >= 18)
+        .Rule(u => u.Age, "MaxAge", "Invalid age", age => age <= 120)
         .Build();
 
     var user = new User(email, age);
@@ -1140,14 +1138,13 @@ public Result<User> CreateUser(string email, int age)
 
 #### Basic Validation
 ```csharp
-using REslava.Result.ValidationRules;
+using REslava.Result;
 
 // Simple synchronous validation
-var validator = ValidatorRulesBuilder<string>
-    .For(email => email)
-        .Required("Email is required")
-        .Must(e => e.Contains("@"), "Invalid email format")
-        .Must(e => !e.StartsWith("test"), "Test emails not allowed")
+var validator = new ValidatorRuleBuilder<string>()
+    .Rule(email => email, "Required", "Email is required", email => !string.IsNullOrEmpty(email))
+    .Rule(email => email, "Format", "Invalid email format", email => email.Contains("@"))
+    .Rule(email => email, "NotTest", "Test emails not allowed", email => !email.StartsWith("test"))
     .Build();
 
 var result = validator.Validate("user@example.com");
