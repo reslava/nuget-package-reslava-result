@@ -69,7 +69,14 @@ public partial class Result<TValue>
         
         if (IsSuccess)
         {
-            action(Value!);
+            try
+            {
+                action(Value!);
+            }
+            catch (Exception ex)
+            {
+                return new Result<TValue>(default(TValue), new ExceptionError(ex));
+            }
         }
         return this;
     }
@@ -92,7 +99,14 @@ public partial class Result<TValue>
         
         if (IsSuccess)
         {
-            await action(Value!);
+            try
+            {
+                await action(Value!);
+            }
+            catch (Exception ex)
+            {
+                return new Result<TValue>(default(TValue), new ExceptionError(ex));
+            }
         }
         return this;
     }    

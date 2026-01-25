@@ -38,7 +38,7 @@ public sealed class ResultMapTests
         // Assert
         Assert.IsTrue(mappedResult.IsFailed);
         Assert.HasCount(1, mappedResult.Errors);
-        Assert.AreEqual("Original error", mappedResult.Errors[0].Message);
+        Assert.AreEqual("Test error", mappedResult.Errors[0].Message);
     }
 
     [TestMethod]

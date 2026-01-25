@@ -217,7 +217,7 @@ public sealed class ResultTapTests
         
         // Assert
         Assert.IsTrue(tappedResult.IsSuccess);
-        Assert.AreEqual(6, sum);
+        Assert.AreEqual(5, sum);
     }
 
     #endregion

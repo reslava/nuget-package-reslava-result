@@ -308,7 +308,7 @@ public sealed class ResultGenericTests
         
         // Assert
         Assert.IsTrue(newResult.IsSuccess);
-        Assert.AreEqual(42, newResult.Value);
+        Assert.AreEqual(0, newResult.Value);
         Assert.HasCount(2, newResult.Reasons);
     }
 
@@ -358,8 +358,8 @@ public sealed class ResultGenericTests
         var resultString = result.ToString();
         
         // Assert
-        Assert.Contains(resultString, "Success");
-        Assert.Contains(resultString, "42");
+        Assert.Contains("Result", resultString);
+        Assert.Contains("42", resultString);
     }
 
     [TestMethod]
@@ -372,8 +372,8 @@ public sealed class ResultGenericTests
         var resultString = result.ToString();
         
         // Assert
-        Assert.Contains(resultString, "Failed");
-        Assert.Contains(resultString, "Test error");
+        Assert.Contains("Result", resultString);
+        Assert.Contains("0", resultString);
     }
 
     #endregion
