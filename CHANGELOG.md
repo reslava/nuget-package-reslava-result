@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.6.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.5.1...v1.6.0) (2026-01-26)
+
+
+### ✨ Features
+
+* Add OneOf ↔ Result pipeline integration extensions ([1be3143](https://github.com/reslava/nuget-package-reslava-result/commit/1be31436e1c7ccb1abdc5bb46a4e4d90051b5254))
+* Add Result ↔ OneOf conversion extensions ([3913fc9](https://github.com/reslava/nuget-package-reslava-result/commit/3913fc94772421531e98cb616171d633c16b17a5))
+* complete all console samples with 100% success rate ([e41897b](https://github.com/reslava/nuget-package-reslava-result/commit/e41897bd83e53ed0525469ded001219990f11e44))
+* completely resolve tag access issues with robust, type-safe API ([f45f0cb](https://github.com/reslava/nuget-package-reslava-result/commit/f45f0cbb5d6163e1e8446b67095bff0cba2a8335))
+* implement Solution 1 - fix constructor chaining issues completely ([63a93a2](https://github.com/reslava/nuget-package-reslava-result/commit/63a93a209b5ab05da44ce954fa34c31b578ec3d1))
+
+
+### 🐛 Bug Fixes
+
+* Resolve test compilation errors for OneOf integration extensions ([eae5b4a](https://github.com/reslava/nuget-package-reslava-result/commit/eae5b4af82539d2cbf12877c021af650cc8e6525))
+
+
+### 📚 Documentation
+
+* fix roadmap - Validation Rules Engine already implemented in v1.5.1 ([c44fa8e](https://github.com/reslava/nuget-package-reslava-result/commit/c44fa8eedc062ad336b123a120f145ac268b2f38))
+* Reorganize documentation structure for better navigation ([9274fa8](https://github.com/reslava/nuget-package-reslava-result/commit/9274fa80d195a4d8ffed4b3c7f6a33dbed5e4eb5))
+* update documentation with Solution 1 patterns for custom errors ([ef75169](https://github.com/reslava/nuget-package-reslava-result/commit/ef7516982c7241f2f71d50cfe52e48e71dc75c5d))
+
+
+### ♻️ Code Refactoring
+
+* Move LINQ extensions to REslava.Result.Extensions namespace ([8ea80f9](https://github.com/reslava/nuget-package-reslava-result/commit/8ea80f98c7f53a8684107c49966dda97b853f148))
+
 ## [1.5.1](https://github.com/reslava/nuget-package-reslava-result/compare/v1.5.0...v1.5.1) (2026-01-25)
 
 ### 🐛 Bug Fixes
