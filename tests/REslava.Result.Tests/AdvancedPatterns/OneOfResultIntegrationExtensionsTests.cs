@@ -70,7 +70,7 @@ public class OneOfResultIntegrationExtensionsTests
         // Act & Assert
         try
         {
-            oneOf.SelectToResult<UserDto>(null!);
+            oneOf.SelectToResult<string, User, UserDto>(null!);
             Assert.Fail("Expected ArgumentNullException was not thrown");
         }
         catch (ArgumentNullException)
@@ -123,7 +123,7 @@ public class OneOfResultIntegrationExtensionsTests
         // Act & Assert
         try
         {
-            oneOf.SelectToResult<UserDto>(null!);
+            oneOf.SelectToResult<ApiError, User, UserDto>(null!);
             Assert.Fail("Expected ArgumentNullException was not thrown");
         }
         catch (ArgumentNullException)
@@ -181,7 +181,7 @@ public class OneOfResultIntegrationExtensionsTests
         // Act & Assert
         try
         {
-            oneOf.BindToResult<User>(null!);
+            oneOf.BindToResult<string, User, User>(null!);
             Assert.Fail("Expected ArgumentNullException was not thrown");
         }
         catch (ArgumentNullException)
