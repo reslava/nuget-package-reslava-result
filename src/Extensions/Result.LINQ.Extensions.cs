@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace REslava.Result;
+namespace REslava.Result.Extensions;
 
 /// <summary>
 /// LINQ query syntax support for Result types.
