@@ -21,6 +21,7 @@ await RunExample("09. Advanced Patterns - Maybe<T>", AdvancedPatterns_Maybe.Run)
 await RunExample("10. Advanced Patterns - OneOf<T1, T2>", AdvancedPatterns_OneOf.Run);
 await RunExample("11. Advanced Patterns - OneOf<T1, T2, T3>", AdvancedPatterns_OneOf3.Run);
 await RunExample("12. Result ↔ OneOf Conversions", Result_OneOf_Conversions.Run);
+await RunExample("13. OneOf ↔ Result Integration", OneOf_Result_Integration.Run);
 
 Console.WriteLine("\\n===========================================");
 Console.WriteLine("All examples completed!");
