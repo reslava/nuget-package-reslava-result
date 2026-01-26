@@ -12,7 +12,7 @@
 
 **🚀 Production-Ready Result Pattern for C# - Eliminate Exceptions for Predictable Code**
 
-[🎯 Why Choose REslava.Result?](#-why-choose-reslavaresult) • [⚡ Quick Start](#-quick-start) • [🔧 Validation Rules](#-validation-rules) • [📚 Documentation](#-documentation) • [📐 Architecture](#-architecture-and-design) • [🤝 Contributing](#-contributing)
+[🎯 Why Choose REslava.Result?](#-why-choose-reslavaresult) • [⚡ Quick Start](#-quick-start) • [🔧 Validation Rules](#-validation-rules) • [🧠 Advanced Patterns](#-advanced-patterns) • [📚 Documentation](#-documentation) • [📐 Architecture](#-architecture-and-design) • [🤝 Contributing](#-contributing)
 
 </div>
 
@@ -1341,21 +1341,67 @@ public async Task<Result<User>> RegisterUserAsync(UserRegistrationDto dto)
 }
 ```
 
+## 🧠 Advanced Patterns
+
+**Take your functional programming to the next level with discriminated unions and seamless integration.**
+
+REslava.Result includes advanced functional patterns that go beyond basic Result handling, providing type-safe discriminated unions and seamless integration between patterns.
+
+### 🎯 Available Patterns:
+
+| Pattern | Description | Use Case |
+|---------|-------------|----------|
+| **Maybe\<T>** | Optional values with functional chaining | Handle nullable operations safely |
+| **OneOf\<T1, T2>** | 2-way discriminated unions | Error/success or alternative value scenarios |
+| **OneOf\<T1, T2, T3>** | 3-way discriminated unions | Complex state representations |
+| **Result ↔ OneOf** | Seamless integration | Migration between patterns |
+| **Pipeline Extensions** | Mixed workflows | Combine patterns naturally |
+
+### 🚀 Advanced Patterns Examples
+
+#### Maybe\<T> - Safe Optional Operations
+```csharp
+Maybe<User> user = GetUserById(id);
+var email = user.Select(u => u.Email)
+               .Filter(e => e.Contains("@"))
+               .ValueOrDefault("no-reply@example.com");
+```
+
+#### OneOf\<T1, T2> - Type-Safe Alternatives
+```csharp
+OneOf<Error, User> result = GetUser(id);
+return result.Match(
+    error => HandleError(error),
+    user => ProcessUser(user)
+);
+```
+
+#### Pipeline Integration - Mixed Workflows
+```csharp
+OneOf<ApiError, User> apiResult = GetUserFromApi(1);
+Result<UserDto> businessResult = apiResult.SelectToResult(user => user.ToDto());
+OneOf<ValidationError, UserDto> finalResult = businessResult.ToOneOfCustom(reason => new ValidationError(reason.Message));
+```
+
+[📚 **Full Advanced Patterns Guide**](docs/api/advanced-patterns/Advanced-Patterns.md) • [🧪 **Console Samples**](samples/REslava.Result.Samples.Console/Examples)
+
 ## 📚 Documentation
 
 ### 📖 API Reference
-- [API Overview](docs/API-Overview.md) - Complete API reference and quick navigation
-- [Reasons API](docs/API-Reasons.md) - All reason types (Success, Error, ExceptionError, ConversionError)
-- [Result Methods API](docs/API-Result-Methods.md) - Core instance methods (Map, Tap, Match, Bind, Conversions)
-- [Result Factories API](docs/API-Result-Factories.md) - Static factory methods (Ok, Fail, Combine, Conditional, Try)
-- [Result Extensions API](docs/API-Result-Extensions.md) - Extension methods (LINQ, Validation, Async operations)
-- [Validation Rules API](docs/API-Validation-Rules.md) - Complete validation rules framework documentation
+- [API Overview](docs/api/Overview.md) - Complete API reference and quick navigation
+- [Reasons API](docs/api/Reasons.md) - All reason types (Success, Error, ExceptionError, ConversionError)
+- [Result Methods API](docs/api/Result-Methods.md) - Core instance methods (Map, Tap, Match, Bind, Conversions)
+- [Result Factories API](docs/api/Result-Factories.md) - Static factory methods (Ok, Fail, Combine, Conditional, Try)
+- [Result Extensions API](docs/api/Result-Extensions.md) - Extension methods (LINQ, Validation, Async operations)
+- [Validation Rules API](docs/api/Validation-Rules.md) - Complete validation rules framework documentation
+- [🧠 Advanced Patterns API](docs/api/advanced-patterns/) - Maybe, OneOf, and integration extensions
 
 ### 📋 Guides & Architecture
+- [🧠 Advanced Patterns Guide](docs/api/advanced-patterns/Advanced-Patterns.md) - Maybe, OneOf, and integration patterns
 - [Quick Start Guide](QUICK-START.md)
 - [Branching Strategy](BRANCHING-STRATEGY.md)
-- [Full UML Diagram](docs/UML-v1.0.0.md)
-- [Simplified UML](docs/UML-simple-v1.0.0.md)
+- [Full UML Diagram](docs/uml/UML-v1.0.0.md)
+- [Simplified UML](docs/uml/UML-simple-v1.0.0.md)
 
 ## 📕 References & Inspiration
 
