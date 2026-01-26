@@ -1027,41 +1027,40 @@ foreach (var success in result.Successes)
 
 ## 🔮 Roadmap
 
-### 🚀 Version 1.5.1 (Current - Production Ready)
-- ✅ **Core Result pattern** with full async support
-- ✅ **Rich error context** with tags and metadata
-- ✅ **Custom error types** with fluent APIs
-- ✅ **Comprehensive validation** with multiple error collection
-- ✅ **LINQ extensions** for functional programming
-- ✅ **Async LINQ Extensions**: `SelectAsync()`, `WhereAsync()` for collections
-- ✅ **Exception integration** for legacy code migration
-- ✅ **Result aggregation**: `Combine()` and `Merge()` for multiple results
-- ✅ **Zero dependencies** for maximum security
-- ✅ **Validation Rules Engine**: Declarative validation with rule builders
-- ✅ **Constructor chaining issues resolved** - Clean Solution implementation
-- ✅ **TagAccess extensions** - Type-safe tag access methods
-- ✅ **Immediate tag availability** - No more KeyNotFoundException
-- ✅ **Comprehensive samples** - 8 working examples demonstrating all features
-- ✅ **Production-ready error handling** - Robust, maintainable patterns
+### 🚀 Version 1.6.0 (Current - Production Ready) ✅ **JUST RELEASED!**
+- ✅ **Advanced Functional Patterns**: Maybe\<T>, OneOf\<T1, T2>, OneOf\<T1, T2, T3>
+- ✅ **Result ↔ OneOf Integration**: Seamless conversion between patterns
+- ✅ **Pipeline Extensions**: SelectToResult, BindToResult for mixed workflows
+- ✅ **Type-Safe Discriminated Unions**: Compile-time guarantees
+- ✅ **Professional Documentation**: 16 comprehensive API reference files
+- ✅ **13 Working Console Samples**: Real-world usage examples
+- ✅ **1902 Comprehensive Tests**: 100% test coverage across .NET 8, 9, 10
+- ✅ **LINQ Extensions Refactor**: Organized in dedicated namespace
+- ✅ **Zero Breaking Changes**: Pure additive functionality
 
-### 🔮 Version 1.6.0 (Q2 2026)
-- [ ] **Enhanced Diagnostics**: Built-in performance metrics and tracing
-- [ ] **Source Generators**: Compile-time code generation for common patterns
-- [ ] **Result Transformers**: Custom transformation pipelines
-- [ ] **Advanced Error Patterns**: Either, Maybe, and other functional types
+### 🔮 Version 1.7.0 (Q2 2026) - **"Compile-Time Magic"**
+- [ ] **Source Generators**: Compile-time code generation for Result patterns
+- [ ] **Generated Result Methods**: Auto-create common Result operations
+- [ ] **Zero-Allocation Patterns**: Compile-time optimizations
+- [ ] **Developer Tooling**: Enhanced IDE support with generated code
 
-### 🚀 Version 1.7.0 (Q3 2026)
+### 🌐 Version 1.8.0 (Q3 2026) - **"Web Integration Excellence"**
+- [ ] **ASP.NET Core Integration**: Middleware and ActionFilters
+- [ ] **API Result Handling**: Automatic HTTP status code mapping
+- [ ] **Model Binding**: Result-aware model binding
+- [ ] **Dependency Injection**: Result-aware service registration
+
+### 📦 Version 1.9.0 (Q4 2026) - **"Serialization Complete"**
+- [ ] **JSON Serialization**: System.Text.Json support
+- [ ] **XML Serialization**: System.Xml support
+- [ ] **Custom Converters**: Result type serialization strategies
+- [ ] **Configuration Integration**: Result-based configuration loading
+
+### 🚀 Version 1.10.0+ (2027) - **"Production Resilience"**
 - [ ] **Retry Policies**: Built-in retry mechanisms with exponential backoff
 - [ ] **Circuit Breaker**: Fault tolerance patterns integration
-- [ ] **Serialization Support**: JSON/XML serialization for Result types
-- [ ] **ASP.NET Core Integration**: Middleware and ActionFilters
+- [ ] **Entity Framework Integration**: Result patterns for database operations
 - [ ] **Validation Integration**: Enhanced integration with external validation frameworks
-
-### 🌟 Version 2.0.0 (Q4 2026)
-- [ ] **SignalR Support**: Result pattern for real-time communication
-- [ ] **Distributed Tracing**: OpenTelemetry integration
-- [ ] **Metrics Dashboard**: Built-in monitoring and alerting
-- [ ] **Advanced Patterns**: Either, Maybe, and other functional types
 
 ### 🎯 How We Prioritize
 
