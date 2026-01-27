@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 namespace REslava.Result;
 
-public interface IResult
+public interface IResultResponse
 {
     bool IsSuccess { get; }
     bool IsFailed { get; }
@@ -10,7 +10,7 @@ public interface IResult
     ImmutableList<ISuccess> Successes { get; }
 }
 
-public interface IResult<out TValue> : IResult
+public interface IResultResponse<out TValue> : IResultResponse
 {
     TValue? Value { get; }    
 }

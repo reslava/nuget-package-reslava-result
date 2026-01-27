@@ -837,7 +837,7 @@ REslava.Result uses two complementary patterns:
 
 #### 1. Result<TValue> - Generic Container Pattern
 ```csharp
-public partial class Result<TValue> : Result, IResult<TValue>
+public partial class Result<TValue> : Result, IResultResponse<TValue>
 {
     // Uses regular inheritance + generic methods
     public Result<TOut> Map<TOut>(Func<TValue, TOut> mapper) { ... }

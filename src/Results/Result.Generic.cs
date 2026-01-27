@@ -6,7 +6,7 @@ namespace REslava.Result;
 /// Represents the result of an operation with a value of type TValue.
 /// Immutable by design - all operations return new instances.
 /// </summary>
-public partial class Result<TValue> : Result, IResult<TValue>
+public partial class Result<TValue> : Result, IResultResponse<TValue>
 {   
     // Private backing field - used internally for creating new instances
     private readonly TValue? _value;         

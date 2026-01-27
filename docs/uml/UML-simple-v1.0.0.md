@@ -16,8 +16,8 @@ classDiagram
     class IReason:::interface
     class ISuccess:::interface
     class IError:::interface
-    class IResult:::interface
-    class IResult_TValue:::interface
+    class IResultResponse:::interface
+    class IResultResponse_TValue:::interface
     
     class Reason:::abstract
     class Reason_TReason:::abstract
@@ -32,7 +32,7 @@ classDiagram
     
     IReason <|.. ISuccess : extends
     IReason <|.. IError : extends
-    IResult <|-- IResult_TValue : extends
+    IResultResponse <|-- IResultResponse_TValue : extends
     
     IReason <|.. Reason : implements
     Reason <|-- Reason_TReason : extends
@@ -45,9 +45,9 @@ classDiagram
     ExceptionError ..|> IError : implements
     ConversionError ..|> IError : implements
     
-    IResult <|.. Result : implements
+    IResultResponse <|.. Result : implements
     Result <|-- Result_TValue : extends
-    Result_TValue ..|> IResult_TValue : implements
+    Result_TValue ..|> IResultResponse_TValue : implements
     
     Result o-- IReason : contains
     Result_TValue o-- TValue : contains 

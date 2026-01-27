@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace REslava.Result;
 
-public partial class Result<TValue> : Result, IResult<TValue>
+public partial class Result<TValue> : Result, IResultResponse<TValue>
 {
     /// <summary>
     /// Chains another operation that returns a Result, allowing for sequential operations.

@@ -5,7 +5,7 @@ namespace REslava.Result;
 /// <summary>
 /// Represents a result that can be either successful or failed.
 /// </summary>
-public partial class Result : IResult
+public partial class Result : IResultResponse
 {
     public bool IsSuccess => !IsFailed;
     public bool IsFailed => Reasons.OfType<IError>().Any();

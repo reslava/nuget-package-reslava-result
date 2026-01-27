@@ -14,7 +14,7 @@ classDiagram
         <<interface>>
     }
     
-    class IResult:::interface  {
+    class IResultResponse:::interface  {
         <<interface>>
         +bool IsSuccess
         +bool IsFailed
@@ -23,7 +23,7 @@ classDiagram
         +IReadOnlyList~ISuccess~ Successes
     }
     
-    class IResult_TValue:::interface  {
+    class IResultResponse_TValue:::interface  {
         <<interface>>
         +TValue? Value
         +TValue? ValueOrDefault
@@ -84,7 +84,7 @@ classDiagram
     
     IReason <|.. ISuccess : extends
     IReason <|.. IError : extends
-    IResult <|-- IResult_TValue : extends
+    IResultResponse <|-- IResultResponse_TValue : extends
     
     IReason <|.. Reason : implements
     Reason <|-- Reason_TReason : extends
@@ -93,9 +93,9 @@ classDiagram
     Success ..|> ISuccess : implements
     Error ..|> IError : implements
     
-    IResult <|.. Result : implements
+    IResultResponse <|.. Result : implements
     Result <|-- Result_TValue : extends
-    Result_TValue ..|> IResult_TValue : implements
+    Result_TValue ..|> IResultResponse_TValue : implements
     
     Result o-- IReason : contains
     Result_TValue o-- TValue : contains

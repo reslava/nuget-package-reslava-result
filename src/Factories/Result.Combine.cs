@@ -136,7 +136,7 @@ public partial class Result
     #endregion
 }
 
-public partial class Result<TValue> : IResult<TValue>
+public partial class Result<TValue> : IResultResponse<TValue>
 {
     #region Combine with values
 

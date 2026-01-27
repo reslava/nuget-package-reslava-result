@@ -21,7 +21,7 @@ The Validation Rules Engine provides a powerful, fluent way to define and execut
 Represents the result of a validation operation.
 
 ```csharp
-public class ValidationResult<T> : IResult<T>
+public class ValidationResult<T> : IResultResponse<T>
 {
     public bool IsSuccess { get; }
     public bool IsFailed { get; }
@@ -98,7 +98,7 @@ Base interface for all validation rules.
 ```csharp
 public interface IValidatorRule<T>
 {
-    Task<IResult<T>> ValidateAsync(T value);
+    Task<IResultResponse<T>> ValidateAsync(T value);
 }
 ```
 
@@ -129,7 +129,7 @@ Specialized rule for async validation scenarios.
 public class AsyncPredicateValidatorRule<T> : IValidatorRule<T>
 {
     public AsyncPredicateValidatorRule(Func<T, Task<bool>> validator, Error error);
-    public Task<IResult<T>> ValidateAsync(T value);
+    public Task<IResultResponse<T>> ValidateAsync(T value);
 }
 ```
 
@@ -141,7 +141,7 @@ Rule that validates that a value is not null or empty.
 public class RequiredValidatorRule<T> : IValidatorRule<T>
 {
     public RequiredValidatorRule(string? message = null);
-    public Task<IResult<T>> ValidateAsync(T value);
+    public Task<IResultResponse<T>> ValidateAsync(T value);
 }
 ```
 
@@ -156,7 +156,7 @@ public class ValidatorRuleSet<T> : IValidatorRule<T>
     public IReadOnlyList<IValidatorRule<T>> Rules { get; }
     
     // Validation methods
-    public Task<IResult<T>> ValidateAsync(T value);
+    public Task<IResultResponse<T>> ValidateAsync(T value);
     public ValidationResult<T> Validate(T value);
     
     // Combination
