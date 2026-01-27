@@ -19,9 +19,6 @@
     <Copyright>Copyright © REslava 2024</Copyright>
     <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageDependencies>
-      <PackageReference Include="REslava.Result.SourceGenerators.Attributes" Version="$(GeneratorPackageVersion)" />
-    </PackageDependencies>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
