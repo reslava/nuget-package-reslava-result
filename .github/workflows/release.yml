@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dotnet-version: ['8.0.x', '9.0.x']
+        dotnet-version: ['8.0.x', '9.0.x', '10.0.x']
     steps:
       - uses: actions/checkout@v4
 
@@ -20,11 +20,32 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
+      - name: Debug .NET Environment
+        run: |
+          echo "🔍 .NET Version Info:"
+          dotnet --version
+          echo ""
+          echo "🔍 Available SDKs:"
+          dotnet --list-sdks
+          echo ""
+          echo "🔍 Available Runtimes:"
+          dotnet --list-runtimes
+          echo ""
+          echo "🔍 Current Framework:"
+          echo "Target Framework: ${{ matrix.dotnet-version }}"
+
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Build with Documentation
-        run: dotnet build --configuration Release --no-restore -p:GenerateDocumentationFile=true -p:ContinuousIntegrationBuild=true
+        run: |
+          echo "🔧 Building for .NET ${{ matrix.dotnet-version }}..."
+          echo "🔍 Project files:"
+          find . -name "*.csproj" -exec echo "  - {}" \;
+          echo ""
+          echo "🔧 Starting build..."
+          dotnet build --configuration Release --no-restore -p:GenerateDocumentationFile=true -p:ContinuousIntegrationBuild=true --verbosity normal
+          echo "✅ Build completed!"
 
       - name: Test
         run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
