@@ -53,8 +53,13 @@ jobs:
       - name: Pack
         run: |
           echo "📦 Packing all three packages..."
+          # Build solution first to ensure all dependencies are ready
+          dotnet build REslava.Result.sln --configuration Release --no-restore
+          echo "📦 Packing REslava.Result..."
           dotnet pack src/REslava.Result.csproj --configuration Release --no-build --output ./artifacts --include-symbols -p:GenerateDocumentationFile=true
+          echo "📦 Packing SourceGenerator..."
           dotnet pack SourceGenerator/REslava.Result.SourceGenerators.csproj --configuration Release --no-build --output ./artifacts --include-symbols -p:GenerateDocumentationFile=true
+          echo "📦 Packing Attributes..."
           dotnet pack SourceGenerator/Attributes/REslava.Result.SourceGenerators.Attributes.csproj --configuration Release --no-build --output ./artifacts --include-symbols -p:GenerateDocumentationFile=true
           echo "✅ Packing complete!"
 
