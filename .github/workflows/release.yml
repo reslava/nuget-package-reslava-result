@@ -29,7 +29,12 @@ jobs:
         run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
 
       - name: Pack
-        run: dotnet pack --configuration Release --no-build --output ./artifacts --include-symbols -p:GenerateDocumentationFile=true
+        run: |
+          echo "📦 Packing all three packages..."
+          dotnet pack src/REslava.Result.csproj --configuration Release --no-build --output ./artifacts --include-symbols -p:GenerateDocumentationFile=true
+          dotnet pack SourceGenerator/REslava.Result.SourceGenerators.csproj --configuration Release --no-build --output ./artifacts --include-symbols -p:GenerateDocumentationFile=true
+          dotnet pack SourceGenerator/Attributes/REslava.Result.SourceGenerators.Attributes.csproj --configuration Release --no-build --output ./artifacts --include-symbols -p:GenerateDocumentationFile=true
+          echo "✅ Packing complete!"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -66,7 +71,15 @@ jobs:
             ## Changes in this release
             See CHANGELOG.md for detailed changes
             
-            ### NuGet Package
-            📦 [View on NuGet.org](https://www.nuget.org/packages/REslava.Result)
+            ### NuGet Packages
+            📦 [REslava.Result](https://www.nuget.org/packages/REslava.Result) - Core library
+            🪄 [REslava.Result.SourceGenerators](https://www.nuget.org/packages/REslava.Result.SourceGenerators) - Auto-conversion generator
+            🏷️ [REslava.Result.SourceGenerators.Attributes](https://www.nuget.org/packages/REslava.Result.SourceGenerators.Attributes) - Generator attributes
+            
+            ### Quick Start
+            ```bash
+            dotnet add package REslava.Result
+            dotnet add package REslava.Result.SourceGenerators
+            ```
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

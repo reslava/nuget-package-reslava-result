@@ -17,10 +17,10 @@
   },
   "bumpFiles": [
     "package.json",
-    "src/REslava.Result.csproj"
+    "Directory.Build.props"
   ],
   "packageFiles": [
     "package.json",
-    "src/REslava.Result.csproj"
+    "Directory.Build.props"
   ]
 }

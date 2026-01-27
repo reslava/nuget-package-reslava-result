@@ -9,11 +9,14 @@
   },
   "scripts": {
     "commit": "git-cz",
-    "release": "commit-and-tag-version",
-    "release:beta": "commit-and-tag-version --prerelease beta",
-    "release:minor": "commit-and-tag-version --release-as minor",
-    "release:major": "commit-and-tag-version --release-as major",
-    "release:dry": "commit-and-tag-version --dry-run"
+    "release": "npm run update-versions && commit-and-tag-version",
+    "release:beta": "npm run update-versions:patch && commit-and-tag-version --prerelease beta",
+    "release:minor": "npm run update-versions:minor && commit-and-tag-version --release-as minor",
+    "release:major": "npm run update-versions:major && commit-and-tag-version --release-as major",
+    "release:dry": "commit-and-tag-version --dry-run",
+    "update-versions": "node scripts/update-versions.js patch",
+    "update-versions:minor": "node scripts/update-versions.js minor",
+    "update-versions:major": "node scripts/update-versions.js major"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",

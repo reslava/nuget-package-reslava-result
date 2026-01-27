@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>$(GeneratorPackageVersion)</Version>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <IsRoslynComponent>true</IsRoslynComponent>
@@ -19,7 +20,7 @@
     <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageDependencies>
-      <PackageReference Include="REslava.Result.SourceGenerators.Attributes" Version="1.0.0" />
+      <PackageReference Include="REslava.Result.SourceGenerators.Attributes" Version="$(GeneratorPackageVersion)" />
     </PackageDependencies>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>

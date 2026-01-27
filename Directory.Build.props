@@ -1,5 +1,9 @@
 <Project>
   <PropertyGroup>    
+    <!-- Package Version Management -->
+    <CorePackageVersion>1.7.0</CorePackageVersion>
+    <GeneratorPackageVersion>1.0.0</GeneratorPackageVersion>
+    
     <!-- Language Features -->
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
