@@ -34,13 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Include the generator DLL in the package -->
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <!-- Also make it available as an analyzer for local development -->
-    <Analyzer Include="$(OutputPath)\$(AssemblyName).dll" />
-  </ItemGroup>
-
-  <ItemGroup>
     <!-- Reference the attributes project -->
     <ProjectReference Include="Attributes\REslava.Result.SourceGenerators.Attributes.csproj" />
   </ItemGroup>
