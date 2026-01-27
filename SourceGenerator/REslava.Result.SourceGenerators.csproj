@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>REslava.Result.SourceGenerators</PackageId>
+    <Description>Source generators for REslava.Result library - converts Result&lt;T&gt; to IResult for Minimal APIs</Description>
+    <PackageTags>source generator result pattern minimal api aspnetcore csharp roslyn</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <Authors>REslava</Authors>
+    <Copyright>Copyright © REslava 2024</Copyright>
+    <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageDependencies>
+      <PackageReference Include="REslava.Result.SourceGenerators.Attributes" Version="1.0.0" />
+    </PackageDependencies>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Include only the generator files -->
+    <Compile Include="ResultToIResultGenerator.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Roslyn dependencies for source generation -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Include the generator DLL in the package -->
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <!-- Also make it available as an analyzer for local development -->
+    <Analyzer Include="$(OutputPath)\$(AssemblyName).dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reference the attributes project -->
+    <ProjectReference Include="Attributes\REslava.Result.SourceGenerators.Attributes.csproj" />
+  </ItemGroup>
+
+</Project>

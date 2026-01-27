@@ -1,0 +1,6 @@
+@SourceGeneratorWebTest_HostAddress = http://localhost:5082
+
+GET {{SourceGeneratorWebTest_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
