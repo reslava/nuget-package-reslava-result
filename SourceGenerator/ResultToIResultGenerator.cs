@@ -23,27 +23,43 @@ namespace REslava.Result.SourceGenerators
         /// </summary>
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
+            // Debug: Log that generator is being initialized
+            System.Diagnostics.Debug.WriteLine("🚀 ResultToIResultGenerator.Initialize() called!");
+            
             // Find assemblies with [GenerateResultExtensions] attribute
             var assemblyAttributes = context.CompilationProvider
                 .SelectMany((compilation, cancellationToken) =>
                 {
                     try
                     {
+                        // Debug: Log compilation info
+                        System.Diagnostics.Debug.WriteLine($"🔍 Checking assembly: {compilation.AssemblyName}");
+                        
                         var attributes = compilation.Assembly.GetAttributes();
+                        System.Diagnostics.Debug.WriteLine($"📋 Found {attributes.Length} attributes in assembly");
+                        
                         var targetAttribute = attributes.FirstOrDefault(a =>
                             a.AttributeClass?.ToDisplayString() == AttributeName ||
                             a.AttributeClass?.Name == AttributeShortName);
 
                         if (targetAttribute == null)
+                        {
+                            // Debug: Log that no attribute was found
+                            System.Diagnostics.Debug.WriteLine($"❌ No {AttributeName} attribute found in assembly {compilation.AssemblyName}");
                             return ImmutableArray<(Compilation, GeneratorConfiguration)>.Empty;
+                        }
+
+                        // Debug: Log that attribute was found
+                        System.Diagnostics.Debug.WriteLine($"✅ Found {AttributeName} attribute in assembly {compilation.AssemblyName}");
 
                         // Parse configuration from attribute
                         var config = ParseConfiguration(targetAttribute);
                         return ImmutableArray.Create((compilation, config));
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        // Silently continue - don't fail the build
+                        // Debug: Log the exception
+                        System.Diagnostics.Debug.WriteLine($"💥 Exception in attribute detection: {ex.Message}");
                         return ImmutableArray<(Compilation, GeneratorConfiguration)>.Empty;
                     }
                 })
@@ -58,13 +74,17 @@ namespace REslava.Result.SourceGenerators
                     var config = data.Item2;
                     var source = GenerateExtensionMethods(config);
                     
+                    // Debug: Log that source is being generated
+                    System.Diagnostics.Debug.WriteLine($"Generating source code with {config.GenerateHttpMethodExtensions} extensions");
+                    
                     spc.AddSource("ResultToIResultExtensions.g.cs", 
                         SourceText.From(source, Encoding.UTF8));
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // Silently continue - don't fail the build
-                    // In a production scenario, you might want to add proper logging here
+                    // Debug: Log the exception
+                    System.Diagnostics.Debug.WriteLine($"Exception in source generation: {ex.Message}");
+                    // Don't fail the build
                 }
             });
         }

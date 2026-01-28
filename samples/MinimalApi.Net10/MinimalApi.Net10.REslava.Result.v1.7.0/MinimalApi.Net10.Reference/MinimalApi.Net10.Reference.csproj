@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0-preview.1.25080.5" />
+    <!-- 🎯 REslava.Result packages with source generator magic! -->
+    <PackageReference Include="REslava.Result" Version="1.7.2" />
+    <PackageReference Include="REslava.Result.SourceGenerators" Version="1.0.0" />
+    <PackageReference Include="REslava.Result.SourceGenerators.Attributes" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>

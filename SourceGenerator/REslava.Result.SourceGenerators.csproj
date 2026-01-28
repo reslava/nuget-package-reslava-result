@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <IsRoslynComponent>true</IsRoslynComponent>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>REslava.Result.SourceGenerators</PackageId>
     <Description>Source generators for REslava.Result library - converts Result&lt;T&gt; to IResult for Minimal APIs</Description>
@@ -19,15 +20,15 @@
     <Copyright>Copyright © REslava 2024</Copyright>
     <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageDependencies>
-      <PackageReference Include="REslava.Result.SourceGenerators.Attributes" Version="$(GeneratorPackageVersion)" />
-    </PackageDependencies>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DevelopmentDependency>true</DevelopmentDependency>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- Include only the generator files -->
     <Compile Include="ResultToIResultGenerator.cs" />
+    <Compile Include="GenerateResultExtensionsAttribute.cs" />
+    <Compile Include="TestGenerator.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,15 +38,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Include the generator DLL in the package -->
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <!-- Also make it available as an analyzer for local development -->
-    <Analyzer Include="$(OutputPath)\$(AssemblyName).dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Reference the attributes project -->
-    <ProjectReference Include="Attributes\REslava.Result.SourceGenerators.Attributes.csproj" />
+    <!-- Include the generator DLL in the package as analyzer -->
+    <None Include="$(TargetPath)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Type="http://schemas.microsoft.com/packaging/2010/07/manifest" Target="/REslava.Result.SourceGenerators.nuspec" Id="R4259658D6C3D5652" />
+  <Relationship Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="/package/services/metadata/core-properties/c6c5d4bc99db47eeb78ad1e4ca132ec4.psmdcp" Id="RA0E45D441A1816A7" />
+</Relationships>
