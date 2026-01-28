@@ -62,8 +62,7 @@ namespace REslava.Result.SourceGenerators
                         System.Diagnostics.Debug.WriteLine($"💥 Exception in attribute detection: {ex.Message}");
                         return ImmutableArray<(Compilation, GeneratorConfiguration)>.Empty;
                     }
-                })
-                .WithTrackingName("GenerateResultExtensions");
+                });
 
             // Generate the extension methods
             context.RegisterSourceOutput(assemblyAttributes, (spc, data) =>

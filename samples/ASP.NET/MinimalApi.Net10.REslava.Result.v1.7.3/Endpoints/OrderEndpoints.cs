@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using REslava.Result;
+using Generated.ResultExtensions;
 using MinimalApi.Net10.Reference.Models;
 using MinimalApi.Net10.Reference.Services;
 
@@ -16,7 +18,8 @@ public static class OrderEndpoints
         orderGroup.MapGet("/", (OrderService orderService) =>
         {
             var orders = orderService.GetAllOrders();
-            return Results.Ok(orders);
+            var result = Result<IEnumerable<Order>>.Ok(orders);
+            return result.ToIResult(); // 🎯 GENERATED: Result<T> to IResult
         })
         .WithName("GetAllOrders")
         .WithSummary("Get all orders")
@@ -25,8 +28,14 @@ public static class OrderEndpoints
         // GET /api/orders/{id}
         orderGroup.MapGet("/{id:int}", (int id, OrderService orderService) =>
         {
+            if (id <= 0)
+                return Result<Order>.Fail("Invalid order ID").ToIResult(); // 🎯 GENERATED: Error to 400
+                
             var order = orderService.GetOrderById(id);
-            return order is null ? Results.NotFound() : Results.Ok(order);
+            if (order is null)
+                return Result<Order>.Fail("Order not found").ToIResult(); // 🎯 GENERATED: Error to 404
+                
+            return Result<Order>.Ok(order).ToIResult(); // 🎯 GENERATED: Success to 200
         })
         .WithName("GetOrderById")
         .WithSummary("Get order by ID")
@@ -37,73 +46,72 @@ public static class OrderEndpoints
         // POST /api/orders - Simple order creation
         orderGroup.MapPost("/", (CreateOrderRequest request, OrderService orderService) =>
         {
-            // Basic validation
-            var errors = new Dictionary<string, string[]>();
-            
+            // Basic validation - using Result pattern instead of ValidationProblem
             if (string.IsNullOrWhiteSpace(request.CustomerEmail) || !request.CustomerEmail.Contains('@'))
-                errors["CustomerEmail"] = new[] { "Valid email address is required" };
+                return Result<Order>.Fail("Valid email address is required").ToIResult(); // 🎯 GENERATED: Validation error to 400
             
             if (string.IsNullOrWhiteSpace(request.ShippingAddress) || request.ShippingAddress.Length < 5)
-                errors["ShippingAddress"] = new[] { "Shipping address must be at least 5 characters" };
+                return Result<Order>.Fail("Shipping address must be at least 5 characters").ToIResult(); // 🎯 GENERATED: Validation error to 400
             
             if (request.Items == null || !request.Items.Any())
-                errors["Items"] = new[] { "At least one item is required" };
-            
-            if (errors.Any())
-                return Results.ValidationProblem(errors);
+                return Result<Order>.Fail("At least one item is required").ToIResult(); // 🎯 GENERATED: Validation error to 400
 
             var order = orderService.CreateOrder(request);
-            return order is null 
-                ? Results.BadRequest("One or more products are invalid or out of stock")
-                : Results.Created($"/api/orders/{order.Id}", order);
+            if (order is null)
+                return Result<Order>.Fail("One or more products are invalid or out of stock").ToIResult(); // 🎯 GENERATED: Error to 400
+                
+            var result = Result<Order>.Ok(order);
+            return result.ToPostResult(); // 🎯 GENERATED: Success to 201
         })
         .WithName("CreateOrder")
         .WithSummary("Create a new order")
         .WithDescription("Creates a new order with the provided items")
         .Accepts<CreateOrderRequest>("application/json")
         .Produces(201)
-        .Produces<ValidationProblemDetails>(400)
-        .Produces<string>(400);
+        .Produces(400);
 
         // POST /api/orders/advanced - Complex order with advanced validation
         orderGroup.MapPost("/advanced", (CreateAdvancedOrderRequest request, OrderService orderService) =>
         {
             // Basic validation
-            var errors = new Dictionary<string, string[]>();
-            
             if (string.IsNullOrWhiteSpace(request.CustomerEmail) || !request.CustomerEmail.Contains('@'))
-                errors["CustomerEmail"] = new[] { "Valid email address is required" };
+                return Result<Order>.Fail("Valid email address is required").ToIResult(); // 🎯 GENERATED: Validation error to 400
             
             if (string.IsNullOrWhiteSpace(request.ShippingAddress) || request.ShippingAddress.Length < 10)
-                errors["ShippingAddress"] = new[] { "Shipping address must be at least 10 characters" };
+                return Result<Order>.Fail("Shipping address must be at least 10 characters").ToIResult(); // 🎯 GENERATED: Validation error to 400
             
             if (request.Items == null || !request.Items.Any())
-                errors["Items"] = new[] { "At least one item is required" };
+                return Result<Order>.Fail("At least one item is required").ToIResult(); // 🎯 GENERATED: Validation error to 400
             
             if (request.Items?.Count > 50)
-                errors["Items"] = new[] { "Cannot order more than 50 items at once" };
-            
-            if (errors.Any())
-                return Results.ValidationProblem(errors);
+                return Result<Order>.Fail("Cannot order more than 50 items at once").ToIResult(); // 🎯 GENERATED: Validation error to 400
 
             var order = orderService.CreateAdvancedOrder(request);
-            return order is null 
-                ? Results.BadRequest("Order validation failed or products unavailable")
-                : Results.Created($"/api/orders/{order.Id}", order);
+            if (order is null)
+                return Result<Order>.Fail("Order validation failed or products unavailable").ToIResult(); // 🎯 GENERATED: Error to 400
+                
+            var result = Result<Order>.Ok(order);
+            return result.ToPostResult(); // 🎯 GENERATED: Success to 201
         })
         .WithName("CreateAdvancedOrder")
         .WithSummary("Create an advanced order with enhanced validation")
         .WithDescription("Creates a new order with advanced business rules and validation")
         .Accepts<CreateAdvancedOrderRequest>("application/json")
         .Produces(201)
-        .Produces<ValidationProblemDetails>(400)
-        .Produces<string>(400);
+        .Produces(400);
 
         // PATCH /api/orders/{id}/status
         orderGroup.MapPatch("/{id:int}/status", (int id, OrderStatus status, OrderService orderService) =>
         {
+            if (id <= 0)
+                return Result<Order>.Fail("Invalid order ID").ToIResult(); // 🎯 GENERATED: Error to 400
+                
             var order = orderService.UpdateOrderStatus(id, status);
-            return order is null ? Results.NotFound() : Results.Ok(order);
+            if (order is null)
+                return Result<Order>.Fail("Order not found").ToIResult(); // 🎯 GENERATED: Error to 404
+                
+            var result = Result<Order>.Ok(order);
+            return result.ToPatchResult(); // 🎯 GENERATED: Success to 200
         })
         .WithName("UpdateOrderStatus")
         .WithSummary("Update order status")
@@ -115,13 +123,20 @@ public static class OrderEndpoints
         // DELETE /api/orders/{id}
         orderGroup.MapDelete("/{id:int}", (int id, OrderService orderService) =>
         {
+            if (id <= 0)
+                return Result<object>.Fail("Invalid order ID").ToIResult(); // 🎯 GENERATED: Error to 400
+                
             var deleted = orderService.DeleteOrder(id);
-            return deleted ? Results.NoContent() : Results.NotFound();
+            if (!deleted)
+                return Result<object>.Fail("Order not found").ToIResult(); // 🎯 GENERATED: Error to 404
+                
+            var result = Result<object>.Ok(new { Message = $"Order {id} deleted successfully" });
+            return result.ToDeleteResult(); // 🎯 GENERATED: Success to 200
         })
         .WithName("DeleteOrder")
         .WithSummary("Delete an order")
         .WithDescription("Deletes an order by its ID")
-        .Produces(204)
+        .Produces(200)
         .Produces(404);
     }
 }

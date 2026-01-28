@@ -6,10 +6,12 @@ This document provides a comprehensive overview of all available API methods in 
 
 | Category | Document | Description |
 |-----------|----------|-------------|
-| **Reasons** | [API-Reasons.md](API-Reasons.md) | All reason types (Success, Error, ExceptionError, ConversionError) and their methods |
-| **Result Methods** | [API-Result-Methods.md](API-Result-Methods.md) | Core instance methods on Result classes (Map, Tap, Match, Bind, Conversions) |
-| **Result Factories** | [API-Result-Factories.md](API-Result-Factories.md) | Static factory methods for creating Results (Ok, Fail, Combine, Conditional, Try) |
-| **Result Extensions** | [API-Result-Extensions.md](API-Result-Extensions.md) | Extension methods for enhanced functionality (LINQ, Validation, Async operations) |
+| **Reasons** | [Reasons.md](Reasons.md) | All reason types (Success, Error, ExceptionError, ConversionError) and their methods |
+| **Result Methods** | [Result-Methods.md](Result-Methods.md) | Core instance methods on Result classes (Map, Tap, Match, Bind, Conversions) |
+| **Result Factories** | [Result-Factories.md](Result-Factories.md) | Static factory methods for creating Results (Ok, Fail, Combine, Conditional, Try) |
+| **Result Extensions** | [Result-Extensions.md](Result-Extensions.md) | Extension methods for enhanced functionality (LINQ, Validation, Async operations) |
+| **Validation Rules** | [Validation-Rules.md](Validation-Rules.md) | Built-in validation rules and custom validation patterns |
+| **Advanced Patterns** | [advanced-patterns/](advanced-patterns/) | Maybe, OneOf, and other advanced functional patterns |
 
 ## Key Concepts
 

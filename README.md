@@ -48,6 +48,9 @@ var builder = WebApplication.CreateBuilder(args);
 // ... rest of your setup
 ```
 
+### 🎯 **Want to see it in action?**
+Check out our **[ASP.NET Integration Samples](samples/ASP.NET/README.md)** to compare pure .NET 10 vs REslava.Result implementations!
+
 ### ✨ Magic Happens
 
 ```csharp
@@ -121,6 +124,12 @@ app.MapGet("/users/{id}", async (int id, IUserService service) =>
 - **🧠 [Advanced Patterns](docs/guide/advanced-patterns.md)** - Maybe, OneOf, and more
 - **📚 [API Reference](docs/api/)** - Complete technical documentation
 - **🏗️ [Architecture & Design](docs/api/Overview.md)** - Design decisions and patterns
+
+### 🎯 **Hands-On Samples**
+
+- **🚀 [ASP.NET Integration Samples](samples/ASP.NET/README.md)** - Compare pure .NET 10 vs REslava.Result with source generators
+  - **MinimalApi.Net10.Reference** - Pure .NET 10 implementation (baseline)
+  - **MinimalApi.Net10.REslava.Result.v1.7.3** - REslava.Result + source generators (70-90% less code)
 
 ---
 

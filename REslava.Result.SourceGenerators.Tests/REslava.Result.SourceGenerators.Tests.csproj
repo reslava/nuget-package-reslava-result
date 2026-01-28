@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="../src/REslava.Result.csproj" />
     <ProjectReference Include="../SourceGenerator/REslava.Result.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../SourceGenerator/REslava.Result.SourceGenerators.csproj" ReferenceOutputAssembly="true" />
   </ItemGroup>
 
 </Project>

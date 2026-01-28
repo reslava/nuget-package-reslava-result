@@ -56,6 +56,7 @@ public class UsersController : ControllerBase
 
 ### After: Zero Boilerplate
 
+#### **Traditional Controllers:**
 ```csharp
 [ApiController]
 public class UsersController : ControllerBase
@@ -69,7 +70,16 @@ public class UsersController : ControllerBase
 }
 ```
 
-**That's it!** The source generator automatically handles all the conversion logic.
+#### **Minimal APIs (.NET 10):**
+```csharp
+app.MapGet("/users/{id}", async (int id, UserService userService) =>
+{
+    return await userService.GetUserAsync(id)
+        .Map(u => new UserDto(u));
+});
+```
+
+**That's it!** The source generator automatically handles all the conversion logic for both patterns.
 
 ---
 
@@ -160,12 +170,20 @@ public async Task<Microsoft.AspNetCore.Http.IResult> GetUser(int id)
 
 | Method | HTTP Status | Use Case |
 |--------|-------------|----------|
+| `ToIResult()` | 200/400/404/500 | General HTTP response conversion |
 | `ToPostResult()` | 201 Created | POST operations |
 | `ToPostResult(Func<T, string>)` | 201 Created + Location | POST with location header |
-| `ToGetResult()` | 200 OK | GET operations |
 | `ToPutResult()` | 200 OK | PUT operations |
 | `ToPatchResult()` | 200 OK | PATCH operations |
-| `ToDeleteResult()` | 204 No Content | DELETE operations |
+| `ToDeleteResult()` | 200 OK | DELETE operations |
+
+### 🆕 v1.7.3 Enhanced Features
+
+- **✅ Minimal API Support** - Works perfectly with .NET 10 Minimal APIs
+- **✅ Smart Error Classification** - Automatic status code mapping based on error messages
+- **✅ Enhanced ProblemDetails** - RFC 7807 compliant error responses
+- **✅ Zero Configuration** - Works out of the box with sensible defaults
+- **✅ AOT Compatible** - Works with NativeAOT and trimming
 
 ---
 
@@ -315,7 +333,59 @@ public class RateLimitExceededError : Error
 
 ## 🌐 Real-World Examples
 
-### E-commerce API
+### Minimal API Example (.NET 10)
+
+```csharp
+// Program.cs
+using REslava.Result.SourceGenerators;
+using REslava.Result;
+using Generated.ResultExtensions;
+
+[assembly: GenerateResultExtensions]
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddEndpointsApiExplorer();
+
+var app = builder.Build();
+
+// GET /api/products/{id}
+app.MapGet("/api/products/{id}", async (int id, ProductService productService) =>
+{
+    if (id <= 0)
+        return Result<Product>.Fail("Invalid product ID").ToIResult();
+        
+    return await productService.GetProductAsync(id)
+        .Map(p => new ProductDto(p))
+        .ToIResult();
+});
+
+// POST /api/products
+app.MapPost("/api/products", async (CreateProductRequest request, ProductService productService) =>
+{
+    return await productService.CreateProductAsync(request)
+        .Map(p => new ProductDto(p))
+        .ToPostResult(p => $"/api/products/{p.Id}"); // 201 with Location
+});
+
+// PUT /api/products/{id}
+app.MapPut("/api/products/{id}", async (int id, UpdateProductRequest request, ProductService productService) =>
+{
+    return await productService.UpdateProductAsync(id, request)
+        .Map(p => new ProductDto(p))
+        .ToPutResult();
+});
+
+// DELETE /api/products/{id}
+app.MapDelete("/api/products/{id}", async (int id, ProductService productService) =>
+{
+    return await productService.DeleteProductAsync(id)
+        .ToDeleteResult();
+});
+
+app.Run();
+```
+
+### Traditional Controller Example
 
 ```csharp
 [ApiController]
@@ -562,6 +632,7 @@ Organize generated code in your own namespace:
 
 ## 📚 Next Steps
 
+- **🚀 [ASP.NET Integration Samples](../../samples/ASP.NET/README.md)** - Compare pure .NET 10 vs REslava.Result implementations
 - **🌐 [Web API Integration](web-api-integration.md)** - Complete API setup guide
 - **🧠 [Advanced Patterns](advanced-patterns.md)** - Explore Maybe, OneOf, and more
 - **📚 [API Reference](../api/)** - Complete technical documentation
