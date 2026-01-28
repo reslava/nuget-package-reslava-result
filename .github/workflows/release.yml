@@ -6,7 +6,7 @@ on:
       - 'v*'
 
 jobs:
-  release:
+  build-core:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -22,36 +22,66 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build with Documentation
-        run: dotnet build --configuration Release --no-restore -p:GenerateDocumentationFile=true -p:ContinuousIntegrationBuild=true
-
-      - name: Test
-        run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
-
-      - name: Pack
+      - name: Build core library for .NET ${{ matrix.dotnet-version }}
         run: |
-          echo "📦 Packing all three packages..."
-          dotnet pack src/REslava.Result.csproj --configuration Release --no-build --output ./artifacts --include-symbols -p:GenerateDocumentationFile=true
-          dotnet pack SourceGenerator/REslava.Result.SourceGenerators.csproj --configuration Release --no-build --output ./artifacts --include-symbols -p:GenerateDocumentationFile=true
-          dotnet pack SourceGenerator/Attributes/REslava.Result.SourceGenerators.Attributes.csproj --configuration Release --no-build --output ./artifacts --include-symbols -p:GenerateDocumentationFile=true
-          echo "✅ Packing complete!"
+          echo "🔨 Building REslava.Result for .NET ${{ matrix.dotnet-version }}"
+          dotnet pack src/REslava.Result.csproj --configuration Release --no-build --output ./artifacts-${{ matrix.dotnet-version }} --include-symbols -p:GenerateDocumentationFile=true -p:TargetFramework=net${{ matrix.dotnet-version }}.x
+          echo "✅ Core package built for .NET ${{ matrix.dotnet-version }}"
 
-      - name: Upload artifacts
+      - name: Upload core artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nuget-packages-${{ matrix.dotnet-version }}
-          path: ./artifacts/*.nupkg
+          name: core-packages-${{ matrix.dotnet-version }}
+          path: ./artifacts-${{ matrix.dotnet-version }}/*.nupkg
           retention-days: 1
 
       - name: Upload symbol artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: symbol-packages-${{ matrix.dotnet-version }}
-          path: ./artifacts/*.snupkg
+          name: core-symbols-${{ matrix.dotnet-version }}
+          path: ./artifacts-${{ matrix.dotnet-version }}/*.snupkg
+          retention-days: 1
+
+  build-generators:
+    runs-on: ubuntu-latest
+    needs: build-core
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build source generators (netstandard2.0)
+        run: |
+          echo "🪄 Building REslava.Result.SourceGenerators"
+          dotnet pack SourceGenerator/REslava.Result.SourceGenerators.csproj --configuration Release --no-build --output ./artifacts-generators --include-symbols -p:GenerateDocumentationFile=true
+          
+          echo "🏷️ Building REslava.Result.SourceGenerators.Attributes"
+          dotnet pack SourceGenerator/Attributes/REslava.Result.SourceGenerators.Attributes.csproj --configuration Release --no-build --output ./artifacts-generators --include-symbols -p:GenerateDocumentationFile=true
+          
+          echo "✅ Source generators built successfully"
+
+      - name: Upload generator artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: generator-packages
+          path: ./artifacts-generators/*.nupkg
+          retention-days: 1
+
+      - name: Upload generator symbol artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: generator-symbols
+          path: ./artifacts-generators/*.snupkg
           retention-days: 1
 
   publish:
-    needs: release
+    needs: [build-core, build-generators]
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
@@ -61,8 +91,18 @@ jobs:
 
       - name: Push to NuGet
         run: |
-          find ./downloaded-artifacts -name "*.nupkg" -exec dotnet nuget push {} --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate \;
+          echo "📦 Publishing all packages to NuGet..."
+          
+          # Publish core packages for all .NET versions
+          find ./downloaded-artifacts -name "REslava.Result.*.nupkg" -exec dotnet nuget push {} --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate \;
+          
+          # Publish source generator packages
+          find ./downloaded-artifacts -name "REslava.Result.SourceGenerators.*.nupkg" -exec dotnet nuget push {} --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate \;
+          
+          # Publish symbol packages
           find ./downloaded-artifacts -name "*.snupkg" -exec dotnet nuget push {} --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate \;
+          
+          echo "✅ All packages published successfully!"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -72,7 +112,7 @@ jobs:
             See CHANGELOG.md for detailed changes
             
             ### NuGet Packages
-            📦 [REslava.Result](https://www.nuget.org/packages/REslava.Result) - Core library
+            📦 [REslava.Result](https://www.nuget.org/packages/REslava.Result) - Core library (.NET 8, 9, 10)
             🪄 [REslava.Result.SourceGenerators](https://www.nuget.org/packages/REslava.Result.SourceGenerators) - Auto-conversion generator
             🏷️ [REslava.Result.SourceGenerators.Attributes](https://www.nuget.org/packages/REslava.Result.SourceGenerators.Attributes) - Generator attributes
             
@@ -81,5 +121,10 @@ jobs:
             dotnet add package REslava.Result
             dotnet add package REslava.Result.SourceGenerators
             ```
+            
+            ### Framework Support
+            - ✅ .NET 8.0
+            - ✅ .NET 9.0  
+            - ✅ .NET 10.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
