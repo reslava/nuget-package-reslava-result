@@ -22,9 +22,12 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
+      - name: Build all frameworks
+        run: dotnet build --configuration Release --no-restore
+
       - name: Build core library for .NET ${{ matrix.dotnet-version }}
         run: |
-          echo "🔨 Building REslava.Result for .NET ${{ matrix.dotnet-version }}"
+          echo "🔨 Packing REslava.Result for .NET ${{ matrix.dotnet-version }}"
           dotnet pack src/REslava.Result.csproj --configuration Release --no-build --output ./artifacts-${{ matrix.dotnet-version }} --include-symbols -p:GenerateDocumentationFile=true -p:TargetFramework=net${{ matrix.dotnet-version }}.x
           echo "✅ Core package built for .NET ${{ matrix.dotnet-version }}"
 
@@ -56,12 +59,15 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
+      - name: Build source generators
+        run: dotnet build --configuration Release --no-restore
+
       - name: Build source generators (netstandard2.0)
         run: |
-          echo "🪄 Building REslava.Result.SourceGenerators"
+          echo "🪄 Packing REslava.Result.SourceGenerators"
           dotnet pack SourceGenerator/REslava.Result.SourceGenerators.csproj --configuration Release --no-build --output ./artifacts-generators --include-symbols -p:GenerateDocumentationFile=true
           
-          echo "🏷️ Building REslava.Result.SourceGenerators.Attributes"
+          echo "🏷️ Packing REslava.Result.SourceGenerators.Attributes"
           dotnet pack SourceGenerator/Attributes/REslava.Result.SourceGenerators.Attributes.csproj --configuration Release --no-build --output ./artifacts-generators --include-symbols -p:GenerateDocumentationFile=true
           
           echo "✅ Source generators built successfully"
