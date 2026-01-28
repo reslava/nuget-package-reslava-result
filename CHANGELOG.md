@@ -2,6 +2,59 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.7.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.6.0...v1.7.0) (2026-01-27)
+
+### 🚀 Major Release - Source Generator Support
+
+#### ✨ New Features
+* **Source Generator Support** - Automatic Result<T> to HTTP response conversion
+* **Zero Boilerplate Web APIs** - Eliminate 70-90% of controller code
+* **RFC 7807 Compliance** - Standardized ProblemDetails responses
+* **Smart HTTP Status Mapping** - Automatic status code based on Result type
+* **Compile-Time Generation** - Zero runtime overhead
+* **NativeAOT Compatibility** - Works with ahead-of-time compilation
+* **One-line setup** - `[assembly: GenerateResultExtensions]`
+* **Direct Result<T> returns** from Minimal API endpoints
+* **Automatic error handling** with proper HTTP responses
+* **Built-in validation** support integration
+
+#### 📦 New Packages
+* **REslava.Result.SourceGenerators (1.0.0)** - Auto-conversion source generator
+* **REslava.Result.SourceGenerators.Attributes (1.0.0)** - Generator attributes
+
+#### 🔧 Technical Improvements
+* **Multi-package structure** - Core + Generators + Attributes
+* **Centralized version management** - Automated version synchronization
+* **Professional CI/CD pipeline** - Multi-framework builds (.NET 8, 9, 10)
+* **Enhanced documentation** - Hub & Spoke organization
+* **Zero runtime overhead** - All generation happens at compile time
+* **Optimized IL generation** - Efficient code generation
+* **Memory efficient** - No reflection or runtime analysis
+* **IntelliSense support** - Full autocomplete for generated code
+* **Debug symbols** - Complete debugging support
+* **Multi-framework support** - .NET 8, 9, 10
+* **Symbol packages** - Available on NuGet
+
+#### 📚 Documentation
+* **Source Generator Guide** - Complete setup and usage
+* **Web API Integration Guide** - Step-by-step implementation
+* **Getting Started Guide** - Beginner-friendly introduction
+* **Advanced Patterns Guide** - Maybe, OneOf, and more
+* **Minimal API examples** - Real-world usage patterns
+* **Complete sample projects** - End-to-end implementations
+* **Best practices** - Production-ready patterns
+
+#### 🔄 Breaking Changes
+* **None** - Fully backward compatible
+* **Existing REslava.Result users** - No changes required
+* **Optional source generators** - Add when ready
+* **Same API surface** - All existing code continues to work
+
+#### 🛠️ Developer Experience
+* **Automated versioning** - Script-based version management
+* **CI/CD automation** - Professional release pipeline
+* **Package validation** - Comprehensive testing
+
 ## [1.6.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.5.1...v1.6.0) (2026-01-26)
 
 
