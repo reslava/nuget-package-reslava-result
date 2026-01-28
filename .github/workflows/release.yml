@@ -20,10 +20,10 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore src/REslava.Result.csproj
 
       - name: Build all frameworks
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build src/REslava.Result.csproj --configuration Release --no-restore
 
       - name: Build core library for .NET ${{ matrix.dotnet-version }}
         run: |
@@ -57,10 +57,10 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore src/REslava.Result.csproj
 
       - name: Build source generators
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build SourceGenerator/REslava.Result.SourceGenerators.csproj --configuration Release --no-restore
 
       - name: Build source generators (netstandard2.0)
         run: |
