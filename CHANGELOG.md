@@ -2,6 +2,65 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.7.3](https://github.com/reslava/nuget-package-reslava-result/compare/v1.7.2...v1.7.3) (2026-01-28)
+
+### ✨ New Features
+* **Manual HTTP Extensions** - Built-in Result<T> to HTTP response conversion
+* **ToHttpResponse() Method** - Tuple-based responses `(statusCode, value)`
+* **GetHttpStatusCode()** - Direct status code extraction from Results
+* **GetErrorMessage()** - Easy error message access for failed Results
+* **Smart Error Classification** - Automatic status codes based on message content:
+  * "not found" → 404
+  * "validation" → 400  
+  * "unauthorized" → 401
+  * "forbidden" → 403
+  * "conflict" → 409
+  * Default → 500
+
+### 🔧 Technical Improvements
+* **Zero External Dependencies** - Pure REslava.Result package
+* **Multi-Framework Support** - .NET 8, 9, 10 compatibility
+* **Tuple-Based Responses** - Easy integration with any HTTP framework
+* **Message-Based Classification** - Intelligent error type detection
+* **Backward Compatible** - Existing code unchanged
+
+### 📦 Package Updates
+* **REslava.Result v1.7.3** - Core package with HTTP extensions
+* **Updated Description** - "Built-in Minimal API extensions"
+* **Enhanced Tags** - Added minimal-api, aspnetcore, iresult tags
+
+### 🧪 Testing
+* **ManualExtensionsTest** - Comprehensive test suite
+* **Success Case Verified** - 200 → Hello World!
+* **Error Case Verified** - 404 → { error = Product not found }
+* **Classification Tested** - Smart status code mapping
+
+### 📚 Documentation
+* **Extension Methods Guide** - Complete usage examples
+* **HTTP Response Patterns** - Best practices for web APIs
+* **Error Classification** - Smart status code detection
+
+### 🔮 Future Planning
+* **Source Generator Research** - Deep analysis of compiler integration
+* **Multi-Package Architecture** - Lessons learned for v1.8.0
+* **Enhanced Classification** - Custom error types planned
+
+## [1.7.2](https://github.com/reslava/nuget-package-reslava-result/compare/v1.7.0...v1.7.2) (2026-01-27)
+
+### 🐛 Bug Fixes
+* **Source Generator Issues** - Identified compiler integration challenges
+* **Circular Dependencies** - Resolved project reference conflicts
+* **Build Configuration** - Fixed packaging and deployment issues
+
+### 🔧 Technical Improvements
+* **Research Infrastructure** - Added comprehensive debugging tools
+* **Isolation Testing** - Created test projects for generator validation
+* **Package Structure** - Improved multi-package organization
+
+### 📚 Documentation
+* **Research Findings** - Documented source generator challenges
+* **Best Practices** - Added multi-package publishing guidelines
+
 ## [1.7.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.6.0...v1.7.0) (2026-01-27)
 
 ### 🚀 Major Release - Source Generator Support
