@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>REslava.Result.SourceGenerators</name>
+    </assembly>
+    <members>
+        <member name="T:REslava.Result.SourceGenerators.ResultToIResultGenerator">
+            <summary>
+            Source generator that creates extension methods for converting Result&lt;T&gt; to IResult.
+            This generator implements IIncrementalGenerator for optimal performance and caching.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.ResultToIResultGenerator.Initialize(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)">
+            <summary>
+            Initializes the incremental generator pipeline.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.ResultToIResultGenerator.ParseConfiguration(Microsoft.CodeAnalysis.AttributeData)">
+            <summary>
+            Parses the configuration from the GenerateResultExtensions attribute.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.ResultToIResultGenerator.GenerateExtensionMethods(REslava.Result.SourceGenerators.ResultToIResultGenerator.GeneratorConfiguration)">
+            <summary>
+            Generates the extension methods source code.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.ResultToIResultGenerator.GenerateMainExtensionClass(System.Text.StringBuilder,REslava.Result.SourceGenerators.ResultToIResultGenerator.GeneratorConfiguration)">
+            <summary>
+            Generates the main ResultToIResultExtensions class.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.ResultToIResultGenerator.GenerateToIResultMethod(System.Text.StringBuilder,REslava.Result.SourceGenerators.ResultToIResultGenerator.GeneratorConfiguration)">
+            <summary>
+            Generates the ToIResult&lt;T&gt; extension method.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.ResultToIResultGenerator.GenerateToIResultNonGenericMethod(System.Text.StringBuilder,REslava.Result.SourceGenerators.ResultToIResultGenerator.GeneratorConfiguration)">
+            <summary>
+            Generates the non-generic ToIResult method.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.ResultToIResultGenerator.GenerateCreateProblemDetailsMethod(System.Text.StringBuilder,REslava.Result.SourceGenerators.ResultToIResultGenerator.GeneratorConfiguration)">
+            <summary>
+            Generates the CreateProblemDetails helper method.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.ResultToIResultGenerator.GenerateDetermineStatusCodeMethod(System.Text.StringBuilder,REslava.Result.SourceGenerators.ResultToIResultGenerator.GeneratorConfiguration)">
+            <summary>
+            Generates the DetermineStatusCode helper method.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.ResultToIResultGenerator.GenerateHttpMethodExtensions(System.Text.StringBuilder,REslava.Result.SourceGenerators.ResultToIResultGenerator.GeneratorConfiguration)">
+            <summary>
+            Generates HTTP method-specific extension methods.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.ResultToIResultGenerator.GenerateImplicitConversions(System.Text.StringBuilder,REslava.Result.SourceGenerators.ResultToIResultGenerator.GeneratorConfiguration)">
+            <summary>
+            Generates implicit conversion operators.
+            </summary>
+        </member>
+        <member name="T:REslava.Result.SourceGenerators.ResultToIResultGenerator.GeneratorConfiguration">
+            <summary>
+            Configuration parsed from the GenerateResultExtensions attribute.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.ResultToIResultGenerator.GenerateHelperClass(System.Text.StringBuilder,REslava.Result.SourceGenerators.ResultToIResultGenerator.GeneratorConfiguration)">
+            <summary>
+            Generates a helper class for performance optimizations.
+            </summary>
+        </member>
+        <member name="T:REslava.Result.SourceGenerators.GenerateResultExtensionsAttribute">
+            <summary>
+            Enables automatic generation of extension methods for converting Result&lt;T&gt; to Microsoft.AspNetCore.Http.IResult.
+            Apply this assembly-level attribute to projects that want to use the source generator.
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.GenerateResultExtensionsAttribute.Namespace">
+            <summary>
+            Gets or sets the namespace for the generated extension methods.
+            Default is "Generated.ResultExtensions".
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.GenerateResultExtensionsAttribute.IncludeErrorTags">
+            <summary>
+            Gets or sets a value indicating whether to include error tags in ProblemDetails.
+            Default is true.
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.GenerateResultExtensionsAttribute.LogErrors">
+            <summary>
+            Gets or sets a value indicating whether to log errors during conversion.
+            Default is false.
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.GenerateResultExtensionsAttribute.CustomErrorMappings">
+            <summary>
+            Gets or sets custom error type to HTTP status code mappings.
+            Format: "ErrorType:StatusCode,AnotherErrorType:AnotherStatusCode".
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.GenerateResultExtensionsAttribute.GenerateHttpMethodExtensions">
+            <summary>
+            Gets or sets a value indicating whether to generate HTTP method-specific extension methods (e.g., ToPostResult).
+            Default is true.
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.GenerateResultExtensionsAttribute.DefaultErrorStatusCode">
+            <summary>
+            Gets or sets the default HTTP status code for errors that don't have a specific mapping.
+            Default is 400 (Bad Request).
+            </summary>
+        </member>
+    </members>
+</doc>

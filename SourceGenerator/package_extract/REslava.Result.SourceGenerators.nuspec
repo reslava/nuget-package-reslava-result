@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>REslava.Result.SourceGenerators</id>
+    <version>1.0.0</version>
+    <authors>REslava</authors>
+    <description>Source generators for REslava.Result library - converts Result&lt;T&gt; to IResult for Minimal APIs</description>
+    <copyright>Copyright © REslava 2024</copyright>
+    <tags>source generator result pattern minimal api aspnetcore csharp roslyn</tags>
+    <repository type="git" url="https://github.com/reslava/nuget-package-reslava-result" branch="refs/heads/feature/result-iresult-generator" commit="740619d24cb85225ede5fdd197d29a3116b42bb8" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.0" />
+    </dependencies>
+  </metadata>
+</package>

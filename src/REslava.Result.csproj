@@ -24,14 +24,14 @@
     <Authors>Rafael Eslava</Authors>
     <Company>REslava</Company>
     <Product>REslava.Result</Product>
-    <Description>A clean, fluent, and type-safe Result pattern library for functional error handling in C#. Avoid exception-based control flow with immutable results, railway-oriented programming, and comprehensive LINQ support.</Description>
+    <Description>A clean, fluent, and type-safe Result pattern library for functional error handling in C#. Avoid exception-based control flow with immutable results, railway-oriented programming, comprehensive LINQ support, and built-in Minimal API extensions.</Description>
     <Copyright>Copyright (c) 2025 Rafa Eslava</Copyright>
     <PackageProjectUrl>https://github.com/reslava/nuget-package-reslava-result</PackageProjectUrl>
     <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>result;monad;railway;functional;error-handling;validation;either;option;maybe;fp</PackageTags>
+    <PackageTags>result;monad;railway;functional;error-handling;validation;either;option;maybe;fp;minimal-api;aspnetcore;iresult</PackageTags>
     <PackageReleaseNotes>https://github.com/reslava/nuget-package-reslava-result/blob/main/CHANGELOG.md</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>    
