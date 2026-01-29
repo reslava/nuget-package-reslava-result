@@ -51,6 +51,81 @@ var builder = WebApplication.CreateBuilder(args);
 ### 🎯 **Want to see it in action?**
 Check out our **[ASP.NET Integration Samples](samples/ASP.NET/README.md)** to compare pure .NET 10 vs REslava.Result implementations!
 
+### 🏗️ Architecture Evolution v1.8.0
+
+### 🧠 **Enhanced Source Generator Architecture**
+
+The v1.8.0 release introduces a revolutionary **metadata discovery system** that transforms how error types are mapped to HTTP responses:
+
+#### **🔍 Three-Tier Error Mapping Priority**
+1. **🎯 Explicit Attributes** - `[MapToProblemDetails(StatusCode = 404)]`
+2. **⚙️ Custom Mappings** - Configuration-based error mappings  
+3. **🧠 Convention-Based** - Smart pattern matching (NotFoundError → 404)
+
+#### **🚀 Enhanced Capabilities**
+- **📊 10+ HTTP Status Patterns** - NotFound, Validation, Conflict, etc.
+- **🏷️ Rich Metadata** - Error tags, types, and custom properties
+- **🔧 RFC 7807 Compliance** - Standardized ProblemDetails responses
+- **⚡ Zero Runtime Overhead** - All processing at compile-time
+
+#### **📈 Architecture Comparison**
+
+| 🏗️ **Architecture** | **v1.7.3** | **v1.8.0 (Enhanced)** |
+|-------------------|------------|----------------------|
+| Error Mapping | Simple switch statements | **Metadata discovery system** |
+| Custom Types | Not supported | **Full custom error type support** |
+| HTTP Status | Basic patterns | **10+ intelligent patterns** |
+| Configuration | Limited | **Three-tier priority system** |
+| Extensibility | Fixed | **Highly extensible** |
+| Performance | Good | **Optimized compile-time** |
+
+### ✨ Enhanced v1.8.0 Features
+
+#### **🏷️ Custom Error Types with Metadata**
+```csharp
+[MapToProblemDetails(
+    StatusCode = 402,
+    Type = "https://api.example.com/payment-required",
+    Title = "Payment Required")]
+public class PaymentRequiredError : Error
+{
+    public decimal Amount { get; }
+    
+    public PaymentRequiredError(decimal amount, string message) : base(message)
+    {
+        Amount = amount;
+        this.WithTag("Amount", amount);
+    }
+}
+```
+
+#### **🧠 Smart Convention Matching**
+```csharp
+// These automatically map to correct HTTP status codes:
+NotFoundError → 404 Not Found
+ValidationError → 422 Unprocessable Entity  
+ConflictError → 409 Conflict
+UnauthorizedError → 401 Unauthorized
+PaymentRequiredError → 402 Payment Required
+RateLimitError → 429 Too Many Requests
+TimeoutError → 408 Request Timeout
+ServerError → 500 Internal Server Error
+ServiceUnavailableError → 503 Service Unavailable
+// ... and more patterns
+```
+
+#### **⚙️ Advanced Configuration**
+```csharp
+[assembly: GenerateResultExtensions(
+    Namespace = "Generated.ResultExtensions",
+    IncludeErrorTags = true,
+    GenerateHttpMethodExtensions = true,
+    CustomErrorMappings = new[] { 
+        "PaymentRequiredError:402",
+        "CustomBusinessError:418"
+    })]
+```
+
 ### ✨ Magic Happens
 
 ```csharp
@@ -76,13 +151,14 @@ app.MapGet("/users/{id}", async (int id, IUserService service) =>
 
 ## 🚀 Key Features
 
-| 📦 **Core Library** | 🚀 **Source Generator** | 🧠 **Advanced Patterns** |
-|-------------------|----------------------|-------------------------|
-| Type-safe Result pattern | Auto `Result<T>` → HTTP responses | `Maybe<T>` for null safety |
-| Fluent chaining | RFC 7807 ProblemDetails | `OneOf` for discriminated unions |
-| Rich error context | Smart HTTP status mapping | LINQ query syntax |
-| Zero dependencies | AOT compatible | Performance optimized |
-| Railway-oriented programming | Error tag preservation | Async/await support |
+| 📦 **Core Library** | 🚀 **Enhanced Source Generator v1.8.0** | 🧠 **Advanced Patterns** |
+|-------------------|--------------------------------------|-------------------------|
+| Type-safe Result pattern | **Metadata discovery system** | `Maybe<T>` for null safety |
+| Fluent chaining | **Three-tier error mapping** | `OneOf` for discriminated unions |
+| Rich error context | **10+ intelligent HTTP patterns** | LINQ query syntax |
+| Zero dependencies | **RFC 7807 ProblemDetails** | Performance optimized |
+| Railway-oriented programming | **Custom error type support** | Async/await support |
+| **🆕 Enhanced error tags** | **AOT & NativeAOT compatible** | **🆕 Validation rules** |
 
 ---
 
@@ -152,26 +228,39 @@ return result.Match(
 );
 ```
 
-### 🚀 **Source Generator - Zero Boilerplate**
+### 🚀 **Enhanced Source Generator v1.8.0 - Zero Boilerplate**
 
 ```csharp
-// Your service returns Result<T>
+// 🏷️ Define custom error types with metadata
+[MapToProblemDetails(StatusCode = 404, Title = "User Not Found")]
+public class UserNotFoundError : Error
+{
+    public int UserId { get; }
+    public UserNotFoundError(int userId) : base($"User {userId} not found")
+    {
+        UserId = userId;
+        this.WithTag("UserId", userId);
+    }
+}
+
+// Your service returns Result<T> with rich error context
 public async Task<Result<User>> GetUserAsync(int id)
 {
     return await Result<int>.Ok(id)
         .Ensure(i => i > 0, "Invalid user ID")
         .BindAsync(async i => await _repository.FindAsync(i))
-        .Ensure(u => u != null, new NotFoundError("User", id));
+        .Ensure(u => u != null, new UserNotFoundError(id));
 }
 
-// Your controller just returns the Result - auto-converted!
+// 🎯 Your controller just returns the Result - auto-converted!
 app.MapGet("/users/{id}", async (int id) => 
     await _userService.GetUserAsync(id));
 
-// HTTP responses are automatically generated:
+// 🚀 Enhanced HTTP responses are automatically generated:
 // 200 OK with User data
-// 404 Not Found with ProblemDetails
+// 404 Not Found with ProblemDetails + custom metadata
 // 400 Bad Request with validation errors
+// ...and 10+ more intelligent patterns
 ```
 
 ### 🧠 **Advanced Patterns - Functional Programming**
@@ -217,11 +306,13 @@ return result.Match(
 - **95%+ code coverage** - Reliable in production
 - **Comprehensive testing** - Unit, integration, and performance tests
 - **Memory efficient** - Immutable design, predictable allocations
+- **🆕 v1.8.0 Enhanced Architecture** - Metadata discovery with zero runtime overhead
 
 ### ✅ **Developer Experience**
 - **Rich IntelliSense** - Extensive XML documentation
 - **Modern C#** - Supports .NET 8, 9, and 10
 - **AOT compatible** - Works with NativeAOT and trimming
+- **🆕 Enhanced Error Context** - Rich metadata and custom error types
 
 ---
 
