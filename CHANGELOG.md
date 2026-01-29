@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.8.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.7.3...v1.8.0) (2026-01-29)
+
+### 🏗️ **Major Architecture Evolution - Enhanced Source Generator**
+
+### ✨ Revolutionary Features
+* **Metadata Discovery System** - Revolutionary compile-time error type analysis
+* **Three-Tier Error Mapping Priority** - Attribute > Custom > Convention
+* **Enhanced [MapToProblemDetails] Attribute** - Explicit error-to-HTTP status mapping
+* **Smart Convention Matching** - 10+ intelligent HTTP status patterns:
+  * NotFoundError → 404 Not Found
+  * ValidationError → 422 Unprocessable Entity
+  * ConflictError → 409 Conflict
+  * UnauthorizedError → 401 Unauthorized
+  * PaymentRequiredError → 402 Payment Required
+  * RateLimitError → 429 Too Many Requests
+  * TimeoutError → 408 Request Timeout
+  * ServerError → 500 Internal Server Error
+  * ServiceUnavailableError → 503 Service Unavailable
+  * And more patterns...
+
+### 🔧 Enhanced Capabilities
+* **Custom Error Type Support** - Full metadata discovery for user-defined error types
+* **Rich Error Context** - Error tags, types, and custom properties in responses
+* **RFC 7807 Compliance** - Standardized ProblemDetails responses
+* **Advanced Configuration** - Custom error mappings and namespace control
+* **Zero Runtime Overhead** - All processing at compile-time
+* **Incremental Generator Optimization** - Fixed nullable type handling and data access patterns
+
+### 📈 Architecture Improvements
+* **Metadata Pipeline** - Complete rewrite of internal generator architecture
+* **Convention Engine** - Intelligent pattern matching for error type names
+* **Priority System** - Hierarchical mapping with explicit overrides
+* **Enhanced Extensibility** - Foundation for advanced future features
+
+### 🧪 Quality & Testing
+* **Clean Build** - Zero compilation errors across all projects
+* **100% Test Pass Rate** - All 27 source generator tests passing
+* **Integration Verified** - Sample projects working with enhanced features
+* **Performance Optimized** - Improved compile-time performance
+
+### 📚 Documentation
+* **Enhanced README** - Comprehensive v1.8.0 architecture overview
+* **Code Examples** - Custom error types and advanced configuration
+* **Migration Guide** - Clear path from v1.7.3 to v1.8.0
+
+---
+
 ## [1.7.3](https://github.com/reslava/nuget-package-reslava-result/compare/v1.7.2...v1.7.3) (2026-01-28)
 
 ### ✨ New Features
