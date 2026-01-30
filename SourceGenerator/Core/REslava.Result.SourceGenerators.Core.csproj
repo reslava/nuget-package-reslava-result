@@ -2,16 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>$(GeneratorPackageVersion)</Version>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <Deterministic>true</Deterministic>
     
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>REslava.Result.SourceGenerators</PackageId>
-    <Description>Source generators for REslava.Result library - converts Result&lt;T&gt; to IResult for Minimal APIs</Description>
-    <PackageTags>source generator result pattern minimal api aspnetcore csharp roslyn</PackageTags>
+    <PackageId>REslava.Result.SourceGenerators.Core</PackageId>
+    <Version>1.0.0</Version>
+    <Description>Core infrastructure for REslava.Result source generators - shared utilities, base classes, and code generation helpers</Description>
+    <PackageTags>source generator result pattern core infrastructure roslyn</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -23,15 +25,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="\" />
-    <None Include="..\images\icon.png" Pack="true" PackagePath="\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.12.0-beta1.25218.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -40,12 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Generators\ResultToIResult\ResultToIResultGenerator.cs" />
-    <Compile Include="Generators\ResultToIResult\GenerateResultExtensionsAttribute.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="$(TargetPath)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <EmbeddedResource Include="Properties\ReleaseTrackingAnalyzers.help.md" />
   </ItemGroup>
 
 </Project>

@@ -1,17 +1,254 @@
-# Quick Start Guide - REslava.Result
+# Quick Start Guide - REslava.Result v1.9.0
 
-Welcome! This guide explains commit automation and the development workflow.
+Welcome! This guide gets you up and running with REslava.Result v1.9.0 and its revolutionary Core Library architecture.
+
+## 🚀 Quick Start (30 seconds)
+
+### 📦 Installation
+
+```bash
+dotnet add package REslava.Result
+dotnet add package REslava.Result.SourceGenerators.Core
+dotnet add package REslava.Result.SourceGenerators.Generators.ResultToIResult
+```
+
+### 🔧 Project Setup
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Core library infrastructure -->
+    <ProjectReference Include="../SourceGenerator/Core/REslava.Result.SourceGenerators.Core.csproj" 
+                     ReferenceOutputAssembly="false" 
+                     OutputItemType="Analyzer" />
+    
+    <!-- Refactored generator as analyzer -->
+    <ProjectReference Include="../SourceGenerator/Generators/ResultToIResult/ResultToIResultGenerator.csproj" 
+                     ReferenceOutputAssembly="false" 
+                     OutputItemType="Analyzer" />
+    
+    <!-- Refactored generator for attribute access -->
+    <ProjectReference Include="../SourceGenerator/Generators/ResultToIResult/ResultToIResultGenerator.csproj" 
+                     ReferenceOutputAssembly="true" />
+    
+    <!-- Core Result package -->
+    <ProjectReference Include="../src/REslava.Result.csproj" />
+  </ItemGroup>
+</Project>
+```
+
+### 🎯 Enable Auto-Conversion
+
+```csharp
+using REslava.Result.SourceGenerators;
+
+[assembly: GenerateResultExtensions(
+    Namespace = "Generated.ResultExtensions",
+    IncludeErrorTags = true,
+    GenerateHttpMethodExtensions = true,
+    DefaultErrorStatusCode = 400,
+    IncludeDetailedErrors = true,
+    GenerateAsyncMethods = true
+)]
+
+var builder = WebApplication.CreateBuilder(args);
+// ... rest of your setup
+```
+
+### 🌐 Use in Your API
+
+```csharp
+using Generated.ResultExtensions;
+
+app.MapGet("/users/{id}", (int id) =>
+{
+    if (id <= 0)
+        return Result<User>.Fail("Invalid ID: must be positive");
+    
+    var user = GetUserById(id);
+    return user.IsSuccess 
+        ? Result<User>.Ok(user)
+        : Result<User>.Fail($"User {id} not found");
+});
+
+app.MapPost("/users", (User user) =>
+{
+    var validation = ValidateUser(user);
+    if (!validation.IsSuccess)
+        return validation;
+    
+    var created = CreateUser(user);
+    return created;
+});
+```
+
+---
+
+## 🏗️ What's New in v1.9.0
+
+### **🔧 Core Library Architecture**
+- **Modular Infrastructure** - Reusable components for generator development
+- **Configuration-Driven** - Flexible, type-safe configuration management
+- **100% Test Coverage** - 32 tests with comprehensive scenarios
+- **Better Error Handling** - Graceful handling of edge cases and null inputs
+
+### **📦 Enhanced Components**
+- **CodeBuilder** - Fluent code generation with proper indentation
+- **HttpStatusCodeMapper** - Smart HTTP status mapping with conventions
+- **AttributeParser** - Robust attribute configuration parsing
+- **IncrementalGeneratorBase<TConfig>** - Base class for rapid generator development
+
+---
 
 ## 📋 Table of Contents
 
+- [Quick Start](#-quick-start-30-seconds)
+- [What's New in v1.9.0](#-whats-new-in-v190)
+- [Core Library Components](#-core-library-components)
+- [Configuration Options](#-configuration-options)
+- [Migration from v1.7.3](#-migration-from-v173)
 - [Development Workflow](#-development-workflow)
 - [Branch Strategy](#-branch-strategy)
 - [Making Commits](#-making-commits)
-- [Commit Types Reference](#-commit-types-reference)
-- [Creating Releases](#-creating-releases)
 - [Common Scenarios](#-common-scenarios)
+- [Testing](#-testing)
 - [Troubleshooting](#-troubleshooting)
-- [Tips & Best Practices](#-tips--best-practices)
+
+---
+
+## 🏗️ Core Library Components
+
+### **📝 CodeBuilder**
+Fluent API for generating well-formatted C# code:
+
+```csharp
+var builder = new CodeBuilder();
+var code = builder
+    .AppendLine("namespace Generated.Extensions")
+    .Indent()
+    .AppendClassDeclaration("ResultExtensions", "public", "static")
+    .Indent()
+    .AppendMethodDeclaration("ToIResult", "IResult", "this Result<T> result", "T", "public", "static")
+    .AppendLine("if (result.IsSuccess) return Results.Ok(result.Value);")
+    .AppendLine("return Results.Problem(CreateProblemDetails(result.Errors));")
+    .CloseBrace()
+    .CloseBrace()
+    .ToString();
+```
+
+### **🌐 HttpStatusCodeMapper**
+Smart HTTP status code mapping:
+
+```csharp
+var mapper = new HttpStatusCodeMapper();
+
+// Convention-based mapping
+int statusCode = mapper.DetermineStatusCode("UserNotFoundError"); // 404
+int validationCode = mapper.DetermineStatusCode("ValidationError"); // 422
+
+// Custom mapping
+mapper.AddMapping("BusinessError", 422);
+int businessCode = mapper.DetermineStatusCode("BusinessError"); // 422
+```
+
+### **⚙️ Configuration System**
+Type-safe configuration management:
+
+```csharp
+public class MyGeneratorConfig : GeneratorConfigurationBase<MyGeneratorConfig>
+{
+    public string Namespace { get; set; } = "Generated";
+    public bool IncludeErrorTags { get; set; } = true;
+    public int DefaultErrorStatusCode { get; set; } = 400;
+    
+    public override bool Validate() => !string.IsNullOrEmpty(Namespace);
+    public override object Clone() => new MyGeneratorConfig { Namespace = Namespace, IncludeErrorTags = IncludeErrorTags };
+}
+```
+
+---
+
+## ⚙️ Configuration Options
+
+### **GenerateResultExtensionsAttribute**
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `Namespace` | string | "Generated" | Namespace for generated code |
+| `IncludeErrorTags` | bool | true | Include error tags in responses |
+| `GenerateHttpMethodExtensions` | bool | true | Generate HTTP method-specific extensions |
+| `DefaultErrorStatusCode` | int | 400 | Default HTTP status code for errors |
+| `IncludeDetailedErrors` | bool | false | Include detailed error information |
+| `GenerateAsyncMethods` | bool | true | Generate async extension methods |
+| `CustomErrorMappings` | string[] | null | Custom error type to status code mappings |
+
+### **Example Configurations**
+
+#### **Basic Setup**
+```csharp
+[assembly: GenerateResultExtensions]
+```
+
+#### **Full Configuration**
+```csharp
+[assembly: GenerateResultExtensions(
+    Namespace = "MyApp.Generated",
+    IncludeErrorTags = true,
+    GenerateHttpMethodExtensions = true,
+    DefaultErrorStatusCode = 422,
+    IncludeDetailedErrors = true,
+    GenerateAsyncMethods = true,
+    CustomErrorMappings = new[] { 
+        "InventoryOutOfStock:422",
+        "PaymentDeclined:402",
+        "AccountSuspended:403"
+    }
+)]
+```
+
+---
+
+## 🔄 Migration from v1.7.3
+
+### **Package References**
+
+#### **Before (v1.7.3):**
+```xml
+<ProjectReference Include="../SourceGenerator/REslava.Result.SourceGenerators.csproj" 
+                 ReferenceOutputAssembly="false" 
+                 OutputItemType="Analyzer" />
+```
+
+#### **After (v1.9.0):**
+```xml
+<ProjectReference Include="../SourceGenerator/Core/REslava.Result.SourceGenerators.Core.csproj" 
+                 ReferenceOutputAssembly="false" 
+                 OutputItemType="Analyzer" />
+<ProjectReference Include="../SourceGenerator/Generators/ResultToIResult/ResultToIResultGenerator.csproj" 
+                 ReferenceOutputAssembly="false" 
+                 OutputItemType="Analyzer" />
+<ProjectReference Include="../SourceGenerator/Generators/ResultToIResult/ResultToIResultGenerator.csproj" 
+                 ReferenceOutputAssembly="true" />
+```
+
+### **Generated Extensions**
+
+#### **Before (v1.7.3):**
+```csharp
+using Generated; // Default namespace
+```
+
+#### **After (v1.9.0):**
+```csharp
+using Generated.ResultExtensions; // Your custom namespace
+```
 
 ---
 

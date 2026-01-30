@@ -1,0 +1,148 @@
+using System;
+using REslava.Result.SourceGenerators.Core.CodeGeneration;
+using REslava.Result.SourceGenerators.Core.Utilities;
+using REslava.Result.SourceGenerators.Generators.ResultToIResult;
+
+namespace REslava.Result.SourceGenerators.Tests;
+
+class ConsoleTest
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine("🚀 Testing Refactored Generator Components...");
+        Console.WriteLine();
+
+        try
+        {
+            // Test 1: CodeBuilder
+            Console.WriteLine("📝 Testing CodeBuilder...");
+            TestCodeBuilder();
+            Console.WriteLine("✅ CodeBuilder test passed!");
+            Console.WriteLine();
+
+            // Test 2: HttpStatusCodeMapper
+            Console.WriteLine("🌐 Testing HttpStatusCodeMapper...");
+            TestHttpStatusCodeMapper();
+            Console.WriteLine("✅ HttpStatusCodeMapper test passed!");
+            Console.WriteLine();
+
+            // Test 3: ResultToIResultConfig
+            Console.WriteLine("⚙️ Testing ResultToIResultConfig...");
+            TestResultToIResultConfig();
+            Console.WriteLine("✅ ResultToIResultConfig test passed!");
+            Console.WriteLine();
+
+            // Test 4: Generator Instantiation
+            Console.WriteLine("🔧 Testing Generator Instantiation...");
+            TestGeneratorInstantiation();
+            Console.WriteLine("✅ Generator test passed!");
+            Console.WriteLine();
+
+            Console.WriteLine("🎉 All tests passed successfully!");
+            Console.WriteLine("🚀 Refactored generator is working correctly!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Test failed: {ex.Message}");
+            Environment.Exit(1);
+        }
+    }
+
+    static void TestCodeBuilder()
+    {
+        var builder = new CodeBuilder();
+        var result = builder
+            .AppendLine("namespace TestNamespace")
+            .Indent()
+            .AppendLine("public class TestClass")
+            .Indent()
+            .AppendLine("public void TestMethod() { }")
+            .Unindent()
+            .Unindent()
+            .AppendLine("}")
+            .ToString();
+
+        if (!result.Contains("namespace TestNamespace"))
+            throw new Exception("CodeBuilder failed: namespace not found");
+        
+        if (!result.Contains("public class TestClass"))
+            throw new Exception("CodeBuilder failed: class not found");
+        
+        if (!result.Contains("public void TestMethod() { }"))
+            throw new Exception("CodeBuilder failed: method not found");
+    }
+
+    static void TestHttpStatusCodeMapper()
+    {
+        var mapper = new HttpStatusCodeMapper();
+
+        // Test convention-based mapping
+        var notFoundResult = mapper.DetermineStatusCode("UserNotFoundError");
+        if (notFoundResult != 404)
+            throw new Exception($"HttpStatusCodeMapper failed: expected 404, got {notFoundResult}");
+
+        var validationResult = mapper.DetermineStatusCode("ValidationError");
+        if (validationResult != 422)
+            throw new Exception($"HttpStatusCodeMapper failed: expected 422, got {validationResult}");
+
+        // Test custom mapping
+        mapper.AddMapping("CustomError", 418);
+        var customResult = mapper.DetermineStatusCode("CustomError");
+        if (customResult != 418)
+            throw new Exception($"HttpStatusCodeMapper failed: expected 418, got {customResult}");
+
+        // Test default
+        var defaultResult = mapper.DetermineStatusCode("UnknownError");
+        if (defaultResult != 400)
+            throw new Exception($"HttpStatusCodeMapper failed: expected 400, got {defaultResult}");
+    }
+
+    static void TestResultToIResultConfig()
+    {
+        var config = new ResultToIResultConfig();
+
+        // Test defaults
+        if (config.Namespace != "Generated")
+            throw new Exception("ResultToIResultConfig failed: wrong default namespace");
+        
+        if (!config.IncludeErrorTags)
+            throw new Exception("ResultToIResultConfig failed: wrong default IncludeErrorTags");
+        
+        if (!config.GenerateHttpMethodExtensions)
+            throw new Exception("ResultToIResultConfig failed: wrong default GenerateHttpMethodExtensions");
+        
+        if (config.DefaultErrorStatusCode != 400)
+            throw new Exception("ResultToIResultConfig failed: wrong default DefaultErrorStatusCode");
+
+        // Test validation
+        if (!config.Validate())
+            throw new Exception("ResultToIResultConfig failed: validation failed");
+
+        // Test custom configuration
+        config.Namespace = "Test.Namespace";
+        config.DefaultErrorStatusCode = 422;
+        config.CustomErrorMappings = new[] { "TestError:418" };
+
+        if (!config.Validate())
+            throw new Exception("ResultToIResultConfig failed: custom config validation failed");
+
+        // Test clone
+        var clone = (ResultToIResultConfig)config.Clone();
+        if (clone.Namespace != config.Namespace)
+            throw new Exception("ResultToIResultConfig failed: clone namespace mismatch");
+    }
+
+    static void TestGeneratorInstantiation()
+    {
+        // Test that we can create the generator without errors
+        var generator = new ResultToIResultGenerator();
+        
+        if (generator == null)
+            throw new Exception("Generator instantiation failed");
+
+        // Test that we can access the configuration
+        var config = new ResultToIResultConfig();
+        if (!config.Validate())
+            throw new Exception("Generator configuration validation failed");
+    }
+}

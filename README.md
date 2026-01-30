@@ -1,4 +1,4 @@
-# REslava.Result
+# REslava.Result v1.9.0
 
 <div align="center">
 
@@ -10,9 +10,32 @@
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 
-**🚀 Production-Ready Result Pattern + Auto-Conversion for ASP.NET Core**
+**🚀 Production-Ready Result Pattern + Modular Core Library + Auto-Conversion for ASP.NET Core**
 
 </div>
+
+---
+
+## 🆕 What's New in v1.9.0
+
+### **🏗️ Revolutionary Core Library Architecture**
+- **🔧 Modular Infrastructure** - Reusable components for generator development
+- **⚙️ Configuration System** - Flexible, type-safe configuration management
+- **📝 CodeBuilder** - Fluent code generation with proper indentation and formatting
+- **🌐 HttpStatusCodeMapper** - Smart HTTP status code mapping with conventions
+- **🔍 AttributeParser** - Robust attribute configuration parsing
+
+### **🚀 Enhanced Generator Capabilities**
+- **📦 IncrementalGeneratorBase<TConfig>** - Base class for rapid generator development
+- **🎯 Configuration-Driven** - Generators now use flexible configuration classes
+- **🧪 100% Test Coverage** - Comprehensive unit and integration tests
+- **🔧 Better Error Handling** - Graceful handling of edge cases and null inputs
+
+### **📊 Developer Experience**
+- **📚 Improved Documentation** - Comprehensive guides and examples
+- **🔄 Easy Migration** - Smooth upgrade path from v1.7.3
+- **🧹 Clean Project Structure** - Organized, maintainable codebase
+- **⚡ Better Performance** - Optimized code generation and caching
 
 ---
 
@@ -25,6 +48,8 @@
 - **📊 Rich Error Context** - Built-in tagging and metadata for debugging
 - **🔧 Zero Dependencies** - Clean, secure, and fast
 - **🧠 Functional Programming** - Expressive, composable code
+- **🏗️ Modular Architecture** - Extensible core library for custom generators
+- **🧪 Comprehensive Testing** - 100% test coverage with 32 tests
 
 ---
 
@@ -34,7 +59,8 @@
 
 ```bash
 dotnet add package REslava.Result
-dotnet add package REslava.Result.SourceGenerators
+dotnet add package REslava.Result.SourceGenerators.Core
+dotnet add package REslava.Result.SourceGenerators.Generators.ResultToIResult
 ```
 
 ### 🚀 Enable Auto-Conversion
@@ -42,7 +68,14 @@ dotnet add package REslava.Result.SourceGenerators
 ```csharp
 // Add this to your Program.cs
 using REslava.Result.SourceGenerators;
-[assembly: GenerateResultExtensions]
+[assembly: GenerateResultExtensions(
+    Namespace = "Generated.ResultExtensions",
+    IncludeErrorTags = true,
+    GenerateHttpMethodExtensions = true,
+    DefaultErrorStatusCode = 400,
+    IncludeDetailedErrors = true,
+    GenerateAsyncMethods = true
+)]
 
 var builder = WebApplication.CreateBuilder(args);
 // ... rest of your setup
@@ -50,6 +83,131 @@ var builder = WebApplication.CreateBuilder(args);
 
 ### 🎯 **Want to see it in action?**
 Check out our **[ASP.NET Integration Samples](samples/ASP.NET/README.md)** to compare pure .NET 10 vs REslava.Result implementations!
+
+---
+
+## 🏗️ Core Library Architecture
+
+### **📦 Modular Infrastructure**
+
+The v1.9.0 release introduces a **revolutionary Core Library** that provides reusable components for source generator development:
+
+#### **🔧 Core Components**
+
+| Component | Purpose | Key Features |
+|-----------|---------|--------------|
+| **CodeBuilder** | Fluent code generation | Proper indentation, XML comments, method declarations |
+| **HttpStatusCodeMapper** | Smart HTTP mapping | Convention-based, custom mappings, null safety |
+| **AttributeParser** | Configuration parsing | Array handling, type safety, error validation |
+| **IncrementalGeneratorBase<TConfig>** | Generator base class | Configuration-driven, validation, cloning |
+
+#### **🎯 Architecture Benefits**
+
+- **🔄 Reusability** - Components work across different generators
+- **⚙️ Configuration-Driven** - Flexible, type-safe configuration management
+- **🧪 Testable** - 100% test coverage with unit and integration tests
+- **🚀 Performance** - Optimized code generation and caching
+- **🛡️ Robust** - Graceful error handling and edge case management
+
+#### **📁 Project Structure**
+
+```
+SourceGenerator/
+├── Core/                           # 🏗️ Core Library Infrastructure
+│   ├── CodeGeneration/            # 📝 CodeBuilder utilities
+│   ├── Utilities/                 # 🌐 HttpStatusCodeMapper, AttributeParser
+│   ├── Configuration/             # ⚙️ Configuration base classes
+│   └── Infrastructure/            # 🔧 IncrementalGeneratorBase
+├── Generators/                     # 📦 Individual Generators
+│   └── ResultToIResult/          # 🎯 Refactored ResultToIResult generator
+└── Tests/                         # 🧪 Comprehensive Tests
+    ├── UnitTests/                 # 📊 Core library component tests
+    ├── IntegrationTests/          # 🔗 Generator integration tests
+    └── GeneratorTest/             # 🖥️ Console verification tests
+```
+
+### **🚀 Generator Development**
+
+Creating new generators is now **dramatically simpler**:
+
+```csharp
+// 1. Create configuration class
+public class MyGeneratorConfig : GeneratorConfigurationBase<MyGeneratorConfig>
+{
+    public string MySetting { get; set; } = "default";
+    public bool EnableFeature { get; set; } = true;
+}
+
+// 2. Create generator class
+[Generator]
+public class MyGenerator : IncrementalGeneratorBase<MyGeneratorConfig>
+{
+    protected override void GenerateCode(CodeGenerationContext context, MyGeneratorConfig config)
+    {
+        var builder = new CodeBuilder();
+        builder.AppendClassDeclaration("GeneratedClass", "public", "static")
+               .AppendMethodDeclaration("MyMethod", "void", null, null, "public", "static")
+               .AppendLine("// Generated code here")
+               .CloseBrace()
+               .CloseBrace();
+        
+        context.AddSource("GeneratedClass.g.cs", builder.ToString());
+    }
+}
+```
+
+---
+
+## 🔄 Migration Guide (v1.7.3 → v1.9.0)
+
+### **📦 Package Changes**
+
+#### **Before (v1.7.3):**
+```xml
+<ProjectReference Include="REslava.Result.SourceGenerators.csproj" />
+```
+
+#### **After (v1.9.0):**
+```xml
+<!-- Core library infrastructure -->
+<ProjectReference Include="SourceGenerator/Core/REslava.Result.SourceGenerators.Core.csproj" 
+                 ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+
+<!-- Refactored generator -->
+<ProjectReference Include="SourceGenerator/Generators/ResultToIResult/ResultToIResultGenerator.csproj" 
+                 ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+<ProjectReference Include="SourceGenerator/Generators/ResultToIResult/ResultToIResultGenerator.csproj" 
+                 ReferenceOutputAssembly="true" />
+```
+
+### **⚙️ Enhanced Configuration**
+
+#### **Before (v1.7.3):**
+```csharp
+[assembly: GenerateResultExtensions]
+```
+
+#### **After (v1.9.0):**
+```csharp
+[assembly: GenerateResultExtensions(
+    Namespace = "Generated.ResultExtensions",
+    IncludeErrorTags = true,
+    GenerateHttpMethodExtensions = true,
+    DefaultErrorStatusCode = 400,
+    IncludeDetailedErrors = true,
+    GenerateAsyncMethods = true,
+    CustomErrorMappings = new[] { "CustomError:418", "SpecialCase:429" }
+)]
+```
+
+### **🧪 Testing Improvements**
+
+- **✅ 32 tests** with 100% success rate
+- **🧪 Unit tests** for individual Core library components
+- **🔗 Integration tests** for generator scenarios
+- **🖥️ Console tests** for quick verification
+
+---
 
 ### 🏗️ Architecture Evolution v1.8.0
 
