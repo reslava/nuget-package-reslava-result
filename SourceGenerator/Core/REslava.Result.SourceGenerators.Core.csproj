@@ -11,7 +11,7 @@
     
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>REslava.Result.SourceGenerators.Core</PackageId>
-    <Version>1.0.0</Version>
+    <Version>$(CorePackageVersion)</Version>
     <Description>Core infrastructure for REslava.Result source generators - shared utilities, base classes, and code generation helpers</Description>
     <PackageTags>source generator result pattern core infrastructure roslyn</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>
