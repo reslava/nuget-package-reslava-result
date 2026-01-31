@@ -57,6 +57,24 @@ We're thrilled to announce **v1.9.4** of REslava.Result.SourceGenerators, featur
 - **License**: MIT
 - **Type**: Source Generator (Development Dependency)
 
+### 🚀 NuGet Packages
+
+| Package | Version | Description | Link |
+|---------|---------|-------------|------|
+| **REslava.Result** | 1.9.0 | Core library with Result pattern and HTTP extensions | [📦 NuGet](https://www.nuget.org/packages/REslava.Result/1.9.0) |
+| **REslava.Result.SourceGenerators.Core** | 1.9.0 | Generator infrastructure and base classes | [📦 NuGet](https://www.nuget.org/packages/REslava.Result.SourceGenerators.Core/1.9.0) |
+| **REslava.Result.SourceGenerators** | 1.9.4 | SOLID architecture source generator | [📦 NuGet](https://www.nuget.org/packages/REslava.Result.SourceGenerators/1.9.4) |
+
+### 🎯 Quick Installation
+
+```bash
+# Install core library
+dotnet add package REslava.Result --version 1.9.0
+
+# Install source generator
+dotnet add package REslava.Result.SourceGenerators --version 1.9.4
+```
+
 ## 🔄 Migration
 
 ### 🎯 Zero Breaking Changes
