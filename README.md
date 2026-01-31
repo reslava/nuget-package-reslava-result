@@ -1,4 +1,4 @@
-# REslava.Result v1.9.6
+# REslava.Result v1.9.7
 
 <div align="center">
 
@@ -110,7 +110,7 @@
 
 ```bash
 dotnet add package REslava.Result --version 1.9.0
-dotnet add package REslava.Result.SourceGenerators --version 1.9.6
+dotnet add package REslava.Result.SourceGenerators --version 1.9.7
 ```
 
 ### 🚀 Enable Auto-Conversion
@@ -182,13 +182,13 @@ REslava.Result.SourceGenerators.1.9.4.nupkg/
 #### **🔄 Migration from Previous Versions**
 ```xml
 <!-- Old version -->
-<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.5" />
+<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.6" />
 
 <!-- New version -->
-<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.6" />
+<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.7" />
 ```
 
-**v1.9.6 is a drop-in replacement that fixes release process issues.**
+**v1.9.7 is a drop-in replacement that fixes versioning issues.**
 
 #### **📚 Learn More**
 - **[SOLID Architecture Documentation](docs/architecture/SOLID-ARCHITECTURE.md)** - Detailed technical explanation

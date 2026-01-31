@@ -110,9 +110,17 @@ jobs:
           echo "✅ All packages published successfully!"
 
       - name: Create GitHub Release
+        run: |
+          echo "🔍 Debug: github.ref_name = ${{ github.ref_name }}"
+          echo "🔍 Debug: github.ref = ${{ github.ref }}"
+          echo "🔍 Debug: Expected file = GITHUB_RELEASE_${{ github.ref_name }}.md"
+          ls -la GITHUB_RELEASE_*.md || echo "No release notes files found"
+        continue-on-error: true
+
+      - name: Create GitHub Release (with file)
         uses: softprops/action-gh-release@v2
         with:
-          # Try to use release notes file, fallback to dynamic content
+          # Try to use release notes file
           body_path: GITHUB_RELEASE_${{ github.ref_name }}.md
           draft: false
           prerelease: false
