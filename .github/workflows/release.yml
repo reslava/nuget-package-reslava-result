@@ -45,7 +45,18 @@ jobs:
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate \;
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release (with file)
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: docs/github/GITHUB_RELEASE_${{ github.ref_name }}.md
+          draft: false
+          prerelease: false
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release (Fallback)
+        if: failure()
         uses: softprops/action-gh-release@v2
         with:
           body: |
@@ -71,5 +82,7 @@ jobs:
             
             📖 [Documentation](https://github.com/reslava/nuget-package-reslava-result)
             🐛 [Issues](https://github.com/reslava/nuget-package-reslava-result/issues)
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

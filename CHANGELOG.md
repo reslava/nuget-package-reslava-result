@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.9.7](https://github.com/reslava/nuget-package-reslava-result/compare/v1.9.6...v1.9.7) (2026-01-31)
+
+### 🐛 **Bug Fixes**
+* **Versioning Fix** - Fixed hardcoded version in project file that was causing package version mismatches
+* **Release Notes** - Improved GitHub release notes handling and automated release creation
+* **CI/CD Pipeline** - Implemented simple, reliable CI/CD with version validation and testing
+
+### 🔧 Improvements
+* **Repository Organization** - Moved release files to organized documentation structure
+* **Release Automation** - Enhanced GitHub Actions workflow with proper dependency management
+* **Documentation** - Updated README and release notes for better user experience
+
+---
+
+## [1.9.6](https://github.com/reslava/nuget-package-reslava-result/compare/v1.9.5...v1.9.6) (2026-01-31)
+
+### 🐛 **Bug Fixes**
+* **Package Versioning** - Fixed version inconsistencies between Directory.Build.props and project files
+* **Release Process** - Improved release notes file handling and GitHub release creation
+
+---
+
+## [1.9.5](https://github.com/reslava/nuget-package-reslava-result/compare/v1.9.4...v1.9.5) (2026-01-31)
+
+### 🐛 **Bug Fixes**
+* **Dynamic Versioning** - Ensured all projects use dynamic versioning from Directory.Build.props
+* **Release Notes** - Fixed GitHub release notes file usage in automated releases
+
+---
+
 ## [1.9.4](https://github.com/reslava/nuget-package-reslava-result/compare/v1.9.3...v1.9.4) (2026-01-31)
 
 ### 🏗️ **SOLID Architecture Revolution**
