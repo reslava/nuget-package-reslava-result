@@ -21,18 +21,18 @@ jobs:
 
       - name: Restore dependencies
         run: |
-          dotnet restore src/Core/REslava.Result.csproj
+          dotnet restore src/REslava.Result.csproj
           dotnet restore SourceGenerator/REslava.Result.SourceGenerators.csproj
 
       - name: Build all frameworks
         run: |
-          dotnet build src/Core/REslava.Result.csproj --configuration Release --no-restore
+          dotnet build src/REslava.Result.csproj --configuration Release --no-restore
           dotnet build SourceGenerator/REslava.Result.SourceGenerators.csproj --configuration Release --no-restore
 
       - name: Build core library for .NET ${{ matrix.dotnet-version }}
         run: |
           echo "🔨 Packing REslava.Result for .NET ${{ matrix.dotnet-version }}"
-          dotnet pack src/Core/REslava.Result.csproj --configuration Release --no-build --output ./artifacts-${{ matrix.dotnet-version }} --include-symbols -p:GenerateDocumentationFile=true -p:TargetFramework=net${{ matrix.dotnet-version }}.x
+          dotnet pack src/REslava.Result.csproj --configuration Release --no-build --output ./artifacts-${{ matrix.dotnet-version }} --include-symbols -p:GenerateDocumentationFile=true -p:TargetFramework=net${{ matrix.dotnet-version }}.x
           echo "✅ Core package built for .NET ${{ matrix.dotnet-version }}"
 
       - name: Upload core artifacts
