@@ -21,18 +21,18 @@ jobs:
 
       - name: Restore dependencies
         run: |
-          dotnet restore src/REslava.Result.csproj
+          dotnet restore src/Core/REslava.Result.csproj
           dotnet restore SourceGenerator/REslava.Result.SourceGenerators.csproj
 
       - name: Build all frameworks
         run: |
-          dotnet build src/REslava.Result.csproj --configuration Release --no-restore
+          dotnet build src/Core/REslava.Result.csproj --configuration Release --no-restore
           dotnet build SourceGenerator/REslava.Result.SourceGenerators.csproj --configuration Release --no-restore
 
       - name: Build core library for .NET ${{ matrix.dotnet-version }}
         run: |
           echo "🔨 Packing REslava.Result for .NET ${{ matrix.dotnet-version }}"
-          dotnet pack src/REslava.Result.csproj --configuration Release --no-build --output ./artifacts-${{ matrix.dotnet-version }} --include-symbols -p:GenerateDocumentationFile=true -p:TargetFramework=net${{ matrix.dotnet-version }}.x
+          dotnet pack src/Core/REslava.Result.csproj --configuration Release --no-build --output ./artifacts-${{ matrix.dotnet-version }} --include-symbols -p:GenerateDocumentationFile=true -p:TargetFramework=net${{ matrix.dotnet-version }}.x
           echo "✅ Core package built for .NET ${{ matrix.dotnet-version }}"
 
       - name: Upload core artifacts
@@ -96,7 +96,7 @@ jobs:
 
       - name: Push to NuGet
         run: |
-          echo "📦 Publishing REslava.Result v1.7.3 to NuGet..."
+          echo "📦 Publishing REslava.Result v1.9.4 to NuGet..."
           
           # Publish core packages for all .NET versions
           find ./downloaded-artifacts -name "REslava.Result.*.nupkg" -exec dotnet nuget push {} --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate \;
@@ -112,85 +112,6 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          body: |
-            ## 🎉 REslava.Result v1.7.3 - Source Generator Release!
-            
-            ### 🚀 MAJOR BREAKTHROUGH: Production-Ready Source Generator
-            - **✅ Zero Boilerplate Code** - Automatic Result<T> to HTTP response conversion
-            - **✅ Generated Extension Methods** - `ToIResult()`, `ToPostResult()`, `ToPutResult()`, etc.
-            - **✅ Smart Error Classification** - Automatic HTTP status codes (400, 404, 422, etc.)
-            - **✅ Minimal API Support** - Perfect for .NET 10 Minimal APIs
-            - **✅ RFC 7807 Compliance** - Standardized ProblemDetails responses
-            - **✅ AOT Compatible** - Works with NativeAOT and trimming
-            - **✅ Zero Runtime Overhead** - Compile-time generation
-            
-            ### 🎯 What This Means for Developers
-            **Before (Manual):** 20+ lines of boilerplate per endpoint
-            **After (Source Generator):** 1-2 lines of clean, declarative code
-            
-            ### 📦 Dual Package Release
-            📦 [REslava.Result](https://www.nuget.org/packages/REslava.Result) - Core library with HTTP extensions
-            📦 [REslava.Result.SourceGenerators](https://www.nuget.org/packages/REslava.Result.SourceGenerators) - Source generator for zero boilerplate
-            
-            ### 🚀 Quick Start
-            ```bash
-            dotnet add package REslava.Result
-            dotnet add package REslava.Result.SourceGenerators
-            ```
-            
-            ### ✨ Magic Setup
-            ```csharp
-            // Add to Program.cs
-            using REslava.Result.SourceGenerators;
-            [assembly: GenerateResultExtensions]
-            
-            // Your endpoints become this simple:
-            app.MapGet("/api/products/{id}", async (int id, ProductService service) =>
-            {
-                return await service.GetProductAsync(id)
-                    .Map(p => new ProductDto(p))
-                    .ToIResult(); // 🎯 GENERATED: Auto HTTP response!
-            });
-            ```
-            
-            ### 🎯 Generated Extension Methods
-            | Method | HTTP Status | Use Case |
-            |--------|-------------|----------|
-            | `ToIResult()` | 200/400/404/500 | General operations |
-            | `ToPostResult()` | 201 Created | Resource creation |
-            | `ToPutResult()` | 200 OK | Resource updates |
-            | `ToDeleteResult()` | 200 OK | Resource deletion |
-            | `ToPatchResult()` | 200 OK | Partial updates |
-            
-            ### � Smart Error Classification
-            - "not found" → 404 Not Found
-            - "validation" → 422 Unprocessable Entity  
-            - "unauthorized" → 401 Unauthorized
-            - "forbidden" → 403 Forbidden
-            - "conflict" → 409 Conflict
-            - Default → 500 Internal Server Error
-            
-            ### 🌐 ASP.NET Integration Samples
-            🚀 **[Compare Pure .NET 10 vs REslava.Result](samples/ASP.NET/README.md)**
-            - **MinimalApi.Net10.Reference** - Pure .NET 10 implementation
-            - **MinimalApi.Net10.REslava.Result.v1.7.3** - Source generator magic
-            
-            ### 📚 Complete Documentation
-            - 📖 [Getting Started Guide](docs/guide/getting-started.md)
-            - 🚀 [Source Generator Guide](docs/guide/source-generator.md)
-            - 🌐 [ASP.NET Integration Samples](samples/ASP.NET/README.md)
-            
-            ### Framework Support
-            - ✅ .NET 8.0
-            - ✅ .NET 9.0  
-            - ✅ .NET 10.0
-            
-            ### 🎉 Real-World Impact
-            - **70-90% Code Reduction** in API endpoints
-            - **Zero Manual Error Handling** - Automatic HTTP responses
-            - **Type-Safe Development** - Compile-time error detection
-            - **Consistent APIs** - Standardized response format
-            
-            **This is the biggest leap forward in clean API development for .NET!** 🚀
+          body_path: GITHUB_RELEASE_v1.9.4.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
