@@ -1,18 +1,52 @@
-# REslava.Result v1.9.0
+# REslava.Result v1.9.4
 
 <div align="center">
 
 ![.NET](https://img.shields.io/badge/.NET-512BD4?logo=dotnet&logoColor=white)
 ![C#](https://img.shields.io/badge/C%23-239120?&logo=csharp&logoColor=white)
-![NuGet Version](https://img.shields.io/nuget/v/REslava.Result?style=flat&logo=nuget)
+![NuGet Version](https://img.shields.io/nuget/v/REslava.Result.SourceGenerators?style=flat&logo=nuget)
 ![License](https://img.shields.io/badge/license-MIT-green)
-[![GitHub contributors](https://img.shields.io/github/contributors/reslava/REslava.Result)](https://GitHub.com/reslava/REslava.Result/graphs/contributors/) 
-[![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
+[![GitHub contributors](https://img.shields.io/github/contributors/reslava/REslava.Result/graphs/contributors/) 
+[![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 
-**🚀 Production-Ready Result Pattern + Modular Core Library + Auto-Conversion for ASP.NET Core**
+**🚀 Production-Ready Result Pattern + SOLID Architecture + Auto-Conversion for ASP.NET Core**
 
 </div>
+
+---
+
+## 🚨 **Important Migration Notice**
+
+### **📢 For Users of v1.9.2 and v1.9.3**
+
+We apologize for issues in previous versions. **v1.9.4** includes a complete SOLID architecture refactoring that resolves:
+
+- ❌ **Duplicate attribute generation errors** (CS0101, CS0579)
+- ❌ **Package creation failures** (NU5017)  
+- ❌ **Compilation issues** in certain configurations
+
+**✅ v1.9.4 is a drop-in replacement with zero breaking changes.**
+
+👉 **See [Migration Notice](MIGRATION_NOTICE_v1.9.4.md)** for complete details.
+
+---
+
+## 🆕 What's New in v1.9.4
+
+### **🏗️ SOLID Architecture Revolution**
+- **🎯 Single Responsibility Principle** - Separate classes for attributes, code generation, orchestration
+- **🔧 Open/Closed Principle** - Interface-based design for extensibility
+- **🔄 Dependency Inversion** - Constructor injection with abstractions
+- **📦 Zero Duplicate Generation** - Permanent fix for CS0101 and CS0579 errors
+- **🚀 Clean Package Creation** - Resolved NU5017 packaging errors
+
+### **🔧 Technical Improvements**
+- **IAttributeGenerator Interface** - Dedicated attribute generation
+- **ICodeGenerator Interface** - Dedicated code generation  
+- **IOrchestrator Interface** - Pipeline coordination
+- **ResultToIResultOrchestrator** - Clean separation of concerns
+- **All HTTP Extensions Working** - GET, POST, PUT, DELETE, PATCH validated
 
 ---
 
@@ -72,9 +106,7 @@ using REslava.Result.SourceGenerators;
     Namespace = "Generated.ResultExtensions",
     IncludeErrorTags = true,
     GenerateHttpMethodExtensions = true,
-    DefaultErrorStatusCode = 400,
-    IncludeDetailedErrors = true,
-    GenerateAsyncMethods = true
+    DefaultErrorStatusCode = 400
 )]
 
 var builder = WebApplication.CreateBuilder(args);
@@ -83,6 +115,69 @@ var builder = WebApplication.CreateBuilder(args);
 
 ### 🎯 **Want to see it in action?**
 Check out our **[ASP.NET Integration Samples](samples/ASP.NET/README.md)** to compare pure .NET 10 vs REslava.Result implementations!
+
+---
+
+## 🏗️ SOLID Architecture (v1.9.4+)
+
+### **🎯 Revolutionary Generator Architecture**
+
+The v1.9.4 release introduces a **complete SOLID architecture refactoring** that eliminates duplicate generation issues and creates a maintainable, extensible codebase.
+
+#### **✅ SOLID Principles Implemented**
+
+| Principle | Implementation | Benefit |
+|-----------|----------------|--------|
+| **Single Responsibility** | Separate classes for attributes, code generation, orchestration | Zero duplicate generation |
+| **Open/Closed** | Interface-based design for extensibility | Easy to add new generators |
+| **Dependency Inversion** | Constructor injection with abstractions | Testable, maintainable code |
+| **Interface Segregation** | Focused interfaces for specific responsibilities | Clean, minimal contracts |
+
+#### **🔧 Architecture Components**
+
+| Component | Responsibility | Interface |
+|-----------|----------------|----------|
+| `GenerateResultExtensionsAttributeGenerator` | Generates `[GenerateResultExtensions]` attribute | `IAttributeGenerator` |
+| `MapToProblemDetailsAttributeGenerator` | Generates `[MapToProblemDetails]` attribute | `IAttributeGenerator` |
+| `ResultToIResultExtensionGenerator` | Generates HTTP extension methods | `ICodeGenerator` |
+| `ResultToIResultOrchestrator` | Coordinates generation pipeline | `IOrchestrator` |
+| `ResultToIResultRefactoredGenerator` | Main entry point | `IIncrementalGenerator` |
+
+#### **🚀 Key Benefits**
+
+- **🎯 Zero Duplicate Errors**: Eliminates CS0101 and CS0579 compilation errors
+- **⚡ Better Performance**: Faster compilation and smaller packages
+- **🔧 Maintainable Code**: Clear separation of concerns
+- **🚀 Extensible Design**: Easy to add new generators without modifying existing code
+- **🧪 Testable Components**: Each generator can be tested independently
+
+#### **📦 Package Structure**
+```
+REslava.Result.SourceGenerators.1.9.4.nupkg/
+├── analyzers/dotnet/cs/
+│   ├── REslava.Result.SourceGenerators.dll     # Main generator
+│   └── REslava.Result.SourceGenerators.Core.dll # Core infrastructure
+├── content/
+│   └── MapToProblemDetailsAttribute.cs              # Content file
+└── build/
+    └── REslava.Result.SourceGenerators.props        # Build integration
+```
+
+#### **🔄 Migration from Previous Versions**
+```xml
+<!-- Old version -->
+<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.3" />
+
+<!-- New version -->
+<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.4" />
+```
+
+**v1.9.4 is a drop-in replacement with zero breaking changes.**
+
+#### **📚 Learn More**
+- **[SOLID Architecture Documentation](docs/architecture/SOLID-ARCHITECTURE.md)** - Detailed technical explanation
+- **[Migration Guide](docs/migration/MIGRATION-GUIDE.md)** - Step-by-step migration instructions
+- **[Migration Notice](MIGRATION_NOTICE_v1.9.4.md)** - Professional communication about previous issues
 
 ---
 
@@ -158,49 +253,49 @@ public class MyGenerator : IncrementalGeneratorBase<MyGeneratorConfig>
 
 ---
 
-## 🔄 Migration Guide (v1.7.3 → v1.9.0)
+## 🔄 Migration Guide (v1.9.4 SOLID Architecture)
 
 ### **📦 Package Changes**
 
-#### **Before (v1.7.3):**
+#### **Before (v1.9.3 and earlier):**
 ```xml
-<ProjectReference Include="REslava.Result.SourceGenerators.csproj" />
+<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.3" />
 ```
 
-#### **After (v1.9.0):**
+#### **After (v1.9.4):**
 ```xml
-<!-- Core library infrastructure -->
-<ProjectReference Include="SourceGenerator/Core/REslava.Result.SourceGenerators.Core.csproj" 
-                 ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-
-<!-- Refactored generator -->
-<ProjectReference Include="SourceGenerator/Generators/ResultToIResult/ResultToIResultGenerator.csproj" 
-                 ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-<ProjectReference Include="SourceGenerator/Generators/ResultToIResult/ResultToIResultGenerator.csproj" 
-                 ReferenceOutputAssembly="true" />
+<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.4" />
 ```
 
-### **⚙️ Enhanced Configuration**
+**v1.9.4 is a drop-in replacement with zero breaking changes.**
 
-#### **Before (v1.7.3):**
-```csharp
-[assembly: GenerateResultExtensions]
-```
+### **⚙️ Architecture Improvements**
 
-#### **After (v1.9.0):**
+#### **Before (v1.9.3):**
+- Multiple generator classes with same name
+- Duplicate attribute generation (CS0101, CS0579)
+- Mixed responsibilities in single classes
+- Package creation failures (NU5017)
+
+#### **After (v1.9.4):**
+- SOLID principles implemented
+- Zero duplicate generation
+- Clean package creation
+- Extensible interface-based design
+
+### **🧪 Configuration (Simplified)**
+
+#### **v1.9.4 Recommended Configuration:**
 ```csharp
 [assembly: GenerateResultExtensions(
     Namespace = "Generated.ResultExtensions",
     IncludeErrorTags = true,
     GenerateHttpMethodExtensions = true,
-    DefaultErrorStatusCode = 400,
-    IncludeDetailedErrors = true,
-    GenerateAsyncMethods = true,
-    CustomErrorMappings = new[] { "CustomError:418", "SpecialCase:429" }
+    DefaultErrorStatusCode = 400
 )]
 ```
 
-### **🧪 Testing Improvements**
+**All previous configuration options are still supported, but simplified for better usability.**
 
 - **✅ 32 tests** with 100% success rate
 - **🧪 Unit tests** for individual Core library components

@@ -1,0 +1,503 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>REslava.Result.SourceGenerators.Core</name>
+    </assembly>
+    <members>
+        <member name="T:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder">
+            <summary>
+            Fluent builder for generating C# source code with proper indentation and formatting.
+            Wraps StringBuilder with helper methods for common code generation patterns.
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.IndentLevel">
+            <summary>
+            Gets the current indentation level (0-based).
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.Indent">
+            <summary>
+            Increases the indentation level.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.Unindent">
+            <summary>
+            Decreases the indentation level.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.AppendLine(System.String)">
+            <summary>
+            Appends a line of code with proper indentation.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.Append(System.String)">
+            <summary>
+            Appends text without a newline (respects current indentation if at line start).
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.OpenBrace(System.String)">
+            <summary>
+            Appends an opening brace and increases indentation.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.CloseBrace(System.String)">
+            <summary>
+            Decreases indentation and appends a closing brace.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.BlankLine">
+            <summary>
+            Appends a blank line.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.AppendFileHeader(System.String,System.String[])">
+            <summary>
+            Appends a file header comment block.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.AppendUsings(System.String[])">
+            <summary>
+            Appends using directives.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.AppendNamespace(System.String)">
+            <summary>
+            Appends a namespace declaration and opens the brace.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.CloseNamespace">
+            <summary>
+            Closes the namespace (unindents and closes brace).
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.AppendXmlSummary(System.String)">
+            <summary>
+            Appends an XML documentation comment (summary).
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.AppendXmlParam(System.String,System.String)">
+            <summary>
+            Appends an XML documentation comment (param).
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.AppendXmlReturns(System.String)">
+            <summary>
+            Appends an XML documentation comment (returns).
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.AppendClassDeclaration(System.String,System.String[])">
+            <summary>
+            Appends a class declaration and opens the brace.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.AppendMethodDeclaration(System.String,System.String,System.String,System.String,System.String[])">
+            <summary>
+            Appends a method declaration and opens the brace.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.AppendProperty(System.String,System.String,System.String,System.String[])">
+            <summary>
+            Appends a property declaration.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.WithIndent(System.Action{REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder})">
+            <summary>
+            Executes an action at the current indentation level.
+            Useful for nested code generation.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.ToString">
+            <summary>
+            Returns the generated code as a string.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.CodeGeneration.CodeBuilder.Clear">
+            <summary>
+            Clears all content from the builder.
+            </summary>
+        </member>
+        <member name="T:REslava.Result.SourceGenerators.Core.Configuration.GeneratorConfigurationBase">
+            <summary>
+            Base configuration class for source generators.
+            Inherit from this to add generator-specific configuration properties.
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.Core.Configuration.GeneratorConfigurationBase.Namespace">
+            <inheritdoc />
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.Core.Configuration.GeneratorConfigurationBase.IncludeDiagnostics">
+            <inheritdoc />
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.Core.Configuration.GeneratorConfigurationBase.IncludeDocumentation">
+            <inheritdoc />
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Configuration.GeneratorConfigurationBase.Clone">
+            <summary>
+            Creates a copy of this configuration.
+            Override this in derived classes to include additional properties.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Configuration.GeneratorConfigurationBase.Validate">
+            <summary>
+            Validates the configuration.
+            Override this to add custom validation logic.
+            </summary>
+            <returns>True if configuration is valid, false otherwise.</returns>
+        </member>
+        <member name="T:REslava.Result.SourceGenerators.Core.Configuration.IGeneratorConfiguration">
+            <summary>
+            Base interface for all generator configurations.
+            Provides common properties that all generators should support.
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.Core.Configuration.IGeneratorConfiguration.Namespace">
+            <summary>
+            The namespace for generated code.
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.Core.Configuration.IGeneratorConfiguration.IncludeDiagnostics">
+            <summary>
+            Whether to include detailed diagnostic comments in generated code.
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.Core.Configuration.IGeneratorConfiguration.IncludeDocumentation">
+            <summary>
+            Whether to include XML documentation comments in generated code.
+            </summary>
+        </member>
+        <member name="T:REslava.Result.SourceGenerators.Core.Infrastructure.AttributeParser">
+            <summary>
+            Utility for parsing configuration from attributes.
+            Provides type-safe extraction of attribute arguments.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Infrastructure.AttributeParser.GetStringValue(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,Microsoft.CodeAnalysis.TypedConstant}},System.String,System.String)">
+            <summary>
+            Safely gets a string value from attribute arguments.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Infrastructure.AttributeParser.GetBoolValue(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,Microsoft.CodeAnalysis.TypedConstant}},System.String,System.Boolean)">
+            <summary>
+            Safely gets a boolean value from attribute arguments.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Infrastructure.AttributeParser.GetIntValue(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,Microsoft.CodeAnalysis.TypedConstant}},System.String,System.Int32)">
+            <summary>
+            Safely gets an integer value from attribute arguments.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Infrastructure.AttributeParser.GetStringArrayValue(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,Microsoft.CodeAnalysis.TypedConstant}},System.String)">
+            <summary>
+            Safely gets a string array value from attribute arguments.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Infrastructure.AttributeParser.GetAllNamedArguments(Microsoft.CodeAnalysis.AttributeData)">
+            <summary>
+            Gets all named arguments from an attribute as a dictionary.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Infrastructure.AttributeParser.HasNamedArgument(Microsoft.CodeAnalysis.AttributeData,System.String)">
+            <summary>
+            Checks if an attribute has a specific named argument.
+            </summary>
+        </member>
+        <member name="T:REslava.Result.SourceGenerators.Core.Infrastructure.IncrementalGeneratorBase`1">
+            <summary>
+            Base class for incremental source generators with configuration support.
+            Provides common infrastructure for attribute discovery, configuration parsing,
+            and code generation orchestration.
+            </summary>
+            <typeparam name="TConfig">The configuration type for this generator.</typeparam>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.Core.Infrastructure.IncrementalGeneratorBase`1.AttributeFullName">
+            <summary>
+            The fully qualified name of the attribute that enables this generator.
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.Core.Infrastructure.IncrementalGeneratorBase`1.AttributeShortName">
+            <summary>
+            The short name of the attribute (without namespace).
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.Core.Infrastructure.IncrementalGeneratorBase`1.GeneratedFileName">
+            <summary>
+            The name of the generated file (without extension).
+            </summary>
+        </member>
+        <member name="P:REslava.Result.SourceGenerators.Core.Infrastructure.IncrementalGeneratorBase`1.AttributeSourceCode">
+            <summary>
+            The source code for the attribute to be embedded in consuming projects.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Infrastructure.IncrementalGeneratorBase`1.Initialize(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Infrastructure.IncrementalGeneratorBase`1.ParseConfiguration(Microsoft.CodeAnalysis.AttributeData)">
+            <summary>
+            Parses the configuration from the attribute data.
+            Override this to parse generator-specific configuration properties.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Infrastructure.IncrementalGeneratorBase`1.ParseAdditionalConfiguration(Microsoft.CodeAnalysis.AttributeData,`0)">
+            <summary>
+            Override this to parse additional configuration properties specific to your generator.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Infrastructure.IncrementalGeneratorBase`1.GenerateCode(Microsoft.CodeAnalysis.Compilation,`0)">
+            <summary>
+            Generates the source code for this generator.
+            This is the main code generation method that derived classes must implement.
+            </summary>
+            <param name="compilation">The compilation context.</param>
+            <param name="config">The parsed configuration.</param>
+            <returns>The generated source code.</returns>
+        </member>
+        <member name="T:REslava.Result.SourceGenerators.Core.Utilities.DiagnosticUtilities">
+            <summary>
+            Utilities for creating and reporting diagnostics in source generators.
+            Provides predefined diagnostic descriptors and helper methods.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.DiagnosticUtilities.CreateError(System.String,System.String,System.String,System.String)">
+            <summary>
+            Creates a diagnostic descriptor for a general error.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.DiagnosticUtilities.CreateWarning(System.String,System.String,System.String,System.String)">
+            <summary>
+            Creates a diagnostic descriptor for a warning.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.DiagnosticUtilities.CreateInfo(System.String,System.String,System.String,System.String)">
+            <summary>
+            Creates a diagnostic descriptor for informational messages.
+            </summary>
+        </member>
+        <member name="F:REslava.Result.SourceGenerators.Core.Utilities.DiagnosticUtilities.ConfigurationError">
+            <summary>
+            Configuration validation failed.
+            </summary>
+        </member>
+        <member name="F:REslava.Result.SourceGenerators.Core.Utilities.DiagnosticUtilities.CodeGenerationError">
+            <summary>
+            Code generation failed.
+            </summary>
+        </member>
+        <member name="F:REslava.Result.SourceGenerators.Core.Utilities.DiagnosticUtilities.AttributeNotFound">
+            <summary>
+            Attribute not found.
+            </summary>
+        </member>
+        <member name="F:REslava.Result.SourceGenerators.Core.Utilities.DiagnosticUtilities.InvalidAttributeUsage">
+            <summary>
+            Invalid attribute usage.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.DiagnosticUtilities.Report(Microsoft.CodeAnalysis.SourceProductionContext,Microsoft.CodeAnalysis.DiagnosticDescriptor,Microsoft.CodeAnalysis.Location,System.Object[])">
+            <summary>
+            Helper method to report a diagnostic.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.DiagnosticUtilities.ReportConfigurationError(Microsoft.CodeAnalysis.SourceProductionContext,System.String,Microsoft.CodeAnalysis.Location)">
+            <summary>
+            Reports a configuration error.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.DiagnosticUtilities.ReportCodeGenerationError(Microsoft.CodeAnalysis.SourceProductionContext,System.String,Microsoft.CodeAnalysis.Location)">
+            <summary>
+            Reports a code generation error.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.DiagnosticUtilities.ReportInvalidAttributeUsage(Microsoft.CodeAnalysis.SourceProductionContext,System.String,Microsoft.CodeAnalysis.Location)">
+            <summary>
+            Reports an invalid attribute usage error.
+            </summary>
+        </member>
+        <member name="T:REslava.Result.SourceGenerators.Core.Utilities.HttpStatusCodeMapper">
+            <summary>
+            Maps error types and messages to appropriate HTTP status codes.
+            Provides convention-based and configurable mapping strategies.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.HttpStatusCodeMapper.AddMapping(System.String,System.Int32)">
+            <summary>
+            Adds a custom mapping from error type name to HTTP status code.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.HttpStatusCodeMapper.AddMappings(System.String[])">
+            <summary>
+            Adds multiple custom mappings from a string array.
+            Format: "ErrorTypeName:StatusCode"
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.HttpStatusCodeMapper.DetermineStatusCode(System.String)">
+            <summary>
+            Determines the HTTP status code for a given error type name.
+            Priority: Custom mappings > Convention-based > Default
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.HttpStatusCodeMapper.DetermineStatusCodeFromMessage(System.String)">
+            <summary>
+            Determines the HTTP status code from an error message.
+            Uses pattern matching on common error message phrases.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.HttpStatusCodeMapper.GetStatusText(System.Int32)">
+            <summary>
+            Gets the HTTP status text for a given status code.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.HttpStatusCodeMapper.GetCustomMappings">
+            <summary>
+            Gets all configured custom mappings.
+            </summary>
+        </member>
+        <member name="T:REslava.Result.SourceGenerators.Core.Utilities.StringUtilities">
+            <summary>
+            String utilities for code generation.
+            Provides helpers for common string operations in generators.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.StringUtilities.ToPascalCase(System.String)">
+            <summary>
+            Converts a string to PascalCase.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.StringUtilities.ToCamelCase(System.String)">
+            <summary>
+            Converts a string to camelCase.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.StringUtilities.ToSnakeCase(System.String)">
+            <summary>
+            Converts PascalCase or camelCase to snake_case.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.StringUtilities.Pluralize(System.String)">
+            <summary>
+            Pluralizes a word (simple English rules).
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.StringUtilities.Singularize(System.String)">
+            <summary>
+            Singularizes a word (simple English rules).
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.StringUtilities.EscapeForCSharp(System.String)">
+            <summary>
+            Escapes a string for use in C# code (adds quotes and escapes special characters).
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.StringUtilities.Indent(System.String,System.Int32)">
+            <summary>
+            Indents each line of a multiline string.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.StringUtilities.Truncate(System.String,System.Int32,System.String)">
+            <summary>
+            Truncates a string to a maximum length and adds ellipsis if truncated.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.StringUtilities.IsVowel(System.Char)">
+            <summary>
+            Checks if a character is a vowel.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.StringUtilities.NamespaceToPath(System.String)">
+            <summary>
+            Converts a namespace string to a valid directory path.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.StringUtilities.ToValidIdentifier(System.String)">
+            <summary>
+            Generates a valid C# identifier from a string (removes invalid characters).
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.StringUtilities.JoinNonEmpty(System.String,System.String[])">
+            <summary>
+            Joins strings with a separator, skipping null or empty values.
+            </summary>
+        </member>
+        <member name="T:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities">
+            <summary>
+            Utilities for working with Roslyn ISymbol objects.
+            Provides helper methods for common symbol operations.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.ImplementsInterface(Microsoft.CodeAnalysis.ITypeSymbol,System.String)">
+            <summary>
+            Checks if a type symbol implements the specified interface.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.InheritsFrom(Microsoft.CodeAnalysis.ITypeSymbol,System.String)">
+            <summary>
+            Checks if a type symbol inherits from the specified base class.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.GetAttributes(Microsoft.CodeAnalysis.ISymbol)">
+            <summary>
+            Gets all attributes applied to a symbol.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.GetAttributesOfType(Microsoft.CodeAnalysis.ISymbol,System.String)">
+            <summary>
+            Gets attributes of a specific type applied to a symbol.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.HasAttribute(Microsoft.CodeAnalysis.ISymbol,System.String)">
+            <summary>
+            Checks if a symbol has an attribute of the specified type.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.GetNamespace(Microsoft.CodeAnalysis.ISymbol)">
+            <summary>
+            Gets the namespace of a symbol as a string.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.GetPublicInstanceMethods(Microsoft.CodeAnalysis.ITypeSymbol)">
+            <summary>
+            Gets all public instance methods of a type.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.GetPublicProperties(Microsoft.CodeAnalysis.ITypeSymbol)">
+            <summary>
+            Gets all public properties of a type.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.IsClass(Microsoft.CodeAnalysis.ITypeSymbol)">
+            <summary>
+            Checks if a type is a class (not interface, struct, etc.).
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.IsInterface(Microsoft.CodeAnalysis.ITypeSymbol)">
+            <summary>
+            Checks if a type is an interface.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.IsAbstract(Microsoft.CodeAnalysis.ITypeSymbol)">
+            <summary>
+            Checks if a type is abstract.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.GetFullName(Microsoft.CodeAnalysis.ISymbol)">
+            <summary>
+            Gets the full name with namespace of a symbol.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.GetSimpleName(Microsoft.CodeAnalysis.ISymbol)">
+            <summary>
+            Gets the simple name without namespace of a symbol.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.FindTypeByFullName(Microsoft.CodeAnalysis.Compilation,System.String)">
+            <summary>
+            Finds a type by its full name in the compilation.
+            </summary>
+        </member>
+        <member name="M:REslava.Result.SourceGenerators.Core.Utilities.SymbolUtilities.GetAllTypes(Microsoft.CodeAnalysis.Compilation,System.Func{Microsoft.CodeAnalysis.INamedTypeSymbol,System.Boolean})">
+            <summary>
+            Gets all types in a compilation that match a predicate.
+            </summary>
+        </member>
+    </members>
+</doc>

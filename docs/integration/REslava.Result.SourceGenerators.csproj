@@ -1,0 +1,82 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    
+    <!-- NuGet Package Configuration -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>REslava.Result.SourceGenerators</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>REslava</Authors>
+    <Company>REslava</Company>
+    <Product>REslava.Result.SourceGenerators</Product>
+    <Description>Source generators for REslava.Result library. Automatically generates extension methods to convert Result types to ASP.NET Core IResult with proper HTTP status codes and ProblemDetails.</Description>
+    <Copyright>Copyright © REslava 2025</Copyright>
+    <PackageProjectUrl>https://github.com/reslava/nuget-package-reslava-result</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>source-generator;result;minimal-api;aspnetcore;iresult;code-generation</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    
+    <!-- Source Link -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <!-- Documentation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    
+    <!-- CRITICAL: Source Generator Configuration -->
+    <!-- This tells NuGet this is a development-only dependency -->
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <!-- Don't include this package in the dependencies of packages that depend on this -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <!-- Suppress dependency on .NET Standard 2.0 -->
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+  </PropertyGroup>
+
+  <!-- Include README in package -->
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <!-- Package Dependencies -->
+  <!-- CRITICAL: Core package is needed at compile time for the generator -->
+  <ItemGroup>
+    <PackageReference Include="REslava.Result.SourceGenerators.Core" Version="1.0.0" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.1" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <!-- CRITICAL: Package this as a Source Generator -->
+  <!-- This puts the DLL in the analyzers folder so Roslyn can load it -->
+  <ItemGroup>
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    
+    <!-- CRITICAL: Include Core package DLL in the analyzer path -->
+    <!-- This embeds the Core infrastructure so it's available at generation time -->
+    <None Include="$(PkgREslava_Result_SourceGenerators_Core)\lib\netstandard2.0\REslava.Result.SourceGenerators.Core.dll" 
+          Pack="true" 
+          PackagePath="analyzers/dotnet/cs" 
+          Visible="false" />
+  </ItemGroup>
+
+  <!-- Optional: Create build props file for better IDE experience -->
+  <ItemGroup>
+    <None Include="build\REslava.Result.SourceGenerators.props" Pack="true" PackagePath="build" />
+    <None Include="buildTransitive\REslava.Result.SourceGenerators.props" Pack="true" PackagePath="buildTransitive" />
+  </ItemGroup>
+
+</Project>

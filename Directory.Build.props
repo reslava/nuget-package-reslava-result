@@ -2,7 +2,7 @@
   <PropertyGroup>    
     <!-- Package Version Management -->
     <CorePackageVersion>1.9.0</CorePackageVersion>
-    <GeneratorPackageVersion>1.9.0</GeneratorPackageVersion>
+    <GeneratorPackageVersion>1.9.4</GeneratorPackageVersion>
     
     <!-- Language Features -->
     <LangVersion>latest</LangVersion>

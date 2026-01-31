@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>TestProject</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Main Result library - REQUIRED -->
+    <PackageReference Include="REslava.Result" Version="1.0.0" />
+    
+    <!-- Source Generator - OPTIONAL, only if you want code generation -->
+    <!-- CRITICAL: This must be marked with specific attributes -->
+    <PackageReference Include="REslava.Result.SourceGenerators" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    
+    <!-- DO NOT reference Core package directly - it's embedded in SourceGenerators -->
+  </ItemGroup>
+
+</Project>

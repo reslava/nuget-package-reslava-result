@@ -1,0 +1,138 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    
+    <!-- NuGet Package Configuration -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>REslava.Result.SourceGenerators</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>REslava</Authors>
+    <Company>REslava</Company>
+    <Product>REslava.Result.SourceGenerators</Product>
+    <Description>Source generators for REslava.Result library. Automatically generates extension methods to convert Result types to ASP.NET Core IResult with proper HTTP status codes and ProblemDetails.</Description>
+    <Copyright>Copyright © REslava 2025</Copyright>
+    <PackageProjectUrl>https://github.com/reslava/nuget-package-reslava-result</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>source-generator;result;minimal-api;aspnetcore;iresult;code-generation</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    
+    <!-- Source Link -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <!-- Documentation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    
+    <!-- ============================================ -->
+    <!-- CRITICAL: FIX FOR NU5017 ERROR              -->
+    <!-- ============================================ -->
+    
+    <!-- 1. This is an ANALYZER package ONLY, not a library -->
+    <DevelopmentDependency>true</DevelopmentDependency>
+    
+    <!-- 2. DO NOT include build output in lib/ folder -->
+    <!--    This prevents the "Dependency" package type -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    
+    <!-- 3. Suppress all dependencies from appearing in the package -->
+    <!--    This ensures it's ONLY an analyzer package -->
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    
+    <!-- 4. Don't include any references in the package -->
+    <IncludeContentInPack>false</IncludeContentInPack>
+    
+    <!-- 5. This is NOT a reference assembly -->
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+  </PropertyGroup>
+
+  <!-- Include README in package -->
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <!-- Roslyn Dependencies -->
+  <!-- CRITICAL: ALL must be PrivateAssets=all to avoid NU5017 -->
+  <ItemGroup>
+    <!-- Core package - embedded, not exposed -->
+    <PackageReference Include="REslava.Result.SourceGenerators.Core" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <GeneratePathProperty>true</GeneratePathProperty>
+    </PackageReference>
+    
+    <!-- Roslyn packages - private -->
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.1">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- ============================================ -->
+  <!-- CRITICAL: ANALYZER PACKAGING                -->
+  <!-- This is what makes it an ANALYZER package   -->
+  <!-- ============================================ -->
+  <ItemGroup>
+    <!-- Include THIS generator DLL in analyzers folder -->
+    <None Include="$(OutputPath)\$(AssemblyName).dll" 
+          Pack="true" 
+          PackagePath="analyzers/dotnet/cs" 
+          Visible="false" />
+    
+    <!-- Include Core DLL in analyzers folder (dependency) -->
+    <None Include="$(PkgREslava_Result_SourceGenerators_Core)\lib\netstandard2.0\REslava.Result.SourceGenerators.Core.dll" 
+          Pack="true" 
+          PackagePath="analyzers/dotnet/cs" 
+          Visible="false" />
+  </ItemGroup>
+
+  <!-- Build props for IDE support -->
+  <ItemGroup>
+    <None Include="build\REslava.Result.SourceGenerators.props" 
+          Pack="true" 
+          PackagePath="build" 
+          Condition="Exists('build\REslava.Result.SourceGenerators.props')" />
+    <None Include="build\REslava.Result.SourceGenerators.props" 
+          Pack="true" 
+          PackagePath="buildTransitive" 
+          Condition="Exists('build\REslava.Result.SourceGenerators.props')" />
+  </ItemGroup>
+
+  <!-- ============================================ -->
+  <!-- VERIFICATION TARGET (OPTIONAL)              -->
+  <!-- Helps debug packaging issues                -->
+  <!-- ============================================ -->
+  <Target Name="DisplayPackageContents" AfterTargets="Pack">
+    <Message Importance="high" Text="========================================" />
+    <Message Importance="high" Text="Package Contents Verification" />
+    <Message Importance="high" Text="========================================" />
+    <Message Importance="high" Text="IncludeBuildOutput: $(IncludeBuildOutput)" />
+    <Message Importance="high" Text="SuppressDependenciesWhenPacking: $(SuppressDependenciesWhenPacking)" />
+    <Message Importance="high" Text="DevelopmentDependency: $(DevelopmentDependency)" />
+    <Message Importance="high" Text="Core Package Path: $(PkgREslava_Result_SourceGenerators_Core)" />
+    <Message Importance="high" Text="========================================" />
+    <Message Importance="high" Text="Package should contain ONLY:" />
+    <Message Importance="high" Text="  - analyzers/dotnet/cs/*.dll" />
+    <Message Importance="high" Text="  - build/*.props" />
+    <Message Importance="high" Text="  - buildTransitive/*.props" />
+    <Message Importance="high" Text="  - README.md" />
+    <Message Importance="high" Text="NO lib/ folder should exist!" />
+    <Message Importance="high" Text="========================================" />
+  </Target>
+
+</Project>

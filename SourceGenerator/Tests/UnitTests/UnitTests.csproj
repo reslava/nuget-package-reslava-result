@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\REslava.Result.SourceGenerators.Core.csproj" />
-    <ProjectReference Include="..\..\Generators\ResultToIResult\ResultToIResultGenerator.csproj" />
+    <ProjectReference Include="..\..\REslava.Result.SourceGenerators.csproj" />
     <ProjectReference Include="..\..\..\..\src\REslava.Result.csproj" />
   </ItemGroup>
 
