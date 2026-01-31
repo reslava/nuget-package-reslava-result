@@ -1,0 +1,49 @@
+name: Simple Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build Solution
+        run: dotnet build --configuration Release
+
+      - name: Run Unit Tests
+        run: dotnet test --configuration Release --no-build
+
+      - name: Test Source Generator
+        run: |
+          echo "🧪 Testing source generator..."
+          cd SourceGenerator/Tests/Development/MinimalApi.Net10.REslava.Result.v1.9.0.Test
+          dotnet build --configuration Release
+          
+          # Start server and test endpoints
+          dotnet run --urls http://localhost:5000 > /dev/null 2>&1 &
+          sleep 5
+          
+          # Test GET endpoint
+          curl -f http://localhost:5000/api/test/get/123 || exit 1
+          
+          # Test POST endpoint  
+          curl -f -X POST http://localhost:5000/api/test/post \
+            -H "Content-Type: application/json" \
+            -d '{"name":"test","price":10}' || exit 1
+          
+          # Test DELETE endpoint
+          curl -f -X DELETE http://localhost:5000/api/test/delete/123 || exit 1
+          
+          echo "✅ All extension methods working"
