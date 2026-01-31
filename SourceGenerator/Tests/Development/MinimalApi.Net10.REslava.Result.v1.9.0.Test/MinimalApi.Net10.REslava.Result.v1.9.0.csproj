@@ -9,15 +9,15 @@
 
   <ItemGroup>
     <!-- Reference the Core library -->
-    <ProjectReference Include="../../../SourceGenerator/Core/REslava.Result.SourceGenerators.Core.csproj" 
+    <ProjectReference Include="../../../../SourceGenerator/Core/REslava.Result.SourceGenerators.Core.csproj" 
                      ReferenceOutputAssembly="false" 
                      OutputItemType="Analyzer" />
     <!-- Reference the main generator project as analyzer -->
-    <ProjectReference Include="../../../SourceGenerator/REslava.Result.SourceGenerators.csproj" 
+    <ProjectReference Include="../../../../SourceGenerator/REslava.Result.SourceGenerators.csproj" 
                      ReferenceOutputAssembly="false" 
                      OutputItemType="Analyzer" />
     <!-- Reference the core package -->
-    <ProjectReference Include="../../../src/REslava.Result.csproj" />
+    <ProjectReference Include="../../../../src/REslava.Result.csproj" />
   </ItemGroup>
 
   <ItemGroup>
