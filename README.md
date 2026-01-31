@@ -1,4 +1,4 @@
-# REslava.Result v1.9.5
+# REslava.Result v1.9.6
 
 <div align="center">
 
@@ -16,31 +16,31 @@
 
 ---
 
-## 🚨 **Important Hotfix Notice**
+## 🚨 **Important Release Process Fix**
 
-### **📢 For Users of v1.9.4**
+### **📢 For Users of v1.9.5**
 
-**v1.9.5** contains a **critical hotfix** that resolves extension method generation issues:
+**v1.9.6** contains a **release process fix** that resolves packaging issues:
 
-- ❌ **Extension methods not generated** - `ToIResult()`, `ToPostResult()`, `ToPutResult()`, `ToDeleteResult()`, `ToPatchResult()` were missing
-- ❌ **DELETE endpoint failures** - HTTP 405 Method Not Allowed errors
-- ❌ **Compilation errors** - CS1061 errors for missing extension methods
+- ❌ **Wrong package versions** - v1.9.5 published with incorrect version numbers
+- ❌ **Release pipeline failures** - GitHub Actions had hardcoded versions
+- ❌ **Missing error handling** - Release process lacked proper fallbacks
 
-**✅ v1.9.5 is a drop-in replacement that fixes all issues above.**
+**✅ v1.9.6 contains all the fixes from v1.9.5 with proper packaging.**
 
-👉 **Update to v1.9.5 immediately if you experienced issues with v1.9.4.**
+👉 **Update to v1.9.6 if you experienced issues with v1.9.5.**
 
 ---
 
-## 🆕 What's New in v1.9.5
+## 🆕 What's New in v1.9.6
 
-### **� Critical Hotfix**
-- **🐛 Fixed Extension Method Generation** - All HTTP method extensions now working correctly
-- **🔧 SOLID Architecture Generator** - Fixed `ResultToIResultExtensionGenerator.GenerateCode()` method
-- **🚀 Dynamic Code Generation** - Replaced hardcoded string template with StringBuilder
-- **✅ All HTTP Methods Working** - GET, POST, PUT, DELETE, PATCH validated and tested
+### **🔧 Release Process Fix**
+- **🐛 Fixed Package Versioning** - All packages now have correct versions
+- **🔧 Dynamic Version Handling** - GitHub Actions uses tag-based versions
+- **🚀 Error Fallbacks** - Release creation continues even if release notes missing
+- **✅ Proper Validation** - Enhanced error handling and validation steps
 
-### **🎯 What's Fixed**
+### **🎯 What's Included (from v1.9.5)**
 - **`ToIResult<T>()`** - GET requests ✅
 - **`ToPostResult<T>()`** - POST requests ✅  
 - **`ToPutResult<T>()`** - PUT requests ✅
@@ -110,7 +110,7 @@
 
 ```bash
 dotnet add package REslava.Result --version 1.9.0
-dotnet add package REslava.Result.SourceGenerators --version 1.9.5
+dotnet add package REslava.Result.SourceGenerators --version 1.9.6
 ```
 
 ### 🚀 Enable Auto-Conversion
@@ -182,13 +182,13 @@ REslava.Result.SourceGenerators.1.9.4.nupkg/
 #### **🔄 Migration from Previous Versions**
 ```xml
 <!-- Old version -->
-<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.4" />
+<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.5" />
 
 <!-- New version -->
-<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.5" />
+<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.6" />
 ```
 
-**v1.9.5 is a drop-in replacement that fixes extension method generation issues.**
+**v1.9.6 is a drop-in replacement that fixes release process issues.**
 
 #### **📚 Learn More**
 - **[SOLID Architecture Documentation](docs/architecture/SOLID-ARCHITECTURE.md)** - Detailed technical explanation

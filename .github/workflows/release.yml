@@ -96,7 +96,7 @@ jobs:
 
       - name: Push to NuGet
         run: |
-          echo "📦 Publishing REslava.Result v1.9.4 to NuGet..."
+          echo "📦 Publishing REslava.Result ${{ github.ref_name }} to NuGet..."
           
           # Publish core packages for all .NET versions
           find ./downloaded-artifacts -name "REslava.Result.*.nupkg" -exec dotnet nuget push {} --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate \;
@@ -110,6 +110,18 @@ jobs:
           echo "✅ All packages published successfully!"
 
       - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          # Try to use release notes file, fallback to dynamic content
+          body_path: GITHUB_RELEASE_${{ github.ref_name }}.md
+          draft: false
+          prerelease: false
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release (Fallback)
+        if: failure()
         uses: softprops/action-gh-release@v2
         with:
           body: |
