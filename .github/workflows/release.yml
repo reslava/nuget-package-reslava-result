@@ -109,22 +109,34 @@ jobs:
           
           echo "✅ All packages published successfully!"
 
-      - name: Validate Release Notes
-        run: |
-          # Validate release notes file exists
-          RELEASE_NOTES_FILE="GITHUB_RELEASE_${{ github.ref_name }}.md"
-          if [ ! -f "$RELEASE_NOTES_FILE" ]; then
-            echo "❌ ERROR: Release notes file $RELEASE_NOTES_FILE not found!"
-            echo "Available release notes files:"
-            ls -la GITHUB_RELEASE_*.md || echo "No GITHUB_RELEASE_*.md files found"
-            exit 1
-          fi
-          echo "✅ Release notes file found: $RELEASE_NOTES_FILE"
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          body_path: GITHUB_RELEASE_${{ github.ref_name }}.md
+          body: |
+            # 🚀 REslava.Result.SourceGenerators ${{ github.ref_name }}
+            
+            ## 📦 Package Information
+            - **Core Library**: [REslava.Result v1.9.0](https://www.nuget.org/packages/REslava.Result/1.9.0)
+            - **Source Generator**: [REslava.Result.SourceGenerators ${{ github.ref_name }}](https://www.nuget.org/packages/REslava.Result.SourceGenerators/${{ github.ref_name }})
+            
+            ## 🚀 Installation
+            
+            ```xml
+            <PackageReference Include="REslava.Result" Version="1.9.0" />
+            <PackageReference Include="REslava.Result.SourceGenerators" Version="${{ github.ref_name }}" />
+            ```
+            
+            ## ✅ What's Included
+            
+            - SOLID architecture source generator
+            - HTTP method extensions: ToIResult, ToPostResult, ToPutResult, ToDeleteResult, ToPatchResult
+            - Support for .NET 8.0, 9.0, 10.0
+            - Comprehensive error handling
+            
+            ---
+            
+            📖 [Documentation](https://github.com/reslava/nuget-package-reslava-result)
+            🐛 [Issues](https://github.com/reslava/nuget-package-reslava-result/issues)
           draft: false
           prerelease: false
         env:
