@@ -1,4 +1,4 @@
-# REslava.Result v1.9.4
+# REslava.Result v1.9.5
 
 <div align="center">
 
@@ -16,23 +16,40 @@
 
 ---
 
-## 🚨 **Important Migration Notice**
+## 🚨 **Important Hotfix Notice**
 
-### **📢 For Users of v1.9.2 and v1.9.3**
+### **📢 For Users of v1.9.4**
 
-We apologize for issues in previous versions. **v1.9.4** includes a complete SOLID architecture refactoring that resolves:
+**v1.9.5** contains a **critical hotfix** that resolves extension method generation issues:
 
-- ❌ **Duplicate attribute generation errors** (CS0101, CS0579)
-- ❌ **Package creation failures** (NU5017)  
-- ❌ **Compilation issues** in certain configurations
+- ❌ **Extension methods not generated** - `ToIResult()`, `ToPostResult()`, `ToPutResult()`, `ToDeleteResult()`, `ToPatchResult()` were missing
+- ❌ **DELETE endpoint failures** - HTTP 405 Method Not Allowed errors
+- ❌ **Compilation errors** - CS1061 errors for missing extension methods
 
-**✅ v1.9.4 is a drop-in replacement with zero breaking changes.**
+**✅ v1.9.5 is a drop-in replacement that fixes all issues above.**
 
-👉 **See [Migration Notice](MIGRATION_NOTICE_v1.9.4.md)** for complete details.
+👉 **Update to v1.9.5 immediately if you experienced issues with v1.9.4.**
 
 ---
 
-## 🆕 What's New in v1.9.4
+## 🆕 What's New in v1.9.5
+
+### **� Critical Hotfix**
+- **🐛 Fixed Extension Method Generation** - All HTTP method extensions now working correctly
+- **🔧 SOLID Architecture Generator** - Fixed `ResultToIResultExtensionGenerator.GenerateCode()` method
+- **🚀 Dynamic Code Generation** - Replaced hardcoded string template with StringBuilder
+- **✅ All HTTP Methods Working** - GET, POST, PUT, DELETE, PATCH validated and tested
+
+### **🎯 What's Fixed**
+- **`ToIResult<T>()`** - GET requests ✅
+- **`ToPostResult<T>()`** - POST requests ✅  
+- **`ToPutResult<T>()`** - PUT requests ✅
+- **`ToDeleteResult<T>()`** - DELETE requests ✅
+- **`ToPatchResult<T>()`** - PATCH requests ✅
+
+---
+
+## �️ What's New in v1.9.4
 
 ### **🏗️ SOLID Architecture Revolution**
 - **🎯 Single Responsibility Principle** - Separate classes for attributes, code generation, orchestration
@@ -92,9 +109,8 @@ We apologize for issues in previous versions. **v1.9.4** includes a complete SOL
 ### 📦 Installation
 
 ```bash
-dotnet add package REslava.Result
-dotnet add package REslava.Result.SourceGenerators.Core
-dotnet add package REslava.Result.SourceGenerators.Generators.ResultToIResult
+dotnet add package REslava.Result --version 1.9.0
+dotnet add package REslava.Result.SourceGenerators --version 1.9.5
 ```
 
 ### 🚀 Enable Auto-Conversion
@@ -166,13 +182,13 @@ REslava.Result.SourceGenerators.1.9.4.nupkg/
 #### **🔄 Migration from Previous Versions**
 ```xml
 <!-- Old version -->
-<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.3" />
+<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.4" />
 
 <!-- New version -->
-<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.4" />
+<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.5" />
 ```
 
-**v1.9.4 is a drop-in replacement with zero breaking changes.**
+**v1.9.5 is a drop-in replacement that fixes extension method generation issues.**
 
 #### **📚 Learn More**
 - **[SOLID Architecture Documentation](docs/architecture/SOLID-ARCHITECTURE.md)** - Detailed technical explanation
@@ -257,17 +273,17 @@ public class MyGenerator : IncrementalGeneratorBase<MyGeneratorConfig>
 
 ### **📦 Package Changes**
 
-#### **Before (v1.9.3 and earlier):**
-```xml
-<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.3" />
-```
-
-#### **After (v1.9.4):**
+#### **Before (v1.9.4 and earlier):**
 ```xml
 <PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.4" />
 ```
 
-**v1.9.4 is a drop-in replacement with zero breaking changes.**
+#### **After (v1.9.5):**
+```xml
+<PackageReference Include="REslava.Result.SourceGenerators" Version="1.9.5" />
+```
+
+**v1.9.5 is a drop-in replacement that fixes extension method generation issues.**
 
 ### **⚙️ Architecture Improvements**
 
