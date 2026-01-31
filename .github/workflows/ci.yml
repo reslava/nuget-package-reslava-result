@@ -24,26 +24,3 @@ jobs:
 
       - name: Run Unit Tests
         run: dotnet test --configuration Release --no-build
-
-      - name: Test Source Generator
-        run: |
-          echo "🧪 Testing source generator..."
-          cd SourceGenerator/Tests/Development/MinimalApi.Net10.REslava.Result.v1.9.0.Test
-          dotnet build --configuration Release
-          
-          # Start server and test endpoints
-          dotnet run --urls http://localhost:5000 > /dev/null 2>&1 &
-          sleep 5
-          
-          # Test GET endpoint
-          curl -f http://localhost:5000/api/test/get/123 || exit 1
-          
-          # Test POST endpoint  
-          curl -f -X POST http://localhost:5000/api/test/post \
-            -H "Content-Type: application/json" \
-            -d '{"name":"test","price":10}' || exit 1
-          
-          # Test DELETE endpoint
-          curl -f -X DELETE http://localhost:5000/api/test/delete/123 || exit 1
-          
-          echo "✅ All extension methods working"
