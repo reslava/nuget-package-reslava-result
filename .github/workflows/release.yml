@@ -109,9 +109,23 @@ jobs:
           
           echo "✅ All packages published successfully!"
 
+      - name: Validate Release Notes
+        run: |
+          # Validate release notes file exists
+          RELEASE_NOTES_FILE="GITHUB_RELEASE_${{ github.ref_name }}.md"
+          if [ ! -f "$RELEASE_NOTES_FILE" ]; then
+            echo "❌ ERROR: Release notes file $RELEASE_NOTES_FILE not found!"
+            echo "Available release notes files:"
+            ls -la GITHUB_RELEASE_*.md || echo "No GITHUB_RELEASE_*.md files found"
+            exit 1
+          fi
+          echo "✅ Release notes file found: $RELEASE_NOTES_FILE"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          body_path: GITHUB_RELEASE_v1.9.4.md
+          body_path: GITHUB_RELEASE_${{ github.ref_name }}.md
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
