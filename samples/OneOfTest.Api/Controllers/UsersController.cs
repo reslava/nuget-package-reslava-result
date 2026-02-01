@@ -93,6 +93,62 @@ public class UsersController : ControllerBase
         // - User → 200 OK with user data
         return CreateUser(request).ToIResult();
     }
+
+    /// <summary>
+    /// Tests T1,T2,T3 OneOf implementation.
+    /// Returns OneOf of ValidationError, NotFoundError, and User.
+    /// </summary>
+    [HttpPut("{id}")]
+    public OneOf<ValidationError, UserNotFoundError, User> UpdateUser(int id, [FromBody] CreateUserRequest request)
+    {
+        // Validate input
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return new ValidationError("Name", "Name is required");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Email) || !request.Email.Contains("@"))
+        {
+            return new UserNotFoundError(id);
+        }
+
+        // Find user
+        var user = _users.FirstOrDefault(u => u.Id == id);
+        if (user == null)
+        {
+            return new UserNotFoundError(id);
+        }
+
+        // Update user
+        user.Name = request.Name;
+        user.Email = request.Email;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        return user;
+    }
+
+    /// <summary>
+    /// Demonstrates the magic: T1,T2,T3 OneOf → IResult conversion
+    /// This method uses the generated ToIResult() extension method
+    /// </summary>
+    [HttpPut("{id}/result")]
+    public IResult UpdateUserAsResult(int id, [FromBody] CreateUserRequest request)
+    {
+        // This will be automatically converted to HTTP response:
+        // - ValidationError → 400 Bad Request
+        // - UserNotFoundError → 404 Not Found
+        // - User → 200 OK with updated user data
+        // TODO: Uncomment after T1,T2,T3 extension method is generated
+        // return UpdateUser(id, request).ToIResult();
+        
+        // Temporary workaround
+        var result = UpdateUser(id, request);
+        return result.Match(
+            validationError => Results.BadRequest(validationError.Message),
+            notFoundError => Results.NotFound(notFoundError.Message),
+            user => Results.Ok(user)
+        );
+    }
 }
 
 /// <summary>

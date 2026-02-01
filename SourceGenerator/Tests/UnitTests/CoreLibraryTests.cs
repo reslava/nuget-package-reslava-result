@@ -19,10 +19,18 @@ public class CoreLibraryTests
         Assert.IsTrue(true, "Core library test infrastructure is working");
     }
 
-    // TODO: Add tests for:
-    // - HttpStatusCodeMapper (when we can reference it without circular dependencies)
-    // - CodeBuilder utilities
-    // - Type helpers
+    // TODO: PHASE2 - Add comprehensive core library tests
+// PURPOSE: Expand test coverage for core library components
+// CONTEXT: Currently only testing basic infrastructure
+// NEXT-PHASE: Add tests for HttpStatusCodeMapper, CodeBuilder, Type helpers
+// DEPENDS: Resolve circular dependency issues
+// ASSIGNED: Test Team
+// DUE: Phase 2 Development
+// Add tests for:
+// - HttpStatusCodeMapper (when we can reference it without circular dependencies)
+// - CodeBuilder utilities
+// - Type helpers
+// END-TODO
     // - OneOf utilities
     // - Result utilities
 

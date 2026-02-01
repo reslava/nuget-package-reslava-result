@@ -46,10 +46,10 @@ public class OneOfTypeAnalyzer : IOneOfTypeAnalyzer
 
         var typeArguments = OneOfTypeHelper.ExtractTypeArguments(oneOfTypeSymbol);
         
-        // For Phase 1, we'll focus on simple OneOf<T1, T2>
-        if (typeArguments.Count != 2)
+        // Support 2 and 3 type arguments for Phase 3
+        if (typeArguments.Count < 2 || typeArguments.Count > 3)
         {
-            // TODO: In Phase 2, support more complex OneOf types
+            // Only support T1,T2 and T1,T2,T3 for now
             return null;
         }
 
@@ -104,7 +104,6 @@ public class OneOfTypeAnalyzer : IOneOfTypeAnalyzer
             // If any type argument is a generic parameter (like T0, T1), skip it
             if (typeArg.TypeKind == TypeKind.TypeParameter)
             {
-                System.Diagnostics.Debug.WriteLine($"Type argument {typeArg.Name} is a generic parameter, skipping.");
                 return false;
             }
         }
@@ -135,12 +134,19 @@ public class OneOfTypeAnalyzer : IOneOfTypeAnalyzer
 
         var typeArguments = OneOfTypeHelper.ExtractTypeArguments(oneOfTypeSymbol);
         
-        // Phase 1: Only process simple OneOf<T1, T2>
-        if (typeArguments.Count != 2)
+        // Phase 1: Process OneOf<T1, T2> and OneOf<T1, T2, T3>
+        if (typeArguments.Count < 2 || typeArguments.Count > 3)
             return false;
 
-        // TODO: Add more validation in Phase 2
-        return true;
+        // TODO: PHASE2 - Add comprehensive OneOf type validation
+// PURPOSE: Implement advanced validation rules for OneOf types
+// CONTEXT: Currently only basic type argument count validation
+// NEXT-PHASE: Add type compatibility, namespace, and accessibility checks
+// DEPENDS: Complete T1,T2,T3 testing
+// ASSIGNED: Feature Team
+// DUE: Phase 2 Development
+return true;
+// END-TODO
     }
 
     /// <summary>

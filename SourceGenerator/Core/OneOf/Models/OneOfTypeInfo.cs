@@ -33,6 +33,11 @@ public class OneOfTypeInfo
     public bool IsSimpleTwoType => TypeArguments.Count == 2;
 
     /// <summary>
+    /// Gets whether this is a OneOf of three types.
+    /// </summary>
+    public bool IsThreeType => TypeArguments.Count == 3;
+
+    /// <summary>
     /// Gets a string representation for debugging.
     /// </summary>
     public override string ToString()

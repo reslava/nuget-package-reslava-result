@@ -30,59 +30,18 @@ public class OneOfToIResultOrchestrator : IOneOfToIResultOrchestrator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // Debug: Add a simple debug file to see if generator is running
-        context.RegisterPostInitializationOutput(ctx =>
-        {
-            ctx.AddSource("OneOfDebug.g.cs", SourceText.From("// OneOf Generator is running!", Encoding.UTF8));
-        });
-
         // Step 1: Register code generation pipeline
         // Following exact same pattern as ResultToIResultOrchestrator
         var pipeline = context.CompilationProvider.Select((compilation, _) => compilation);
 
         context.RegisterSourceOutput(pipeline, (spc, compilation) =>
         {
-            // Debug: Show compilation info
-            spc.AddSource("OneOfDebugCompilation.g.cs", 
-                SourceText.From($"// OneOf Generator processing: {compilation.AssemblyName}", Encoding.UTF8));
-
             // Find OneOf types and generate extension methods
             var oneOfTypes = _typeAnalyzer.FindOneOfTypes(compilation);
             
-            // Debug: Show what types we found
-            var typeNames = oneOfTypes.Select(t => t.ToDisplayString());
-            var debugInfo = $"Found {oneOfTypes.Count()} OneOf types: {string.Join(", ", typeNames)}";
-            
-            // Debug: Also show all method return types we found
-            var debugMethods = new List<string>();
-            var namespaceVisitor = new NamespaceTypeVisitor();
-            namespaceVisitor.VisitNamespace(compilation.GlobalNamespace);
-            
-            foreach (var typeSymbol in namespaceVisitor.Types)
-            {
-                foreach (var methodSymbol in typeSymbol.GetMembers().OfType<IMethodSymbol>())
-                {
-                    if (methodSymbol.ReturnType is INamedTypeSymbol returnType && 
-                        returnType.Name.StartsWith("OneOf"))
-                    {
-                        debugMethods.Add($"{methodSymbol.Name} -> {returnType.ToDisplayString()}");
-                    }
-                }
-            }
-            
-            var methodDebugInfo = $"Methods with OneOf returns: {string.Join("; ", debugMethods)}";
-            
             var generatedFiles = OrchestrateGeneration(compilation, new OneOfToIResultConfig());
-
-            // Debug: Show how many files we're generating and their names
-            var fileNames = generatedFiles.Select(f => f.HintName);
-            var fileDebugInfo = $"Generated files: {string.Join(", ", fileNames)}";
             
-            // Debug: Show how many files we're generating
-            spc.AddSource("OneOfDebugCount.g.cs",
-                SourceText.From($"// OneOf Generator: {debugInfo}. {methodDebugInfo}. {fileDebugInfo}. Generated {generatedFiles.Count()} files.", Encoding.UTF8));
-            
-            // Add each generated file with path logging
+            // Add each generated file
             foreach (var file in generatedFiles)
             {
                 spc.AddSource(file.HintName, SourceText.From(file.Content, Encoding.UTF8));
