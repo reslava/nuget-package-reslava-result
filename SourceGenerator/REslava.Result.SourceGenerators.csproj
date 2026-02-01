@@ -5,7 +5,8 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <IsRoslynComponent>true</IsRoslynComponent>
+    <!-- Enable Roslyn Component debugging only in Debug configuration -->
+    <IsRoslynComponent Condition="'$(Configuration)' == 'Debug'">true</IsRoslynComponent>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     
     <!-- NuGet Package Configuration -->
@@ -76,6 +77,8 @@
   <!-- Explicit compile items - use refactored structure only -->
   <ItemGroup>
     <Compile Include="MapToProblemDetailsAttribute.cs" />
+    
+    <!-- ResultToIResult Generator -->
     <Compile Include="Generators\ResultToIResult\ResultToIResultConfig.cs" />
     <Compile Include="Generators\ResultToIResult\Interfaces\IAttributeGenerator.cs" />
     <Compile Include="Generators\ResultToIResult\Interfaces\ICodeGenerator.cs" />
@@ -85,6 +88,24 @@
     <Compile Include="Generators\ResultToIResult\CodeGeneration\ResultToIResultExtensionGenerator.cs" />
     <Compile Include="Generators\ResultToIResult\Orchestration\ResultToIResultOrchestrator.cs" />
     <Compile Include="Generators\ResultToIResult\ResultToIResultRefactoredGenerator.cs" />
+    
+    <!-- OneOfToIResult Generator -->
+    <Compile Include="Generators\OneOfToIResult\OneOfToIResultConfig.cs" />
+    <Compile Include="Generators\OneOfToIResult\OneOfToIResultRefactoredGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\TestGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\Orchestration\OneOfToIResultOrchestrator.cs" />
+    <Compile Include="Generators\OneOfToIResult\Orchestration\Interfaces\IOneOfToIResultOrchestrator.cs" />
+    <Compile Include="Generators\OneOfToIResult\TypeAnalysis\OneOfTypeAnalyzer.cs" />
+    <Compile Include="Generators\OneOfToIResult\TypeAnalysis\Interfaces\IOneOfTypeAnalyzer.cs" />
+    <Compile Include="Generators\OneOfToIResult\CodeGeneration\OneOfExtensionGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\CodeGeneration\Interfaces\IOneOfCodeGenerator.cs" />
+    
+    <!-- Core OneOf Models and Utilities -->
+    <Compile Include="Core\OneOf\Models\OneOfTypeInfo.cs" />
+    <Compile Include="Core\OneOf\Models\OneOfMappingResult.cs" />
+    <Compile Include="Core\OneOf\Models\OneOfGenerationContext.cs" />
+    <Compile Include="Core\OneOf\Utilities\OneOfHttpStatusCodeMapper.cs" />
+    <Compile Include="Core\OneOf\Utilities\OneOfTypeHelper.cs" />
   </ItemGroup>
 
 </Project>

@@ -94,3 +94,13 @@ Desktop.ini
 
 ###################
 docs/integration/
+docs/internal/
+
+###################
+
+# Generated Files (DO NOT PUSH)
+
+###################
+*.g.cs
+GeneratedFiles/
+**/GeneratedFiles/
