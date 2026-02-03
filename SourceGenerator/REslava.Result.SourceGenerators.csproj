@@ -78,34 +78,39 @@
   <ItemGroup>
     <Compile Include="MapToProblemDetailsAttribute.cs" />
     
+    <!-- Core Shared Interfaces -->
+    <Compile Include="Core\Interfaces\IAttributeGenerator.cs" />
+    <Compile Include="Core\Interfaces\ICodeGenerator.cs" />
+    <Compile Include="Core\Interfaces\IGeneratorOrchestrator.cs" />
+    
     <!-- ResultToIResult Generator -->
-    <Compile Include="Generators\ResultToIResult\ResultToIResultConfig.cs" />
-    <Compile Include="Generators\ResultToIResult\Interfaces\IAttributeGenerator.cs" />
-    <Compile Include="Generators\ResultToIResult\Interfaces\ICodeGenerator.cs" />
-    <Compile Include="Generators\ResultToIResult\Interfaces\IOrchestrator.cs" />
     <Compile Include="Generators\ResultToIResult\Attributes\GenerateResultExtensionsAttributeGenerator.cs" />
     <Compile Include="Generators\ResultToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
     <Compile Include="Generators\ResultToIResult\CodeGeneration\ResultToIResultExtensionGenerator.cs" />
     <Compile Include="Generators\ResultToIResult\Orchestration\ResultToIResultOrchestrator.cs" />
     <Compile Include="Generators\ResultToIResult\ResultToIResultRefactoredGenerator.cs" />
     
-    <!-- OneOfToIResult Generator -->
-    <Compile Include="Generators\OneOfToIResult\OneOfToIResultConfig.cs" />
-    <Compile Include="Generators\OneOfToIResult\OneOfToIResultRefactoredGenerator.cs" />
-    <Compile Include="Generators\OneOfToIResult\TestGenerator.cs" />
-    <Compile Include="Generators\OneOfToIResult\Orchestration\OneOfToIResultOrchestrator.cs" />
-    <Compile Include="Generators\OneOfToIResult\Orchestration\Interfaces\IOneOfToIResultOrchestrator.cs" />
-    <Compile Include="Generators\OneOfToIResult\TypeAnalysis\OneOfTypeAnalyzer.cs" />
-    <Compile Include="Generators\OneOfToIResult\TypeAnalysis\Interfaces\IOneOfTypeAnalyzer.cs" />
-    <Compile Include="Generators\OneOfToIResult\CodeGeneration\OneOfExtensionGenerator.cs" />
-    <Compile Include="Generators\OneOfToIResult\CodeGeneration\Interfaces\IOneOfCodeGenerator.cs" />
+    <!-- OneOf2ToIResult Generator - Fresh Implementation -->
+    <Compile Include="Generators\OneOf2ToIResult\OneOf2ToIResultGenerator.cs" />
+    <Compile Include="Generators\OneOf2ToIResult\Orchestration\OneOf2ToIResultOrchestrator.cs" />
+    <Compile Include="Generators\OneOf2ToIResult\Attributes\GenerateOneOf2ExtensionsAttributeGenerator.cs" />
+    <Compile Include="Generators\OneOf2ToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
+    
+    <!-- OneOf3ToIResult Generator - Following OneOf2 Pattern -->
+    <Compile Include="Generators\OneOf3ToIResult\OneOf3ToIResultGenerator.cs" />
+    <Compile Include="Generators\OneOf3ToIResult\Orchestration\OneOf3ToIResultOrchestrator.cs" />
+    <Compile Include="Generators\OneOf3ToIResult\Attributes\GenerateOneOf3ExtensionsAttributeGenerator.cs" />
+    <Compile Include="Generators\OneOf3ToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
+    <Compile Include="Generators\OneOf3ToIResult\CodeGeneration\OneOf3ToIResultExtensionGenerator.cs" />
+    <Compile Include="Generators\OneOf2ToIResult\CodeGeneration\OneOf2ToIResultExtensionGenerator.cs" />
     
     <!-- Core OneOf Models and Utilities -->
-    <Compile Include="Core\OneOf\Models\OneOfTypeInfo.cs" />
-    <Compile Include="Core\OneOf\Models\OneOfMappingResult.cs" />
-    <Compile Include="Core\OneOf\Models\OneOfGenerationContext.cs" />
-    <Compile Include="Core\OneOf\Utilities\OneOfHttpStatusCodeMapper.cs" />
-    <Compile Include="Core\OneOf\Utilities\OneOfTypeHelper.cs" />
+    <!-- TODO: Delete these files if confirmed unnecessary - moved to docs\archive -->
+    <!-- <Compile Include="Core\OneOf\Models\OneOfTypeInfo.cs" /> -->
+    <!-- <Compile Include="Core\OneOf\Models\OneOfMappingResult.cs" /> -->
+    <!-- <Compile Include="Core\OneOf\Models\OneOfGenerationContext.cs" /> -->
+    <!-- <Compile Include="Core\OneOf\Utilities\OneOfHttpStatusCodeMapper.cs" /> -->
+    <!-- <Compile Include="Core\OneOf\Utilities\OneOfTypeHelper.cs" /> -->
   </ItemGroup>
 
 </Project>
