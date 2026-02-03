@@ -23,8 +23,10 @@ jobs:
           echo "🔍 Checking version consistency..."
           gen_version=$(grep -oP '(?<=<GeneratorPackageVersion>)[^<]+' Directory.Build.props)
           tag_version="${{ github.ref_name }}"
+          # Remove 'v' prefix from tag version for comparison
+          tag_version_clean="${tag_version#v}"
           
-          if [[ "$gen_version" == "$tag_version" ]]; then
+          if [[ "$gen_version" == "$tag_version_clean" ]]; then
             echo "✅ Version $tag_version matches Directory.Build.props"
           else
             echo "❌ Version mismatch: Directory.Build.props=$gen_version, tag=$tag_version"
