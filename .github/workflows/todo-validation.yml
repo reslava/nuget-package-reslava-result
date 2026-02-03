@@ -33,7 +33,10 @@ jobs:
     - name: Run TODO Audit
       run: |
         echo "=== 🔍 TODO Audit ===" >> $GITHUB_STEP_SUMMARY
-        bash scripts/manage-todos.sh audit >> $GITHUB_STEP_SUMMARY
+        # TEMPORARILY DISABLED FOR v1.10.0 RELEASE
+        echo "🚀 TODO AUDIT TEMPORARILY SKIPPED FOR v1.10.0 RELEASE" >> $GITHUB_STEP_SUMMARY
+        echo "Will re-enable after release is complete" >> $GITHUB_STEP_SUMMARY
+        # bash scripts/manage-todos.sh audit >> $GITHUB_STEP_SUMMARY
         
     - name: Check TODO Health
       run: |

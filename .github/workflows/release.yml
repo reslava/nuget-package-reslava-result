@@ -35,7 +35,10 @@ jobs:
 
       - name: Build and Pack
         run: |
-          echo "🏗️ Building packages..."
+          echo "🏗️ Building solution..."
+          dotnet build --configuration Release
+          
+          echo "📦 Packing packages..."
           dotnet pack --configuration Release --output ./packages
 
       - name: Publish to NuGet
