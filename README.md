@@ -22,17 +22,17 @@
 ## 🎯 What's New in v1.10.0
 
 ### 🚀 OneOfToIResult Extensions (BREAKTHROUGH!)
-**External OneOf Library Integration**
+**REslava.Result Internal OneOf Integration**
 ```csharp
-using OneOf;
+using REslava.Result.AdvancedPatterns.OneOf;
 using Generated.OneOfExtensions;
 
 // T1,T2 Support
-public OneOf<NotFoundError, User> GetUser(int id) { /* logic */ }
+public OneOf<UserNotFoundError, User> GetUser(int id) { /* logic */ }
 return GetUser(id).ToIResult(); // 404 or 200
 
 // T1,T2,T3 Support  
-public OneOf<ValidationError, NotFoundError, User> CreateUser(CreateUserRequest request) { /* logic */ }
+public OneOf<ValidationError, UserNotFoundError, User> CreateUser(CreateUserRequest request) { /* logic */ }
 return CreateUser(request).ToIResult(); // 400, 404, or 201
 ```
 
@@ -68,7 +68,7 @@ var builder = WebApplication.CreateBuilder(args);
 // ... rest of your setup
 
 // 🆕 v1.10.0: OneOf extensions work automatically with smart auto-detection!
-// No additional setup required for external OneOf library
+// No additional setup required for REslava.Result internal OneOf
 ```
 
 ### ✨ Magic Happens
@@ -439,10 +439,10 @@ return result.Match(
 // Conversion to Result for chaining
 var userResult = result.ToResult(); // Convert OneOf to Result
 
-// External OneOf library support (v1.10.0)
-using OneOf;
-OneOf<ValidationError, User> externalResult = ValidateUser(request);
-return externalResult.ToIResult(); // Auto-converts to HTTP response!
+// REslava.Result internal OneOf support (v1.10.0)
+using REslava.Result.AdvancedPatterns.OneOf;
+OneOf<ValidationError, User> internalResult = ValidateUser(request);
+return internalResult.ToIResult(); // Auto-converts to HTTP response!
 ```
 
 ### ✅ Validation Framework
@@ -641,7 +641,7 @@ graph TB
     D --> E[Generated Extensions]
     E --> F[ASP.NET Core IResult]
     
-    G[External OneOf Library] --> H[OneOf2ToIResult Generator]
+    G[REslava.Result OneOf] --> H[OneOf2ToIResult Generator]
     G --> I[OneOf3ToIResult Generator]
     H --> F
     I --> F
@@ -649,9 +649,9 @@ graph TB
 
 ### 🚀 Smart Auto-Detection (v1.10.0)
 **Zero Configuration Required**
-- **Setup Detection**: Automatically detects your OneOf library setup
+- **Setup Detection**: Automatically detects your REslava.Result OneOf setup
 - **Conflict Prevention**: Generators only run when appropriate types are found
-- **Perfect Coexistence**: Multiple OneOf libraries work together
+- **Perfect Coexistence**: OneOf generators work seamlessly together
 - **Zero Compilation Errors**: Clean developer experience guaranteed
 
 ---
@@ -1049,10 +1049,10 @@ public class UsersController : ControllerBase
 
 ### Scenario 3: OneOf Extensions (NEW!)
 ```csharp
-using OneOf;
+using REslava.Result.AdvancedPatterns.OneOf;
 using Generated.OneOfExtensions;
 
-// External OneOf with automatic mapping
+// REslava.Result internal OneOf with automatic mapping
 public OneOf<ValidationError, NotFoundError, User> GetUser(int id)
 {
     if (id <= 0) 
