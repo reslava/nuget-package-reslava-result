@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.10.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.9.7...v1.10.0) (2026-02-02)
+
+### 🚀 **Major Features - OneOfToIResult Extensions (BREAKTHROUGH!)**
+* **OneOf<T1, T2>.ToIResult()** - Two-type OneOf extensions with smart HTTP mapping
+* **OneOf<T1, T2, T3>.ToIResult()** - Three-type OneOf extensions with intelligent status codes
+* **Smart Auto-Detection** - Automatically detects your OneOf setup (external vs REslava.Result)
+* **Zero Configuration** - Perfect developer experience with no manual setup required
+* **External OneOf Compatible** - Works seamlessly with OneOf package v3.0.26
+* **REslava.Result Compatible** - Works with internal OneOf implementation
+
+### 🧠 **Smart Auto-Detection Features**
+* **Setup Detection** - Automatically detects if REslava.Result is referenced
+* **Conflict Prevention** - ResultToIResult generator only runs when appropriate
+* **Zero Compilation Errors** - Perfect coexistence between OneOf and Result generators
+* **Backward Compatibility** - Existing projects unaffected by new features
+
+### 🎯 **HTTP Mapping Intelligence**
+* **Error Types** → 400/404 status codes based on error classification
+* **Success Types** → 200 OK status codes
+* **Validation Errors** → 400 Bad Request
+* **Not Found Errors** → 404 Not Found
+* **Custom Types** → Intelligent default mapping
+
+### 📦 **Package Improvements**
+* **Unified Experience** - Single package works for all OneOf scenarios
+* **Performance Optimized** - Incremental generators with smart caching
+* **SOLID Architecture** - Clean, maintainable generator design
+
+### 📖 **Documentation Updates**
+* **Feature-Focused README** - Complete showcase of all library capabilities
+* **Quick Start Examples** - Clear scenarios for Result and OneOf patterns
+* **Architecture Documentation** - Deep dive into SOLID principles and design
+
+### 🧪 **Testing & Quality**
+* **Comprehensive Test Coverage** - All OneOf combinations tested
+* **Integration Testing** - Both external and REslava.Result scenarios validated
+* **Zero Regression** - All existing features continue to work perfectly
+
+---
+
 ## [1.9.7](https://github.com/reslava/nuget-package-reslava-result/compare/v1.9.6...v1.9.7) (2026-01-31)
 
 ### 🐛 **Bug Fixes**

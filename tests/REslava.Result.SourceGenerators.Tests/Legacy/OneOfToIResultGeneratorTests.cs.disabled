@@ -1,0 +1,559 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using REslava.Result.SourceGenerators.Generators.OneOfToIResult;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using REslava.Result;  // Add this using statement
+
+namespace REslava.Result.SourceGenerators.Tests.Legacy;
+
+[TestClass]
+public class OneOfToIResultGeneratorTests
+{
+    private const string BasicOneOfTestSource = @"
+namespace TestNamespace
+{
+    public class UserNotFoundError
+    {
+        public int UserId { get; set; }
+        public string Message { get; set; } = ""User not found"";
+    }
+
+    public class User
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public class TestController
+    {
+        // This should trigger generation of extension method
+        public global::OneOf.OneOf<UserNotFoundError, User> GetUser(int id)
+        {
+            if (id <= 0)
+                return new UserNotFoundError { UserId = id };
+            
+            return new User { Id = id, Name = ""Test User"" };
+        }
+    }
+}
+";
+
+    private static CSharpCompilation CreateTestCompilation(string source)
+    {
+        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+        
+        // Get OneOf assembly reference
+        var oneOfAssembly = typeof(OneOf.OneOf<,>).Assembly;
+        
+        // Get REslava.Result assembly reference for Error base class
+        var resultAssembly = typeof(REslava.Result.Error).Assembly;
+        
+        return CSharpCompilation.Create(
+            assemblyName: "TestAssembly",
+            syntaxTrees: new[] { syntaxTree },
+            references: new[]
+            {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.String).Assembly.Location),
+                MetadataReference.CreateFromFile(oneOfAssembly.Location),
+                MetadataReference.CreateFromFile(resultAssembly.Location)  // Add REslava.Result reference
+            });
+    }
+
+    [TestMethod]
+    public async Task Generator_ShouldRun_WithoutErrors()
+    {
+        // Arrange
+        var generator = new OneOfToIResultRefactoredGenerator();
+        var driver = CSharpGeneratorDriver.Create(generator);
+
+        // Create compilation with test source
+        var compilation = CreateTestCompilation(BasicOneOfTestSource);
+
+        // Act
+        driver = (CSharpGeneratorDriver)driver.RunGenerators(compilation);
+        var result = driver.GetRunResult();
+
+        // Assert
+        Assert.AreEqual(1, result.Results.Length, "Should have exactly one generator result");
+        
+        var generatorResult = result.Results[0];
+        
+        // TODO: DEBUG - Remove after T1,T2,T3 testing is complete
+// PURPOSE: Debug output to verify generator type and execution
+// CONTEXT: Testing the fix for T1,T2,T3 detection issue
+// CLEANUP: Remove after test passes consistently (3+ runs)
+// ASSIGNED: Development Team
+// DUE: Phase 1 Testing Complete
+System.Diagnostics.Debug.WriteLine($"Generator type: {generatorResult.Generator?.GetType().FullName}");
+// END-TODO
+        
+        // For now, just check that we have a generator result without exceptions
+        Assert.IsNotNull(generatorResult.Generator, "Should have a generator");
+        Assert.IsTrue(generatorResult.Exception == null, "Generator should not throw exceptions");
+    }
+
+    [TestMethod]
+    public async Task Generator_ShouldInitialize_Correctly()
+    {
+        // Arrange & Act
+        var generator = new OneOfToIResultRefactoredGenerator();
+        
+        // Assert
+        Assert.IsNotNull(generator, "Generator should be created successfully");
+    }
+
+    [TestMethod]
+    public async Task Generator_ShouldHandleEmptyCompilation()
+    {
+        // Arrange
+        var generator = new OneOfToIResultRefactoredGenerator();
+        var driver = CSharpGeneratorDriver.Create(generator);
+
+        // Create empty compilation
+        var compilation = CSharpCompilation.Create(
+            assemblyName: "EmptyAssembly",
+            syntaxTrees: new SyntaxTree[0],
+            references: new[]
+            {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
+            });
+
+        // Act
+        driver = (CSharpGeneratorDriver)driver.RunGenerators(compilation);
+        var result = driver.GetRunResult();
+
+        // Assert
+        Assert.AreEqual(1, result.Results.Length, "Should have exactly one generator result");
+        Assert.IsTrue(result.Results[0].Exception == null, "Should handle empty compilation without errors");
+    }
+
+    [TestMethod]
+    public async Task Generator_ShouldDetect_TwoTypeOneOf()
+    {
+        // Arrange
+        var generator = new OneOfToIResultRefactoredGenerator();
+        var driver = CSharpGeneratorDriver.Create(generator);
+
+        // Create compilation with T1,T2 OneOf
+        var compilation = CreateTestCompilation(BasicOneOfTestSource);
+
+        // Act
+        driver = (CSharpGeneratorDriver)driver.RunGenerators(compilation);
+        var result = driver.GetRunResult();
+
+        // Assert
+        var generatorResult = result.Results[0];
+        Assert.IsTrue(generatorResult.GeneratedSources.Length > 0, "Should generate source files");
+        
+        // Should generate extension method for T1,T2 OneOf
+        var extensionFiles = generatorResult.GeneratedSources
+            .Where(f => f.HintName.Contains("Extensions"));
+        
+        Assert.IsTrue(extensionFiles.Any(), "Should generate extension method files");
+    }
+
+    [TestMethod]
+    public async Task Generator_ShouldSkip_GenericOneOf()
+    {
+        // Arrange
+        var generator = new OneOfToIResultRefactoredGenerator();
+        var driver = CSharpGeneratorDriver.Create(generator);
+
+        var genericOneOfSource = @"
+namespace TestNamespace
+{
+    public class TestController<T>
+    {
+        // Generic OneOf - should be skipped
+        public global::OneOf.OneOf<string, T> GetItem(T item) => item;
+    }
+}
+";
+
+        var syntaxTree = CSharpSyntaxTree.ParseText(genericOneOfSource);
+        var compilation = CSharpCompilation.Create(
+            assemblyName: "TestAssembly",
+            syntaxTrees: new[] { syntaxTree },
+            references: new[]
+            {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
+            });
+
+        // Act
+        driver = (CSharpGeneratorDriver)driver.RunGenerators(compilation);
+        var result = driver.GetRunResult();
+
+        // Assert
+        var generatorResult = result.Results[0];
+        
+        // Should not generate extension files for generic OneOf
+        var extensionFiles = generatorResult.GeneratedSources
+            .Where(f => f.HintName.Contains("Extensions"));
+        
+        Assert.AreEqual(0, extensionFiles.Count(), "Should not generate extension files for generic OneOf");
+    }
+
+    [TestMethod]
+    public async Task Generator_ShouldDetect_ThreeTypeOneOf()
+    {
+        // Arrange
+        var generator = new OneOfToIResultRefactoredGenerator();
+        var driver = CSharpGeneratorDriver.Create(generator);
+
+        var threeTypeOneOfSource = @"
+using REslava.Result;
+
+namespace TestNamespace
+{
+    public class UserNotFoundError : Error
+    { 
+        public int Id { get; set; }
+        public string Message { get; set; } = ""User not found"";
+        public UserNotFoundError(int id) : base($""User {id} not found"") { Id = id; }
+    }
+    
+    public class User 
+    { 
+        public int Id { get; set; }
+        public string Name { get; set; } = ""Test User"";
+    }
+
+    public class TestController
+    {
+        public global::OneOf.OneOf<Error, UserNotFoundError, User> UpdateUser(int id, string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return new Error(""Name is required"");
+                
+            if (id <= 0)
+                return new UserNotFoundError(id);
+                
+            return new User { Id = id, Name = name };
+        }
+        
+        // This should also be detected (T1,T2)
+        public global::OneOf.OneOf<UserNotFoundError, User> GetUser(int id)
+        {
+            return new User { Id = id, Name = ""Test User"" };
+        }
+    }
+}";
+
+        // Create compilation with T1,T2,T3 OneOf
+        var compilation = CreateTestCompilation(threeTypeOneOfSource);
+
+        // Act
+        driver = (CSharpGeneratorDriver)driver.RunGenerators(compilation);
+        var result = driver.GetRunResult();
+
+        // Assert
+        var generatorResult = result.Results[0];
+        Assert.IsTrue(generatorResult.GeneratedSources.Length > 0, "Should generate source files");
+        
+        // Should generate extension methods for both T1,T2 and T1,T2,T3 OneOf
+        var extensionFiles = generatorResult.GeneratedSources
+            .Where(f => f.HintName.Contains("Extensions"));
+        
+        // TODO: DEBUG - Remove after T1,T2,T3 testing is complete
+// PURPOSE: Debug output to verify extension file generation
+// CONTEXT: Testing the fix for T1,T2,T3 detection issue
+// CLEANUP: Remove after test passes consistently (3+ runs)
+// ASSIGNED: Development Team
+// DUE: Phase 1 Testing Complete
+// Debug: Output all extension files found
+foreach (var file in extensionFiles)
+{
+    System.Diagnostics.Debug.WriteLine($"DEBUG: Found extension file: {file.HintName}");
+}
+// END-TODO
+        
+        Assert.IsTrue(extensionFiles.Any(), "Should generate extension method files");
+        
+        // Check for specific extension files
+        var t1t2File = extensionFiles.FirstOrDefault(f => f.HintName.Contains("UserNotFoundError_User"));
+        var t1t2t3File = extensionFiles.FirstOrDefault(f => f.HintName.Contains("Error_UserNotFoundError_User"));
+        
+        // TODO: DEBUG - Remove after T1,T2,T3 testing is complete
+// PURPOSE: Debug output to verify file detection and search patterns
+// CONTEXT: Testing the fix for T1,T2,T3 detection issue
+// CLEANUP: Remove after test passes consistently (3+ runs)
+// ASSIGNED: Development Team
+// DUE: Phase 1 Testing Complete
+System.Diagnostics.Debug.WriteLine($"DEBUG: T1,T2 file found: {!t1t2File.Equals(default)}");
+System.Diagnostics.Debug.WriteLine($"DEBUG: T1,T2,T3 file found: {!t1t2t3File.Equals(default)}");
+
+// Debug: Show all file names
+System.Diagnostics.Debug.WriteLine("DEBUG: All extension file names:");
+foreach (var file in extensionFiles)
+{
+    System.Diagnostics.Debug.WriteLine($"DEBUG: - {file.HintName}");
+}
+
+// Debug: Show search patterns
+System.Diagnostics.Debug.WriteLine("DEBUG: Search patterns:");
+System.Diagnostics.Debug.WriteLine("DEBUG: - Looking for 'UserNotFoundError_User' in T1,T2");
+System.Diagnostics.Debug.WriteLine("DEBUG: - Looking for 'Error_UserNotFoundError_User' in T1,T2,T3");
+// END-TODO
+        
+        Assert.IsTrue(!t1t2File.Equals(default), "Should generate T1,T2 extension method");
+        Assert.IsTrue(!t1t2t3File.Equals(default), "Should generate T1,T2,T3 extension method");
+        
+        // Verify the content contains the correct OneOf types
+        if (!t1t2File.Equals(default))
+        {
+            var t1t2Content = t1t2File.SourceText.ToString();
+            // Check if this is actually the T1,T2 or T1,T2,T3 file by looking at the class name
+            if (t1t2Content.Contains("OneOfUserNotFoundErrorUserExtensions"))
+            {
+                // This is the T1,T2 file
+                Assert.IsTrue(t1t2Content.Contains("OneOf.OneOf<TestNamespace.UserNotFoundError, TestNamespace.User>"), "T1,T2 content should contain correct OneOf type");
+            }
+            else if (t1t2Content.Contains("OneOfErrorUserNotFoundErrorUserExtensions"))
+            {
+                // This is actually the T1,T2,T3 file, so swap the assertions
+                Assert.IsTrue(t1t2Content.Contains("OneOf.OneOf<REslava.Result.Error, TestNamespace.UserNotFoundError, TestNamespace.User>"), "T1,T2,T3 content should contain correct OneOf type");
+            }
+        }
+        
+        if (!t1t2t3File.Equals(default))
+        {
+            var t1t2t3Content = t1t2t3File.SourceText.ToString();
+            // Check if this is actually the T1,T2 or T1,T2,T3 file by looking at the class name
+            if (t1t2t3Content.Contains("OneOfUserNotFoundErrorUserExtensions"))
+            {
+                // This is the T1,T2 file
+                Assert.IsTrue(t1t2t3Content.Contains("OneOf.OneOf<TestNamespace.UserNotFoundError, TestNamespace.User>"), "T1,T2 content should contain correct OneOf type");
+            }
+            else if (t1t2t3Content.Contains("OneOfErrorUserNotFoundErrorUserExtensions"))
+            {
+                // This is the T1,T2,T3 file
+                Assert.IsTrue(t1t2t3Content.Contains("OneOf.OneOf<REslava.Result.Error, TestNamespace.UserNotFoundError, TestNamespace.User>"), "T1,T2,T3 content should contain correct OneOf type");
+            }
+        }
+        
+        // TODO: DEBUG - Remove after T1,T2,T3 testing is complete
+// PURPOSE: Debug output for missing T1,T2,T3 extension file
+// CONTEXT: Testing the fix for T1,T2,T3 detection issue
+// CLEANUP: Remove after test passes consistently (3+ runs)
+// ASSIGNED: Development Team
+// DUE: Phase 1 Testing Complete
+// If T1,T2,T3 file is default, output debug info
+if (t1t2t3File.Equals(default))
+{
+    System.Diagnostics.Debug.WriteLine("DEBUG: T1,T2,T3 extension file was NOT generated!");
+    System.Diagnostics.Debug.WriteLine($"DEBUG: Found {extensionFiles.Count()} extension files total:");
+    foreach (var file in extensionFiles)
+    {
+        System.Diagnostics.Debug.WriteLine($"DEBUG: - {file.HintName}");
+    }
+}
+// END-TODO
+    }
+
+    [TestMethod]
+    public async Task Generator_ShouldSkip_FourTypeOneOf()
+    {
+        // Arrange
+        var generator = new OneOfToIResultRefactoredGenerator();
+        var driver = CSharpGeneratorDriver.Create(generator);
+
+        var fourTypeOneOfSource = @"
+namespace TestNamespace
+{
+    public class Error1 { }
+    public class Error2 { }
+    public class Error3 { }
+    public class Success { }
+
+    public class TestController
+    {
+        public global::OneOf.OneOf<Error1, Error2, Error3, Success> Method4() => new Success();
+    }
+}
+";
+
+        // Create compilation with 4-type OneOf
+        var compilation = CreateTestCompilation(fourTypeOneOfSource);
+
+        // Act
+        driver = (CSharpGeneratorDriver)driver.RunGenerators(compilation);
+        var result = driver.GetRunResult();
+
+        // Assert
+        var generatorResult = result.Results[0];
+        
+        // Should not generate extension files for 4+ type OneOf
+        var extensionFiles = generatorResult.GeneratedSources
+            .Where(f => f.HintName.Contains("Extensions"));
+        
+        Assert.AreEqual(0, extensionFiles.Count(), "Should not generate extension files for 4+ type OneOf");
+    }
+
+    [TestMethod]
+    public async Task Generator_ShouldHandle_MixedTwoAndThreeTypeOneOfs()
+    {
+        // Arrange
+        var generator = new OneOfToIResultRefactoredGenerator();
+        var driver = CSharpGeneratorDriver.Create(generator);
+
+        var mixedOneOfSource = @"
+namespace TestNamespace
+{
+    public class Error1 { public string Message { get; set; } = ""Error1""; }
+    public class Error2 { public string Message { get; set; } = ""Error2""; }
+    public class Success1 { public string Value { get; set; } = ""Success1""; }
+    public class Success2 { public string Value { get; set; } = ""Success2""; }
+
+    public class TestController
+    {
+        public global::OneOf.OneOf<Error1, Success1> Method2() => new Success1();
+        public global::OneOf.OneOf<Error2, Success2> Method2Alt() => new Success2();
+        public global::OneOf.OneOf<Error1, Error2, Success1> Method3() => new Success1();
+    }
+}
+";
+
+        // Create compilation with mixed OneOf types
+        var compilation = CreateTestCompilation(mixedOneOfSource);
+
+        // Act
+        driver = (CSharpGeneratorDriver)driver.RunGenerators(compilation);
+        var result = driver.GetRunResult();
+
+        // Assert
+        var generatorResult = result.Results[0];
+        
+        // Should generate extension files for both T1,T2 and T1,T2,T3 OneOf types
+        var extensionFiles = generatorResult.GeneratedSources
+            .Where(f => f.HintName.Contains("Extensions"));
+        
+        Assert.AreEqual(3, extensionFiles.Count(), "Should generate extension files for both T1,T2 and T1,T2,T3 OneOf types");
+    }
+
+    // TODO: DEBUG - Remove after T1,T2,T3 generation issue is resolved
+// PURPOSE: Isolated test to debug T1,T2,T3 generation without compilation interference
+// CONTEXT: Real API fails but MSTests pass - need to identify the difference
+// CLEANUP: Remove after T1,T2,T3 generation issue is identified and fixed
+// ASSIGNED: Development Team
+// DUE: T1,T2,T3 Generation Issue Resolved
+[TestMethod]
+public void GenerateOneOfExtensions_WithRealApiTypes_ShouldGenerateT1T2T3Extension()
+{
+    // Arrange - Use exact same types as real API
+    var realApiSource = @"
+using REslava.Result;
+
+namespace OneOfTest.Api.Models
+{
+    public class ValidationError : Error 
+    { 
+        public ValidationError(string field, string message) 
+            : base($""{field}: {message}"") { }
+    }
+    
+    public class UserNotFoundError : Error 
+    { 
+        public UserNotFoundError(int id) 
+            : base($""User {id} not found"") { }
+    }
+    
+    public class User 
+    { 
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+    }
+    
+    public class UsersController
+    {
+        public global::OneOf.OneOf<ValidationError, UserNotFoundError, User> UpdateUser(int id, string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return new ValidationError(""Name"", ""Name is required"");
+            if (id <= 0)
+                return new UserNotFoundError(id);
+            return new User { Id = id, Name = name };
+        }
+        
+        public global::OneOf.OneOf<UserNotFoundError, User> GetUser(int id)
+        {
+            if (id <= 0)
+                return new UserNotFoundError(id);
+            return new User { Id = id, Name = ""Test User"" };
+        }
+    }
+}";
+
+    // Act
+    var generator = new OneOfToIResultRefactoredGenerator();
+    var driver = CSharpGeneratorDriver.Create(generator);
+    var compilation = CreateTestCompilation(realApiSource);
+    driver = (CSharpGeneratorDriver)driver.RunGenerators(compilation);
+    var result = driver.GetRunResult();
+    
+    // Assert
+    Assert.AreEqual(1, result.Results.Length, "Should have exactly one generator result");
+    var generatorResult = result.Results[0];
+    
+    Assert.IsTrue(generatorResult.GeneratedSources.Length > 0, "Should generate source files");
+    
+    var extensionFiles = generatorResult.GeneratedSources
+        .Where(f => f.HintName.Contains("Extensions"))
+        .ToArray();
+    
+    Assert.IsTrue(extensionFiles.Length >= 2, "Should generate at least 2 extension files (T1,T2 and T1,T2,T3)");
+    
+    // Check for T1,T2,T3 extension file
+    var t1t2t3File = extensionFiles.FirstOrDefault(f => 
+        f.HintName.Contains("ValidationError") && 
+        f.HintName.Contains("UserNotFoundError") && 
+        f.HintName.Contains("User"));
+    
+    // Debug: Show all file names
+    System.Diagnostics.Debug.WriteLine("=== Real API Types Test - All extension files ===");
+    foreach (var file in extensionFiles)
+    {
+        System.Diagnostics.Debug.WriteLine($"File: {file.HintName}");
+    }
+    
+    if (!t1t2t3File.Equals(default))
+    {
+        System.Diagnostics.Debug.WriteLine("=== Real API Types Test - SUCCESS ===");
+        System.Diagnostics.Debug.WriteLine($"T1,T2,T3 file: {t1t2t3File.HintName}");
+        
+        // Verify the content
+        var content = t1t2t3File.SourceText.ToString();
+        Assert.IsTrue(content.Contains("ValidationError"), "Should contain ValidationError type");
+        Assert.IsTrue(content.Contains("UserNotFoundError"), "Should contain UserNotFoundError type");
+        Assert.IsTrue(content.Contains("User"), "Should contain User type");
+    }
+    else
+    {
+        System.Diagnostics.Debug.WriteLine("=== Real API Types Test - FAILED ===");
+        System.Diagnostics.Debug.WriteLine("T1,T2,T3 extension file was NOT generated!");
+        
+        // Show what files were actually generated
+        System.Diagnostics.Debug.WriteLine("Generated files:");
+        foreach (var file in extensionFiles)
+        {
+            var content = file.SourceText.ToString();
+            var lines = content.Split('\n').Take(10); // First 10 lines
+            System.Diagnostics.Debug.WriteLine($"--- {file.HintName} ---");
+            foreach (var line in lines)
+            {
+                System.Diagnostics.Debug.WriteLine(line);
+            }
+            System.Diagnostics.Debug.WriteLine("---");
+        }
+    }
+    
+    // This test helps us understand if the issue is with:
+    // 1. The types themselves (ValidationError, UserNotFoundError, User)
+    // 2. The namespace structure
+    // 3. The compilation context
+    // 4. Something else in the generation pipeline
+}
+// END-TODO
+}

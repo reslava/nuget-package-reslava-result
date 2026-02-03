@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 using REslava.Result.SourceGenerators.Generators.ResultToIResult.Orchestration;
-using REslava.Result.SourceGenerators.Generators.ResultToIResult.Interfaces;
+using REslava.Result.SourceGenerators.Core.Interfaces;
 
 namespace REslava.Result.SourceGenerators.Generators.ResultToIResult
 {
@@ -12,7 +12,7 @@ namespace REslava.Result.SourceGenerators.Generators.ResultToIResult
     [Generator]
     public class ResultToIResultRefactoredGenerator : IIncrementalGenerator
     {
-        private readonly IOrchestrator _orchestrator;
+        private readonly IGeneratorOrchestrator _orchestrator;
 
         public ResultToIResultRefactoredGenerator()
         {

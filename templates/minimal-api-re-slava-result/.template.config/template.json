@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "REslava.Result Team",
+  "classifications": ["Web", "API", "REslava.Result", "Minimal API"],
+  "name": "REslava.Result Minimal API",
+  "identity": "REslava.Result.MinimalApi.Template",
+  "groupIdentity": "REslava.Result.Templates",
+  "shortName": "re-slava-minimal-api",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "REslavaResultMinimalApi",
+  "preferNameDirectory": true,
+  "symbols": {
+    "Framework": {
+      "type": "parameter",
+      "dataType": "choice",
+      "defaultValue": "net8.0",
+      "choices": [
+        {
+          "choice": "net8.0",
+          "description": "Target .NET 8.0"
+        },
+        {
+          "choice": "net9.0", 
+          "description": "Target .NET 9.0"
+        },
+        {
+          "choice": "net10.0",
+          "description": "Target .NET 10.0"
+        }
+      ]
+    },
+    "IncludeSwagger": {
+      "type": "parameter",
+      "dataType": "bool",
+      "defaultValue": "true",
+      "description": "Include Swagger/OpenAPI support"
+    },
+    "IncludeTests": {
+      "type": "parameter",
+      "dataType": "bool",
+      "defaultValue": "true",
+      "description": "Include test project"
+    }
+  },
+  "postActions": [
+    {
+      "condition": "(IncludeTests)",
+      "description": "Restore NuGet packages for test project",
+      "manualInstructions": {
+        "text": "Run 'dotnet restore'"
+      },
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}

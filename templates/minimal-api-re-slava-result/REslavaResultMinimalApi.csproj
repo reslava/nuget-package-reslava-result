@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>$(Framework)</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    
+    <!-- Enable file emission for debugging source generators -->
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(ProjectDir)\GeneratedFiles\$(TargetFramework)</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" Condition="$(IncludeSwagger)" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" Condition="$(IncludeSwagger)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\REslava.Result.csproj" />
+    <ProjectReference Include="..\..\SourceGenerator\REslava.Result.SourceGenerators.csproj" />
+  </ItemGroup>
+
+  <!-- Load source generators as analyzers -->
+  <ItemGroup>
+    <Analyzer Include="..\..\SourceGenerator\bin\$(Configuration)\netstandard2.0\REslava.Result.SourceGenerators.dll" />
+  </ItemGroup>
+
+  <!-- Exclude generated files from compilation to prevent double compilation -->
+  <ItemGroup>
+    <Compile Remove="GeneratedFiles\**\*.g.cs" />
+    <Compile Remove="obj\**\*.g.cs" />
+  </ItemGroup>
+
+  <!-- OneOf Generator Configuration -->
+  <PropertyGroup>
+    <OneOfDefaultNamespace>Generated.OneOfExtensions</OneOfDefaultNamespace>
+    <OneOfDefaultSuccessStatus>200</OneOfDefaultSuccessStatus>
+    <OneOfDefaultErrorStatus>400</OneOfDefaultErrorStatus>
+    <OneOfEnableProblemDetails>true</OneOfEnableProblemDetails>
+    <OneOfEnableConventionMapping>true</OneOfEnableConventionMapping>
+  </PropertyGroup>
+
+</Project>

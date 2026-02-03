@@ -1,0 +1,123 @@
+name: TODO Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  todo-validation:
+    runs-on: ubuntu-latest
+    name: TODO Health Check
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        
+    - name: Run TODO Count
+      id: todo-count
+      run: |
+        echo "=== 📊 TODO Count ===" >> $GITHUB_STEP_SUMMARY
+        bash scripts/manage-todos.sh count >> $GITHUB_STEP_SUMMARY
+        
+        # Extract total count for later use
+        TOTAL_COUNT=$(bash scripts/manage-todos.sh count | grep "📊 TOTAL TODOS:" | awk '{print $3}')
+        echo "total-count=$TOTAL_COUNT" >> $GITHUB_OUTPUT
+        
+    - name: Run TODO Audit
+      run: |
+        echo "=== 🔍 TODO Audit ===" >> $GITHUB_STEP_SUMMARY
+        bash scripts/manage-todos.sh audit >> $GITHUB_STEP_SUMMARY
+        
+    - name: Check TODO Health
+      run: |
+        TOTAL_COUNT="${{ steps.todo-count.outputs.total-count }}"
+        echo "Total TODOs: $TOTAL_COUNT"
+        
+        if [ "$TOTAL_COUNT" -gt 50 ]; then
+          echo "❌ TODO health check failed!"
+          echo "Current TODO count: $TOTAL_COUNT (threshold: 50)"
+          echo "Please reduce TODO count before merging."
+          exit 1
+        else
+          echo "✅ TODO health check passed!"
+          echo "Current TODO count: $TOTAL_COUNT (threshold: 50)"
+        fi
+        
+    - name: Comment PR with TODO Status
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const totalTodos = ${{ steps.todo-count.outputs.total-count }};
+          const healthStatus = totalTodos > 50 ? '❌ FAILED' : '✅ PASSED';
+          const healthColor = totalTodos > 50 ? 'red' : 'green';
+          
+          const comment = `
+          ## 📊 TODO Health Check
+          
+          **Status**: ${healthStatus}
+          **Total TODOs**: ${totalTodos}
+          **Threshold**: 50
+          
+          ${totalTodos > 50 ? 
+            '⚠️ **Action Required**: Please reduce TODO count before this PR can be merged.' :
+            '✅ **Good to Go**: TODO count is within acceptable limits.'
+          }
+          
+          Run \`./scripts/manage-todos.sh cleanup\` to review cleanup candidates.
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+  build-validation:
+    runs-on: ubuntu-latest
+    name: Build & Test
+    needs: todo-validation
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build solution
+      run: dotnet build --no-restore --configuration Release
+      
+    - name: Run tests
+      run: dotnet test --no-restore --configuration Release --logger "console;verbosity=normal"
+      
+    - name: TODO Cleanup Check (Release Branch)
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "=== 🧹 Production Release TODO Check ==="
+        
+        # For main branch, be more strict about DEBUG and TEMP TODOs
+        DEBUG_COUNT=$(bash scripts/manage-todos.sh cleanup | grep "DEBUG TODOs" -A 10 | grep -c "No DEBUG TODOs found" || echo "0")
+        TEMP_COUNT=$(bash scripts/manage-todos.sh cleanup | grep "TEMP TODOs" -A 10 | grep -c "No TEMP TODOs found" || echo "0")
+        
+        if [ "$DEBUG_COUNT" -gt 0 ] || [ "$TEMP_COUNT" -gt 0 ]; then
+          echo "❌ Production release check failed!"
+          echo "Found DEBUG or TEMP TODOs that should be cleaned up before release."
+          echo "Run: bash scripts/manage-todos.sh cleanup"
+          exit 1
+        else
+          echo "✅ Production release check passed!"
+        fi

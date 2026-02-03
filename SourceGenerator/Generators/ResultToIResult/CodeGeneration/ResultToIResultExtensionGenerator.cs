@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using REslava.Result.SourceGenerators.Generators.ResultToIResult.Interfaces;
+using REslava.Result.SourceGenerators.Core.Interfaces;
 using System.Text;
 
 namespace REslava.Result.SourceGenerators.Generators.ResultToIResult.CodeGeneration
