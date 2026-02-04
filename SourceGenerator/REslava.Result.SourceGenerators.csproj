@@ -83,6 +83,9 @@
     <Compile Include="Core\Interfaces\ICodeGenerator.cs" />
     <Compile Include="Core\Interfaces\IGeneratorOrchestrator.cs" />
     
+    <!-- Core Utilities -->
+    <Compile Include="Core\Utilities\HttpStatusCodeMapper.cs" />
+    
     <!-- ResultToIResult Generator -->
     <Compile Include="Generators\ResultToIResult\Attributes\GenerateResultExtensionsAttributeGenerator.cs" />
     <Compile Include="Generators\ResultToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />

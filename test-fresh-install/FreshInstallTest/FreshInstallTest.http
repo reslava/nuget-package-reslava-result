@@ -1,0 +1,6 @@
+@FreshInstallTest_HostAddress = http://localhost:5251
+
+GET {{FreshInstallTest_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
