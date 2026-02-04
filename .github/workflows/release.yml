@@ -50,6 +50,52 @@ jobs:
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate \;
 
+      - name: Generate Release Notes (if missing)
+        run: |
+          RELEASE_FILE="docs/github/GITHUB_RELEASE_${{ github.ref_name }}.md"
+          if [ ! -f "$RELEASE_FILE" ]; then
+            echo "📝 Generating release notes for ${{ github.ref_name }}..."
+            
+            # Create the release notes file using echo
+            echo "# 🚀 REslava.Result ${{ github.ref_name }}" > "$RELEASE_FILE"
+            echo "" >> "$RELEASE_FILE"
+            echo "> **Railway-Oriented Programming for .NET** - Complete functional programming framework with revolutionary OneOf auto-conversion!" >> "$RELEASE_FILE"
+            echo "" >> "$RELEASE_FILE"
+            echo "## 📦 Installation" >> "$RELEASE_FILE"
+            echo "" >> "$RELEASE_FILE"
+            echo '```bash' >> "$RELEASE_FILE"
+            echo "# Core functional programming library (${{ github.ref_name }})" >> "$RELEASE_FILE"
+            echo "dotnet add package REslava.Result" >> "$RELEASE_FILE"
+            echo "" >> "$RELEASE_FILE"
+            echo "# ASP.NET integration + OneOf extensions (${{ github.ref_name }})" >> "$RELEASE_FILE"
+            echo "dotnet add package REslava.Result.SourceGenerators" >> "$RELEASE_FILE"
+            echo '```' >> "$RELEASE_FILE"
+            echo "" >> "$RELEASE_FILE"
+            echo "## 📊 Package Information" >> "$RELEASE_FILE"
+            echo "" >> "$RELEASE_FILE"
+            echo "| Package | NuGet Link |" >> "$RELEASE_FILE"
+            echo "|---------|------------|" >> "$RELEASE_FILE"
+            echo "**REslava.Result** | [📦 View on NuGet](https://www.nuget.org/packages/REslava.Result/${{ github.ref_name }}) |" >> "$RELEASE_FILE"
+            echo "**REslava.Result.SourceGenerators** | [📦 View on NuGet](https://www.nuget.org/packages/REslava.Result.SourceGenerators/${{ github.ref_name }}) |" >> "$RELEASE_FILE"
+            echo "" >> "$RELEASE_FILE"
+            echo "## 📚 Documentation & Resources" >> "$RELEASE_FILE"
+            echo "" >> "$RELEASE_FILE"
+            echo "- 📖 **[Main Documentation](https://github.com/reslava/nuget-package-reslava-result)**" >> "$RELEASE_FILE"
+            echo "- 🐛 **[Issue Tracker](https://github.com/reslava/nuget-package-reslava-result/issues)**" >> "$RELEASE_FILE"
+            echo "- 💬 **[Discussions](https://github.com/reslava/nuget-package-reslava-result/discussions)**" >> "$RELEASE_FILE"
+            echo "" >> "$RELEASE_FILE"
+            echo "---" >> "$RELEASE_FILE"
+            echo "**🚀 Ready to revolutionize your error handling? Install REslava.Result today!**" >> "$RELEASE_FILE"
+            
+            echo "✅ Release notes generated at $RELEASE_FILE"
+            git add "$RELEASE_FILE"
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git commit -m "docs: Auto-generate release notes for ${{ github.ref_name }}" || echo "No changes to commit"
+          else
+            echo "✅ Release notes already exist at $RELEASE_FILE"
+          fi
+
       - name: Create GitHub Release (with file)
         uses: softprops/action-gh-release@v2
         with:
