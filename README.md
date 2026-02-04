@@ -18,9 +18,14 @@
 
 ---
 
-## 🎯 What's New in v1.10.0
+## 🎯 What's New in v1.10.1
 
-### 🚀 OneOfToIResult Extensions (BREAKTHROUGH!)
+### 📚 Documentation Update
+- **Fixed README synchronization** between REslava.Result and REslava.Result.SourceGenerators
+- **Package-agnostic documentation** that clearly shows both packages work together
+- **Improved installation instructions** with explicit version alignment
+
+### 🚀 OneOfToIResult Extensions (from v1.10.0)
 **REslava.Result Internal OneOf Integration**
 ```csharp
 using REslava.Result.AdvancedPatterns.OneOf;
@@ -49,10 +54,10 @@ return CreateUser(request).ToIResult(); // 400, 404, or 201
 ### 📦 Installation
 
 ```bash
-# Core functional programming library (v1.10.0)
+# Core functional programming library (v1.10.1)
 dotnet add package REslava.Result
 
-# ASP.NET integration + OneOf extensions (v1.10.0)
+# ASP.NET integration + OneOf extensions (v1.10.1)
 dotnet add package REslava.Result.SourceGenerators
 ```
 
