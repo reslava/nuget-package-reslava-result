@@ -1,12 +1,12 @@
 # 🚀 REslava.Result.SourceGenerators v1.10.0
 
 ## 📦 Package Information
-- **Core Library**: [REslava.Result v1.9.0](https://www.nuget.org/packages/REslava.Result/1.9.0)
+- **Core Library**: [REslava.Result v1.10.0](https://www.nuget.org/packages/REslava.Result/1.9.0)
 - **Source Generator**: [REslava.Result.SourceGenerators v1.10.0](https://www.nuget.org/packages/REslava.Result.SourceGenerators/1.10.0)
 
 ## 🚀 Installation
 ```xml
-<PackageReference Include="REslava.Result" Version="1.9.0" />
+<PackageReference Include="REslava.Result" Version="1.10.0" />
 <PackageReference Include="REslava.Result.SourceGenerators" Version="1.10.0" />
 ```
 

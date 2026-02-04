@@ -49,10 +49,10 @@ return CreateUser(request).ToIResult(); // 400, 404, or 201
 ### 📦 Installation
 
 ```bash
-# Core functional programming library
+# Core functional programming library (v1.10.0)
 dotnet add package REslava.Result
 
-# ASP.NET integration + OneOf extensions (NEW!)
+# ASP.NET integration + OneOf extensions (v1.10.0)
 dotnet add package REslava.Result.SourceGenerators
 ```
 
