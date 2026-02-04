@@ -1,4 +1,4 @@
-# REslava.Result.SourceGenerators v1.10.0
+# REslava.Result - Railway-Oriented Programming for .NET
 
 <div align="center">
 

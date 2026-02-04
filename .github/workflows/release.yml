@@ -44,7 +44,8 @@ jobs:
       - name: Publish to NuGet
         run: |
           echo "📦 Publishing to NuGet..."
-          find ./packages -name "*.nupkg" -exec dotnet nuget push {} \
+          # Only publish main packages, not samples
+          find ./packages -name "REslava.Result.*.nupkg" -not -name "*.Samples.*" -exec dotnet nuget push {} \
             --api-key ${{ secrets.NUGET_API_KEY }} \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate \;
