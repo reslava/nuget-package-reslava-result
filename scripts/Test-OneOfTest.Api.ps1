@@ -107,7 +107,7 @@ $samples = @(
     @{
         Name = "OneOfTest.Api (T1,T2)"
         Path = "samples\OneOfTest.Api"
-        Url = "http://localhost:5008"
+        Url = "http://localhost:5000"
         Endpoints = @{
             "GET User Success" = @{
                 Path = "/api/users/1"

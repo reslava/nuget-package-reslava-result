@@ -7,11 +7,11 @@
 ![NuGet Version](https://img.shields.io/nuget/v/REslava.Result.SourceGenerators?style=flat&logo=nuget)
 ![License](https://img.shields.io/badge/license-MIT-green)
 [![GitHub contributors](https://img.shields.io/github/contributors/reslava/REslava.Result/graphs/contributors/)](https://github.com/reslava/REslava.Result/graphs/contributors)
-[![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result/stargazers)](https://github.com/reslava/REslava.Result/stargazers)
+[![GitHub contributors](https://img.shields.io/github/contributors/reslava/REslava.Result)](https://GitHub.com/reslava/REslava.Result/graphs/contributors/) 
+[![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 ![Test Suite](https://img.shields.io/badge/tests-1902%20passing-brightgreen)
-![CodeQL](https://github.com/reslava/REslava.Result/actions/workflows/codeql-analysis.yml/badge.svg)
 
 **🏗️ Complete Functional Programming Framework + ASP.NET Integration + OneOf Extensions**
 
@@ -1114,7 +1114,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**⭐ If REslava.Result makes your code more predictable, give us a star! ⭐**
+**⭐ Star this REslava.Result repository if you find it useful!**
+
+Made with ❤️ by [Rafa Eslava](https://github.com/reslava) for developers community
+
+[Report Bug](https://github.com/reslava/nuget-package-reslava-result/issues) • [Request Feature](https://github.com/reslava/nuget-package-reslava-result/issues) • [Discussions](https://github.com/reslava/nuget-package-reslava-result/discussions)
 
 </div>
 
