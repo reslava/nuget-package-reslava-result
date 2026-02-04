@@ -6,7 +6,6 @@
 ![C#](https://img.shields.io/badge/C%23-239120?&logo=csharp&logoColor=white)
 ![NuGet Version](https://img.shields.io/nuget/v/REslava.Result.SourceGenerators?style=flat&logo=nuget)
 ![License](https://img.shields.io/badge/license-MIT-green)
-[![GitHub contributors](https://img.shields.io/github/contributors/reslava/REslava.Result/graphs/contributors/)](https://github.com/reslava/REslava.Result/graphs/contributors)
 [![GitHub contributors](https://img.shields.io/github/contributors/reslava/REslava.Result)](https://GitHub.com/reslava/REslava.Result/graphs/contributors/) 
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
