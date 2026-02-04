@@ -80,6 +80,7 @@ Desktop.ini
 *.swp
 *.swo
 *~
+.windsurf/
 
 ###################
 
