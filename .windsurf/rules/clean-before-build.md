@@ -1,4 +1,0 @@
----
-trigger: manual
----
-
