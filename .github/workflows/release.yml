@@ -114,12 +114,12 @@ jobs:
             # 🚀 REslava.Result.SourceGenerators ${{ github.ref_name }}
             
             ## 📦 Package Information
-            - **Core Library**: [REslava.Result v1.9.0](https://www.nuget.org/packages/REslava.Result/1.9.0)
+            - **Core Library**: [REslava.Result ${{ github.ref_name }}](https://www.nuget.org/packages/REslava.Result/${{ github.ref_name }})
             - **Source Generator**: [REslava.Result.SourceGenerators ${{ github.ref_name }}](https://www.nuget.org/packages/REslava.Result.SourceGenerators/${{ github.ref_name }})
             
             ## 🚀 Installation
             ```xml
-            <PackageReference Include="REslava.Result" Version="1.9.0" />
+            <PackageReference Include="REslava.Result" Version="${{ github.ref_name }}" />
             <PackageReference Include="REslava.Result.SourceGenerators" Version="${{ github.ref_name }}" />
             ```
             
@@ -128,6 +128,7 @@ jobs:
             - HTTP method extensions: ToIResult, ToPostResult, ToPutResult, ToDeleteResult, ToPatchResult
             - Support for .NET 8.0, 9.0, 10.0
             - Comprehensive error handling
+            - **NEW**: Intelligent HTTP status mapping for OneOf types
             
             ---
             
