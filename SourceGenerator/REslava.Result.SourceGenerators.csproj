@@ -76,14 +76,6 @@
     <None Include="buildTransitive\REslava.Result.SourceGenerators.props" Pack="true" PackagePath="buildTransitive" />
   </ItemGroup>
 
-  <!-- Test Files -->
-  <ItemGroup>
-    <Compile Include="tests\REslava.Result.SourceGenerators.Tests\SmartEndpoints\SmartEndpoints_RouteGenerationTests.cs" />
-    <Compile Include="tests\REslava.Result.SourceGenerators.Tests\SmartEndpoints\SmartEndpoints_GeneratorIntegration.cs" />
-    <Compile Include="tests\REslava.Result.SourceGenerators.Tests\SmartEndpoints\SmartEndpoints_MetadataTests.cs" />
-    <Compile Include="tests\REslava.Result.SourceGenerators.Tests\SmartEndpoints\SmartEndpoints_AttributeParsingTests.cs" />
-  </ItemGroup>
-
   <!-- Explicit compile items - use refactored structure only -->
   <ItemGroup>
     <Compile Include="MapToProblemDetailsAttribute.cs" />
@@ -100,18 +92,14 @@
     <Compile Include="Generators\SmartEndpoints\SmartEndpointsGenerator.cs" />
     <Compile Include="Generators\SmartEndpoints\SimpleTestGenerator.cs" />
     <Compile Include="Generators\SmartEndpoints\MinimalSmartEndpointsGenerator.cs" />
-    <!-- <Compile Include="Generators\SmartEndpoints\CopyOfOneOf2ToIResultGenerator.cs" /> -->
-    <Compile Include="Generators\SmartEndpoints\Orchestration\SmartEndpointsOrchestrator.cs" />
-    <Compile Include="Generators\SmartEndpoints\Attributes\*.cs" />
-    <Compile Include="Generators\SmartEndpoints\CodeGeneration\*.cs" />
     <Compile Include="Generators\SmartEndpoints\Models\*.cs" />
-
-    <!-- ResultToIResult Generator - Refactored version - TEMPORARILY DISABLED -->
-    <!-- <Compile Include="Generators\ResultToIResult\ResultToIResultRefactoredGenerator.cs" /> -->
-    <!-- <Compile Include="Generators\ResultToIResult\Orchestration\ResultToIResultOrchestrator.cs" /> -->
-    <!-- <Compile Include="Generators\ResultToIResult\Attributes\GenerateResultExtensionsAttributeGenerator.cs" /> -->
-    <!-- <Compile Include="Generators\ResultToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" /> -->
-    <!-- <Compile Include="Generators\ResultToIResult\CodeGeneration\ResultToIResultExtensionGenerator.cs" /> -->
+    
+    <!-- ResultToIResult Generator - Refactored version -->
+    <Compile Include="Generators\ResultToIResult\ResultToIResultRefactoredGenerator.cs" />
+    <Compile Include="Generators\ResultToIResult\Orchestration\ResultToIResultOrchestrator.cs" />
+    <Compile Include="Generators\ResultToIResult\Attributes\GenerateResultExtensionsAttributeGenerator.cs" />
+    <Compile Include="Generators\ResultToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
+    <Compile Include="Generators\ResultToIResult\CodeGeneration\ResultToIResultExtensionGenerator.cs" />
 
     <!-- OneOf2ToIResult Generator - Following OneOf2 Pattern -->
     <Compile Include="Generators\OneOf2ToIResult\OneOf2ToIResultGenerator.cs" />

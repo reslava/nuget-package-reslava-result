@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using REslava.Result.SourceGenerators.SmartEndpoints.Models;
+using REslava.Result.SourceGenerators.Generators.SmartEndpoints;
 using System.Collections.Generic;
 
 namespace REslava.Result.SourceGenerators.Tests

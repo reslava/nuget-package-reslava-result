@@ -32,6 +32,10 @@
 
   <ItemGroup>
     <Compile Include="SmartEndpoints\SmartEndpoints_BasicTests.cs" />
+    <Compile Include="SmartEndpoints\SmartEndpoints_AttributeParsingTests.cs" />
+    <Compile Include="SmartEndpoints\SmartEndpoints_GeneratorIntegrationTests.cs" />
+    <Compile Include="SmartEndpoints\SmartEndpoints_MetadataTests.cs" />
+    <Compile Include="SmartEndpoints\SmartEndpoints_RouteGenerationTests.cs" />
   </ItemGroup>
 
 </Project>
