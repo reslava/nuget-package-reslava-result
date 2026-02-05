@@ -1,8 +1,8 @@
 <Project>
   <PropertyGroup>    
     <!-- Package Version Management -->
-    <CorePackageVersion>1.10.3</CorePackageVersion>
-    <GeneratorPackageVersion>1.10.3</GeneratorPackageVersion>
+    <CorePackageVersion>1.11.0</CorePackageVersion>
+    <GeneratorPackageVersion>1.11.0</GeneratorPackageVersion>
     
     <!-- Language Features -->
     <LangVersion>latest</LangVersion>

@@ -46,20 +46,61 @@ dotnet add package REslava.Result.SourceGenerators
 dotnet add package REslava.Result
 ```
 
-### Basic Usage
+### Complete Generator Showcase
+
+#### ⚡ SmartEndpoints - Zero Boilerplate APIs
+Generate complete Minimal APIs from controllers with automatic HTTP mapping!
 
 ```csharp
-using REslava.Result;
-using REslava.Result.AdvancedPatterns;
-using Generated.OneOfExtensions;
+[AutoGenerateEndpoints(RoutePrefix = "/api/users")]
+public class UserController {
+    public OneOf<ValidationError, UserNotFoundError, User> CreateUser(CreateUserRequest request) { 
+        // Validation logic
+        if (string.IsNullOrEmpty(request.Name)) 
+            return new ValidationError("Name is required", "Name");
+        
+        // Business logic
+        var user = new User { Name = request.Name, Email = request.Email };
+        return user;
+    }
+    
+    public OneOf<UserNotFoundError, User> GetUser(int id) {
+        var user = _users.FirstOrDefault(u => u.Id == id);
+        return user ?? new UserNotFoundError(id);
+    }
+}
+```
 
-// Result<T> usage
+**Generated Minimal API:**
+- ✅ `POST /api/users` → 201/400/409 (from CreateUser)
+- ✅ `GET /api/users/{id}` → 200/404 (from GetUser)
+- ✅ Automatic error handling with proper HTTP status codes
+- ✅ No manual route configuration required
+
+#### 🔄 OneOf Extensions - Intelligent HTTP Mapping
+Automatic error detection and HTTP status mapping for OneOf types:
+
+```csharp
+// Error Types → HTTP Status Codes
+ValidationError → 400 Bad Request
+UserNotFoundError → 404 Not Found  
+ConflictError → 409 Conflict
+UnauthorizedError → 401 Unauthorized
+ForbiddenError → 403 Forbidden
+ServerError → 500 Internal Server Error
+```
+
+**Supported Patterns:**
+- **OneOf2ToIResult<T1,T2>** - Two-type error handling
+- **OneOf3ToIResult<T1,T2,T3>** - Three-type error handling  
+- **SmartEndpoints Integration** - Uses extensions automatically in generated APIs
+
+#### 🎯 ResultToIResult Extensions
+Convert Result<T> types to proper HTTP responses:
+
+```csharp
 public Result<User> GetUser(int id) { /* ... */ }
-return result.ToIResult(); // Automatic HTTP mapping
-
-// OneOf<T1,T2> usage  
-public OneOf<UserNotFoundError, User> GetUser(int id) { /* ... */ }
-return GetUser(id).ToIResult(); // Intelligent error detection
+return GetUser(id).ToIResult(); // Automatic HTTP mapping
 ```
 
 app.MapGet("/users/{id}", async (int id, IUserService service) =>

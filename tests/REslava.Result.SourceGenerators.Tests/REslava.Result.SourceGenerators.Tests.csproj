@@ -5,6 +5,7 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +28,10 @@
     <Using Include="Microsoft.CodeAnalysis" />
     <Using Include="Microsoft.CodeAnalysis.CSharp" />
     <Using Include="Microsoft.CodeAnalysis.Text" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="SmartEndpoints\SmartEndpoints_BasicTests.cs" />
   </ItemGroup>
 
 </Project>
