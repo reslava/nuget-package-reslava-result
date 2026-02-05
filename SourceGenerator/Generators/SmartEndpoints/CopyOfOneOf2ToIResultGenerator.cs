@@ -5,17 +5,16 @@ using REslava.Result.SourceGenerators.Core.Interfaces;
 namespace REslava.Result.SourceGenerators.Generators.OneOf2ToIResult
 {
     /// <summary>
-    /// OneOf2ToIResult generator - handles OneOf<T1,T2> to IResult conversion.
-    /// Single Responsibility: Only delegates to the orchestrator.
-    /// Following ResultToIResult pattern exactly.
+    /// Copy of OneOf2ToIResult generator - exact copy to test if SmartEndpoints namespace is the issue
     /// </summary>
     [Generator]
-    public class OneOf2ToIResultGenerator : IIncrementalGenerator
+    public class CopyOfOneOf2ToIResultGenerator : IIncrementalGenerator
     {
         private readonly IGeneratorOrchestrator _orchestrator;
 
-        public OneOf2ToIResultGenerator()
+        public CopyOfOneOf2ToIResultGenerator()
         {
+            System.Diagnostics.Debug.WriteLine("🚀 CopyOfOneOf2ToIResultGenerator CONSTRUCTOR called!");
             _orchestrator = new OneOf2ToIResultOrchestrator();
         }
 
@@ -24,13 +23,13 @@ namespace REslava.Result.SourceGenerators.Generators.OneOf2ToIResult
         /// </summary>
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            System.Diagnostics.Debug.WriteLine("🔥 OneOf2ToIResultGenerator.Initialize called!");
+            System.Diagnostics.Debug.WriteLine("🚀 CopyOfOneOf2ToIResultGenerator.Initialize called!");
             
-            // Add test file generation to confirm this generator is working
+            // Add test file generation
             context.RegisterSourceOutput(context.CompilationProvider, (spc, compilation) =>
             {
-                spc.AddSource("OneOf2ToIResultTest.g.cs", 
-                    $"// OneOf2ToIResultGenerator is working! Generated at {DateTime.UtcNow:O}");
+                spc.AddSource("CopyOfOneOf2ToIResultTest.g.cs", 
+                    $"// CopyOfOneOf2ToIResultGenerator is working! Generated at {DateTime.UtcNow:O}");
             });
             
             _orchestrator.Initialize(context);

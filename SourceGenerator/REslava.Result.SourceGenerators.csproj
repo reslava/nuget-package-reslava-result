@@ -86,19 +86,30 @@
     <!-- Core Utilities -->
     <Compile Include="Core\Utilities\HttpStatusCodeMapper.cs" />
     
-    <!-- ResultToIResult Generator -->
-    <Compile Include="Generators\ResultToIResult\Attributes\GenerateResultExtensionsAttributeGenerator.cs" />
-    <Compile Include="Generators\ResultToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
-    <Compile Include="Generators\ResultToIResult\CodeGeneration\ResultToIResultExtensionGenerator.cs" />
-    <Compile Include="Generators\ResultToIResult\Orchestration\ResultToIResultOrchestrator.cs" />
-    <Compile Include="Generators\ResultToIResult\ResultToIResultRefactoredGenerator.cs" />
-    
-    <!-- OneOf2ToIResult Generator - Fresh Implementation -->
+    <!-- SmartEndpoints Generator - Automatic Minimal API Generation -->
+    <Compile Include="Generators\SmartEndpoints\SmartEndpointsGenerator.cs" />
+    <Compile Include="Generators\SmartEndpoints\SimpleTestGenerator.cs" />
+    <Compile Include="Generators\SmartEndpoints\MinimalSmartEndpointsGenerator.cs" />
+    <!-- <Compile Include="Generators\SmartEndpoints\CopyOfOneOf2ToIResultGenerator.cs" /> -->
+    <Compile Include="Generators\SmartEndpoints\Orchestration\SmartEndpointsOrchestrator.cs" />
+    <Compile Include="Generators\SmartEndpoints\Attributes\*.cs" />
+    <Compile Include="Generators\SmartEndpoints\CodeGeneration\*.cs" />
+    <Compile Include="Generators\SmartEndpoints\Models\*.cs" />
+
+    <!-- ResultToIResult Generator - Refactored version - TEMPORARILY DISABLED -->
+    <!-- <Compile Include="Generators\ResultToIResult\ResultToIResultRefactoredGenerator.cs" /> -->
+    <!-- <Compile Include="Generators\ResultToIResult\Orchestration\ResultToIResultOrchestrator.cs" /> -->
+    <!-- <Compile Include="Generators\ResultToIResult\Attributes\GenerateResultExtensionsAttributeGenerator.cs" /> -->
+    <!-- <Compile Include="Generators\ResultToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" /> -->
+    <!-- <Compile Include="Generators\ResultToIResult\CodeGeneration\ResultToIResultExtensionGenerator.cs" /> -->
+
+    <!-- OneOf2ToIResult Generator - Following OneOf2 Pattern -->
     <Compile Include="Generators\OneOf2ToIResult\OneOf2ToIResultGenerator.cs" />
     <Compile Include="Generators\OneOf2ToIResult\Orchestration\OneOf2ToIResultOrchestrator.cs" />
     <Compile Include="Generators\OneOf2ToIResult\Attributes\GenerateOneOf2ExtensionsAttributeGenerator.cs" />
     <Compile Include="Generators\OneOf2ToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
-    
+    <Compile Include="Generators\OneOf2ToIResult\CodeGeneration\OneOf2ToIResultExtensionGenerator.cs" />
+
     <!-- OneOf3ToIResult Generator - Following OneOf2 Pattern -->
     <Compile Include="Generators\OneOf3ToIResult\OneOf3ToIResultGenerator.cs" />
     <Compile Include="Generators\OneOf3ToIResult\Orchestration\OneOf3ToIResultOrchestrator.cs" />
@@ -106,6 +117,14 @@
     <Compile Include="Generators\OneOf3ToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
     <Compile Include="Generators\OneOf3ToIResult\CodeGeneration\OneOf3ToIResultExtensionGenerator.cs" />
     <Compile Include="Generators\OneOf2ToIResult\CodeGeneration\OneOf2ToIResultExtensionGenerator.cs" />
+    
+    <!-- OneOf4ToIResult Generator - DISABLED (debugging incomplete) -->
+    <!-- <Compile Include="Generators\OneOf4ToIResult\OneOf4ToIResultGenerator.cs" /> -->
+    <!-- <Compile Include="Generators\OneOf4ToIResult\Orchestration\OneOf4ToIResultOrchestrator.cs" /> -->
+    <!-- <Compile Include="Generators\OneOf4ToIResult\Orchestration\MinimalOrchestrator.cs" /> -->
+    <!-- <Compile Include="Generators\OneOf4ToIResult\Attributes\GenerateOneOf4ExtensionsAttributeGenerator.cs" /> -->
+    <!-- <Compile Include="Generators\OneOf4ToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" /> -->
+    <!-- <Compile Include="Generators\OneOf4ToIResult\CodeGeneration\OneOf4ToIResultExtensionGenerator.cs" /> -->
     
     <!-- Core OneOf Models and Utilities -->
     <!-- TODO: Delete these files if confirmed unnecessary - moved to docs\archive -->

@@ -16,6 +16,8 @@ namespace REslava.Result.SourceGenerators.Generators.OneOf3ToIResult
 
         public OneOf3ToIResultGenerator()
         {
+            System.Diagnostics.Debug.WriteLine("🔥🔥🔥 OneOf3ToIResultGenerator constructor called!");
+            // TEMP: Test OneOf4 generation from OneOf3 generator
             _orchestrator = new OneOf3ToIResultOrchestrator();
         }
 

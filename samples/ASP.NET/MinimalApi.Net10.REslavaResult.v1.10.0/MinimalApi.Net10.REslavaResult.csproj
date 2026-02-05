@@ -5,13 +5,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     
-    <!-- Enable generated file output for debugging - SHOW GENERATED FILES -->
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <CompilerGeneratedFilesOutputPath>$(ProjectDir)GeneratedFiles</CompilerGeneratedFilesOutputPath>
-    
-    <!-- 🆕 SmartEndpoints Generation Mode Configuration -->
-    <SmartEndpointsGenerationMode Condition="'$(Configuration)' == 'Debug'">File</SmartEndpointsGenerationMode>
-    <SmartEndpointsGenerationMode Condition="'$(Configuration)' == 'Release'">Cache</SmartEndpointsGenerationMode>
+    <!-- Enable generated file output for debugging -->
+    <EmitCompilerGeneratedFiles Condition="'$(Configuration)' == 'Debug'">true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath Condition="'$(Configuration)' == 'Debug'">$(ProjectDir)\GeneratedFiles\$(TargetFramework)</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

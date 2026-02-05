@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MinimalApi.Net10.REslavaResult.Controllers;
-using Generated.SmartEndpoints;  // SmartEndpoints generated extensions - now enabled for testing
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,9 +22,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-
-// 🆕 SmartEndpoints: Auto-generated Minimal API endpoints
-app.MapSmartEndpoints();  // Now enabled for testing
 
 // Add health check endpoint
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
