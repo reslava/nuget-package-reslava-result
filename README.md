@@ -18,22 +18,30 @@
 
 ---
 
-## 📈 Version History
-
-- **v1.11.0** - SmartEndpoints integration with OneOf extensions
-- **v1.10.3** - OneOf2ToIResult & OneOf3ToIResult generators  
-- **v1.10.2** - Initial Result<T> to IResult conversion
-- **v1.9.x** - Core Result types and error handling
-
----
-
 ## 📚 Table of Contents
 
-- [🚀 Quick Start](#quick-start)
-- [⚡ SmartEndpoints](#smartendpoints) 
-- [🔄 OneOf Extensions](#oneof-extensions)
-- [🧪 Testing](#testing)
-- [📖 Examples](#examples)
+| 🎯 **Section** | 📖 **Description** |
+|------------------|---------------------|
+| [🚀 Quick Start](#-quick-start) | Installation and complete generator showcase |
+| [📚 Choose Your Path](#-choose-your-path) | Find exactly what you need |
+| [🎯 The Transformation: 70-90% Less Code](#-the-transformation-70-90-less-code) | See how boilerplate disappears |
+| [🏗️ REslava.Result Core Library](#-reslavaresult-core-library) | Functional programming foundation |
+| [🚀 ASP.NET Integration](#-aspnet-integration) | ResultToIResult and HTTP mapping |
+| [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, LINQ, functional composition |
+| [🏗️ Complete Architecture](#-complete-architecture) | How generators work internally |
+| [📦 Package Structure](#-package-structure) | What you get with each package |
+| [🎯 Quick Examples](#-quick-examples) | Real-world code samples |
+| [📈 Production Benefits](#-production-benefits) | Enterprise-ready advantages |
+| [🧪 Testing & Quality Assurance](#-testing--quality-assurance) | 1902+ tests passing |
+| [🏢 Real-World Impact](#-real-world-impact) | Success stories and use cases |
+| [🏆 Why Choose REslava.Result?](#-why-choose-reslavaresult) | Unique advantages |
+| [📚 Deep Dive Documentation](#-deep-dive-documentation) | Comprehensive guides |
+| [🧪 Quick Start Scenarios](#-quick-start-scenarios) | Hands-on tutorials |
+| [🎯 Roadmap](#-roadmap) | Future development plans |
+| [🤝 Contributing](#-contributing) | How to contribute |
+| [📄 License](#-license) | MIT License details |
+| [🙏 Acknowledgments](#-acknowledgments) | Community credits |
+| [📈 Version History](#-version-history) | Release notes and changes |
 
 ---
 
@@ -1126,7 +1134,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🎉 Ready to Transform Your Error Handling?
 
-**📖 [Start with the Getting Started Guide](docs/getting-started.md)**
+**📖 [Start with Getting Started Guide](docs/getting-started.md)**
 
 ---
 
@@ -1138,8 +1146,11 @@ Made with ❤️ by [Rafa Eslava](https://github.com/reslava) for developers com
 
 [Report Bug](https://github.com/reslava/nuget-package-reslava-result/issues) • [Request Feature](https://github.com/reslava/nuget-package-reslava-result/issues) • [Discussions](https://github.com/reslava/nuget-package-reslava-result/discussions)
 
-</div>
-
 ---
 
-**🚀 Ready to master functional programming in .NET? Install now and experience the power of complete functional patterns!**
+## 📈 Version History
+
+- **v1.11.0** - SmartEndpoints integration with OneOf extensions
+- **v1.10.3** - OneOf2ToIResult & OneOf3ToIResult generators  
+- **v1.10.2** - Initial Result<T> to IResult conversion
+- **v1.9.x** - Core Result types and error handling
