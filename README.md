@@ -109,7 +109,7 @@ Convert Result<T> types to proper HTTP responses:
 ```csharp
 public Result<User> GetUser(int id) { /* ... */ }
 return GetUser(id).ToIResult(); // Automatic HTTP mapping
-```
+
 
 app.MapGet("/users/{id}", async (int id, IUserService service) =>
 {
