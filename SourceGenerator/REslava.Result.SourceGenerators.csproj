@@ -12,7 +12,7 @@
     <!-- NuGet Package Configuration -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>REslava.Result.SourceGenerators</PackageId>
-    <Version>$(GeneratorPackageVersion)</Version>
+    <Version>1.11.0</Version>
     <Authors>REslava</Authors>
     <Company>REslava</Company>
     <Product>REslava.Result.SourceGenerators</Product>
@@ -60,6 +60,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
   </ItemGroup>
 
   <!-- CRITICAL: Package this as a Source Generator -->
@@ -72,6 +74,14 @@
   <ItemGroup>
     <None Include="build\REslava.Result.SourceGenerators.props" Pack="true" PackagePath="build" />
     <None Include="buildTransitive\REslava.Result.SourceGenerators.props" Pack="true" PackagePath="buildTransitive" />
+  </ItemGroup>
+
+  <!-- Test Files -->
+  <ItemGroup>
+    <Compile Include="tests\REslava.Result.SourceGenerators.Tests\SmartEndpoints\SmartEndpoints_RouteGenerationTests.cs" />
+    <Compile Include="tests\REslava.Result.SourceGenerators.Tests\SmartEndpoints\SmartEndpoints_GeneratorIntegration.cs" />
+    <Compile Include="tests\REslava.Result.SourceGenerators.Tests\SmartEndpoints\SmartEndpoints_MetadataTests.cs" />
+    <Compile Include="tests\REslava.Result.SourceGenerators.Tests\SmartEndpoints\SmartEndpoints_AttributeParsingTests.cs" />
   </ItemGroup>
 
   <!-- Explicit compile items - use refactored structure only -->

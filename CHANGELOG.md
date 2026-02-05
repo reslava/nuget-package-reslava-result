@@ -1,754 +1,85 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+All notable changes to this project will be documented in this file.
 
-## [1.10.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.9.7...v1.10.0) (2026-02-02)
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
-### 🚀 **Major Features - OneOfToIResult Extensions (BREAKTHROUGH!)**
-* **OneOf<T1, T2>.ToIResult()** - Two-type OneOf extensions with smart HTTP mapping
-* **OneOf<T1, T2, T3>.ToIResult()** - Three-type OneOf extensions with intelligent status codes
-* **Smart Auto-Detection** - Automatically detects your OneOf setup (external vs REslava.Result)
-* **Zero Configuration** - Perfect developer experience with no manual setup required
-* **External OneOf Compatible** - Works seamlessly with OneOf package v3.0.26
-* **REslava.Result Compatible** - Works with internal OneOf implementation
+## [1.11.0] - 2025-02-05
 
-### 🧠 **Smart Auto-Detection Features**
-* **Setup Detection** - Automatically detects if REslava.Result is referenced
-* **Conflict Prevention** - ResultToIResult generator only runs when appropriate
-* **Zero Compilation Errors** - Perfect coexistence between OneOf and Result generators
-* **Backward Compatibility** - Existing projects unaffected by new features
+### 🎯 Added
+- **SmartEndpoints Generator** - Complete Zero Boilerplate API generation
+  - Automatic route generation with parameter awareness
+  - Intelligent HTTP method detection (GET/POST/PUT/DELETE)
+  - Route prefix support via `[AutoGenerateEndpoints(RoutePrefix = "...")]`
+  - Full integration with existing OneOf2/OneOf3 extensions
+  - Comprehensive error handling with automatic HTTP status mapping
 
-### 🎯 **HTTP Mapping Intelligence**
-* **Error Types** → 400/404 status codes based on error classification
-* **Success Types** → 200 OK status codes
-* **Validation Errors** → 400 Bad Request
-* **Not Found Errors** → 404 Not Found
-* **Custom Types** → Intelligent default mapping
+### 🔄 Changed
+- **Route Inference** - Enhanced to include `{id}` parameters when needed
+- **OneOf Integration** - SmartEndpoints now uses existing OneOf extensions
+- **Generated Code** - Cleaned up debug code and production-ready
 
-### 📦 **Package Improvements**
-* **Unified Experience** - Single package works for all OneOf scenarios
-* **Performance Optimized** - Incremental generators with smart caching
-* **SOLID Architecture** - Clean, maintainable generator design
+### 🧪 Fixed
+- **SmartEndpoints Warnings** - Resolved null reference warnings
+- **Route Generation** - Fixed parameter-aware route inference
+- **Test Coverage** - Added comprehensive MSTest suite for SmartEndpoints
 
-### 📖 **Documentation Updates**
-* **Feature-Focused README** - Complete showcase of all library capabilities
-* **Quick Start Examples** - Clear scenarios for Result and OneOf patterns
-* **Architecture Documentation** - Deep dive into SOLID principles and design
+### ⚠️ Breaking Changes
+- **SmartEndpoints Route Inference** - Generated routes now properly include `{id}` parameters
+  - Routes may change from `/api/User` to `/api/User/{id}` for methods with ID parameters
+  - This improves route correctness and is a recommended update
 
-### 🧪 **Testing & Quality**
-* **Comprehensive Test Coverage** - All OneOf combinations tested
-* **Integration Testing** - Both external and REslava.Result scenarios validated
-* **Zero Regression** - All existing features continue to work perfectly
+### 📚 Documentation
+- Updated README with comprehensive SmartEndpoints examples
+- Added breaking changes documentation
+- Enhanced troubleshooting section
 
 ---
 
-## [1.9.7](https://github.com/reslava/nuget-package-reslava-result/compare/v1.9.6...v1.9.7) (2026-01-31)
+## [1.10.3] - 2025-02-05
 
-### 🐛 **Bug Fixes**
-* **Versioning Fix** - Fixed hardcoded version in project file that was causing package version mismatches
-* **Release Notes** - Improved GitHub release notes handling and automated release creation
-* **CI/CD Pipeline** - Implemented simple, reliable CI/CD with version validation and testing
+### 🎯 Added
+- **OneOf2ToIResult Generator** - Two-type error handling
+- **OneOf3ToIResult Generator** - Three-type error handling
+- **Intelligent HTTP Mapping** - Automatic error type detection
+- **Comprehensive Error Coverage** - All common error scenarios
 
-### 🔧 Improvements
-* **Repository Organization** - Moved release files to organized documentation structure
-* **Release Automation** - Enhanced GitHub Actions workflow with proper dependency management
-* **Documentation** - Updated README and release notes for better user experience
-
----
-
-## [1.9.6](https://github.com/reslava/nuget-package-reslava-result/compare/v1.9.5...v1.9.6) (2026-01-31)
-
-### 🐛 **Bug Fixes**
-* **Package Versioning** - Fixed version inconsistencies between Directory.Build.props and project files
-* **Release Process** - Improved release notes file handling and GitHub release creation
+### 🔄 Changed
+- **Error Detection** - Smart error type identification
+- **HTTP Status Mapping** - Automatic response code generation
 
 ---
 
-## [1.9.5](https://github.com/reslava/nuget-package-reslava-result/compare/v1.9.4...v1.9.5) (2026-01-31)
+## [1.10.2] - 2025-02-05
 
-### 🐛 **Bug Fixes**
-* **Dynamic Versioning** - Ensured all projects use dynamic versioning from Directory.Build.props
-* **Release Notes** - Fixed GitHub release notes file usage in automated releases
+### 🎯 Added
+- **ResultToIResult Generator** - Basic Result<T> conversion
+- **HTTP Status Mapping** - Intelligent error response generation
+- **ProblemDetails Support** - Structured error responses
 
----
-
-## [1.9.4](https://github.com/reslava/nuget-package-reslava-result/compare/v1.9.3...v1.9.4) (2026-01-31)
-
-### 🏗️ **SOLID Architecture Revolution**
-
-### ✨ Major Features
-* **SOLID Principles Implementation** - Complete architectural refactoring following SOLID principles
-* **Zero Duplicate Generation** - Permanent fix for duplicate attribute and class generation issues
-* **Clean Package Creation** - Resolved NU5017 packaging errors with proper configuration
-* **Production-Ready Architecture** - Extensible, maintainable, and testable codebase
-
-### 🔧 Architecture Improvements
-* **Single Responsibility Principle** - Separate classes for attributes, code generation, and orchestration
-* **Open/Closed Principle** - Interface-based design for extensibility without modification
-* **Dependency Inversion Principle** - Constructor injection with dependency on abstractions
-* **Interface Segregation** - Focused interfaces for specific responsibilities
-
-### 🚀 Technical Enhancements
-* **IAttributeGenerator Interface** - Dedicated interface for attribute generation
-* **ICodeGenerator Interface** - Dedicated interface for code generation
-* **IOrchestrator Interface** - Dedicated interface for pipeline coordination
-* **ResultToIResultOrchestrator** - Clean separation of generation pipeline logic
-* **Refactored Extension Methods** - All HTTP method extensions working perfectly
-
-### 🐛 Bug Fixes
-* **Fixed duplicate attribute generation** - Eliminated CS0101 and CS0579 errors
-* **Fixed NU5017 packaging errors** - Proper package configuration
-* **Fixed version conflicts** - Corrected Directory.Build.props version management
-* **Fixed pipeline duplication** - Single execution per compilation
-
-### 📦 Package Improvements
-* **Clean package structure** - Proper analyzers folder organization
-* **Version consistency** - Synchronized version management across projects
-* **Dependency resolution** - Fixed package reference conflicts
-
-## [1.9.3](https://github.com/reslava/nuget-package-reslava-result/compare/v1.9.2...v1.9.3) (2026-01-31)
-
-### 🔧 **Package Configuration Fixes**
-
-### 🐛 Bug Fixes
-* **Fixed Directory.Build.props version conflicts** - Corrected CorePackageVersion and GeneratorPackageVersion
-* **Improved package caching** - Better NuGet cache management for testing
-
-## [1.9.2](https://github.com/reslava/nuget-package-reslava-result/compare/v1.9.1...v1.9.2) (2026-01-31)
-
-### 🔧 **Initial Refactoring Attempt**
-
-### ⚠️ Known Issues
-* **Duplicate generation errors** - CS0101 and CS0579 errors due to multiple generators
-* **NU5017 packaging errors** - Package creation issues with content configuration
-
-## [1.9.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.8.0...v1.9.0) (2026-01-30)
-
-### 🏗️ **Revolutionary Core Library Architecture**
-
-### ✨ Major Features
-* **Modular Core Library** - Revolutionary reusable infrastructure for source generator development
-* **Configuration-Driven Generators** - Flexible, type-safe configuration management system
-* **100% Test Coverage** - Comprehensive testing with 32 tests (18 unit + 14 integration)
-* **Enhanced Error Handling** - Graceful handling of edge cases and null inputs
-* **Professional Project Structure** - Clean, organized, maintainable codebase
-
-### 🔧 Core Library Components
-* **CodeBuilder** - Fluent code generation with proper indentation and XML documentation
-* **HttpStatusCodeMapper** - Smart HTTP status mapping with convention-based and custom mapping
-* **AttributeParser** - Robust attribute configuration parsing with array handling
-* **IncrementalGeneratorBase<TConfig>** - Base class for rapid generator development
-* **GeneratorConfigurationBase<TConfig>** - Configuration base class with validation and cloning
-
-### 🚀 Generator Improvements
-* **Refactored ResultToIResult Generator** - Now uses Core library infrastructure
-* **Enhanced Configuration Options** - More flexible and type-safe configuration
-* **Better Performance** - Optimized code generation and caching
-* **Improved Diagnostics** - Better error reporting and validation
-
-### 📊 Testing Enhancements
-* **Unit Tests** - 18 tests covering all Core library components
-* **Integration Tests** - 14 tests covering generator scenarios
-* **Console Tests** - 4 tests for quick verification
-* **100% Success Rate** - All tests passing consistently
-
-### 📚 Documentation
-* **Core Library Documentation** - Comprehensive guide for Core library components
-* **Generator Development Guide** - Step-by-step guide for creating custom generators
-* **Migration Guide** - Detailed migration from v1.7.3 to v1.9.0
-* **Testing Documentation** - Testing strategies and guidelines
-* **Updated Quick Start** - Enhanced quick start guide with v1.9.0 features
-
-### 🔄 Breaking Changes
-* **Package Structure** - Updated to use Core library architecture
-* **Project References** - New reference pattern for Core library and generators
-* **Configuration** - Enhanced configuration with more options and better validation
-
-### 🛠️ Developer Experience
-* **Cleaner Project Structure** - Removed legacy test applications and temporary files
-* **Better Organization** - Modular structure with clear separation of concerns
-* **Enhanced Tooling** - Better development and debugging experience
-* **Comprehensive Examples** - Real-world examples and best practices
+### 🔄 Changed
+- **Core Library** - Enhanced error handling capabilities
 
 ---
 
-## [1.8.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.7.3...v1.8.0) (2026-01-29)
+## [1.10.1] - 2025-02-05
 
-### 🏗️ **Major Architecture Evolution - Enhanced Source Generator**
+### 🎯 Added
+- **Initial Release** - Core Result types
+- **Error Handling** - Basic error type definitions
+- **HTTP Integration** - ASP.NET Core IResult support
 
-### ✨ Revolutionary Features
-* **Metadata Discovery System** - Revolutionary compile-time error type analysis
-* **Three-Tier Error Mapping Priority** - Attribute > Custom > Convention
-* **Enhanced [MapToProblemDetails] Attribute** - Explicit error-to-HTTP status mapping
-* **Smart Convention Matching** - 10+ intelligent HTTP status patterns:
-  * NotFoundError → 404 Not Found
-  * ValidationError → 422 Unprocessable Entity
-  * ConflictError → 409 Conflict
-  * UnauthorizedError → 401 Unauthorized
-  * PaymentRequiredError → 402 Payment Required
-  * RateLimitError → 429 Too Many Requests
-  * TimeoutError → 408 Request Timeout
-  * ServerError → 500 Internal Server Error
-  * ServiceUnavailableError → 503 Service Unavailable
-  * And more patterns...
-
-### 🔧 Enhanced Capabilities
-* **Custom Error Type Support** - Full metadata discovery for user-defined error types
-* **Rich Error Context** - Error tags, types, and custom properties in responses
-* **RFC 7807 Compliance** - Standardized ProblemDetails responses
-* **Advanced Configuration** - Custom error mappings and namespace control
-* **Zero Runtime Overhead** - All processing at compile-time
-* **Incremental Generator Optimization** - Fixed nullable type handling and data access patterns
-
-### 📈 Architecture Improvements
-* **Metadata Pipeline** - Complete rewrite of internal generator architecture
-* **Convention Engine** - Intelligent pattern matching for error type names
-* **Priority System** - Hierarchical mapping with explicit overrides
-* **Enhanced Extensibility** - Foundation for advanced future features
-
-### 🧪 Quality & Testing
-* **Clean Build** - Zero compilation errors across all projects
-* **100% Test Pass Rate** - All 27 source generator tests passing
-* **Integration Verified** - Sample projects working with enhanced features
-* **Performance Optimized** - Improved compile-time performance
-
-### 📚 Documentation
-* **Enhanced README** - Comprehensive v1.8.0 architecture overview
-* **Code Examples** - Custom error types and advanced configuration
-* **Migration Guide** - Clear path from v1.7.3 to v1.8.0
+### 🔄 Changed
+- **Initial Setup** - Project structure and packaging
 
 ---
 
-## [1.7.3](https://github.com/reslava/nuget-package-reslava-result/compare/v1.7.2...v1.7.3) (2026-01-28)
-
-### ✨ New Features
-* **Manual HTTP Extensions** - Built-in Result<T> to HTTP response conversion
-* **ToHttpResponse() Method** - Tuple-based responses `(statusCode, value)`
-* **GetHttpStatusCode()** - Direct status code extraction from Results
-* **GetErrorMessage()** - Easy error message access for failed Results
-* **Smart Error Classification** - Automatic status codes based on message content:
-  * "not found" → 404
-  * "validation" → 400  
-  * "unauthorized" → 401
-  * "forbidden" → 403
-  * "conflict" → 409
-  * Default → 500
-
-### 🔧 Technical Improvements
-* **Zero External Dependencies** - Pure REslava.Result package
-* **Multi-Framework Support** - .NET 8, 9, 10 compatibility
-* **Tuple-Based Responses** - Easy integration with any HTTP framework
-* **Message-Based Classification** - Intelligent error type detection
-* **Backward Compatible** - Existing code unchanged
-
-### 📦 Package Updates
-* **REslava.Result v1.7.3** - Core package with HTTP extensions
-* **Updated Description** - "Built-in Minimal API extensions"
-* **Enhanced Tags** - Added minimal-api, aspnetcore, iresult tags
-
-### 🧪 Testing
-* **ManualExtensionsTest** - Comprehensive test suite
-* **Success Case Verified** - 200 → Hello World!
-* **Error Case Verified** - 404 → { error = Product not found }
-* **Classification Tested** - Smart status code mapping
-
-### 📚 Documentation
-* **Extension Methods Guide** - Complete usage examples
-* **HTTP Response Patterns** - Best practices for web APIs
-* **Error Classification** - Smart status code detection
-
-### 🔮 Future Planning
-* **Source Generator Research** - Deep analysis of compiler integration
-* **Multi-Package Architecture** - Lessons learned for v1.8.0
-* **Enhanced Classification** - Custom error types planned
-
-## [1.7.2](https://github.com/reslava/nuget-package-reslava-result/compare/v1.7.0...v1.7.2) (2026-01-27)
-
-### 🐛 Bug Fixes
-* **Source Generator Issues** - Identified compiler integration challenges
-* **Circular Dependencies** - Resolved project reference conflicts
-* **Build Configuration** - Fixed packaging and deployment issues
-
-### 🔧 Technical Improvements
-* **Research Infrastructure** - Added comprehensive debugging tools
-* **Isolation Testing** - Created test projects for generator validation
-* **Package Structure** - Improved multi-package organization
-
-### 📚 Documentation
-* **Research Findings** - Documented source generator challenges
-* **Best Practices** - Added multi-package publishing guidelines
-
-## [1.7.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.6.0...v1.7.0) (2026-01-27)
-
-### 🚀 Major Release - Source Generator Support
-
-#### ✨ New Features
-* **Source Generator Support** - Automatic Result<T> to HTTP response conversion
-* **Zero Boilerplate Web APIs** - Eliminate 70-90% of controller code
-* **RFC 7807 Compliance** - Standardized ProblemDetails responses
-* **Smart HTTP Status Mapping** - Automatic status code based on Result type
-* **Compile-Time Generation** - Zero runtime overhead
-* **NativeAOT Compatibility** - Works with ahead-of-time compilation
-* **One-line setup** - `[assembly: GenerateResultExtensions]`
-* **Direct Result<T> returns** from Minimal API endpoints
-* **Automatic error handling** with proper HTTP responses
-* **Built-in validation** support integration
-
-#### 📦 New Packages
-* **REslava.Result.SourceGenerators (1.0.0)** - Auto-conversion source generator
-* **REslava.Result.SourceGenerators.Attributes (1.0.0)** - Generator attributes
-
-#### 🔧 Technical Improvements
-* **Multi-package structure** - Core + Generators + Attributes
-* **Centralized version management** - Automated version synchronization
-* **Professional CI/CD pipeline** - Multi-framework builds (.NET 8, 9, 10)
-* **Enhanced documentation** - Hub & Spoke organization
-* **Zero runtime overhead** - All generation happens at compile time
-* **Optimized IL generation** - Efficient code generation
-* **Memory efficient** - No reflection or runtime analysis
-* **IntelliSense support** - Full autocomplete for generated code
-* **Debug symbols** - Complete debugging support
-* **Multi-framework support** - .NET 8, 9, 10
-* **Symbol packages** - Available on NuGet
-
-#### 📚 Documentation
-* **Source Generator Guide** - Complete setup and usage
-* **Web API Integration Guide** - Step-by-step implementation
-* **Getting Started Guide** - Beginner-friendly introduction
-* **Advanced Patterns Guide** - Maybe, OneOf, and more
-* **Minimal API examples** - Real-world usage patterns
-* **Complete sample projects** - End-to-end implementations
-* **Best practices** - Production-ready patterns
-
-#### 🔄 Breaking Changes
-* **None** - Fully backward compatible
-* **Existing REslava.Result users** - No changes required
-* **Optional source generators** - Add when ready
-* **Same API surface** - All existing code continues to work
-
-#### 🛠️ Developer Experience
-* **Automated versioning** - Script-based version management
-* **CI/CD automation** - Professional release pipeline
-* **Package validation** - Comprehensive testing
-
-## [1.6.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.5.1...v1.6.0) (2026-01-26)
-
-
-### ✨ Features
-
-* Add OneOf ↔ Result pipeline integration extensions ([1be3143](https://github.com/reslava/nuget-package-reslava-result/commit/1be31436e1c7ccb1abdc5bb46a4e4d90051b5254))
-* Add Result ↔ OneOf conversion extensions ([3913fc9](https://github.com/reslava/nuget-package-reslava-result/commit/3913fc94772421531e98cb616171d633c16b17a5))
-* complete all console samples with 100% success rate ([e41897b](https://github.com/reslava/nuget-package-reslava-result/commit/e41897bd83e53ed0525469ded001219990f11e44))
-* completely resolve tag access issues with robust, type-safe API ([f45f0cb](https://github.com/reslava/nuget-package-reslava-result/commit/f45f0cbb5d6163e1e8446b67095bff0cba2a8335))
-* implement Solution 1 - fix constructor chaining issues completely ([63a93a2](https://github.com/reslava/nuget-package-reslava-result/commit/63a93a209b5ab05da44ce954fa34c31b578ec3d1))
-
-
-### 🐛 Bug Fixes
-
-* Resolve test compilation errors for OneOf integration extensions ([eae5b4a](https://github.com/reslava/nuget-package-reslava-result/commit/eae5b4af82539d2cbf12877c021af650cc8e6525))
-
-
-### 📚 Documentation
-
-* fix roadmap - Validation Rules Engine already implemented in v1.5.1 ([c44fa8e](https://github.com/reslava/nuget-package-reslava-result/commit/c44fa8eedc062ad336b123a120f145ac268b2f38))
-* Reorganize documentation structure for better navigation ([9274fa8](https://github.com/reslava/nuget-package-reslava-result/commit/9274fa80d195a4d8ffed4b3c7f6a33dbed5e4eb5))
-* update documentation with Solution 1 patterns for custom errors ([ef75169](https://github.com/reslava/nuget-package-reslava-result/commit/ef7516982c7241f2f71d50cfe52e48e71dc75c5d))
-
-
-### ♻️ Code Refactoring
-
-* Move LINQ extensions to REslava.Result.Extensions namespace ([8ea80f9](https://github.com/reslava/nuget-package-reslava-result/commit/8ea80f98c7f53a8684107c49966dda97b853f148))
-
-## [1.5.1](https://github.com/reslava/nuget-package-reslava-result/compare/v1.5.0...v1.5.1) (2026-01-25)
-
-### 🐛 Bug Fixes
-
-* **CI/CD**: Achieve 100% test success rate (1449/1449 tests passed) ([ed30bbf](https://github.com/reslava/nuget-package-reslava-result/commit/ed30bbf6c6c9e9b5f5c2d3f7b8c5e8a6f1a2f3b))
-* **core**: Fix exception handling in all extension methods (Ensure, MapAsync, Tap, LINQ) ([12c8e19](https://github.com/reslava/nuget-package-reslava-result/commit/12c8e1910d6d2e8b5f5c2d3f7b8c5e8a6f1a2f3b))
-* **core**: Add comprehensive parameter validation throughout ValidationRules ([748baac](https://github.com/reslava/nuget-package-reslava-result/commit/748baac6c6c9e9b5f5c2d3f7b8c5e8a6f1a2f3b))
-* **core**: Fix Assert.Contains parameter order in validation tests ([39833dd](https://github.com/reslava/nuget-package-reslava-result/commit/39833dd1b2d2e8b5f5c2d3f7b8c5e8a6f1a2f3b))
-* **core**: Resolve ValidationResult IsValid logic with explicit failure flag ([7c48028](https://github.com/reslava/nuget-package-reslava-result/commit/7c480284a1d2e8b5f5c2d3f7b8c5e8a6f1a2f3b))
-* **core**: Fix WithTags parameter validation for Success and Error types ([7b64d19](https://github.com/reslava/nuget-package-reslava-result/commit/7b64d1910d6d2e8b5f5c2d3f7b8c5e8a6f1a2f3b))
-* **core**: Fix LINQ SelectManyAsync parameter validation with proper exception handling ([c2262ee](https://github.com/reslava/nuget-package-reslava-result/commit/c2262ee10d6d2e8b5f5c2d3f7b8c5e8a6f1a2f3b))
-* **core**: Fix ExceptionError stack trace handling for test environments ([7a5c5f8](https://github.com/reslava/nuget-package-reslava-result/commit/7a5c5f810d6d2e8b5f5c2d3f7b8c5e8a6f1a2f3b))
-* **core**: Fix async validation predicate logic in ValidationRules ([4a31f07](https://github.com/reslava/nuget-package-reslava-result/commit/4a31f0710d6d2e8b5f5c2d3f7b8c5e8a6f1a2f3b))
-
-### ✨ Improvements
-
-* **Reliability**: Library is now 100% battle-tested with perfect test coverage
-* **Stability**: Robust exception handling throughout all extension methods
-* **CI/CD**: Smooth release pipeline with no build failures
-* **Quality**: Comprehensive parameter validation and error handling
-
-## [1.5.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.4.3...v1.5.0) (2026-01-24)
-
-
-### ✨ Features
-
-* Add Validation Rules Engine ([342c14b](https://github.com/reslava/nuget-package-reslava-result/commit/342c14bad98b75d3ccae7b506065ffb2f151cd80))
-* comprehensive test coverage improvements ([c6cb0e3](https://github.com/reslava/nuget-package-reslava-result/commit/c6cb0e39bb5114a4c3b985d955a0324cf0f8e36c))
-* comprehensive test coverage improvements (32% error reduction) ([f44fed3](https://github.com/reslava/nuget-package-reslava-result/commit/f44fed324f2872ac1d671cecbf3e96f6c0b1bc6a))
-* **core:** add comprehensive ValidationRules framework with modern test suite ([99f3b87](https://github.com/reslava/nuget-package-reslava-result/commit/99f3b879b764d18af05b14351c49048fafd53c21))
-
-## [1.4.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.3.1...v1.4.0) (2026-01-22)
-
-
-### ✨ Features
-
-* update NuGet package icon ([94c3e4d](https://github.com/reslava/nuget-package-reslava-result/commit/94c3e4d9a70a1540caa0ebf69a3b3b0470acc07c))
-
-## [1.3.1](https://github.com/reslava/nuget-package-reslava-result/compare/v1.3.0...v1.3.1) (2026-01-21)
-
-
-### 🐛 Bug Fixes
-
-* remove release asset uploads to prevent asset errors ([522b2a9](https://github.com/reslava/nuget-package-reslava-result/commit/522b2a9511f623399e753e35a61dcec39f49fd6b))
-
-## [1.3.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.2.2...v1.3.0) (2026-01-21)
-
-
-### ✨ Features
-
-* re-add GitHub release creation with fixed permissions ([7235b5e](https://github.com/reslava/nuget-package-reslava-result/commit/7235b5e3cfdcd2eccac6f6d733dd1c958aaf900e))
-
-
-### ⏪ Reverts
-
-* remove GitHub release creation due to permissions ([d6e5dbb](https://github.com/reslava/nuget-package-reslava-result/commit/d6e5dbbbb9c78d0a07cac3e63d5020e52c5f6659))
-
-## [1.2.2](https://github.com/reslava/nuget-package-reslava-result/compare/v1.2.1...v1.2.2) (2026-01-21)
-
-
-### 🐛 Bug Fixes
-
-* remove auto-generated release notes to avoid permissions ([138d99d](https://github.com/reslava/nuget-package-reslava-result/commit/138d99d64a83568a811d0e2833fc865e8d8f79bd))
-
-## [1.2.1](https://github.com/reslava/nuget-package-reslava-result/compare/v1.2.0...v1.2.1) (2026-01-21)
-
-
-### 🐛 Bug Fixes
-
-* update GitHub release action version and file paths ([2ec8bec](https://github.com/reslava/nuget-package-reslava-result/commit/2ec8becba6c12db421e7d53f00c0a5b306b0aa33))
-
-## [1.2.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.1.2...v1.2.0) (2026-01-21)
-
-
-### ✨ Features
-
-* create GitHub releases with NuGet packages ([35c0548](https://github.com/reslava/nuget-package-reslava-result/commit/35c054830a8b80e38040f3b3e8353fedb8d0a764))
-
-## [1.1.2](https://github.com/reslava/nuget-package-reslava-result/compare/v1.1.1...v1.1.2) (2026-01-21)
-
-
-### 🐛 Bug Fixes
-
-* upload and push symbol packages to NuGet ([e1bcaa8](https://github.com/reslava/nuget-package-reslava-result/commit/e1bcaa8676634a6d869984dd619f025262e0e717))
-
-## [1.1.1](https://github.com/reslava/nuget-package-reslava-result/compare/v1.1.0...v1.1.1) (2026-01-21)
-
-
-### 🐛 Bug Fixes
-
-* include symbols and CI build in GitHub Actions ([e13931c](https://github.com/reslava/nuget-package-reslava-result/commit/e13931c3928217dbaf4d8120408313b947054da0))
-
-## [1.1.0](https://github.com/reslava/nuget-package-reslava-result/compare/v1.0.0...v1.1.0) (2026-01-21)
-
-
-### ✨ Features
-
-* add CRTP advantage documentation and performance benchmarks ([c03f660](https://github.com/reslava/nuget-package-reslava-result/commit/c03f660f5a8a2eda17bf86b0a1982734c9419bfc))
-
-
-### 🐛 Bug Fixes
-
-* add deterministic build settings for NuGet package health ([8325a06](https://github.com/reslava/nuget-package-reslava-result/commit/8325a06656c49a19243edeefdcbf2e31480ba583))
-
-
-### 📚 Documentation
-
-* add comprehensive API reference documentation ([480e871](https://github.com/reslava/nuget-package-reslava-result/commit/480e871c1128022294d229e7282d7e60a32400c3))
-* add versioned UML diagram files ([95a100c](https://github.com/reslava/nuget-package-reslava-result/commit/95a100cd898e620ab21a8d9cc1ef71f2b3323b52))
-* **readme:** fix all incorrect examples and API usage ([04efa85](https://github.com/reslava/nuget-package-reslava-result/commit/04efa85f0ab1e511fc7b7970d5dfd4b2be74bf61))
-* **readme:** fix async examples ([37ca4a5](https://github.com/reslava/nuget-package-reslava-result/commit/37ca4a56fc60674fb33c164c2c916f4ba32673d4))
-* update UML diagrams to reflect actual implementation ([5ac8ddd](https://github.com/reslava/nuget-package-reslava-result/commit/5ac8ddd9b2a0832fb6faaca890c2436010cabae7))
-
-## [1.0.0](https://github.com/reslava/nuget-package-reslava-result/compare/v0.5.1...v1.0.0) (2026-01-20)
-
-## [0.5.1](https://github.com/reslava/nuget-package-reslava-result/compare/v0.5.0...v0.5.1) (2026-01-20)
-
-
-### 📚 Documentation
-
-* **core:** xml documentation ([f8bf542](https://github.com/reslava/nuget-package-reslava-result/commit/f8bf5429cf54a2555bf6daf419dfa7b73b150fed))
-
-
-### ♻️ Code Refactoring
-
-* **core:** rename async methods, update tests ([cbf131e](https://github.com/reslava/nuget-package-reslava-result/commit/cbf131e7a2012b496eb4fd0139070d82d8c2a9ac))
-
-## [0.5.0](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.20...v0.5.0) (2026-01-20)
-
-
-### 🐛 Bug Fixes
-
-* **result.conversion:** now throw null ex instead of masking ([6a6cd52](https://github.com/reslava/nuget-package-reslava-result/commit/6a6cd5254558b90b47daa9730215b1bace4e794b))
-* **samples tests linq map:** fix ([ca050d4](https://github.com/reslava/nuget-package-reslava-result/commit/ca050d4fb0fe7b16a309b294698c5843fa5170a9))
-
-
-### 📚 Documentation
-
-* **core:** add update XML documentation with examples ([65b51a6](https://github.com/reslava/nuget-package-reslava-result/commit/65b51a6566117e90734e4c1c0e1c566617406f2f))
-
-
-### ♻️ Code Refactoring
-
-* **core:** use Validation.Extensions.cs ([52f5868](https://github.com/reslava/nuget-package-reslava-result/commit/52f58688322294d333fda2cc482059df59a128e5))
-* **reason:** success error delete parameterless constructor, always require at least a message ([491a450](https://github.com/reslava/nuget-package-reslava-result/commit/491a450a9cf08798ff411cb864570e275d2b4727))
-
-## [0.4.20](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.19...v0.4.20) (2026-01-19)
-
-
-### ✨ Features
-
-* **samples:** add samples ([d27e6f4](https://github.com/reslava/nuget-package-reslava-result/commit/d27e6f492d0b33f7dc4989f00228319d5f536500))
-* **samples:** add samples ([38df7c2](https://github.com/reslava/nuget-package-reslava-result/commit/38df7c2464008f6fba9852a7498e5820cd224970))
-
-
-### 🐛 Bug Fixes
-
-* **core:** api ([d8ac161](https://github.com/reslava/nuget-package-reslava-result/commit/d8ac1616b8562075ce76c5e855029f7bcc072652))
-
-## [0.4.19](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.18...v0.4.19) (2026-01-18)
-
-
-### 🐛 Bug Fixes
-
-* **result:** api review ([c9fb699](https://github.com/reslava/nuget-package-reslava-result/commit/c9fb6993dbb8df6072e56367b15dc56bfb7c6af5))
-* **result:** api review ([3662885](https://github.com/reslava/nuget-package-reslava-result/commit/366288550216426e519cb3028d40d589669d3ba7))
-
-## [0.4.18](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.17...v0.4.18) (2026-01-18)
-
-
-### 🐛 Bug Fixes
-
-* **core:** conversions ([6f14ceb](https://github.com/reslava/nuget-package-reslava-result/commit/6f14cebbc12055b85f6efd21470ad04c1bbc2fc7))
-* **core:** conversions ([9a7b014](https://github.com/reslava/nuget-package-reslava-result/commit/9a7b01488fd05df0e3680b55641d3be35bbe74a1))
-
-## [0.4.17](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.16...v0.4.17) (2026-01-18)
-
-
-### 🐛 Bug Fixes
-
-* **core:** immutability conversion conversionerror tests ([8885cf5](https://github.com/reslava/nuget-package-reslava-result/commit/8885cf528fd37387fbacd403097ead3425210e5e))
-* **core:** immutability conversion tests ([a6d5148](https://github.com/reslava/nuget-package-reslava-result/commit/a6d51488c475ca03d4b3a7cc6566e72e662f0ed3))
-
-## [0.4.16](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.15...v0.4.16) (2026-01-17)
-
-
-### 🐛 Bug Fixes
-
-* **core:** Use Immutable Collections for Reasons in Result ([75068f9](https://github.com/reslava/nuget-package-reslava-result/commit/75068f9f8797f54c2401e01e6237d926b2b73086))
-* **reason:** immutability ([997cd35](https://github.com/reslava/nuget-package-reslava-result/commit/997cd351924557a3161407344f519f12f89f5779))
-* **reason:** immutability ([00b6fda](https://github.com/reslava/nuget-package-reslava-result/commit/00b6fdacc218afe2d916cfb7445435a11ebc16aa))
-* **reason:** immutability, new tests ([9f32cbc](https://github.com/reslava/nuget-package-reslava-result/commit/9f32cbcdd97943ba966dbd7f711c65cb623eceb6))
-
-## [0.4.15](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.13...v0.4.15) (2026-01-13)
-
-
-### ✅ Tests
-
-* **samples:** add console, webapi samples ([ce4bd2c](https://github.com/reslava/nuget-package-reslava-result/commit/ce4bd2ca0af20ac4a1dd74fd53a11373b12bef5d))
-* **samples:** console ([4e2af18](https://github.com/reslava/nuget-package-reslava-result/commit/4e2af180b70732e3fa42da45099a432190f1e666))
-
-## [0.4.14](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.13...v0.4.14) (2026-01-13)
-
-## [0.4.13](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.12...v0.4.13) (2026-01-13)
-
-
-### ✨ Features
-
-* **result:** extensions linq validation, factories combine conditional, bind map, tests linq ([9b75ac5](https://github.com/reslava/nuget-package-reslava-result/commit/9b75ac5acf2cac7019631e1cc2135d8c56ab0c27))
-
-## [0.4.12](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.11...v0.4.12) (2026-01-12)
-
-
-### ✅ Tests
-
-* **result:** add extension validationextension ([ddd64f5](https://github.com/reslava/nuget-package-reslava-result/commit/ddd64f5af834bde42c90155d49041093c3b4af33))
-
-## [0.4.11](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.10...v0.4.11) (2026-01-12)
-
-## [0.4.10](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.9...v0.4.10) (2026-01-12)
-
-
-### ✨ Features
-
-* **release:** add conversions, factories combine conditional, extensions linq validations ([1990097](https://github.com/reslava/nuget-package-reslava-result/commit/19900970fc424a4d795bc5b8366a0aa5cbdf3f16))
-
-## [0.4.9](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.8...v0.4.9) (2026-01-12)
-
-## [0.4.8](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.7...v0.4.8) (2026-01-12)
-
-
-### 📚 Documentation
-
-* **readme:** update custom errors & design ([ea380d6](https://github.com/reslava/nuget-package-reslava-result/commit/ea380d6afd10717a2732fc92f5e6dbe629798316))
-
-## [0.4.7](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.6...v0.4.7) (2026-01-11)
-
-
-### 📚 Documentation
-
-* **readme:** update ([e48527b](https://github.com/reslava/nuget-package-reslava-result/commit/e48527b40e683f8d19c81999a4465da3c7520016))
-
-## [0.4.6](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.5...v0.4.6) (2026-01-11)
-
-
-### ✅ Tests
-
-* **result:** extensions validation-estensions - tap try ([0131034](https://github.com/reslava/nuget-package-reslava-result/commit/0131034d3393ad54a99597f0ca2252227f3703fc))
-
-## [0.4.5](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.4...v0.4.5) (2026-01-11)
-
-
-### ✅ Tests
-
-* **result:** add try, split files ([008f764](https://github.com/reslava/nuget-package-reslava-result/commit/008f76499ad1d31f185378769fc58d7e0886cc4d))
-
-## [0.4.4](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.3...v0.4.4) (2026-01-11)
-
-
-### ✨ Features
-
-* **result:** try tap ensure ([72da577](https://github.com/reslava/nuget-package-reslava-result/commit/72da577fc24a42df0f7ed9bd3787526595c0b768))
-
-## [0.4.3](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.2...v0.4.3) (2026-01-11)
-
-
-### 🐛 Bug Fixes
-
-* **reason:** exception error now use CRTP. test: reasons ([dd3e053](https://github.com/reslava/nuget-package-reslava-result/commit/dd3e05358142adfe6329e9ec66209d160fadfff1))
-
-## [0.4.2](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.1...v0.4.2) (2026-01-11)
-
-
-### ✨ Features
-
-* **result:** implicit conversion methods ([5e45549](https://github.com/reslava/nuget-package-reslava-result/commit/5e45549db9232f20b057c162592f28660e08b4d3))
-* **result:** map bind async, exception-error ([2ebf766](https://github.com/reslava/nuget-package-reslava-result/commit/2ebf766416dc024b2a255b20c5f0645709ee3f51))
-
-
-### ✅ Tests
-
-* **result:** update with new mstest assert methods ([02e0dc7](https://github.com/reslava/nuget-package-reslava-result/commit/02e0dc74abdb8c317474da999119974b1689459c))
-
-## [0.4.1](https://github.com/reslava/nuget-package-reslava-result/compare/v0.4.0...v0.4.1) (2026-01-10)
-
-
-### ✅ Tests
-
-* **result:** cleaning warnings new assert methods ([acb79d6](https://github.com/reslava/nuget-package-reslava-result/commit/acb79d637cf685f7ed0496bd3f31a1209477276f))
-* **result:** tests for result and result-tvalue ([437277a](https://github.com/reslava/nuget-package-reslava-result/commit/437277ac30d24a8bc6ae3476347e77a956515f30))
-
-## [0.4.0](https://github.com/reslava/nuget-package-reslava-result/compare/v0.3.1...v0.4.0) (2026-01-10)
-
-
-### ✨ Features
-
-* **result:** complete core, factory, convert from methods, delete ok(string) method ([523ef63](https://github.com/reslava/nuget-package-reslava-result/commit/523ef6348d28e47cdd96a6db4db8b53c7e499564))
-
-
-### ♻️ Code Refactoring
-
-* **result:** use concrete interface ([65d2770](https://github.com/reslava/nuget-package-reslava-result/commit/65d2770faa3e0e87ec1e61e9ed0568dd0f3301ee))
-
-## [0.3.1](https://github.com/reslava/nuget-package-reslava-result/compare/v0.3.0...v0.3.1) (2026-01-10)
-
-
-### 📚 Documentation
-
-* **quick-start:** update ([f40915e](https://github.com/reslava/nuget-package-reslava-result/commit/f40915e73f9035bff6b34882759a8fda0ae44bb1))
-* **quick-start:** update ([83c49ca](https://github.com/reslava/nuget-package-reslava-result/commit/83c49ca6b38d282cf38499b8155659abf12ad419))
-* **quick-start:** update tests docs branch strategies ([b29c210](https://github.com/reslava/nuget-package-reslava-result/commit/b29c210c3cea2d6702990b8cd542128fe0c58fda))
-
-
-### ✅ Tests
-
-* **result:** map ([b0a0a4a](https://github.com/reslava/nuget-package-reslava-result/commit/b0a0a4acdc72ed47155bf3224864f6b9f46f3e78))
-
-## [0.3.0](https://github.com/reslava/nuget-package-reslava-result/compare/v0.2.0...v0.3.0) (2026-01-09)
-
-
-### ✨ Features
-
-* add custom error for cheking ([51e8df3](https://github.com/reslava/nuget-package-reslava-result/commit/51e8df3fac405fcd9e260d3ca883cdd0dcde553f))
-* **commit-and-tag-version:** uninstall deprecated standard-version, update QUICK-START ([f24da39](https://github.com/reslava/nuget-package-reslava-result/commit/f24da3928e6c7a65aa0eb073808b8513196698e9))
-* **result:** implement Bind, Match ([a4ab370](https://github.com/reslava/nuget-package-reslava-result/commit/a4ab370797ba8b18b7dd2b7f6df0ebfeafdd9f29))
-* **result:** implement Map ([322fc7b](https://github.com/reslava/nuget-package-reslava-result/commit/322fc7b4453eae6a72cfd98b08444a4a2fd51963))
-
-
-### 🐛 Bug Fixes
-
-* code style ([5e1a537](https://github.com/reslava/nuget-package-reslava-result/commit/5e1a5373c32ece601b96a644fc330dae924183fa))
-
-
-### 📚 Documentation
-
-* **pull_request_template:** add PULL_REQUEST_TEMPLATE.md ([0272e89](https://github.com/reslava/nuget-package-reslava-result/commit/0272e89fd7d45b27b6b80edc6ee9e1a3934bd3f0))
-* **workflow:** add dev branch workflow and release documentation ([1db34c8](https://github.com/reslava/nuget-package-reslava-result/commit/1db34c8f82689befeda6b42c26dcc500adb40346))
-
-
-### 🔧 Build System
-
-* add code analysis and suppress CS1591 warnings ([6ce1db2](https://github.com/reslava/nuget-package-reslava-result/commit/6ce1db216059cb7c91b96add9394b079794db422))
-* simplify config using built-in .NET support ([9931ca3](https://github.com/reslava/nuget-package-reslava-result/commit/9931ca3afb7689a596db7a1249b39e5503ef4e21))
-
-## [0.2.0](https://github.com/reslava/nuget-package-reslava-result/compare/v0.1.0...v0.2.0) (2026-01-07)
-
-
-### 🔧 Build System
-
-* fix .versionrc.json to properly update .csproj ([1de1805](https://github.com/reslava/nuget-package-reslava-result/commit/1de1805065d0a9ce3574ee6eef36b286fd48cb16))
-
-## [0.1.0](https://github.com/reslava/nuget-package-reslava-result/compare/v0.0.1...v0.1.0) (2026-01-07)
-
-
-### ✨ Features
-
-* add custom error for checking ([7de3e23](https://github.com/reslava/nuget-package-reslava-result/commit/7de3e2322a4a0c67646c3ffbf1d0279d9df7de61))
-* **core:** add base interface IResult.cs (missed) ([104a540](https://github.com/reslava/nuget-package-reslava-result/commit/104a540262ea149dcc16bc28466424cdb01c3ea1))
-
-
-### 📚 Documentation
-
-* **changelog:** add CHANGELOG for v0.0.1 ([1636ce6](https://github.com/reslava/nuget-package-reslava-result/commit/1636ce68e080ebb39a099027cb890106bdf9f9a9))
-* **workflow:** add dev branch workflow and release documentation ([9f2a7cc](https://github.com/reslava/nuget-package-reslava-result/commit/9f2a7ccb8121be90b62d0741370adc1731e79c0b))
-
-
-### 🔧 Build System
-
-* add Version tag to .csproj for automated versioning ([6cabf56](https://github.com/reslava/nuget-package-reslava-result/commit/6cabf56732fe856d22e87107e2e586ba50b58288))
-
-## [0.0.1] - 2026-01-07
-
-### Added
-
-- Initial implementation with clean history
-- Conventional commits enabled
-- Core Result pattern implementation
-- Comprehensive test suite
-- Full documentation
-- Windows-compatible configuration
-
-### Commits
-
-- chore: initial project setup with automation
-- feat(core): add base interfaces for Result pattern
-- feat(reasons): implement Reason base classes using CRTP
-- feat(result): implement Result and Result<T> classes
-- feat(factory): add Ok and Fail factory methods
-- test(result): add unit tests for Result creation
-- build: add .NET project configuration
-- docs: add comprehensive documentation
-
-[0.0.1]: https://github.com/reslava/nuget-package-reslava-result/releases/tag/v0.0.1
+## [1.10.0] - 2025-02-05
+
+### 🎯 Added
+- **Framework Foundation** - Railway-oriented programming patterns
+- **Result Types** - Success, Error, ValidationError types
+- **Basic HTTP Integration** - IResult conversion methods
+
+### 🔄 Changed
+- **Initial Setup** - Project structure and packaging

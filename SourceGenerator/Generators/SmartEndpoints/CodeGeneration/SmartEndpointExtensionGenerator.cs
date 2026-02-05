@@ -18,25 +18,20 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
     {
         public SourceText GenerateCode(Compilation compilation, object config)
         {
-            System.Diagnostics.Debug.WriteLine("🚀 SmartEndpointExtensionGenerator.GenerateCode called!");
-
             // Use provided endpoint metadata if available, otherwise do discovery
             List<EndpointMetadata> endpoints = null;
             
-            if (config is List<EndpointMetadata> providedEndpoints && providedEndpoints.Any())
+            if (config is List<EndpointMetadata> providedEndpoints && providedEndpoints.Count > 0)
             {
-                System.Diagnostics.Debug.WriteLine($"✅ Using provided endpoint metadata: {providedEndpoints.Count} endpoints");
                 endpoints = providedEndpoints;
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("🔍 No endpoint metadata provided, doing discovery...");
                 // Scan for classes and methods with SmartEndpoints attributes
                 var controllers = DiscoverControllers(compilation);
                 
                 if (!controllers.Any())
                 {
-                    System.Diagnostics.Debug.WriteLine("⚠️ No controllers found with SmartEndpoints attributes");
                     return SourceText.From("// No SmartEndpoints found", Encoding.UTF8);
                 }
                 
@@ -46,8 +41,6 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
                 {
                     endpoints.AddRange(controller.Endpoints);
                 }
-                
-                System.Diagnostics.Debug.WriteLine($"🔍 Discovered {endpoints.Count} endpoints");
             }
 
             if (!endpoints.Any())
@@ -314,13 +307,8 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
 
         private void GenerateMapSmartEndpointsMethod(StringBuilder builder, List<EndpointMetadata> endpoints)
         {
-            builder.AppendLine("        /// <summary>");
-            builder.AppendLine("        /// Maps all auto-discovered SmartEndpoints to the application.");
-            builder.AppendLine("        /// </summary>");
             builder.AppendLine("        public static IEndpointRouteBuilder MapSmartEndpoints(this IEndpointRouteBuilder endpoints)");
             builder.AppendLine("        {");
-            builder.AppendLine("            // DEBUG: SmartEndpoints registration started");
-            builder.AppendLine("            endpoints.MapGet(\"/api/smarttest/debug\", () => Results.Ok(new { message = \"SmartEndpoints method called!\" }));");
             
             foreach (var endpoint in endpoints)
             {
@@ -328,7 +316,6 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
                 GenerateEndpointMappingSimple(builder, endpoint);
             }
             
-            builder.AppendLine("            // DEBUG: SmartEndpoints registration completed");
             builder.AppendLine("            return endpoints;");
             builder.AppendLine("        }");
             builder.AppendLine();

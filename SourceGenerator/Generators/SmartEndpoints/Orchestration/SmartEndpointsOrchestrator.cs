@@ -122,7 +122,7 @@ internal class SmartEndpointsOrchestrator : IGeneratorOrchestrator
                         if (argumentList != null && argumentList.Value.Count > 0)
                         {
                             var firstArg = argumentList.Value[0];
-                            var routeArg = firstArg.Expression?.ToString();
+                            var routeArg = firstArg?.Expression?.ToString();
                             if (!string.IsNullOrEmpty(routeArg) && routeArg.StartsWith("\"") && routeArg.EndsWith("\""))
                             {
                                 routePrefix = routeArg.Trim('"');
@@ -177,23 +177,18 @@ internal class SmartEndpointsOrchestrator : IGeneratorOrchestrator
                             };
                             
                             endpointMetadata.Add(endpoint);
-                            System.Diagnostics.Debug.WriteLine($"🔍 SmartEndpoints: Added endpoint: {endpoint.HttpMethod} {endpoint.Route} with params: {string.Join(", ", argList)}");
                         }
                     }
                 }
-
-                System.Diagnostics.Debug.WriteLine($"🔍 SmartEndpoints: Found {endpointMetadata.Count} endpoints in {target.ClassName}");
 
                 // Generate endpoint mapping code with actual metadata
                 var extensionCode = _smartEndpointExtensionGenerator.GenerateCode(target.Compilation, endpointMetadata);
                 
                 spc.AddSource("SmartEndpointExtensions.g.cs", extensionCode);
-                System.Diagnostics.Debug.WriteLine("🚀 SmartEndpointExtensions.g.cs generated successfully via DIRECT pipeline!");
             }
             catch (System.Exception ex)
             {
                 // Log error but don't fail the build
-                System.Diagnostics.Debug.WriteLine($"❌ SmartEndpoints error: {ex.Message}");
                 spc.AddSource("SmartEndpointExtensions.g.cs", $"// Error during generation: {ex.Message}");
             }
         });

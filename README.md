@@ -10,7 +10,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-1902%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests-2102%20passing-brightgreen)
 
 **🏗️ Complete Functional Programming Framework + ASP.NET Integration + OneOf Extensions**
 
@@ -18,141 +18,50 @@
 
 ---
 
-## 🎯 What's New in v1.10.3
+## 📈 Version History
 
-### 🧠 Intelligent HTTP Status Mapping (BREAKTHROUGH!)
-- **Smart error detection** automatically maps error types to correct HTTP status codes
-- **No more manual configuration** - just name your error types properly
-- **Comprehensive mapping** for all common error scenarios
-- **Type-safe HTTP responses** with proper semantic meaning
-
-### 📚 README Synchronization Fix (from v1.10.2)
-- **Fixed SourceGenerators package** to use main README instead of local README
-- **Consistent documentation** across both REslava.Result and REslava.Result.SourceGenerators
-- **Professional NuGet presentation** with unified information
-
-### 📚 Documentation Update (from v1.10.1)
-- **Fixed README synchronization** between REslava.Result and REslava.Result.SourceGenerators
-- **Package-agnostic documentation** that clearly shows both packages work together
-- **Improved installation instructions** with explicit version alignment
-
-### 🚀 OneOfToIResult Extensions (from v1.10.0)
-**REslava.Result Internal OneOf Integration**
-```csharp
-using REslava.Result.AdvancedPatterns.OneOf;
-using Generated.OneOfExtensions;
-
-// T1,T2 Support
-public OneOf<UserNotFoundError, User> GetUser(int id) { /* logic */ }
-return GetUser(id).ToIResult(); // 404 or 200
-
-// T1,T2,T3 Support  
-public OneOf<ValidationError, UserNotFoundError, User> CreateUser(CreateUserRequest request) { /* logic */ }
-return CreateUser(request).ToIResult(); // 400, 404, or 201
-```
-
-### 🧠 **Intelligent HTTP Status Mapping (v1.10.3 BREAKTHROUGH!)**
-
-**Smart error detection automatically maps to correct HTTP codes:**
-
-```csharp
-// Define your error types (naming conventions matter!)
-public record ValidationError(string Message) : Error;           // → 400 Bad Request
-public record UserNotFoundError(int UserId) : Error;          // → 404 Not Found  
-public record ConflictError(string Message) : Error;          // → 409 Conflict
-public record DatabaseError(string Message) : Error;          // → 500 Internal Server Error
-
-// Use in OneOf - automatic intelligent mapping!
-public OneOf<ValidationError, UserNotFoundError, ConflictError, DatabaseError, User> CreateUser(CreateUserRequest request)
-{
-    // Validation errors → 400
-    if (string.IsNullOrEmpty(request.Email))
-        return new ValidationError("Email is required");
-        
-    // Conflict errors → 409
-    var existingUser = await _userRepository.GetByEmailAsync(request.Email);
-    if (existingUser != null)
-        return new ConflictError("User already exists");
-        
-    // Database errors → 500
-    try 
-    {
-        var user = await _userRepository.CreateUserAsync(request);
-        return user; // → 200 OK
-    }
-    catch (Exception ex)
-    {
-        return new DatabaseError(ex.Message);
-    }
-}
-
-// 🆕 Auto-converts to proper HTTP responses:
-// ValidationError → 400 Bad Request
-// UserNotFoundError → 404 Not Found  
-// ConflictError → 409 Conflict
-// DatabaseError → 500 Internal Server Error
-// User → 200 OK
-```
-
-**Supported Automatic Mappings:**
-- `*ValidationError*` → 400 Bad Request
-- `*NotFoundError*`, `*Missing*` → 404 Not Found
-- `*ConflictError*`, `*Duplicate*` → 409 Conflict
-- `*Unauthorized*`, `*Authentication*` → 401 Unauthorized
-- `*Forbidden*`, `*Permission*` → 403 Forbidden
-- `*Database*`, `*System*`, `*Infrastructure*` → 500 Internal Server Error
-
-**No manual configuration required - just name your error types properly!** 🎯
-
-### 🧠 Smart Auto-Detection (ZERO CONFIGURATION!)
-**Perfect Coexistence**
-- **Setup Detection**: Automatically detects your OneOf setup
-- **Conflict Prevention**: ResultToIResult only runs when appropriate
-- **Zero Compilation Errors**: Perfect developer experience
-- **Backward Compatibility**: Existing projects unaffected
+- **v1.11.0** - SmartEndpoints integration with OneOf extensions
+- **v1.10.3** - OneOf2ToIResult & OneOf3ToIResult generators  
+- **v1.10.2** - Initial Result<T> to IResult conversion
+- **v1.9.x** - Core Result types and error handling
 
 ---
 
-## ⚡ Quick Start (30 seconds)
+## 📚 Table of Contents
 
-### 📦 Installation
+- [🚀 Quick Start](#quick-start)
+- [⚡ SmartEndpoints](#smartendpoints) 
+- [🔄 OneOf Extensions](#oneof-extensions)
+- [🧪 Testing](#testing)
+- [📖 Examples](#examples)
+
+---
+
+## 🚀 Quick Start
+
+### Installation
 
 ```bash
-# Core functional programming library (v1.10.3)
-dotnet add package REslava.Result
-
-# ASP.NET integration + OneOf extensions (v1.10.3)
 dotnet add package REslava.Result.SourceGenerators
+dotnet add package REslava.Result
 ```
 
-### 🚀 Enable Auto-Conversion
+### Basic Usage
 
 ```csharp
-// Add this to your Program.cs
-using REslava.Result.SourceGenerators;
-[assembly: GenerateResultExtensions]
+using REslava.Result;
+using REslava.Result.AdvancedPatterns;
+using Generated.OneOfExtensions;
 
-var builder = WebApplication.CreateBuilder(args);
-// ... rest of your setup
+// Result<T> usage
+public Result<User> GetUser(int id) { /* ... */ }
+return result.ToIResult(); // Automatic HTTP mapping
 
-// 🆕 v1.10.0: OneOf extensions work automatically with smart auto-detection!
-// No additional setup required for REslava.Result internal OneOf
+// OneOf<T1,T2> usage  
+public OneOf<UserNotFoundError, User> GetUser(int id) { /* ... */ }
+return GetUser(id).ToIResult(); // Intelligent error detection
 ```
 
-### ✨ Magic Happens
-
-```csharp
-// ❌ BEFORE: Manual conversion everywhere
-app.MapGet("/users/{id}", async (int id, IUserService service) =>
-{
-    var result = await service.GetUserAsync(id);
-    return result.Match(
-        onSuccess: user => Results.Ok(user),
-        onFailure: errors => Results.Problem(...)
-    );
-});
-
-// ✅ AFTER: Return Result<T> directly!
 app.MapGet("/users/{id}", async (int id, IUserService service) =>
 {
     return await service.GetUserAsync(id); // Auto-converts to HTTP response!
