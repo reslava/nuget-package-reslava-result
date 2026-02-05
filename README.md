@@ -131,7 +131,7 @@ app.MapGet("/users/oneof/{id}", async (int id) =>
 
 | 🎯 **I'm building a...** | 📖 **Start Here** | 🚀 **What You'll Learn** |
 |--------------------------|-------------------|---------------------------|
-| **Web API** | [🌐 ASP.NET Integration](#-the-transformation-70-90-less-code) | Auto-conversion, error mapping, OneOf extensions |
+| **Web API** | [🌐 ASP.NET Integration](#-aspnet-integration) | Auto-conversion, error mapping, OneOf extensions |
 | **Library/Service** | [🏗️ Core Library](#-reslavaresult-core-library) | Result pattern, validation, functional programming |
 | **Custom Generator** | [📖 Custom Generator Guide](docs/how-to-create-custom-generator.md) | Build your own source generators |
 | **Advanced App** | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, OneOf, validation rules |
