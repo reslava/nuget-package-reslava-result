@@ -45,7 +45,7 @@
 
   <!-- Include README in package -->
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     <!-- Add content files to avoid NU5017 -->
     <Content Include="MapToProblemDetailsAttribute.cs" Pack="true" PackagePath="content" />
   </ItemGroup>

@@ -24,14 +24,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- 🆕 Local source generator references for v1.10.0 testing -->
-    <ProjectReference Include="..\..\..\SourceGenerator\REslava.Result.SourceGenerators.csproj" />
-    <ProjectReference Include="..\..\..\src\REslava.Result.csproj" />
+    <!-- 🆕 Local source generator references for v1.12.0 testing -->
+    <ProjectReference Include="..\..\..\src\REslava.Result.SourceGenerator\REslava.Result.SourceGenerators.csproj" />
+    <ProjectReference Include="..\..\..\src\REslava.Result\REslava.Result.csproj" />
   </ItemGroup>
 
   <!-- Load source generators as analyzers -->
   <ItemGroup>
-    <Analyzer Include="..\..\..\SourceGenerator\bin\Debug\netstandard2.0\REslava.Result.SourceGenerators.dll" />
+    <Analyzer Include="..\..\..\src\REslava.Result.SourceGenerator\bin\Debug\netstandard2.0\REslava.Result.SourceGenerators.dll" />
   </ItemGroup>
 
   <!-- Exclude generated files from compilation -->
