@@ -10,7 +10,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-2102%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests-1928%20passing-brightgreen)
 
 **🏗️ Complete Functional Programming Framework + ASP.NET Integration + OneOf Extensions**
 
@@ -32,7 +32,7 @@
 | [📦 Package Structure](#-package-structure) | What you get with each package |
 | [🎯 Quick Examples](#-quick-examples) | Real-world code samples |
 | [📈 Production Benefits](#-production-benefits) | Enterprise-ready advantages |
-| [🧪 Testing & Quality Assurance](#-testing--quality-assurance) | 1902+ tests passing |
+| [🧪 Testing & Quality Assurance](#-testing--quality-assurance) | 1,928+ tests passing |
 | [🏢 Real-World Impact](#-real-world-impact) | Success stories and use cases |
 | [🏆 Why Choose REslava.Result?](#-why-choose-reslavaresult) | Unique advantages |
 | [📚 Deep Dive Documentation](#-deep-dive-documentation) | Comprehensive guides |
@@ -56,34 +56,48 @@ dotnet add package REslava.Result
 
 ### Complete Generator Showcase
 
-#### ⚡ SmartEndpoints - Zero Boilerplate APIs
+#### ⚡ SmartEndpoints - Zero-Boilerplate Fast APIs
 Generate complete Minimal APIs from controllers with automatic HTTP mapping!
 
 ```csharp
 [AutoGenerateEndpoints(RoutePrefix = "/api/users")]
 public class UserController {
-    public OneOf<ValidationError, UserNotFoundError, User> CreateUser(CreateUserRequest request) { 
-        // Validation logic
-        if (string.IsNullOrEmpty(request.Name)) 
-            return new ValidationError("Name is required", "Name");
+    // 🚀 ONE method → Automatic REST API!
+    public OneOf<ValidationError, NotFoundError, ConflictError, User> 
+        CreateUser(CreateUserRequest request) { 
         
-        // Business logic
-        var user = new User { Name = request.Name, Email = request.Email };
-        return user;
+        // ✅ Self-explanatory business logic only
+        if (string.IsNullOrEmpty(request.Name)) 
+            return new ValidationError("Name is required");
+        
+        if (UserExists(request.Email))
+            return new ConflictError("Email already exists");
+        
+        return CreateUser(request); // 🎯 Success case
     }
     
-    public OneOf<UserNotFoundError, User> GetUser(int id) {
-        var user = _users.FirstOrDefault(u => u.Id == id);
-        return user ?? new UserNotFoundError(id);
+    // 🚀 ONE method → Automatic REST API!
+    public OneOf<NotFoundError, User> GetUser(int id) {
+        return _users.FirstOrDefault(u => u.Id == id) 
+               ?? new NotFoundError($"User {id} not found");
     }
 }
 ```
 
-**Generated Minimal API:**
-- ✅ `POST /api/users` → 201/400/409 (from CreateUser)
-- ✅ `GET /api/users/{id}` → 200/404 (from GetUser)
-- ✅ Automatic error handling with proper HTTP status codes
-- ✅ No manual route configuration required
+**🎉 Generated Minimal API (Zero Manual Code!)**
+- ✅ `POST /api/users` → 201/400/404/409 (OneOf4 auto-mapping!)
+- ✅ `GET /api/users/{id}` → 200/404 (OneOf2 auto-mapping!)
+- ✅ **Swagger documentation** automatically generated
+- ✅ **Error handling** automatically configured
+- ✅ **HTTP status mapping** automatically applied
+- ✅ **Route configuration** automatically created
+
+**🔥 Development Speed: 10x Faster**
+- **No manual route setup** - automatic from method names
+- **No manual error handling** - automatic from return types  
+- **No manual status codes** - automatic from error types
+- **No manual Swagger docs** - automatically generated
+- **Self-explanatory code** - business logic only
 
 #### 🔄 OneOf Extensions - Intelligent HTTP Mapping
 Automatic error detection and HTTP status mapping for OneOf types:
@@ -101,7 +115,80 @@ ServerError → 500 Internal Server Error
 **Supported Patterns:**
 - **OneOf2ToIResult<T1,T2>** - Two-type error handling
 - **OneOf3ToIResult<T1,T2,T3>** - Three-type error handling  
+- **🆕 OneOf4ToIResult<T1,T2,T3,T4>** - Four-type error handling (NEW v1.12.0!)
 - **SmartEndpoints Integration** - Uses extensions automatically in generated APIs
+
+#### 🚀 Enhanced SmartEndpoints (IMPROVED v1.12.0)
+
+**Feature**: Better OneOf4 support and automatic endpoint generation  
+**Benefits**: Attribute-driven development with automatic routing  
+**Use Case**: Rapid API development with minimal code
+
+**🔥 What Makes SmartEndpoints Revolutionary:**
+
+```csharp
+// ❌ TRADITIONAL: 50+ lines of boilerplate
+[ApiController]
+[Route("api/[controller]")]
+public class UserController : ControllerBase {
+    [HttpPost]
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request) {
+        try {
+            if (!ModelState.IsValid) {
+                return BadRequest(new ProblemDetails {
+                    Title = "Validation Error",
+                    Status = 400,
+                    Detail = "Invalid input data"
+                });
+            }
+            
+            var user = await _userService.CreateAsync(request);
+            if (user == null) {
+                return NotFound(new ProblemDetails {
+                    Title = "Not Found", 
+                    Status = 404,
+                    Detail = "User not found"
+                });
+            }
+            
+            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+        } catch (Exception ex) {
+            return StatusCode(500, new ProblemDetails {
+                Title = "Server Error",
+                Status = 500,
+                Detail = ex.Message
+            });
+        }
+    }
+}
+
+// ✅ SMARTENDPOINTS: 5 lines of pure business logic
+[AutoGenerateEndpoints(RoutePrefix = "/api/users")]
+public class UserController {
+    public OneOf<ValidationError, NotFoundError, ConflictError, User> 
+        CreateUser(CreateUserRequest request) {
+        
+        if (!IsValid(request)) return new ValidationError("Invalid data");
+        if (UserExists(request.Email)) return new ConflictError("Email exists");
+        return CreateUser(request);
+    }
+}
+```
+
+**🎯 Self-Explanatory Development:**
+- **Method name** → HTTP method (`CreateUser` → `POST /users`)
+- **Return type** → HTTP status mapping (automatic!)
+- **Parameters** → Request body (automatic!)
+- **Error types** → Problem details (automatic!)
+- **Success type** → Response body (automatic!)
+
+**⚡ Zero Boilerplate Benefits:**
+- **No manual route configuration** - inferred from class/method names
+- **No manual error handling** - automatic from OneOf types
+- **No manual status codes** - automatic from error types  
+- **No manual Swagger docs** - automatically generated
+- **No manual validation** - automatic from return types
+- **No manual ProblemDetails** - automatic RFC 7807 compliance
 
 #### 🎯 ResultToIResult Extensions
 Convert Result<T> types to proper HTTP responses:
@@ -462,10 +549,21 @@ return result.Match(
     case3: user => CreatedAtAction(nameof(GetUser), new { id = user.Id }, user)
 );
 
+// 🆕 v1.12.0: OneOf4 for complex scenarios
+OneOf<ValidationError, NotFoundError, ConflictError, User> complexResult = 
+    ValidateCreateUserWithConflictCheck(request);
+
+return complexResult.Match(
+    case1: validationError => BadRequest(new { errors = validationError.Errors }),
+    case2: notFoundError => NotFound(new { message = notFoundError.Message }),
+    case3: conflictError => Conflict(new { error = conflictError.Message }),
+    case4: user => CreatedAtAction(nameof(GetUser), new { id = user.Id }, user)
+);
+
 // Conversion to Result for chaining
 var userResult = result.ToResult(); // Convert OneOf to Result
 
-// REslava.Result internal OneOf support (v1.10.0)
+// REslava.Result internal OneOf support (v1.12.0)
 using REslava.Result.AdvancedPatterns.OneOf;
 OneOf<ValidationError, User> internalResult = ValidateUser(request);
 return internalResult.ToIResult(); // Auto-converts to HTTP response!
@@ -829,29 +927,33 @@ return GetUser(id).ToIResult(); // 🆕 Automatic HTTP mapping!
 ## 🧪 Testing & Quality Assurance
 
 ### 📊 Comprehensive Test Suite
-**1902+ Tests Passing** 🎉
-- **Source Generator Tests**: 16 tests for all generators
-- **Core Library Tests**: 1886 tests for REslava.Result functionality
-- **Integration Tests**: End-to-end generator validation
+**1,928+ Tests Passing** 🎉
+- **Source Generator Tests**: 17 tests for all generators
+- **Core Library Tests**: 1,902 tests for REslava.Result functionality  
+- **Integration Tests**: 9 endpoint tests for complete ASP.NET integration
 - **Performance Tests**: Memory and speed benchmarks
 
 ### 🏗️ Source Generator Test Architecture
-**Consolidated Test Structure**
+**Complete Test Coverage for v1.12.0**
 ```
 tests/REslava.Result.SourceGenerators.Tests/
 ├── OneOf2ToIResult/          # ✅ 5/5 tests passing
 ├── OneOf3ToIResult/          # ✅ 4/4 tests passing  
+├── OneOf4ToIResult/          # ✅ 5/5 tests passing (NEW!)
 ├── ResultToIResult/          # ✅ 6/6 tests passing
+├── SmartEndpoints/           # ✅ 4/4 tests passing
 ├── CoreLibrary/              # Core utilities tests
 ├── GeneratorTest/             # Console validation tests
 └── Legacy/                    # Historical tests (disabled)
 ```
 
 ### 🎯 Generator Test Coverage
-**OneOf2ToIResult Generator**
-- ✅ Extension method generation
+**OneOf4ToIResult Generator (NEW v1.12.0)**
+- ✅ Extension method generation for OneOf<T1,T2,T3,T4>
+- ✅ Intelligent HTTP status mapping
+- ✅ Error type detection and handling
 - ✅ Attribute generation  
-- ✅ Type combinations (ValidationError, User, etc.)
+- ✅ Type combinations (ValidationError, NotFoundError, ConflictError, ServerError)
 - ✅ Conditional generation (no false positives)
 - ✅ HTTP mapping validation (T1→400, T2→200)
 

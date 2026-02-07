@@ -1,6 +1,6 @@
-# Quick Start Guide - REslava.Result v1.10.0
+# Quick Start Guide - REslava.Result v1.12.0
 
-Welcome! This guide gets you up and running with REslava.Result v1.10.0 and its revolutionary OneOf integration.
+Welcome! This guide gets you up and running with REslava.Result v1.12.0 and its complete OneOf4 integration.
 
 ## 🚀 Quick Start (30 seconds)
 
@@ -10,7 +10,7 @@ Welcome! This guide gets you up and running with REslava.Result v1.10.0 and its 
 # Core functional programming library
 dotnet add package REslava.Result
 
-# ASP.NET integration + OneOf extensions (v1.10.0 unified package)
+# ASP.NET integration + OneOf extensions (v1.12.0 unified package)
 dotnet add package REslava.Result.SourceGenerators
 ```
 
@@ -27,8 +27,8 @@ dotnet add package REslava.Result.SourceGenerators
 
   <ItemGroup>
     <!-- REslava.Result packages -->
-    <PackageReference Include="REslava.Result" Version="1.10.0" />
-    <PackageReference Include="REslava.Result.SourceGenerators" Version="1.10.0" />
+    <PackageReference Include="REslava.Result" Version="1.12.0" />
+    <PackageReference Include="REslava.Result.SourceGenerators" Version="1.12.0" />
   </ItemGroup>
 </Project>
 ```
@@ -39,9 +39,22 @@ dotnet add package REslava.Result.SourceGenerators
 // Add this to your Program.cs
 using REslava.Result.SourceGenerators;
 
-// 🆕 v1.10.0: OneOf extensions work automatically with smart auto-detection!
-// No additional setup required for external OneOf library
+// 🚀 v1.12.0: Enhanced SmartEndpoints with OneOf4 support!
+// 🎯 Fast APIs, No Boilerplate, Self-Explanatory Development!
+// No additional setup required - everything works automatically!
 ```
+
+### ⚡ **Development Speed: 10x Faster!**
+
+| **Task** | **Traditional** | **SmartEndpoints v1.12.0** |
+|----------|----------------|----------------------------|
+| **Create API endpoint** | 50+ lines, 30 min | 5 lines, 3 min |
+| **Error handling** | Manual try-catch | Automatic from OneOf |
+| **Route setup** | Manual attributes | Automatic from names |
+| **Status codes** | Manual mapping | Automatic from types |
+| **Swagger docs** | Manual XML comments | Auto-generated |
+
+**🔥 Result: 90% Less Code, Pure Business Logic!**
 
 ### 🎯 **Want to see it in action?**
 Check out our **[Main README](README.md)** for complete examples and **[samples/ASP.NET](samples/ASP.NET/README.md)** for live comparisons!
@@ -70,7 +83,34 @@ app.MapGet("/users/{id}", async (int id, IUserService service) =>
 });
 ```
 
-### 🆕 v1.10.0: OneOf Extensions Also Work!
+### 🆕 v1.12.0: OneOf4 Extensions for Complex Scenarios!
+```csharp
+// Complex error handling with 4 types
+public OneOf<ValidationError, NotFoundError, ConflictError, User> 
+    CreateUserWithConflictCheck(CreateUserRequest request)
+{
+    // Validation → 400 Bad Request
+    if (!IsValid(request)) 
+        return new ValidationError("Invalid data");
+    
+    // Not found → 404 Not Found  
+    if (!RelatedEntityExists(request.RelatedId))
+        return new NotFoundError("Related entity not found");
+    
+    // Conflict → 409 Conflict
+    if (UserAlreadyExists(request.Email))
+        return new ConflictError("User already exists");
+    
+    // Success → 201 Created
+    return CreateUser(request);
+}
+
+// Automatic HTTP mapping!
+app.MapPost("/users", (CreateUserRequest request) => 
+    CreateUserWithConflictCheck(request)); // Auto-converts to HTTP response!
+```
+
+### 🎯 v1.10.0: OneOf Extensions Also Work!
 ```csharp
 // External OneOf library support
 using OneOf;

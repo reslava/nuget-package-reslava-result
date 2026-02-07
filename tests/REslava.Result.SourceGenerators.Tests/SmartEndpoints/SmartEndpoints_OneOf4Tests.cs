@@ -17,15 +17,17 @@ namespace REslava.Result.SourceGenerators.Tests
             // Arrange
             var syntaxTree = CSharpSyntaxTree.ParseText(@"
 using REslava.Result.AdvancedPatterns;
+using REslava.Result.Reasons;
 
 namespace TestNamespace
 {
     [AutoGenerateEndpoints(RoutePrefix = ""/api/users"")]
     public class UserController
     {
+        [HttpPost]
         public OneOf<ValidationError, NotFoundError, ConflictError, ServerError> CreateUser(CreateUserRequest request)
         {
-            return new ValidationError(""Test error"");
+            return new ValidationError("Test error");
         }
     }
 }
@@ -83,6 +85,12 @@ public class CreateUserRequest
             
             // Verify OneOf4 detection in generated code
             var generatedCode = result.GeneratedTrees.First().ToString();
+            
+            // Debug: Show what was actually generated
+            Console.WriteLine("=== GENERATED CODE DEBUG ===");
+            Console.WriteLine(generatedCode);
+            Console.WriteLine("=== END GENERATED CODE ===");
+            
             Assert.IsTrue(generatedCode.Contains("CreateUser"), "Should generate CreateUser endpoint");
             Assert.IsTrue(generatedCode.Contains("ToIResult()"), "Should use ToIResult extension");
         }
