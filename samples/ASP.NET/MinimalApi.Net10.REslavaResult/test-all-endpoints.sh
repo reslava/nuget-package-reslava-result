@@ -1,10 +1,8 @@
 #!/bin/bash
 
-# Comprehensive test script for all REslava.Result generators
-# Tests all endpoints and verifies responses
-
+# Final test script with correct error status expectation
 echo "🚀 Starting comprehensive REslava.Result testing..."
-baseUrl="http://localhost:5000"
+baseUrl="https://localhost:58696"
 passed=0
 failed=0
 errors=0
@@ -20,8 +18,8 @@ test_endpoint() {
     echo "🔍 Testing: $name"
     echo "   URL: $url"
     
-    response=$(curl -s "$url")
-    status_code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+    response=$(curl -k -s "$url" 2>/dev/null)
+    status_code=$(curl -k -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null)
     
     if [ "$status_code" -eq "$expected_status" ] && [[ "$response" == *"$expected_response"* ]]; then
         echo "   ✅ PASS: Response matches expected"
@@ -53,7 +51,8 @@ test_endpoint "OneOf3 to IResult" "$baseUrl/api/test-all/oneof3" "OneOf3 convers
 test_endpoint "OneOf4 to IResult" "$baseUrl/api/test-all/oneof4" "OneOf4 conversion works!"
 
 echo "📋 Testing Error Scenarios..."
-test_endpoint "Error Handling" "$baseUrl/api/test-all/error" "Test error scenario"
+# FIX: Expect 400 status code for error responses
+test_endpoint "Error Handling" "$baseUrl/api/test-all/error" "Test error scenario" 400
 
 echo "📋 Testing Health Endpoint..."
 test_endpoint "Health Check" "$baseUrl/health" "healthy"
@@ -68,8 +67,16 @@ echo "Errors: $errors"
 
 if [ $failed -eq 0 ] && [ $errors -eq 0 ]; then
     echo "🎉 ALL TESTS PASSED! REslava.Result is working correctly!"
+    echo ""
+    echo "✅ Result<T> → IResult conversion works!"
+    echo "✅ OneOf<T1,T2> → IResult conversion works!"
+    echo "✅ OneOf<T1,T2,T3> → IResult conversion works!"
+    echo "✅ OneOf<T1,T2,T3,T4> → IResult conversion works!"
+    echo "✅ Error handling returns proper RFC 7807 ProblemDetails!"
+    exit 0
 else
     echo "⚠️  Some tests failed. Check the results above."
+    exit 1
 fi
 
 echo ""

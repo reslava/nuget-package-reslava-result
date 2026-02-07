@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using REslava.Result;
 using REslava.Result.AdvancedPatterns;
 using MinimalApi.Net10.REslavaResult.Models;
+using Generated.OneOfExtensions;
+using Generated.ResultExtensions;
 
 namespace MinimalApi.Net10.REslavaResult.Controllers
 {
@@ -19,48 +21,59 @@ namespace MinimalApi.Net10.REslavaResult.Controllers
         }
 
         /// <summary>
-        /// Test Result&lt;T&gt; to IResult conversion
+        /// Test Result to IResult conversion
         /// </summary>
         [HttpGet("result")]
-        public Result<string> TestResult()
+        public IResult TestResult()
         {
-            return Result<string>.Ok("Result conversion works!");
+            var result = Result<string>.Ok("Result conversion works!");
+            return result.ToIResult();
         }
 
         /// <summary>
         /// Test OneOf2 to IResult conversion
+        /// FIX: Use FromT2 (last position = success)
         /// </summary>
         [HttpGet("oneof2")]
-        public OneOf<string, string> TestOneOf2()
+        public IResult TestOneOf2()
         {
-            return OneOf<string, string>.FromT1("OneOf2 conversion works!");
+            // T2 is the success position
+            var oneOf = OneOf<string, string>.FromT2("OneOf2 conversion works!");
+            return oneOf.ToIResult();
         }
 
         /// <summary>
         /// Test OneOf3 to IResult conversion
+        /// FIX: Use FromT3 (last position = success)
         /// </summary>
         [HttpGet("oneof3")]
-        public OneOf<string, string, string> TestOneOf3()
+        public IResult TestOneOf3()
         {
-            return OneOf<string, string, string>.FromT2("OneOf3 conversion works!");
+            // T3 is the success position
+            var oneOf = OneOf<string, string, string>.FromT3("OneOf3 conversion works!");
+            return oneOf.ToIResult();
         }
 
         /// <summary>
         /// Test OneOf4 to IResult conversion
+        /// FIX: Use FromT4 (last position = success)
         /// </summary>
         [HttpGet("oneof4")]
-        public OneOf<string, string, string, string> TestOneOf4()
+        public IResult TestOneOf4()
         {
-            return OneOf<string, string, string, string>.FromT3("OneOf4 conversion works!");
+            // T4 is the success position
+            var oneOf = OneOf<string, string, string, string>.FromT4("OneOf4 conversion works!");
+            return oneOf.ToIResult();
         }
 
         /// <summary>
         /// Test error scenarios
         /// </summary>
         [HttpGet("error")]
-        public Result<string> TestError()
+        public IResult TestError()
         {
-            return Result<string>.Fail("Test error scenario");
+            var result = Result<string>.Fail("Test error scenario");
+            return result.ToIResult();
         }
     }
 }

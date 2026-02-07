@@ -2,268 +2,159 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using REslava.Result.SourceGenerators.Generators.SmartEndpoints.Attributes;
 using REslava.Result.SourceGenerators.Generators.SmartEndpoints.Models;
-using REslava.Result.SourceGenerators.SmartEndpoints.Models;
 using REslava.Result.SourceGenerators.Core.Interfaces;
 using REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGeneration;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration;
-
-/// <summary>
-/// Orchestrates the SmartEndpoints generation pipeline with two-pass approach
-/// </summary>
-internal class SmartEndpointsOrchestrator : IGeneratorOrchestrator
+namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
 {
-    private readonly IAttributeGenerator _autoGenerateEndpointsAttributeGenerator;
-    private readonly IAttributeGenerator _autoMapEndpointAttributeGenerator;
-    private readonly ICodeGenerator _smartEndpointExtensionGenerator;
-
-    public SmartEndpointsOrchestrator()
-        // IAttributeGenerator autoGenerateEndpointsAttributeGenerator,
-        // IAttributeGenerator autoMapEndpointAttributeGenerator,
-        // ICodeGenerator smartEndpointExtensionGenerator)
+    /// <summary>
+    /// Simplified orchestrator for SmartEndpoints - FIXED VERSION v2
+    /// </summary>
+    internal class SmartEndpointsOrchestrator : IGeneratorOrchestrator
     {
-        _autoGenerateEndpointsAttributeGenerator = new AutoGenerateEndpointsAttributeGenerator();
-        _autoMapEndpointAttributeGenerator = new AutoMapEndpointAttributeGenerator();
-        _smartEndpointExtensionGenerator = new SmartEndpointExtensionGenerator();
-    }
+        private readonly IAttributeGenerator _autoGenerateAttributeGenerator;
+        private readonly IAttributeGenerator _autoMapAttributeGenerator;
 
-    public void Initialize(IncrementalGeneratorInitializationContext context)
-    {
-        System.Diagnostics.Debug.WriteLine("🚀 SmartEndpointsOrchestrator.Initialize called!");
+        public SmartEndpointsOrchestrator()
+        {
+            _autoGenerateAttributeGenerator = new AutoGenerateEndpointsAttributeGenerator();
+            _autoMapAttributeGenerator = new AutoMapEndpointAttributeGenerator();
+        }
 
-        // Step 1: Detect generation mode from MSBuild properties
-        var generationModePipeline = context.AnalyzerConfigOptionsProvider
-            .Select((provider, _) =>
+        public void Initialize(IncrementalGeneratorInitializationContext context)
+        {
+            System.Diagnostics.Debug.WriteLine("🔥 SmartEndpointsOrchestrator.Initialize");
+
+            // Step 1: Always generate attributes
+            context.RegisterPostInitializationOutput(ctx =>
             {
-                var globalOptions = provider.GlobalOptions;
-                var modeString = globalOptions.TryGetValue("build_property.SmartEndpointsGenerationMode", out var mode) 
-                    ? mode 
-                    : "Cache"; // Default to Cache mode
-                
-                var generationMode = modeString?.Equals("File", StringComparison.OrdinalIgnoreCase) == true 
-                    ? GenerationMode.File 
-                    : GenerationMode.Cache;
-                
-                System.Diagnostics.Debug.WriteLine($"🔍 SmartEndpoints: Generation mode = {generationMode}");
-                return generationMode;
+                ctx.AddSource("AutoGenerateEndpointsAttribute.g.cs",
+                    _autoGenerateAttributeGenerator.GenerateAttribute());
+                ctx.AddSource("AutoMapEndpointAttribute.g.cs",
+                    _autoMapAttributeGenerator.GenerateAttribute());
             });
 
-        // Step 2: Pass 1 - Always generate attributes (both modes)
-        var attributePipeline = context.CompilationProvider.Select((compilation, _) =>
-        {
-            // Check if we have Result or OneOf types (check all OneOf variants)
-            var hasResultTypes = compilation.GetTypeByMetadataName("REslava.Result.Result`1") != null;
-            var hasOneOfTypes = new[] { "OneOf`2", "OneOf`3", "OneOf`4" }
-                .Any(type => compilation.GetTypeByMetadataName($"REslava.Result.AdvancedPatterns.{type}") != null);
+            // Step 2: Detect classes with [AutoGenerateEndpoints]
+            var classesWithAttribute = context.SyntaxProvider
+                .CreateSyntaxProvider(
+                    predicate: (node, _) => node is ClassDeclarationSyntax cls &&
+                        cls.AttributeLists.SelectMany(al => al.Attributes)
+                            .Any(a => a.Name.ToString().Contains("AutoGenerateEndpoints")),
+                    transform: (ctx, _) => (ClassDeclarationSyntax)ctx.Node)
+                .Where(cls => cls != null);
 
-            System.Diagnostics.Debug.WriteLine($"🔍 SmartEndpoints - HasResult: {hasResultTypes}, HasOneOf: {hasOneOfTypes}");
+            // Step 3: Generate endpoints
+            var compilationAndClasses = context.CompilationProvider.Combine(classesWithAttribute.Collect());
 
-            return compilation;
-        });
-
-        context.RegisterSourceOutput(attributePipeline, (spc, compilation) =>
-        {
-            if (compilation == null) return;
-
-            System.Diagnostics.Debug.WriteLine("🚀 SmartEndpoints: Attribute pipeline executing!");
-
-            // Generate AutoMapEndpoint attribute
-            spc.AddSource("AutoMapEndpointAttribute.g.cs",
-                _autoMapEndpointAttributeGenerator.GenerateAttribute());
-
-            // Generate AutoGenerateEndpoints attribute
-            spc.AddSource("AutoGenerateEndpointsAttribute.g.cs",
-                _autoGenerateEndpointsAttributeGenerator.GenerateAttribute());
-        });
-
-        // Step 3: Direct syntax-based pipeline with test file generation
-        var directPipeline = context.SyntaxProvider
-            .CreateSyntaxProvider(
-                predicate: static (node, _) => 
-                    node is ClassDeclarationSyntax cls && 
-                    cls.AttributeLists
-                        .SelectMany(al => al.Attributes)
-                        .Any(a => a.Name.ToString()
-                            .Contains("AutoGenerateEndpoints")),
-                transform: (ctx, ct) =>
-                {
-                    var classSyntax = (ClassDeclarationSyntax)ctx.Node;
-                    var className = classSyntax.Identifier.ValueText;
-                    
-                    System.Diagnostics.Debug.WriteLine($"🔍 SmartEndpoints: DIRECT - Found class with AutoGenerateEndpoints attribute: {className}");
-                    
-                    return new { ClassName = className, SyntaxNode = classSyntax, Compilation = ctx.SemanticModel.Compilation };
-                });
-
-        context.RegisterSourceOutput(directPipeline, (spc, target) =>
-        {
-            System.Diagnostics.Debug.WriteLine("🚀 SmartEndpoints: DIRECT pipeline executing!");
-
-            // TEMP: Generate a test file to verify pipeline is working
-            spc.AddSource("SmartEndpointsDirectTest.g.cs", $"// SmartEndpoints DIRECT pipeline found: {target.ClassName}");
-
-            try
+            context.RegisterSourceOutput(compilationAndClasses, (spc, source) =>
             {
-                // Extract endpoint metadata from the class
-                var endpointMetadata = new List<EndpointMetadata>();
-                if (target.SyntaxNode is ClassDeclarationSyntax classSyntax)
+                var compilation = source.Left;
+                var classes = source.Right;
+
+                if (!classes.Any())
                 {
-                    // Extract RoutePrefix from [AutoGenerateEndpoints(RoutePrefix = "...")] attribute
-                    var routePrefix = "/api/smarttest"; // Default fallback
-                    var attributeList = classSyntax.AttributeLists
-                        .SelectMany(al => al.Attributes)
-                        .FirstOrDefault(a => a.Name.ToString().Contains("AutoGenerateEndpoints"));
-                    
-                    if (attributeList != null)
+                    System.Diagnostics.Debug.WriteLine("⚠️ No SmartEndpoints classes found");
+                    return;
+                }
+
+                var endpoints = new List<EndpointMetadata>();
+
+                foreach (var classDecl in classes)
+                {
+                    var semanticModel = compilation.GetSemanticModel(classDecl.SyntaxTree);
+                    var classSymbol = semanticModel.GetDeclaredSymbol(classDecl);
+
+                    if (classSymbol == null) continue;
+
+                    // Extract RoutePrefix
+                    var attr = classSymbol.GetAttributes()
+                        .FirstOrDefault(a => a.AttributeClass?.Name == "AutoGenerateEndpointsAttribute");
+
+                    var routePrefix = "/api/test";
+                    if (attr != null)
                     {
-                        // Parse the RoutePrefix argument
-                        var argumentList = attributeList.ArgumentList?.Arguments;
-                        if (argumentList != null && argumentList.Value.Count > 0)
+                        var routeArg = attr.NamedArguments.FirstOrDefault(kv => kv.Key == "RoutePrefix");
+                        if (routeArg.Value.Value != null)
                         {
-                            var firstArg = argumentList.Value[0];
-                            var routeArg = firstArg?.Expression?.ToString();
-                            if (!string.IsNullOrEmpty(routeArg) && routeArg.StartsWith("\"") && routeArg.EndsWith("\""))
-                            {
-                                routePrefix = routeArg.Trim('"');
-                            }
+                            routePrefix = routeArg.Value.Value.ToString();
                         }
                     }
-                    
-                    System.Diagnostics.Debug.WriteLine($"🔍 SmartEndpoints: Found route prefix: {routePrefix}");
-                    
-                    // Get all methods in the class
-                    var methods = classSyntax.Members.OfType<MethodDeclarationSyntax>();
-                    
-                    foreach (var method in methods)
+
+                    // Process methods
+                    foreach (var member in classDecl.Members.OfType<MethodDeclarationSyntax>())
                     {
-                        var methodName = method.Identifier.ValueText;
-                        var returnType = method.ReturnType?.ToString() ?? "";
+                        var symbol = semanticModel.GetDeclaredSymbol(member);
                         
-                        System.Diagnostics.Debug.WriteLine($"🔍 SmartEndpoints: Found method: {methodName}, Return: {returnType}");
-                        
-                        // Check if method returns Result<T> or OneOf<...>
-                        if (returnType.Contains("Result<") || returnType.Contains("OneOf<"))
+                        // FIX: Cast to IMethodSymbol
+                        var methodSymbol = symbol as IMethodSymbol;
+                        if (methodSymbol == null || !methodSymbol.DeclaredAccessibility.HasFlag(Accessibility.Public))
+                            continue;
+
+                        var returnType = methodSymbol.ReturnType.ToDisplayString();
+                        if (!returnType.Contains("Result<") && !returnType.Contains("OneOf<"))
+                            continue;
+
+                        var endpoint = new EndpointMetadata
                         {
-                            // Extract parameters
-                            var parameters = new List<ParameterMetadata>();
-                            var paramList = new List<string>();
-                            var argList = new List<string>();
-                            
-                            foreach (var param in method.ParameterList.Parameters)
+                            MethodName = methodSymbol.Name,
+                            ClassName = classSymbol.Name,
+                            Namespace = classSymbol.ContainingNamespace?.ToDisplayString() ?? "Global",
+                            ReturnType = returnType,
+                            Route = InferRoute(methodSymbol.Name, routePrefix, methodSymbol.Parameters),
+                            HttpMethod = InferHttpMethod(methodSymbol.Name),
+                            Parameters = methodSymbol.Parameters.Select(p => new ParameterMetadata
                             {
-                                var paramName = param.Identifier.ValueText;
-                                var paramType = param.Type?.ToString() ?? "object";
-                                
-                                parameters.Add(new ParameterMetadata
-                                {
-                                    Name = paramName,
-                                    Type = paramType,
-                                    Source = paramType.Contains("CreateUserRequest") ? ParameterSource.Body : ParameterSource.Route
-                                });
-                                
-                                paramList.Add($"{paramType} {paramName}");
-                                argList.Add(paramName);
-                            }
-                            
-                            var endpoint = new EndpointMetadata
-                            {
-                                MethodName = methodName,
-                                ReturnType = returnType,
-                                ClassName = target.ClassName, // Set the class name
-                                Parameters = parameters,
-                                Route = routePrefix + InferRouteFromMethodName(methodName, parameters),
-                                HttpMethod = InferHttpMethodFromMethodName(methodName)
-                            };
-                            
-                            endpointMetadata.Add(endpoint);
-                        }
+                                Name = p.Name,
+                                Type = p.Type.ToDisplayString(),
+                                Source = InferParameterSource(p.Name, InferHttpMethod(methodSymbol.Name))
+                            }).ToList()
+                        };
+
+                        endpoints.Add(endpoint);
+                        System.Diagnostics.Debug.WriteLine($"✅ Added endpoint: {endpoint.HttpMethod} {endpoint.Route}");
                     }
                 }
 
-                // Generate endpoint mapping code with actual metadata
-                var extensionCode = _smartEndpointExtensionGenerator.GenerateCode(target.Compilation, endpointMetadata);
-                
-                spc.AddSource("SmartEndpointExtensions.g.cs", extensionCode);
-            }
-            catch (System.Exception ex)
-            {
-                // Log error but don't fail the build
-                spc.AddSource("SmartEndpointExtensions.g.cs", $"// Error during generation: {ex.Message}");
-            }
-        });
-
-        // Step 4: Fallback - Always generate a test file to verify generator is working
-        context.RegisterSourceOutput(context.CompilationProvider, (spc, compilation) =>
-        {
-            System.Diagnostics.Debug.WriteLine("🚀 SmartEndpoints: FALLBACK pipeline executing!");
-            spc.AddSource("SmartEndpointsFallbackTest.g.cs", "// SmartEndpoints FALLBACK pipeline is working!");
-        });
-    }
-
-    private static string InferRouteFromMethodName(string methodName, List<ParameterMetadata> parameters)
-    {
-        var baseRoute = "";
-        // Simple convention-based route inference
-        if (methodName.StartsWith("Get", StringComparison.OrdinalIgnoreCase))
-        {
-            if (methodName.Equals("Get", StringComparison.OrdinalIgnoreCase))
-                baseRoute = "";
-            else
-                baseRoute = "/" + methodName.Substring(3);
-        }
-        
-        if (methodName.StartsWith("Create", StringComparison.OrdinalIgnoreCase) ||
-            methodName.StartsWith("Add", StringComparison.OrdinalIgnoreCase))
-        {
-            baseRoute = "";
-        }
-        
-        if (methodName.StartsWith("Update", StringComparison.OrdinalIgnoreCase) ||
-            methodName.StartsWith("Modify", StringComparison.OrdinalIgnoreCase))
-        {
-            baseRoute = "/{id}";
-        }
-        
-        if (methodName.StartsWith("Delete", StringComparison.OrdinalIgnoreCase) ||
-            methodName.StartsWith("Remove", StringComparison.OrdinalIgnoreCase))
-        {
-            baseRoute = "/{id}";
-        }
-        
-        // Default: use method name as route
-        if (string.IsNullOrEmpty(baseRoute))
-            baseRoute = "/" + methodName.ToLowerInvariant();
-
-        // Check if method has an 'id' parameter and add it to the route if not already present
-        var hasIdParam = parameters.Any(p => p.Name.Equals("id", StringComparison.OrdinalIgnoreCase));
-        if (hasIdParam && !baseRoute.Contains("{id}"))
-        {
-            baseRoute += "/{id}";
+                if (endpoints.Any())
+                {
+                    var generator = new SmartEndpointExtensionGenerator();
+                    var code = generator.GenerateCode(compilation, endpoints);
+                    spc.AddSource("SmartEndpointExtensions.g.cs", code);
+                    System.Diagnostics.Debug.WriteLine($"✅ Generated {endpoints.Count} SmartEndpoints");
+                }
+            });
         }
 
-        return baseRoute;
-    }
+        private string InferRoute(string methodName, string prefix, System.Collections.Immutable.ImmutableArray<IParameterSymbol> parameters)
+        {
+            var hasIdParam = parameters.Any(p => p.Name.Equals("id", System.StringComparison.OrdinalIgnoreCase));
 
-    private static string InferHttpMethodFromMethodName(string methodName)
-    {
-        if (methodName.StartsWith("Get", StringComparison.OrdinalIgnoreCase))
+            if (methodName.StartsWith("Get") && hasIdParam)
+                return $"{prefix}/{{id}}";
+            if (methodName.StartsWith("Update") || methodName.StartsWith("Delete"))
+                return $"{prefix}/{{id}}";
+
+            return prefix;
+        }
+
+        private string InferHttpMethod(string methodName)
+        {
+            if (methodName.StartsWith("Get")) return "GET";
+            if (methodName.StartsWith("Create") || methodName.StartsWith("Add")) return "POST";
+            if (methodName.StartsWith("Update")) return "PUT";
+            if (methodName.StartsWith("Delete")) return "DELETE";
             return "GET";
-        
-        if (methodName.StartsWith("Create", StringComparison.OrdinalIgnoreCase) ||
-            methodName.StartsWith("Add", StringComparison.OrdinalIgnoreCase))
-            return "POST";
-        
-        if (methodName.StartsWith("Update", StringComparison.OrdinalIgnoreCase) ||
-            methodName.StartsWith("Modify", StringComparison.OrdinalIgnoreCase))
-            return "PUT";
-        
-        if (methodName.StartsWith("Delete", StringComparison.OrdinalIgnoreCase) ||
-            methodName.StartsWith("Remove", StringComparison.OrdinalIgnoreCase))
-            return "DELETE";
-        
-        // Default to GET
-        return "GET";
+        }
+
+        private ParameterSource InferParameterSource(string paramName, string httpMethod)
+        {
+            if (paramName.Equals("id", System.StringComparison.OrdinalIgnoreCase))
+                return ParameterSource.Route;
+            if (httpMethod == "POST" || httpMethod == "PUT")
+                return ParameterSource.Body;
+            return ParameterSource.Query;
+        }
     }
 }

@@ -91,7 +91,7 @@
     <!-- SmartEndpoints Generator - Automatic Minimal API Generation -->
     <Compile Include="Generators\SmartEndpoints\SmartEndpointsGenerator.cs" />
     <!--Compile Include="Generators\SmartEndpoints\SimpleTestGenerator.cs" /-->
-    <Compile Include="Generators\SmartEndpoints\MinimalSmartEndpointsGenerator.cs" />
+    <!--Compile Include="Generators\SmartEndpoints\MinimalSmartEndpointsGenerator.cs" /-->
     <Compile Include="Generators\SmartEndpoints\Models\*.cs" />
     <Compile Include="Generators\SmartEndpoints\Orchestration\SmartEndpointsOrchestrator.cs" />
     <Compile Include="Generators\SmartEndpoints\Attributes\AutoGenerateEndpointsAttributeGenerator.cs" />
