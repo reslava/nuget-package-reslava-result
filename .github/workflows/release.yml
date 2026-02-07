@@ -35,11 +35,19 @@ jobs:
 
       - name: Build and Pack
         run: |
-          echo "🏗️ Building solution..."
-          dotnet build --configuration Release
+          echo "🏗️ Building core packages..."
+          
+          # Build core library only
+          echo "📚 Building REslava.Result..."
+          dotnet build src/REslava.Result/REslava.Result.csproj --configuration Release
+          
+          # Build source generators only  
+          echo "🔧 Building REslava.Result.SourceGenerators..."
+          dotnet build src/REslava.Result.SourceGenerator/REslava.Result.SourceGenerators.csproj --configuration Release
           
           echo "📦 Packing packages..."
-          dotnet pack --configuration Release --output ./packages
+          dotnet pack src/REslava.Result/REslava.Result.csproj --configuration Release --output ./packages
+          dotnet pack src/REslava.Result.SourceGenerator/REslava.Result.SourceGenerators.csproj --configuration Release --output ./packages
 
       - name: Publish to NuGet
         run: |
