@@ -2,10 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+
+    <!-- Enable generated file output for debugging - SHOW GENERATED FILES -->
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(ProjectDir)GeneratedFiles</CompilerGeneratedFilesOutputPath>
+    
+    <!-- SmartEndpoints Generation Mode Configuration -->
+    <SmartEndpointsGenerationMode>File</SmartEndpointsGenerationMode>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,9 +26,9 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\SourceGenerator\REslava.Result.SourceGenerators.csproj" />
-    <ProjectReference Include="..\..\src\REslava.Result.csproj" />
+  <ItemGroup>       
+    <ProjectReference Include="..\..\src\REslava.Result.SourceGenerator\REslava.Result.SourceGenerators.csproj" />
+    <ProjectReference Include="..\..\src\REslava.Result\REslava.Result.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,11 +39,27 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="OneOf4ToIResultGeneratorTests.cs" />
+    <Compile Include="SmartEndpoints\SmartEndpoints_DebugTest.cs" />
+    <Compile Include="SmartEndpoints\SmartEndpoints_OneOf4_SimpleTest.cs" />    
     <Compile Include="SmartEndpoints\SmartEndpoints_BasicTests.cs" />
     <Compile Include="SmartEndpoints\SmartEndpoints_AttributeParsingTests.cs" />
     <Compile Include="SmartEndpoints\SmartEndpoints_GeneratorIntegrationTests.cs" />
     <Compile Include="SmartEndpoints\SmartEndpoints_MetadataTests.cs" />
     <Compile Include="SmartEndpoints\SmartEndpoints_RouteGenerationTests.cs" />
+    <Compile Include="SmartEndpoints\SmartEndpoints_OneOf4Tests.cs" />
+    <Compile Include="OneOf4ToIResult\OneOf4ToIResultGeneratorTests.cs" />    
+  </ItemGroup>
+
+  <!-- Prevent double compilation of generated files -->
+  <ItemGroup>
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)\**\*.g.cs" />
+  </ItemGroup>
+
+  <!-- Exclude generated files from compilation -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <Compile Remove="GeneratedFiles\**\*.g.cs" />
+    <Compile Remove="obj\**\*.g.cs" />
   </ItemGroup>
 
 </Project>

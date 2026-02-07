@@ -18,14 +18,14 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+    }
 
-app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
+    app.UseHttpsRedirection();
+    app.UseAuthorization();
+    app.MapControllers();
 
 // 🆕 SmartEndpoints: Auto-generated Minimal API endpoints
-app.MapSmartEndpoints();  // Now enabled for testing
+app.MapSmartEndpoints();
 
 // Add health check endpoint
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));

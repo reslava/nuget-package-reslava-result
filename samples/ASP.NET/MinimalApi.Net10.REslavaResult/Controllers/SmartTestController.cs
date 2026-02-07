@@ -1,3 +1,8 @@
+using Generated.SmartEndpoints;
+
+using MinimalApi.Net10.REslavaResult.Models;
+using Microsoft.AspNetCore.Mvc;
+
 using REslava.Result.SourceGenerators.SmartEndpoints;
 using REslava.Result.AdvancedPatterns;
 using REslava.Result;
@@ -14,7 +19,7 @@ public class SmartTestController
 {
     private static readonly List<User> _users = new();
 
-    static SmartTestController()
+    public SmartTestController()
     {
         // Add test data
         _users.Add(new User { Id = 1, Name = "Smart Test User", Email = "smart@example.com", CreatedAt = DateTime.UtcNow });

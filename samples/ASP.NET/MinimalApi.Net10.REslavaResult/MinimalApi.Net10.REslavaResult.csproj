@@ -17,6 +17,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="7.0.0" />
     
     <!-- 🆕 Use local v1.10.0 source for testing -->
     <PackageReference Include="REslava.Result" Version="1.9.0" />
