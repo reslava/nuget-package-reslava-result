@@ -87,16 +87,16 @@ public class UserController {
 **🎉 Generated Minimal API (Zero Manual Code!)**
 - ✅ `POST /api/users` → 201/400/404/409 (OneOf4 auto-mapping!)
 - ✅ `GET /api/users/{id}` → 200/404 (OneOf2 auto-mapping!)
-- ✅ **Swagger documentation** automatically generated
+- ✅ **OpenAPI documentation with Scalar UI** automatically generated
 - ✅ **Error handling** automatically configured
 - ✅ **HTTP status mapping** automatically applied
 - ✅ **Route configuration** automatically created
 
 **🔥 Development Speed: 10x Faster**
 - **No manual route setup** - automatic from method names
-- **No manual error handling** - automatic from return types  
+- **No manual error handling** - automatic from return types
 - **No manual status codes** - automatic from error types
-- **No manual Swagger docs** - automatically generated
+- **No manual API docs** - OpenAPI + Scalar UI automatically generated
 - **Self-explanatory code** - business logic only
 
 #### 🔄 OneOf Extensions - Intelligent HTTP Mapping
@@ -185,8 +185,8 @@ public class UserController {
 **⚡ Zero Boilerplate Benefits:**
 - **No manual route configuration** - inferred from class/method names
 - **No manual error handling** - automatic from OneOf types
-- **No manual status codes** - automatic from error types  
-- **No manual Swagger docs** - automatically generated
+- **No manual status codes** - automatic from error types
+- **No manual API docs** - OpenAPI + Scalar UI automatically generated
 - **No manual validation** - automatic from return types
 - **No manual ProblemDetails** - automatic RFC 7807 compliance
 
@@ -1111,7 +1111,18 @@ Build succeeded in 8.3s
 
 ### 🎯 **Hands-On Samples**
 
-- **🚀 [ASP.NET Integration Samples](samples/ASP.NET/README.md)** - Compare pure .NET 10 vs REslava.Result with source generators
+- **🚀 [FastMinimalAPI Demo](samples/FastMinimalAPI.REslava.Result.Demo/README.md)** - Production-ready .NET 10 Minimal API showcase
+  - **OpenAPI 3.0 + Scalar UI** - Modern API documentation
+  - **REslava.Result patterns** - Result<T> and OneOf<T1,T2,T3,T4> discriminated unions
+  - **Real-world scenarios** - Users, Products, Orders with full CRUD operations
+  - **Zero exception-based control flow** - Type-safe error handling
+
+- **📚 [Console Samples](samples/REslava.Result.Samples.Console/README.md)** - 13 progressive examples from basic to advanced
+  - **Level 1**: Core Result<T> patterns, validation pipelines, error handling
+  - **Level 2**: Async operations, LINQ syntax, custom errors
+  - **Level 3**: Maybe<T>, OneOf patterns, Result↔OneOf conversions
+
+- **🔄 [ASP.NET Integration Samples](samples/ASP.NET/README.md)** - Compare pure .NET 10 vs REslava.Result with source generators
   - **MinimalApi.Net10.Reference** - Pure .NET 10 implementation (baseline)
   - **MinimalApi.Net10.REslava.Result.v1.7.3** - REslava.Result + source generators (70-90% less code)
 

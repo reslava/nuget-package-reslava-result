@@ -29,7 +29,10 @@ dotnet run
 ```
 
 The application starts at: **http://localhost:5000** (or https://localhost:5001)
-Swagger UI is available at the root: **http://localhost:5000/**
+
+API Documentation:
+- **Scalar UI**: http://localhost:5000/scalar/v1 - Modern, beautiful API explorer
+- **OpenAPI Spec**: http://localhost:5000/openapi/v1.json - OpenAPI 3.0 specification
 
 ---
 
@@ -534,10 +537,11 @@ app.MapGet("/users/{id}", async (int id) =>
 
 ## 🛠️ Technologies
 
-- **ASP.NET Core 8.0** - Minimal APIs
+- **ASP.NET Core 10.0** - Minimal APIs
 - **Entity Framework Core** - In-Memory Database
-- **REslava.Result v1.12.0** - Type-safe error handling
-- **Swagger/OpenAPI** - API documentation
+- **REslava.Result v1.12.1** - Type-safe error handling
+- **Microsoft.AspNetCore.OpenApi** - OpenAPI 3.0 support (built-in .NET 10)
+- **Scalar.AspNetCore** - Modern API documentation UI
 
 ---
 
