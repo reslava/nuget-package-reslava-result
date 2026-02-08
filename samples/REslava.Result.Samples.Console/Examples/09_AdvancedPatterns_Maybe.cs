@@ -5,7 +5,7 @@ using REslava.Result.AdvancedPatterns;
 namespace REslava.Result.Samples.Console.Examples;
 
 /// <summary>
-/// Demonstrates Maybe<T> functional programming patterns
+/// Demonstrates Maybe&lt;T&gt; functional programming patterns
 /// Alternative to null references with type-safe optional values
 /// </summary>
 public static class AdvancedPatterns_Maybe
@@ -29,7 +29,7 @@ public static class AdvancedPatterns_Maybe
     }
 
     /// <summary>
-    /// Demonstrates basic Maybe<T> operations
+    /// Demonstrates basic Maybe&lt;T&gt; operations
     /// </summary>
     private static void BasicMaybeOperations()
     {
@@ -57,7 +57,7 @@ public static class AdvancedPatterns_Maybe
     }
 
     /// <summary>
-    /// Shows functional chaining with Maybe<T>
+    /// Shows functional chaining with Maybe&lt;T&gt;
     /// </summary>
     private static void FunctionalChaining()
     {

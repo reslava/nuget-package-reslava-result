@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\REslava.Result.csproj" />
+    <ProjectReference Include="..\..\src\REslava.Result\REslava.Result.csproj" />
   </ItemGroup>
 
 </Project>
