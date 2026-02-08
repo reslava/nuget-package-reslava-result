@@ -72,14 +72,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
-    // Map OpenAPI specification endpoint
-    app.MapOpenApi();
+// Map OpenAPI specification endpoint (available in all environments for demo purposes)
+app.MapOpenApi();
 
-    // Map Scalar UI for beautiful API documentation
-    app.MapScalarApiReference();
-}
+// Map Scalar UI for beautiful API documentation
+app.MapScalarApiReference();
 
 app.UseCors();
 
@@ -108,7 +105,7 @@ app.MapGet("/", () => Results.Ok(new
     description = "Production-ready demo showcasing REslava.Result library with type-safe error handling",
     endpoints = new
     {
-        scalar = "/scalar/v1",
+        scalar = "/scalar",
         openapi = "/openapi/v1.json",
         health = "/health",
         users = "/api/users",

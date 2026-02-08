@@ -31,7 +31,7 @@ dotnet run
 The application starts at: **http://localhost:5000** (or https://localhost:5001)
 
 API Documentation:
-- **Scalar UI**: http://localhost:5000/scalar/v1 - Modern, beautiful API explorer
+- **Scalar UI**: http://localhost:5000/scalar - Modern, beautiful API explorer
 - **OpenAPI Spec**: http://localhost:5000/openapi/v1.json - OpenAPI 3.0 specification
 
 ---
