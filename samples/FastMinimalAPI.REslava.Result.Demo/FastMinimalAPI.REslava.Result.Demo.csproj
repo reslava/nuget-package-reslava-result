@@ -8,15 +8,20 @@
 
   <ItemGroup>
     <!-- REslava.Result Library -->
+    <PackageReference Include="Microsoft.OpenApi" Version="2.0.0" />
     <PackageReference Include="REslava.Result" Version="1.12.0" />
-    <PackageReference Include="REslava.Result.SourceGenerators" Version="1.12.0" />
-    
+
     <!-- OpenAPI & Scalar -->
     <PackageReference Include="Scalar.AspNetCore" Version="1.2.45" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
-    
+
     <!-- In-Memory Database for Demo -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Local Source Generator Reference -->
+    <ProjectReference Include="..\..\src\REslava.Result.SourceGenerator\REslava.Result.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

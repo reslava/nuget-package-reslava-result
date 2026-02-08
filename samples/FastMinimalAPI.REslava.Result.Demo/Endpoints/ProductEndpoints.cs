@@ -172,12 +172,14 @@ public static class ProductEndpoints
                 })),
                 case2: async productData =>
                 {
-                    // Create update request with new stock
+                    // Create update request with new stock (only update StockQuantity)
                     var updateRequest = new UpdateProductRequest(
-                        productData.Name,
-                        productData.Price,
-                        request.Stock,
-                        productData.Category
+                        Name: null,
+                        Description: null,
+                        Price: null,
+                        StockQuantity: request.Stock,
+                        Category: null,
+                        IsAvailable: null
                     );
                     
                     var updateResult = await service.UpdateProductAsync(id, updateRequest);

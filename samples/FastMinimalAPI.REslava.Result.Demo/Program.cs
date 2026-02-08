@@ -7,20 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new()
-    {
-        Title = "Fast Minimal API - REslava.Result Demo",
-        Version = "v1",
-        Description = "Production-ready demo showcasing REslava.Result library with type-safe error handling in ASP.NET Core Minimal APIs",
-        Contact = new()
-        {
-            Name = "REslava.Result",
-            Url = new Uri("https://github.com/reslava/nuget-package-reslava-result")
-        }
-    });
-});
+
+// NOTE: Swagger is disabled due to .NET 10 compatibility issues with Swashbuckle.AspNetCore
+// The app uses Microsoft.AspNetCore.OpenApi instead for OpenAPI spec generation
+// builder.Services.AddSwaggerGen();
 
 // Configure Entity Framework Core with In-Memory Database
 builder.Services.AddDbContext<DemoDbContext>(options =>
@@ -54,12 +44,10 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Fast Minimal API Demo v1");
-        options.RoutePrefix = string.Empty; // Serve Swagger UI at root
-    });
+    // Swagger UI is currently disabled - API can be tested via:
+    // - Direct HTTP requests (curl, Postman, etc.)
+    // - Root endpoint (/) for API documentation
+    // - Health check endpoint (/health)
 }
 
 app.UseCors();

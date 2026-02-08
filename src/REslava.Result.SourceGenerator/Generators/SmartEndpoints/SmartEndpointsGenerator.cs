@@ -116,7 +116,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using REslava.Result;
 using REslava.Result.AdvancedPatterns;
-using MinimalApi.Net10.REslavaResult.Models;
 using Generated.OneOfExtensions;
 using System;
 using System.Threading.Tasks;
@@ -136,7 +135,7 @@ namespace Generated.SmartEndpoints
         {
             // DEBUG: SmartEndpoints registration started
             endpoints.MapGet(""/api/simple/test"", () => Results.Ok(""Simple test works - SmartEndpoints active!""));
-            
+
             return endpoints;
         }
     }

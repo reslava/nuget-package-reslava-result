@@ -83,21 +83,19 @@ var result = await orderService.CreateOrderAsync(request);
 
 return result.Match(
     case1: userNotFound => Results.NotFound(new { error = userNotFound.Message }),
-    case2: userInactive => Results.StatusCode(403, new { error = userInactive.Message }),
-    case3: insufficientStock => Results.StatusCode(409, new { error = insufficientStock.Message }),
-    case4: validation => Results.BadRequest(new { error = validation.Message }),
-    case5: order => Results.Created($"/api/orders/{order.Id}", new { data = order })
+    case2: insufficientStock => Results.StatusCode(409, new { error = insufficientStock.Message }),
+    case3: validation => Results.BadRequest(new { error = validation.Message }),
+    case4: order => Results.Created($"/api/orders/{order.Id}", new { data = order })
 );
 ```
 
-**Pattern**: `OneOf<UserNotFoundError, UserInactiveError, InsufficientStockError, ValidationError, OrderResponse>` (4 error types + 1 success = 5 total)
+**Pattern**: `OneOf<UserNotFoundError, InsufficientStockError, ValidationError, OrderResponse>` (4 types)
 - **Error case 1** (T1): 404 Not Found - User doesn't exist
-- **Error case 2** (T2): 403 Forbidden - User account inactive
-- **Error case 3** (T3): 409 Conflict - Insufficient stock
-- **Error case 4** (T4): 400 Bad Request - Validation error (empty order)
-- **Success case** (T5): 201 Created with order data
+- **Error case 2** (T2): 409 Conflict - Insufficient stock
+- **Error case 3** (T3): 400 Bad Request - Validation errors (empty order, inactive user, etc.)
+- **Success case** (T4): 201 Created with order data
 
-**Why OneOf4?** REslava.Result supports `OneOf<T1,T2>`, `OneOf<T1,T2,T3>`, and `OneOf<T1,T2,T3,T4>`. The OrderService uses OneOf4 to handle **4 error types** + **1 success type** = 5 cases total.
+**Why OneOf4?** REslava.Result supports `OneOf<T1,T2>`, `OneOf<T1,T2,T3>`, and `OneOf<T1,T2,T3,T4>`. The OrderService uses OneOf4 to handle **3 error types** + **1 success type** = 4 cases total. User inactive validation is consolidated into `ValidationError` for consistency.
 
 ---
 
@@ -179,7 +177,7 @@ public class ValidationError : Error { }                // 400 Bad Request
 | `/api/orders` | GET | `Result<List<OrderResponse>>` | 200 OK / 500 Error |
 | `/api/orders/{id}` | GET | `OneOf<NotFound, OrderResponse>` | 200 OK / 404 Not Found |
 | `/api/orders/user/{userId}` | GET | `OneOf<UserNotFound, List<OrderResponse>>` | 200 OK / 404 |
-| `/api/orders` | POST | `OneOf<UserNotFound, UserInactive, InsufficientStock, Validation, OrderResponse>` | 201 / 400 / 403 / 404 / 409 |
+| `/api/orders` | POST | `OneOf<UserNotFound, InsufficientStock, Validation, OrderResponse>` | 201 / 400 / 404 / 409 |
 | `/api/orders/{id}/status` | PATCH | `OneOf<NotFound, Validation, OrderResponse>` | 200 OK / 400 / 404 |
 | `/api/orders/{id}/cancel` | DELETE | `OneOf<NotFound, Validation, OrderResponse>` | 200 OK / 400 / 404 |
 
@@ -330,17 +328,7 @@ Content-Type: application/json
 }
 ```
 
-2. **User Inactive** (403 Forbidden):
-```json
-{
-  "success": false,
-  "error": "User account is inactive",
-  "errorType": "UserInactive",
-  "details": "User account is not active"
-}
-```
-
-3. **Insufficient Stock** (409 Conflict):
+2. **Insufficient Stock** (409 Conflict):
 ```json
 {
   "success": false,
@@ -352,14 +340,25 @@ Content-Type: application/json
 }
 ```
 
-4. **Empty Order** (400 Bad Request):
+3. **Validation Errors** (400 Bad Request):
 ```json
+// Empty Order
 {
   "success": false,
   "error": "Order must contain at least one item",
   "errorType": "ValidationError",
   "field": "Items",
   "reason": "EmptyOrder"
+}
+
+// Inactive User Account
+{
+  "success": false,
+  "error": "Validation failed for 'User': User account is inactive",
+  "errorType": "ValidationError",
+  "field": "User",
+  "userId": 3,
+  "reason": "InactiveAccount"
 }
 ```
 
@@ -370,7 +369,7 @@ Content-Type: application/json
 ### 1. Railway-Oriented Programming
 ```csharp
 // Service layer returns OneOf
-public async Task<OneOf<UserNotFoundError, UserInactiveError, InsufficientStockError, ValidationError, OrderResponse>>
+public async Task<OneOf<UserNotFoundError, InsufficientStockError, ValidationError, OrderResponse>>
     CreateOrderAsync(CreateOrderRequest request)
 {
     // Validate user exists
@@ -378,9 +377,12 @@ public async Task<OneOf<UserNotFoundError, UserInactiveError, InsufficientStockE
     if (user == null)
         return new UserNotFoundError($"User with id {request.UserId} not found");
 
-    // Validate user is active
+    // Validate user is active (consolidated into ValidationError)
     if (!user.IsActive)
-        return new UserInactiveError("User account is inactive");
+    {
+        var error = new ValidationError("User", "User account is inactive", user.Email);
+        return error.WithTag("UserId", user.Id).WithTag("Reason", "InactiveAccount");
+    }
 
     // Validate stock for each item
     // ... more validations ...
@@ -395,10 +397,9 @@ public async Task<OneOf<UserNotFoundError, UserInactiveError, InsufficientStockE
 // Endpoint handles all cases explicitly
 return result.Match(
     case1: userNotFound => Results.NotFound(/* ... */),    // 404
-    case2: userInactive => Results.StatusCode(403, /* ... */),  // 403
-    case3: insufficientStock => Results.StatusCode(409, /* ... */),  // 409
-    case4: validation => Results.BadRequest(/* ... */),    // 400
-    case5: order => Results.Created(/* ... */)             // 201
+    case2: insufficientStock => Results.StatusCode(409, /* ... */),  // 409
+    case3: validation => Results.BadRequest(/* ... */),    // 400
+    case4: order => Results.Created(/* ... */)             // 201
 );
 ```
 

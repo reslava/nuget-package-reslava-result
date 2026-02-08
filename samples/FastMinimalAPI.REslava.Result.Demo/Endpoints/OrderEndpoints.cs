@@ -21,18 +21,20 @@ public static class OrderEndpoints
         group.MapGet("/", async (OrderService orderService) =>
         {
             var result = await orderService.GetAllOrdersAsync();
-            
-            return result.Match(
-                onSuccess: orders => Results.Ok(new { 
-                    success = true, 
-                    data = orders,
-                    count = orders.Count 
-                }),
-                onFailure: errors => Results.Problem(
-                    detail: string.Join(", ", errors.Select(e => e.Message)),
+
+            if (result.IsFailed)
+            {
+                return Results.Problem(
+                    detail: string.Join(", ", result.Errors.Select(e => e.Message)),
                     statusCode: 500
-                )
-            );
+                );
+            }
+
+            return Results.Ok(new {
+                success = true,
+                data = result.Value,
+                count = result.Value.Count
+            });
         })
         .WithName("GetAllOrders")
         .WithSummary("Get all orders")
@@ -91,35 +93,25 @@ public static class OrderEndpoints
             // OneOf4 pattern - handling 4 different error types and success!
             // Note: EmptyOrderError is now a ValidationError (both are 400-level errors)
             return result.Match(
-                case1: userNotFound => Results.NotFound(new { 
-                    success = false, 
+                case1: userNotFound => Results.NotFound(new {
+                    success = false,
                     error = userNotFound.Message,
                     errorType = "UserNotFound",
                     field = "UserId"
                 }),
-                case2: userInactive => Results.StatusCode(403, new { 
-                    success = false, 
-                    error = userInactive.Message,
-                    errorType = "UserInactive",
-                    details = "User account is not active"
-                }),
-                case3: insufficientStock => Results.StatusCode(409, new { 
-                    success = false, 
-                    error = insufficientStock.Message,
-                    errorType = "InsufficientStock",
-                    productId = insufficientStock.Tags.GetValueOrDefault("ProductId"),
-                    requested = insufficientStock.Tags.GetValueOrDefault("RequestedQuantity"),
-                    available = insufficientStock.Tags.GetValueOrDefault("AvailableStock")
-                }),
-                case4: validation => Results.BadRequest(new { 
-                    success = false, 
+                case2: insufficientStock => Results.Problem(
+                    detail: insufficientStock.Message,
+                    statusCode: 409
+                ),
+                case3: validation => Results.BadRequest(new {
+                    success = false,
                     error = validation.Message,
                     errorType = "ValidationError",
-                    field = validation.Tags.GetValueOrDefault("Field"),
+                    field = validation.Field,
                     reason = validation.Tags.GetValueOrDefault("Reason")
                 }),
-                case5: order => Results.Created($"/api/orders/{order.Id}", new { 
-                    success = true, 
+                case4: order => Results.Created($"/api/orders/{order.Id}", new {
+                    success = true,
                     data = order,
                     message = "Order created successfully"
                 })
@@ -136,11 +128,11 @@ public static class OrderEndpoints
 
         // PATCH /api/orders/{id}/status - Update order status
         group.MapPatch("/{id:int}/status", async (
-            int id, 
-            [FromBody] UpdateOrderStatusRequest request, 
+            int id,
+            [FromBody] UpdateOrderStatusRequest request,
             OrderService orderService) =>
         {
-            var result = await orderService.UpdateOrderStatusAsync(id, request.Status);
+            var result = await orderService.UpdateOrderStatusAsync(id, request.Status.ToString());
             
             return result.Match(
                 case1: notFound => Results.NotFound(new { 
@@ -198,17 +190,19 @@ public static class OrderEndpoints
         group.MapGet("/user/{userId:int}/statistics", async (int userId, OrderService orderService) =>
         {
             var result = await orderService.GetUserOrderStatisticsAsync(userId);
-            
-            return result.Match(
-                onSuccess: stats => Results.Ok(new { 
-                    success = true, 
-                    data = stats 
-                }),
-                onFailure: errors => Results.Problem(
-                    detail: string.Join(", ", errors.Select(e => e.Message)),
+
+            if (result.IsFailed)
+            {
+                return Results.Problem(
+                    detail: string.Join(", ", result.Errors.Select(e => e.Message)),
                     statusCode: 500
-                )
-            );
+                );
+            }
+
+            return Results.Ok(new {
+                success = true,
+                data = result.Value
+            });
         })
         .WithName("GetUserOrderStatistics")
         .WithSummary("Get order statistics for a user")

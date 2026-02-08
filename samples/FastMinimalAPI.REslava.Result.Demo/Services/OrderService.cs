@@ -28,7 +28,7 @@ public class OrderService
     {
         var orders = await _context.Orders
             .Include(o => o.User)
-            .Include(o => o.OrderItems)
+            .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
             .ToListAsync();
 
@@ -36,17 +36,16 @@ public class OrderService
             o.Id,
             o.UserId,
             o.User.Name,
-            o.OrderDate,
-            o.Status.ToString(),
-            o.TotalAmount,
-            o.OrderItems.Select(oi => new OrderItemResponse(
-                oi.Id,
+            o.Items.Select(oi => new OrderItemResponse(
                 oi.ProductId,
                 oi.Product.Name,
                 oi.Quantity,
                 oi.UnitPrice,
                 oi.Subtotal
-            )).ToList()
+            )).ToList(),
+            o.TotalAmount,
+            o.Status.ToString(),
+            o.CreatedAt
         )).ToList();
 
         return Result<List<OrderResponse>>.Ok(response);
@@ -60,7 +59,7 @@ public class OrderService
     {
         var order = await _context.Orders
             .Include(o => o.User)
-            .Include(o => o.OrderItems)
+            .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
             .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -73,17 +72,16 @@ public class OrderService
             order.Id,
             order.UserId,
             order.User.Name,
-            order.OrderDate,
-            order.Status.ToString(),
-            order.TotalAmount,
-            order.OrderItems.Select(oi => new OrderItemResponse(
-                oi.Id,
+            order.Items.Select(oi => new OrderItemResponse(
                 oi.ProductId,
                 oi.Product.Name,
                 oi.Quantity,
                 oi.UnitPrice,
                 oi.Subtotal
-            )).ToList()
+            )).ToList(),
+            order.TotalAmount,
+            order.Status.ToString(),
+            order.CreatedAt
         );
 
         return response;
@@ -104,7 +102,7 @@ public class OrderService
         var orders = await _context.Orders
             .Where(o => o.UserId == userId)
             .Include(o => o.User)
-            .Include(o => o.OrderItems)
+            .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
             .ToListAsync();
 
@@ -112,17 +110,16 @@ public class OrderService
             o.Id,
             o.UserId,
             o.User.Name,
-            o.OrderDate,
-            o.Status.ToString(),
-            o.TotalAmount,
-            o.OrderItems.Select(oi => new OrderItemResponse(
-                oi.Id,
+            o.Items.Select(oi => new OrderItemResponse(
                 oi.ProductId,
                 oi.Product.Name,
                 oi.Quantity,
                 oi.UnitPrice,
                 oi.Subtotal
-            )).ToList()
+            )).ToList(),
+            o.TotalAmount,
+            o.Status.ToString(),
+            o.CreatedAt
         )).ToList();
 
         return response;
@@ -133,20 +130,19 @@ public class OrderService
     /// ⭐ SHOWCASE: OneOf4 demonstrating multiple error types in complex business logic
     /// Error Scenarios:
     /// 1. UserNotFoundError (404) - User doesn't exist
-    /// 2. UserInactiveError (403) - User account is inactive
-    /// 3. InsufficientStockError (409) - Not enough inventory
-    /// 4. ValidationError (400) - Invalid input (e.g., empty order)
+    /// 2. InsufficientStockError (409) - Not enough inventory
+    /// 3. ValidationError (400) - Invalid input (e.g., empty order, inactive user)
     /// Success: OrderResponse with created order details
     /// </summary>
-    public async Task<OneOf<UserNotFoundError, UserInactiveError, InsufficientStockError, ValidationError, OrderResponse>> 
+    public async Task<OneOf<UserNotFoundError, InsufficientStockError, ValidationError, OrderResponse>>
         CreateOrderAsync(CreateOrderRequest request)
     {
         // Validation 1: Check if order has items
         if (request.Items == null || !request.Items.Any())
         {
-            return new ValidationError("Order must contain at least one item")
-                .WithTag("Field", "Items")
-                .WithTag("Reason", "EmptyOrder");
+            var error = new ValidationError("Items", "Order must contain at least one item");
+            error.WithTag("Reason", "EmptyOrder");
+            return error;
         }
 
         // Validation 2: Check if user exists
@@ -159,7 +155,9 @@ public class OrderService
         // Validation 3: Check if user is active
         if (!user.IsActive)
         {
-            return new UserInactiveError(user.Id, user.Email);
+            var error = new ValidationError("User", $"User account is inactive: {user.Email}", user.Email);
+            error.WithTag("UserId", user.Id).WithTag("Reason", "InactiveAccount");
+            return error;
         }
 
         // Validation 4: Check stock availability for all products
@@ -191,28 +189,30 @@ public class OrderService
             // Check if product is available
             if (!product.IsAvailable)
             {
-                return new InsufficientStockError(
+                var stockError = new InsufficientStockError(
                     product.Id,
                     product.Name,
                     0,
                     item.Quantity
-                ).WithTag("Reason", "Product is currently unavailable");
+                );
+                stockError.WithTag("Reason", "Product is currently unavailable");
+                return stockError;
             }
 
             // Check stock level
-            if (product.Stock < item.Quantity)
+            if (product.StockQuantity < item.Quantity)
             {
                 return new InsufficientStockError(
                     product.Id,
                     product.Name,
-                    product.Stock,
+                    product.StockQuantity,
                     item.Quantity
                 );
             }
 
             // Reduce stock
-            product.Stock -= item.Quantity;
-            if (product.Stock == 0)
+            product.StockQuantity -= item.Quantity;
+            if (product.StockQuantity == 0)
             {
                 product.IsAvailable = false;
             }
@@ -225,8 +225,7 @@ public class OrderService
             {
                 ProductId = product.Id,
                 Quantity = item.Quantity,
-                UnitPrice = product.Price,
-                Subtotal = subtotal
+                UnitPrice = product.Price
             });
         }
 
@@ -234,10 +233,10 @@ public class OrderService
         var order = new Order
         {
             UserId = request.UserId,
-            OrderDate = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
             Status = OrderStatus.Pending,
             TotalAmount = totalAmount,
-            OrderItems = orderItems
+            Items = orderItems
         };
 
         _context.Orders.Add(order);
@@ -245,7 +244,7 @@ public class OrderService
 
         // Load navigation properties for response
         await _context.Entry(order).Reference(o => o.User).LoadAsync();
-        foreach (var item in order.OrderItems)
+        foreach (var item in order.Items)
         {
             await _context.Entry(item).Reference(oi => oi.Product).LoadAsync();
         }
@@ -254,17 +253,16 @@ public class OrderService
             order.Id,
             order.UserId,
             order.User.Name,
-            order.OrderDate,
-            order.Status.ToString(),
-            order.TotalAmount,
-            order.OrderItems.Select(oi => new OrderItemResponse(
-                oi.Id,
+            order.Items.Select(oi => new OrderItemResponse(
                 oi.ProductId,
                 oi.Product.Name,
                 oi.Quantity,
                 oi.UnitPrice,
                 oi.Subtotal
-            )).ToList()
+            )).ToList(),
+            order.TotalAmount,
+            order.Status.ToString(),
+            order.CreatedAt
         );
 
         return response;
@@ -279,7 +277,7 @@ public class OrderService
     {
         var order = await _context.Orders
             .Include(o => o.User)
-            .Include(o => o.OrderItems)
+            .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
             .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -291,9 +289,7 @@ public class OrderService
         // Validate status
         if (!Enum.TryParse<OrderStatus>(status, true, out var newStatus))
         {
-            return new ValidationError($"Invalid order status: {status}. Valid values are: {string.Join(", ", Enum.GetNames<OrderStatus>())}")
-                .WithTag("Field", "Status")
-                .WithTag("ProvidedValue", status);
+            return new ValidationError("Status", $"Invalid order status. Valid values are: {string.Join(", ", Enum.GetNames<OrderStatus>())}", status);
         }
 
         order.Status = newStatus;
@@ -303,17 +299,16 @@ public class OrderService
             order.Id,
             order.UserId,
             order.User.Name,
-            order.OrderDate,
-            order.Status.ToString(),
-            order.TotalAmount,
-            order.OrderItems.Select(oi => new OrderItemResponse(
-                oi.Id,
+            order.Items.Select(oi => new OrderItemResponse(
                 oi.ProductId,
                 oi.Product.Name,
                 oi.Quantity,
                 oi.UnitPrice,
                 oi.Subtotal
-            )).ToList()
+            )).ToList(),
+            order.TotalAmount,
+            order.Status.ToString(),
+            order.CreatedAt
         );
 
         return response;
@@ -327,7 +322,7 @@ public class OrderService
     {
         var order = await _context.Orders
             .Include(o => o.User)
-            .Include(o => o.OrderItems)
+            .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
             .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -339,16 +334,15 @@ public class OrderService
         // Business rule: Can only cancel pending or processing orders
         if (order.Status == OrderStatus.Completed || order.Status == OrderStatus.Cancelled)
         {
-            return new ValidationError($"Cannot cancel order with status: {order.Status}")
-                .WithTag("OrderId", id)
-                .WithTag("CurrentStatus", order.Status.ToString())
-                .WithTag("Reason", "Order already completed or cancelled");
+            var error = new ValidationError("OrderStatus", "Cannot cancel order with this status", order.Status.ToString());
+            error.WithTag("OrderId", id).WithTag("CurrentStatus", order.Status.ToString()).WithTag("Reason", "Order already completed or cancelled");
+            return error;
         }
 
         // Restore product stock
-        foreach (var item in order.OrderItems)
+        foreach (var item in order.Items)
         {
-            item.Product.Stock += item.Quantity;
+            item.Product.StockQuantity += item.Quantity;
             item.Product.IsAvailable = true; // Make available again
         }
 
@@ -359,17 +353,16 @@ public class OrderService
             order.Id,
             order.UserId,
             order.User.Name,
-            order.OrderDate,
-            order.Status.ToString(),
-            order.TotalAmount,
-            order.OrderItems.Select(oi => new OrderItemResponse(
-                oi.Id,
+            order.Items.Select(oi => new OrderItemResponse(
                 oi.ProductId,
                 oi.Product.Name,
                 oi.Quantity,
                 oi.UnitPrice,
                 oi.Subtotal
-            )).ToList()
+            )).ToList(),
+            order.TotalAmount,
+            order.Status.ToString(),
+            order.CreatedAt
         );
 
         return response;
