@@ -21,15 +21,16 @@ jobs:
       - name: Validate Version
         run: |
           echo "🔍 Checking version consistency..."
-          gen_version=$(grep -oP '(?<=<GeneratorPackageVersion>)[^<]+' Directory.Build.props)
+    
+          # Extract version from <Version> tag, not <GeneratorPackageVersion>
+          version=$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)
           tag_version="${{ github.ref_name }}"
-          # Remove 'v' prefix from tag version for comparison
           tag_version_clean="${tag_version#v}"
           
-          if [[ "$gen_version" == "$tag_version_clean" ]]; then
+          if [[ "$version" == "$tag_version_clean" ]]; then
             echo "✅ Version $tag_version matches Directory.Build.props"
           else
-            echo "❌ Version mismatch: Directory.Build.props=$gen_version, tag=$tag_version"
+            echo "❌ Version mismatch: Directory.Build.props=$version, tag=$tag_version"
             exit 1
           fi
 
