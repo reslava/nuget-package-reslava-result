@@ -1,7 +1,7 @@
 <Project>
-  <PropertyGroup>        
+  <PropertyGroup>
     <!-- Primary version property that MSBuild uses -->
-    <Version>1.12.0</Version>
+    <Version>1.12.1</Version>
     
     <!-- Keep this for workflow validation (references Version) -->
     <GeneratorPackageVersion>$(Version)</GeneratorPackageVersion>

@@ -4,6 +4,61 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.12.1] - 2026-02-08
+
+### ✨ Added
+
+**Sample Applications**
+- **FastMinimalAPI.REslava.Result.Demo** - Production-ready ASP.NET Core Minimal API demonstration
+  - Comprehensive README with learning path (Level 1, 2, 3 patterns)
+  - 15 endpoints showcasing Result&lt;T&gt; and OneOf patterns
+  - Real-world business scenarios (Users, Products, Orders)
+  - Rich error handling with custom error types
+  - In-memory database with seed data for testing
+  - Full CRUD operations with validation
+
+- **REslava.Result.Samples.Console** - Educational console application
+  - 13 progressive examples from basic to advanced
+  - Comprehensive feature coverage (20+ patterns)
+  - LINQ syntax, async operations, validation pipelines
+  - Maybe&lt;T&gt; and OneOf&lt;T1,T2,T3,T4&gt; functional patterns
+  - Result↔OneOf conversions and integrations
+
+### 🔧 Fixed
+
+**Source Generators**
+- Removed hardcoded namespace reference in SmartEndpointsGenerator
+  - Fixed `using MinimalApi.Net10.REslavaResult.Models;` that caused build errors
+  - Generator now works with any project namespace
+
+**FastMinimalAPI Demo**
+- Fixed OneOf5 → OneOf4 conversion in CreateOrder endpoint
+  - Consolidated UserInactiveError into ValidationError
+  - Updated all endpoint handlers to match new signature
+  - Corrected parameter ordering in OrderResponse constructors
+  - Fixed Product.StockQuantity property references
+
+**Console Sample**
+- Fixed XML documentation warnings in Maybe&lt;T&gt; examples
+- Corrected project reference paths after directory restructuring
+
+### 📚 Improved
+
+**Documentation**
+- Added comprehensive README for Console sample
+- Updated FastMinimalAPI README to reflect actual implementation
+- Clarified error handling patterns and use cases
+
+### 📊 Stats
+
+- **Sample Apps**: 2 new comprehensive demos
+- **Example Files**: 13 progressive console examples
+- **API Endpoints**: 15 web API endpoints demonstrating patterns
+- **Lines of Code**: ~3,500 lines of sample code
+- **Build Status**: ✅ All samples build and run successfully
+
+---
+
 ## [1.12.0] - 2026-02-07
 
 ### ✨ Added
