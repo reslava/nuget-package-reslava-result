@@ -76,6 +76,7 @@ using (var scope = app.Services.CreateScope())
 app.MapOpenApi();
 
 // Map Scalar UI for beautiful API documentation
+// Scalar.AspNetCore default endpoint is /scalar/v1
 app.MapScalarApiReference();
 
 app.UseCors();
