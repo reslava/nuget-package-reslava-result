@@ -47,6 +47,17 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.Models
         /// Authorization policies.
         /// </summary>
         public List<string> Policies { get; set; } = new();
+
+        /// <summary>
+        /// Route prefix from the class-level attribute (e.g., "/api/smart/products").
+        /// Used to compute relative routes when generating MapGroup.
+        /// </summary>
+        public string RoutePrefix { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Pre-computed .Produces() metadata for OpenAPI documentation.
+        /// </summary>
+        public List<ProducesMetadata> ProducesList { get; set; } = new();
     }
 
     /// <summary>
@@ -71,6 +82,21 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.Models
         Body,
         Header,
         Service
+    }
+
+    /// <summary>
+    /// Metadata for a .Produces() or .Produces&lt;T&gt;() call on an endpoint.
+    /// </summary>
+    public class ProducesMetadata
+    {
+        /// <summary>HTTP status code (e.g., 200, 400, 404).</summary>
+        public int StatusCode { get; set; }
+
+        /// <summary>
+        /// Fully qualified type name for .Produces&lt;T&gt;(statusCode).
+        /// Null means untyped .Produces(statusCode).
+        /// </summary>
+        public string ResponseType { get; set; }
     }
 
     /// <summary>

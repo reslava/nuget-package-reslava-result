@@ -48,6 +48,7 @@
     <Compile Include="SmartEndpoints\SmartEndpoints_MetadataTests.cs" />
     <Compile Include="SmartEndpoints\SmartEndpoints_RouteGenerationTests.cs" />
     <Compile Include="SmartEndpoints\SmartEndpoints_OneOf4Tests.cs" />
+    <Compile Include="SmartEndpoints\SmartEndpoints_OpenApiMetadataTests.cs" />
   </ItemGroup>
 
   <!-- Temporarily exclude broken test file -->

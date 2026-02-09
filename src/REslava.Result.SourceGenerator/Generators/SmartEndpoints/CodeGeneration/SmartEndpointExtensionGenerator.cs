@@ -9,15 +9,36 @@ using System.Linq;
 namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGeneration
 {
     /// <summary>
-    /// Generates SmartEndpoint extension methods - FIXED VERSION
+    /// Generates SmartEndpoint extension methods with OpenAPI metadata.
+    /// Groups endpoints by controller using MapGroup, emits .WithName(),
+    /// .WithSummary(), .WithTags(), and .Produces() for full Scalar/Swagger support.
     /// </summary>
     public class SmartEndpointExtensionGenerator : ICodeGenerator
     {
         public SourceText GenerateCode(Compilation compilation, object config)
         {
-            var endpoints = config as List<EndpointMetadata>;
-            
-            if (endpoints == null || !endpoints.Any())
+            // Accept List<ControllerMetadata> (new) or List<EndpointMetadata> (backward compat)
+            var controllers = config as List<ControllerMetadata>;
+
+            if (controllers == null && config is List<EndpointMetadata> flatEndpoints)
+            {
+                if (!flatEndpoints.Any())
+                    return SourceText.From("// No SmartEndpoints detected", Encoding.UTF8);
+
+                // Wrap flat list in a single controller for backward compatibility
+                controllers = new List<ControllerMetadata>
+                {
+                    new ControllerMetadata
+                    {
+                        ClassName = "Legacy",
+                        RoutePrefix = flatEndpoints.First().RoutePrefix,
+                        Endpoints = flatEndpoints,
+                        Tags = new List<string> { "SmartEndpoints" }
+                    }
+                };
+            }
+
+            if (controllers == null || !controllers.Any())
             {
                 return SourceText.From("// No SmartEndpoints detected", Encoding.UTF8);
             }
@@ -34,7 +55,7 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
             builder.AppendLine("using Generated.OneOfExtensions;");
             builder.AppendLine();
 
-            // Namespace
+            // Namespace and class
             builder.AppendLine("namespace Generated.SmartEndpoints");
             builder.AppendLine("{");
             builder.AppendLine("    public static class SmartEndpointExtensions");
@@ -42,10 +63,10 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
             builder.AppendLine("        public static IEndpointRouteBuilder MapSmartEndpoints(this IEndpointRouteBuilder endpoints)");
             builder.AppendLine("        {");
 
-            // Generate each endpoint
-            foreach (var endpoint in endpoints)
+            // Generate a route group per controller
+            foreach (var controller in controllers)
             {
-                GenerateEndpoint(builder, endpoint);
+                GenerateControllerGroup(builder, controller);
             }
 
             builder.AppendLine("            return endpoints;");
@@ -56,10 +77,37 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
             return SourceText.From(builder.ToString(), Encoding.UTF8);
         }
 
-        private void GenerateEndpoint(StringBuilder builder, EndpointMetadata endpoint)
+        private void GenerateControllerGroup(StringBuilder builder, ControllerMetadata controller)
         {
-            var httpMethod = endpoint.HttpMethod.ToLowerInvariant();
-            var mapMethod = httpMethod switch
+            // Generate a safe variable name: "SmartProductController" → "smartProductGroup"
+            var baseName = controller.ClassName;
+            foreach (var suffix in new[] { "Controller", "Service", "Endpoint", "Endpoints" })
+            {
+                if (baseName.EndsWith(suffix))
+                {
+                    baseName = baseName.Substring(0, baseName.Length - suffix.Length);
+                    break;
+                }
+            }
+            var varName = char.ToLower(baseName[0]) + baseName.Substring(1) + "Group";
+
+            var tag = controller.Tags.Any() ? controller.Tags[0] : controller.ClassName;
+
+            builder.AppendLine();
+            builder.AppendLine($"            // === {controller.ClassName} ===");
+            builder.AppendLine($"            var {varName} = endpoints.MapGroup(\"{controller.RoutePrefix}\")");
+            builder.AppendLine($"                .WithTags(\"{EscapeString(tag)}\");");
+            builder.AppendLine();
+
+            foreach (var endpoint in controller.Endpoints)
+            {
+                GenerateEndpoint(builder, endpoint, varName, baseName);
+            }
+        }
+
+        private void GenerateEndpoint(StringBuilder builder, EndpointMetadata endpoint, string groupVarName, string controllerBaseName)
+        {
+            var mapMethod = endpoint.HttpMethod.ToLowerInvariant() switch
             {
                 "get" => "MapGet",
                 "post" => "MapPost",
@@ -68,6 +116,9 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
                 "patch" => "MapPatch",
                 _ => "MapGet"
             };
+
+            // Compute relative route (strip prefix since the group handles it)
+            var relativeRoute = ComputeRelativeRoute(endpoint.Route, endpoint.RoutePrefix);
 
             // Build parameter list (method params + DI service)
             var methodParams = string.Join(", ", endpoint.Parameters.Select(p => $"{p.Type} {p.Name}"));
@@ -80,13 +131,73 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
             var asyncKeyword = endpoint.IsAsync ? "async " : "";
             var awaitKeyword = endpoint.IsAsync ? "await " : "";
 
+            // Endpoint comment
             builder.AppendLine($"            // {endpoint.MethodName}: {endpoint.HttpMethod} {endpoint.Route}");
-            builder.AppendLine($"            endpoints.{mapMethod}(\"{endpoint.Route}\", {asyncKeyword}({fullParamList}) =>");
+
+            // Map method + handler lambda
+            builder.AppendLine($"            {groupVarName}.{mapMethod}(\"{relativeRoute}\", {asyncKeyword}({fullParamList}) =>");
             builder.AppendLine("            {");
             builder.AppendLine($"                var result = {awaitKeyword}service.{endpoint.MethodName}({argList});");
             builder.AppendLine("                return result.ToIResult();");
-            builder.AppendLine("            });");
+            builder.AppendLine("            })");
+
+            // Build the fluent chain
+            var chain = new List<string>();
+
+            // .WithName() — prefixed with controller base name for global uniqueness
+            chain.Add($".WithName(\"{controllerBaseName}_{endpoint.MethodName}\")");
+
+            // .WithSummary()
+            if (!string.IsNullOrEmpty(endpoint.Summary))
+            {
+                chain.Add($".WithSummary(\"{EscapeString(endpoint.Summary)}\")");
+            }
+
+            // .Produces<T>(statusCode) and .Produces(statusCode)
+            foreach (var produces in endpoint.ProducesList)
+            {
+                if (produces.ResponseType != null)
+                {
+                    chain.Add($".Produces<{produces.ResponseType}>({produces.StatusCode})");
+                }
+                else
+                {
+                    chain.Add($".Produces({produces.StatusCode})");
+                }
+            }
+
+            // Emit chain — last item gets semicolon
+            for (int i = 0; i < chain.Count; i++)
+            {
+                var terminator = (i == chain.Count - 1) ? ";" : "";
+                builder.AppendLine($"                {chain[i]}{terminator}");
+            }
+
             builder.AppendLine();
+        }
+
+        private static string ComputeRelativeRoute(string fullRoute, string routePrefix)
+        {
+            if (string.IsNullOrEmpty(routePrefix))
+                return fullRoute;
+
+            if (fullRoute.StartsWith(routePrefix) && fullRoute.Length > routePrefix.Length)
+            {
+                return fullRoute.Substring(routePrefix.Length);
+            }
+
+            // Route equals prefix — use root
+            if (fullRoute == routePrefix)
+                return "/";
+
+            return fullRoute;
+        }
+
+        private static string EscapeString(string value)
+        {
+            return value
+                .Replace("\\", "\\\\")
+                .Replace("\"", "\\\"");
         }
     }
 }

@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [Unreleased]
+
+### ✨ Added
+
+**SmartEndpoints: OpenAPI Metadata Auto-Generation**
+- Endpoints now emit full OpenAPI metadata from return type analysis at compile time
+  - `.WithName("ControllerBase_MethodName")` — globally unique endpoint names
+  - `.WithSummary("...")` — auto-generated from PascalCase method name or XML doc `<summary>`
+  - `.WithTags("...")` — auto-generated from class name (strips Controller/Service suffix, splits PascalCase)
+  - `.Produces<T>(200)` — typed success response from `Result<T>` or non-error OneOf type arguments
+  - `.Produces(statusCode)` — error status codes inferred from error type names (NotFound→404, Conflict→409, Unauthorized→401, Forbidden→403, Database→500, Validation/default→400)
+- Endpoints are grouped per controller using `MapGroup(prefix).WithTags(tag)` instead of flat registration
+  - Relative routes within groups (e.g., `/{id}` instead of `/api/products/{id}`)
+  - Controller-scoped variable names (e.g., `smartProductGroup`)
+- Status code deduplication — two errors mapping to 400 produce a single `.Produces(400)`
+- 21 new tests covering all OpenAPI metadata features (`SmartEndpoints_OpenApiMetadataTests.cs`)
+
+---
+
 ## [1.12.2] - 2026-02-09
 
 ### 🔧 Fixed

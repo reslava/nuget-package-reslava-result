@@ -27,10 +27,11 @@
 | Maybe&lt;T&gt; | ✅ | — | — | ✅ |
 | **ASP.NET source generators** | **✅** | — | — | — |
 | **SmartEndpoints (zero-boilerplate APIs)** | **✅** | — | — | — |
+| **OpenAPI metadata auto-generation** | **✅** | — | — | — |
 | Validation framework | ✅ | Basic | — | ✅ |
 | Zero dependencies | ✅ | ✅ | ✅ | — |
 
-**Unique advantage**: SmartEndpoints auto-generates complete Minimal API endpoints from your business logic — including routing, DI, HTTP status mapping, and error handling. No other .NET library does this.
+**Unique advantage**: SmartEndpoints auto-generates complete Minimal API endpoints from your business logic — including routing, DI, HTTP status mapping, error handling, and full OpenAPI metadata (`.Produces<T>()`, `.WithSummary()`, `.WithTags()`). No other .NET library does this.
 
 ---
 
@@ -96,10 +97,10 @@ public class UserController {
 **🎉 Generated Minimal API (Zero Manual Code!)**
 - ✅ `POST /api/users` → 201/400/404/409 (OneOf4 auto-mapping!)
 - ✅ `GET /api/users/{id}` → 200/404 (OneOf2 auto-mapping!)
-- ✅ **OpenAPI documentation with Scalar UI** automatically generated
+- ✅ **Full OpenAPI metadata** — `.Produces<T>(200)`, `.Produces(404)`, `.WithSummary()`, `.WithTags()` auto-generated from return types
 - ✅ **Error handling** automatically configured
 - ✅ **HTTP status mapping** automatically applied
-- ✅ **Route configuration** automatically created
+- ✅ **Route grouping** via `MapGroup` with automatic tag generation
 
 **🔥 Development Speed: 10x Faster**
 - **No manual route setup** - automatic from method names
@@ -127,76 +128,53 @@ ServerError → 500 Internal Server Error
 - **🆕 OneOf4ToIResult<T1,T2,T3,T4>** - Four-type error handling (NEW v1.12.0!)
 - **SmartEndpoints Integration** - Uses extensions automatically in generated APIs
 
-#### 🚀 Enhanced SmartEndpoints (IMPROVED v1.12.0)
+#### 🚀 Enhanced SmartEndpoints + OpenAPI Metadata (NEW!)
 
-**Feature**: Better OneOf4 support and automatic endpoint generation  
-**Benefits**: Attribute-driven development with automatic routing  
-**Use Case**: Rapid API development with minimal code
+**Feature**: Full OpenAPI metadata auto-generated at compile time from return types
+**Benefits**: Scalar/Swagger UI shows typed responses, status codes, summaries, and tags — zero manual configuration
+**Use Case**: Production-ready APIs with complete documentation from day one
 
 **🔥 What Makes SmartEndpoints Revolutionary:**
 
 ```csharp
-// ❌ TRADITIONAL: 50+ lines of boilerplate
-[ApiController]
-[Route("api/[controller]")]
-public class UserController : ControllerBase {
-    [HttpPost]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request) {
-        try {
-            if (!ModelState.IsValid) {
-                return BadRequest(new ProblemDetails {
-                    Title = "Validation Error",
-                    Status = 400,
-                    Detail = "Invalid input data"
-                });
-            }
-            
-            var user = await _userService.CreateAsync(request);
-            if (user == null) {
-                return NotFound(new ProblemDetails {
-                    Title = "Not Found", 
-                    Status = 404,
-                    Detail = "User not found"
-                });
-            }
-            
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
-        } catch (Exception ex) {
-            return StatusCode(500, new ProblemDetails {
-                Title = "Server Error",
-                Status = 500,
-                Detail = ex.Message
-            });
-        }
-    }
+// ✅ YOU WRITE: Pure business logic (5 lines)
+[AutoGenerateEndpoints(RoutePrefix = "/api/orders")]
+public class SmartOrderController {
+    public async Task<OneOf<UserNotFoundError, InsufficientStockError, ValidationError, OrderResponse>>
+        CreateOrder(CreateOrderRequest request) => await _service.CreateOrderAsync(request);
 }
 
-// ✅ SMARTENDPOINTS: 5 lines of pure business logic
-[AutoGenerateEndpoints(RoutePrefix = "/api/users")]
-public class UserController {
-    public OneOf<ValidationError, NotFoundError, ConflictError, User> 
-        CreateUser(CreateUserRequest request) {
-        
-        if (!IsValid(request)) return new ValidationError("Invalid data");
-        if (UserExists(request.Email)) return new ConflictError("Email exists");
-        return CreateUser(request);
-    }
-}
+// 🎉 GENERATOR PRODUCES: Complete endpoint with full OpenAPI metadata
+var smartOrderGroup = endpoints.MapGroup("/api/orders")
+    .WithTags("Smart Order");
+
+smartOrderGroup.MapPost("/", async (CreateOrderRequest request, SmartOrderController service) =>
+{
+    var result = await service.CreateOrder(request);
+    return result.ToIResult();
+})
+    .WithName("SmartOrder_CreateOrder")
+    .WithSummary("Create order")
+    .Produces<OrderResponse>(200)
+    .Produces(400)   // ← ValidationError
+    .Produces(404)   // ← UserNotFoundError
+    .Produces(409);  // ← InsufficientStockError
 ```
 
-**🎯 Self-Explanatory Development:**
-- **Method name** → HTTP method (`CreateUser` → `POST /users`)
-- **Return type** → HTTP status mapping (automatic!)
-- **Parameters** → Request body (automatic!)
-- **Error types** → Problem details (automatic!)
-- **Success type** → Response body (automatic!)
+**🎯 Everything Auto-Generated from Return Types:**
+- **Method name** → HTTP method + `.WithName()` (`CreateOrder` → `POST` + `SmartOrder_CreateOrder`)
+- **Class name** → `.WithTags()` + `MapGroup()` (`SmartOrderController` → `"Smart Order"`)
+- **PascalCase** → `.WithSummary()` (`CreateOrder` → `"Create order"`)
+- **Success type** → `.Produces<T>(200)` (`OrderResponse` → typed 200 response)
+- **Error types** → `.Produces(statusCode)` (`UserNotFoundError` → 404, `InsufficientStockError` → 409)
+- **Parameters** → Route/body binding (`int id` → `/{id}`, `request` → JSON body)
 
 **⚡ Zero Boilerplate Benefits:**
 - **No manual route configuration** - inferred from class/method names
 - **No manual error handling** - automatic from OneOf types
-- **No manual status codes** - automatic from error types
-- **No manual API docs** - OpenAPI + Scalar UI automatically generated
-- **No manual validation** - automatic from return types
+- **No manual status codes** - automatic from error type names
+- **No manual OpenAPI metadata** - `.Produces()`, `.WithSummary()`, `.WithTags()` all auto-generated
+- **No manual endpoint names** - globally unique names from controller + method
 - **No manual ProblemDetails** - automatic RFC 7807 compliance
 
 #### 🎯 ResultToIResult Extensions
@@ -1238,18 +1216,21 @@ public IResult GetUser(int id) =>
 
 ## 🎯 Roadmap
 
-### v1.12.1 (Current) ✅
+### v1.12.2 (Current) ✅
 - SmartEndpoints with DI + async support
 - OneOf4ToIResult Generator (4-way discriminated unions)
 - FastMinimalAPI Demo with SmartEndpoints showcase
-- Console Samples (13 progressive examples)
+- **SmartEndpoints: OpenAPI Metadata Auto-Generation** — `.Produces<T>()`, `.WithSummary()`, `.WithTags()`, `MapGroup`, error type → status code mapping
 - OpenAPI 3.0 + Scalar UI integration
 
-### Future Versions
+### Next Up
+- [ ] SmartEndpoints: Authorization & Policy Support (`[Authorize]`, `RequireAuthorization()`)
+- [ ] LINQ query comprehension syntax for Result<T>
 - [ ] Diagnostic Roslyn analyzers (catch unsafe Result.Value access)
+
+### Future Versions
 - [ ] ValueResult<T> struct variant for hot paths
 - [ ] CancellationToken support in all async methods
-- [ ] LINQ query comprehension syntax
 - [ ] Performance benchmarks vs FluentResults, ErrorOr
 - [ ] Additional framework integrations
 
@@ -1294,6 +1275,7 @@ Made with ❤️ by [Rafa Eslava](https://github.com/reslava) for developers com
 
 ## 📈 Version History
 
+- **v1.12.2** - SmartEndpoints OpenAPI metadata auto-generation (Produces, WithSummary, WithTags, MapGroup)
 - **v1.12.1** - SmartEndpoints DI + async support, FastMinimalAPI demo, Console samples
 - **v1.12.0** - OneOf4ToIResult generator, enhanced SmartEndpoints, 1,928 tests passing
 - **v1.11.0** - SmartEndpoints generator for zero-boilerplate API generation
