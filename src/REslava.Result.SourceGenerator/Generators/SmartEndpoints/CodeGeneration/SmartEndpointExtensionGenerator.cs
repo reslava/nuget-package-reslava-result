@@ -29,6 +29,9 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
             builder.AppendLine("using Microsoft.AspNetCore.Http;");
             builder.AppendLine("using Microsoft.AspNetCore.Routing;");
             builder.AppendLine("using System;");
+            builder.AppendLine("using System.Threading.Tasks;");
+            builder.AppendLine("using Generated.ResultExtensions;");
+            builder.AppendLine("using Generated.OneOfExtensions;");
             builder.AppendLine();
 
             // Namespace
@@ -66,15 +69,21 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
                 _ => "MapGet"
             };
 
-            // Build parameter list
-            var paramList = string.Join(", ", endpoint.Parameters.Select(p => $"{p.Type} {p.Name}"));
+            // Build parameter list (method params + DI service)
+            var methodParams = string.Join(", ", endpoint.Parameters.Select(p => $"{p.Type} {p.Name}"));
+            var serviceParam = $"{endpoint.Namespace}.{endpoint.ClassName} service";
+            var fullParamList = string.IsNullOrEmpty(methodParams)
+                ? serviceParam
+                : $"{methodParams}, {serviceParam}";
             var argList = string.Join(", ", endpoint.Parameters.Select(p => p.Name));
 
+            var asyncKeyword = endpoint.IsAsync ? "async " : "";
+            var awaitKeyword = endpoint.IsAsync ? "await " : "";
+
             builder.AppendLine($"            // {endpoint.MethodName}: {endpoint.HttpMethod} {endpoint.Route}");
-            builder.AppendLine($"            endpoints.{mapMethod}(\"{endpoint.Route}\", ({paramList}) =>");
+            builder.AppendLine($"            endpoints.{mapMethod}(\"{endpoint.Route}\", {asyncKeyword}({fullParamList}) =>");
             builder.AppendLine("            {");
-            builder.AppendLine($"                var controller = new {endpoint.Namespace}.{endpoint.ClassName}();");
-            builder.AppendLine($"                var result = controller.{endpoint.MethodName}({argList});");
+            builder.AppendLine($"                var result = {awaitKeyword}service.{endpoint.MethodName}({argList});");
             builder.AppendLine("                return result.ToIResult();");
             builder.AppendLine("            });");
             builder.AppendLine();

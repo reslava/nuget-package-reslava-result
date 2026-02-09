@@ -1,6 +1,6 @@
 # Fast Minimal API - REslava.Result Demo
 
-**Production-ready demonstration of type-safe error handling in ASP.NET Core Minimal APIs using REslava.Result library v1.12.0**
+**Production-ready demonstration of type-safe error handling in ASP.NET Core Minimal APIs using REslava.Result library v1.12.1**
 
 ---
 
@@ -13,6 +13,7 @@ This demo application demonstrates **real-world patterns** for building robust M
 - ✅ **Production-ready error responses** with proper HTTP status codes
 - ✅ **Complete CRUD operations** for Users, Products, and Orders
 - ✅ **Complex business logic** with multi-step validation
+- ✅ **SmartEndpoints** - auto-generated endpoints via source generator (~85% less boilerplate)
 
 ---
 
@@ -20,7 +21,7 @@ This demo application demonstrates **real-world patterns** for building robust M
 
 ### Prerequisites
 - .NET 8.0 or higher
-- REslava.Result v1.12.0 (automatically installed via NuGet)
+- REslava.Result v1.12.1 (automatically installed via NuGet)
 
 ### Run the Demo
 ```bash
@@ -100,6 +101,48 @@ return result.Match(
 
 **Why OneOf4?** REslava.Result supports `OneOf<T1,T2>`, `OneOf<T1,T2,T3>`, and `OneOf<T1,T2,T3,T4>`. The OrderService uses OneOf4 to handle **3 error types** + **1 success type** = 4 cases total. User inactive validation is consolidated into `ValidationError` for consistency.
 
+### ⚡ SmartEndpoints: Zero-Boilerplate Alternative
+
+**SmartEndpoints/SmartProductController.cs** - Same functionality, ~85% less code
+
+The `[AutoGenerateEndpoints]` attribute + naming conventions automatically generate complete Minimal API endpoints:
+
+```csharp
+// BEFORE: Manual endpoint (ProductEndpoints.cs — 209 lines)
+app.MapGet("/api/products/{id}", async (int id, ProductService service) =>
+{
+    var result = await service.GetProductByIdAsync(id);
+    return result.Match(
+        case1: notFound => Results.NotFound(new { error = notFound.Message, ... }),
+        case2: product => Results.Ok(new { success = true, data = product })
+    );
+});
+
+// AFTER: SmartEndpoint (SmartProductController.cs — 43 lines total!)
+[AutoGenerateEndpoints(RoutePrefix = "/api/smart/products")]
+public class SmartProductController
+{
+    private readonly ProductService _service;
+    public SmartProductController(ProductService service) => _service = service;
+
+    public async Task<OneOf<ProductNotFoundError, ProductResponse>> GetProduct(int id)
+        => await _service.GetProductByIdAsync(id);
+    // That's it! Route, HTTP method, DI, and error→status mapping are all auto-generated.
+}
+```
+
+| Approach | Products | Orders | Total |
+|----------|----------|--------|-------|
+| Manual Endpoints | 209 lines | 216 lines | 425 lines |
+| SmartEndpoints | 43 lines | 46 lines | 89 lines |
+| **Reduction** | **~80%** | **~79%** | **~79%** |
+
+Both approaches share the **same services, same database, same error types**. Only the HTTP layer differs.
+
+**Try it side-by-side:**
+- Manual: `GET /api/products` vs Smart: `GET /api/smart/products`
+- Manual: `POST /api/orders` vs Smart: `POST /api/smart/orders`
+
 ---
 
 ## 🏗️ Architecture
@@ -121,10 +164,13 @@ FastMinimalAPI.REslava.Result.Demo/
 │   ├── UserService.cs                 # Business logic: User operations
 │   ├── ProductService.cs              # Business logic: Product operations
 │   └── OrderService.cs                # Business logic: Order operations (complex)
-├── Endpoints/
+├── Endpoints/                           # Manual endpoints (traditional approach)
 │   ├── UserEndpoints.cs               # API: User endpoints (OneOf2)
 │   ├── ProductEndpoints.cs            # API: Product endpoints (OneOf3)
 │   └── OrderEndpoints.cs              # API: Order endpoints (OneOf4)
+├── SmartEndpoints/                      # Auto-generated endpoints (~85% less code)
+│   ├── SmartProductController.cs      # Same as ProductEndpoints, 43 lines
+│   └── SmartOrderController.cs        # Same as OrderEndpoints, 46 lines
 └── Program.cs                         # Application entry point
 ```
 
@@ -183,6 +229,20 @@ public class ValidationError : Error { }                // 400 Bad Request
 | `/api/orders` | POST | `OneOf<UserNotFound, InsufficientStock, Validation, OrderResponse>` | 201 / 400 / 404 / 409 |
 | `/api/orders/{id}/status` | PATCH | `OneOf<NotFound, Validation, OrderResponse>` | 200 OK / 400 / 404 |
 | `/api/orders/{id}/cancel` | DELETE | `OneOf<NotFound, Validation, OrderResponse>` | 200 OK / 400 / 404 |
+
+### SmartEndpoints API (Auto-Generated!)
+
+| Endpoint | Method | Source Method | Pattern |
+|----------|--------|--------------|---------|
+| `/api/smart/products` | GET | `GetProducts()` | `Result<List<ProductResponse>>` |
+| `/api/smart/products/{id}` | GET | `GetProduct(id)` | `OneOf<NotFound, Product>` |
+| `/api/smart/products` | POST | `CreateProduct(request)` | `OneOf<Validation, InvalidPrice, Product>` |
+| `/api/smart/products/{id}` | PUT | `UpdateProduct(id, request)` | `OneOf<Validation, NotFound, InvalidPrice, Product>` |
+| `/api/smart/products/{id}` | DELETE | `DeleteProduct(id)` | `Result<bool>` |
+| `/api/smart/orders` | GET | `GetOrders()` | `Result<List<OrderResponse>>` |
+| `/api/smart/orders/{id}` | GET | `GetOrder(id)` | `OneOf<NotFound, Order>` |
+| `/api/smart/orders` | POST | `CreateOrder(request)` | `OneOf<UserNotFound, InsufficientStock, Validation, Order>` |
+| `/api/smart/orders/{id}` | DELETE | `DeleteOrder(id)` | `OneOf<NotFound, Validation, Order>` |
 
 ---
 
@@ -457,6 +517,20 @@ curl -X POST http://localhost:5000/api/orders \
   -d '{"userId": 1, "items": [{"productId": 1, "quantity": 1000}]}'
 ```
 
+### SmartEndpoints (side-by-side comparison)
+
+```bash
+# Same data, same behavior — auto-generated endpoints
+curl http://localhost:5000/api/smart/products
+curl http://localhost:5000/api/smart/products/1
+curl http://localhost:5000/api/smart/orders
+
+# OneOf4 error handling (auto-mapped HTTP status codes)
+curl -X POST http://localhost:5000/api/smart/orders \
+  -H "Content-Type: application/json" \
+  -d '{"userId": 999, "items": [{"productId": 1, "quantity": 1}]}'
+```
+
 ---
 
 ## 📦 Seed Data
@@ -540,6 +614,7 @@ app.MapGet("/users/{id}", async (int id) =>
 - **ASP.NET Core 10.0** - Minimal APIs
 - **Entity Framework Core** - In-Memory Database
 - **REslava.Result v1.12.1** - Type-safe error handling
+- **REslava.Result.SourceGenerators** - SmartEndpoints source generator
 - **Microsoft.AspNetCore.OpenApi** - OpenAPI 3.0 support (built-in .NET 10)
 - **Scalar.AspNetCore** - Modern API documentation UI
 
@@ -566,6 +641,6 @@ MIT License - See LICENSE file for details
 
 ---
 
-**Built with ❤️ using REslava.Result v1.12.0**
+**Built with ❤️ using REslava.Result v1.12.1**
 
 *Demonstrating production-ready patterns for type-safe error handling in ASP.NET Core Minimal APIs*

@@ -1,6 +1,8 @@
 using FastMinimalAPI.REslava.Result.Demo.Data;
 using FastMinimalAPI.REslava.Result.Demo.Endpoints;
 using FastMinimalAPI.REslava.Result.Demo.Services;
+using FastMinimalAPI.REslava.Result.Demo.SmartEndpoints;
+using Generated.SmartEndpoints;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -51,6 +53,10 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<OrderService>();
 
+// Register SmartEndpoint controllers (resolved via DI by the generated endpoints)
+builder.Services.AddScoped<SmartProductController>();
+builder.Services.AddScoped<SmartOrderController>();
+
 // Add CORS for development
 builder.Services.AddCors(options =>
 {
@@ -81,10 +87,14 @@ app.MapScalarApiReference();
 
 app.UseCors();
 
-// Map endpoints
+// Manual endpoints (traditional approach — full control, more boilerplate)
 app.MapUserEndpoints();
 app.MapProductEndpoints();
 app.MapOrderEndpoints();
+
+// SmartEndpoints (auto-generated via source generator — zero boilerplate!)
+// Compare /api/smart/products with /api/products — same behavior, ~85% less code
+app.MapSmartEndpoints();
 
 // Health check endpoint
 app.MapGet("/health", () => Results.Ok(new
@@ -109,9 +119,8 @@ app.MapGet("/", () => Results.Ok(new
         scalar = "/scalar",
         openapi = "/openapi/v1.json",
         health = "/health",
-        users = "/api/users",
-        products = "/api/products",
-        orders = "/api/orders"
+        manual = new { users = "/api/users", products = "/api/products", orders = "/api/orders" },
+        smart = new { products = "/api/smart/products", orders = "/api/smart/orders" }
     },
     documentation = "https://github.com/reslava/nuget-package-reslava-result",
     features = new[]
@@ -120,6 +129,7 @@ app.MapGet("/", () => Results.Ok(new
         "OneOf<T1,T2> for multiple return types (2 types)",
         "OneOf<T1,T2,T3> for complex scenarios (3 types)",
         "OneOf<T1,T2,T3,T4> for advanced patterns (4 types)",
+        "SmartEndpoints: auto-generated endpoints via source generator (~85% less code)",
         "Railway-oriented programming",
         "Zero exception-based control flow",
         "Production-ready error responses",

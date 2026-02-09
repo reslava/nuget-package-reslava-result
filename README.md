@@ -16,6 +16,22 @@
 
 </div>
 
+### Why REslava.Result?
+
+> **The only .NET library that combines functional error handling with compile-time ASP.NET API generation.**
+
+| | REslava.Result | FluentResults | ErrorOr | LanguageExt |
+|---|:---:|:---:|:---:|:---:|
+| Result&lt;T&gt; pattern | ✅ | ✅ | ✅ | ✅ |
+| OneOf discriminated unions | ✅ (2-4 types) | — | — | ✅ |
+| Maybe&lt;T&gt; | ✅ | — | — | ✅ |
+| **ASP.NET source generators** | **✅** | — | — | — |
+| **SmartEndpoints (zero-boilerplate APIs)** | **✅** | — | — | — |
+| Validation framework | ✅ | Basic | — | ✅ |
+| Zero dependencies | ✅ | ✅ | ✅ | — |
+
+**Unique advantage**: SmartEndpoints auto-generates complete Minimal API endpoints from your business logic — including routing, DI, HTTP status mapping, and error handling. No other .NET library does this.
+
 ---
 
 ## 📚 Table of Contents
@@ -62,25 +78,18 @@ Generate complete Minimal APIs from controllers with automatic HTTP mapping!
 ```csharp
 [AutoGenerateEndpoints(RoutePrefix = "/api/users")]
 public class UserController {
-    // 🚀 ONE method → Automatic REST API!
-    public OneOf<ValidationError, NotFoundError, ConflictError, User> 
-        CreateUser(CreateUserRequest request) { 
-        
-        // ✅ Self-explanatory business logic only
-        if (string.IsNullOrEmpty(request.Name)) 
-            return new ValidationError("Name is required");
-        
-        if (UserExists(request.Email))
-            return new ConflictError("Email already exists");
-        
-        return CreateUser(request); // 🎯 Success case
-    }
-    
-    // 🚀 ONE method → Automatic REST API!
-    public OneOf<NotFoundError, User> GetUser(int id) {
-        return _users.FirstOrDefault(u => u.Id == id) 
-               ?? new NotFoundError($"User {id} not found");
-    }
+    private readonly UserService _service;
+    public UserController(UserService service) => _service = service;
+
+    // 🚀 DI + async → Automatic REST API with dependency injection!
+    public async Task<OneOf<ValidationError, NotFoundError, User>>
+        GetUser(int id) => await _service.GetUserByIdAsync(id);
+
+    public async Task<OneOf<ValidationError, ConflictError, User>>
+        CreateUser(CreateUserRequest request) => await _service.CreateAsync(request);
+
+    public async Task<Result<List<User>>> GetUsers()
+        => await _service.GetAllAsync();
 }
 ```
 
@@ -222,7 +231,7 @@ app.MapGet("/users/oneof/{id}", async (int id) =>
 | **Library/Service** | [🏗️ Core Library](#-reslavaresult-core-library) | Result pattern, validation, functional programming |
 | **Custom Generator** | [📖 Custom Generator Guide](docs/how-to-create-custom-generator.md) | Build your own source generators |
 | **Advanced App** | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, OneOf, validation rules |
-| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 1902+ tests, CI/CD, test strategies |
+| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 1,928+ tests, CI/CD, test strategies |
 | **Curious About Magic** | [🏗️ Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
 
 ---
@@ -733,17 +742,30 @@ SourceGenerator/
 │   │   ├── Attributes/            # 🏷️ OneOf2-specific attributes
 │   │   ├── CodeGeneration/        # 💻 OneOf2 extensions
 │   │   └── Orchestration/         # 🎼 OneOf2 pipeline
-│   └── OneOf3ToIResult/          # 🎯 OneOf<T1,T2,T3> → HTTP (NEW!)
-│       ├── Attributes/            # 🏷️ OneOf3-specific attributes
-│       ├── CodeGeneration/        # 💻 OneOf3 extensions
-│       └── Orchestration/         # 🎼 OneOf3 pipeline
-└── Tests/                         # 🧪 Comprehensive Test Suite (1902+ tests)
+│   ├── OneOf3ToIResult/          # 🎯 OneOf<T1,T2,T3> → HTTP
+│   │   ├── Attributes/            # 🏷️ OneOf3-specific attributes
+│   │   ├── CodeGeneration/        # 💻 OneOf3 extensions
+│   │   └── Orchestration/         # 🎼 OneOf3 pipeline
+│   ├── OneOf4ToIResult/          # 🆕 OneOf<T1,T2,T3,T4> → HTTP (v1.12.0)
+│   │   ├── Attributes/            # 🏷️ OneOf4-specific attributes
+│   │   ├── CodeGeneration/        # 💻 OneOf4 extensions
+│   │   └── Orchestration/         # 🎼 OneOf4 pipeline
+│   └── SmartEndpoints/            # ⚡ Auto-generate Minimal APIs (v1.11.0+)
+│       ├── Attributes/            # 🏷️ AutoGenerateEndpoints attribute
+│       ├── CodeGeneration/        # 💻 SmartEndpointExtensionGenerator
+│       ├── Models/                # 📋 EndpointMetadata
+│       └── Orchestration/         # 🎼 SmartEndpointsOrchestrator
+└── Tests/                         # 🧪 Comprehensive Test Suite (1,928+ tests)
     ├── OneOf2ToIResult/          # ✅ 5/5 tests passing
     ├── OneOf3ToIResult/          # ✅ 4/4 tests passing
+    ├── OneOf4ToIResult/          # ✅ 5/5 tests passing
+    ├── SmartEndpoints/           # ✅ 4/4 tests passing
     ├── ResultToIResult/          # ✅ 6/6 tests passing
     ├── CoreLibrary/              # 📚 Base library tests
     └── GeneratorTest/             # � Integration tests
 ```
+
+> 📐 **Visual Architecture**: See [Core Type Hierarchy](docs/uml/UML-v1.12.1-core.md) and [Source Generator Pipeline](docs/uml/UML-v1.12.1-generators.md) for detailed Mermaid diagrams.
 
 ### 🎯 SOLID Principles in Action
 
@@ -760,15 +782,20 @@ SourceGenerator/
 ```mermaid
 graph TB
     A[Your Code] --> B[REslava.Result Base Library]
-    B --> C[Result<T>/Maybe<T>/OneOf<T>]
+    B --> C[Result T / Maybe T / OneOf T]
     C --> D[Source Generators]
     D --> E[Generated Extensions]
     E --> F[ASP.NET Core IResult]
-    
+
     G[REslava.Result OneOf] --> H[OneOf2ToIResult Generator]
     G --> I[OneOf3ToIResult Generator]
+    G --> J[OneOf4ToIResult Generator]
     H --> F
     I --> F
+    J --> F
+
+    K[SmartEndpoints Generator] --> L[MapSmartEndpoints]
+    L --> F
 ```
 
 ### 🚀 Smart Auto-Detection (v1.10.0)
@@ -929,7 +956,7 @@ return GetUser(id).ToIResult(); // 🆕 Automatic HTTP mapping!
 ### 📊 Comprehensive Test Suite
 **1,928+ Tests Passing** 🎉
 - **Source Generator Tests**: 17 tests for all generators
-- **Core Library Tests**: 1,902 tests for REslava.Result functionality  
+- **Core Library Tests**: 1,902 tests for REslava.Result functionality (1,902 core + 26 generator = 1,928 total)
 - **Integration Tests**: 9 endpoint tests for complete ASP.NET integration
 - **Performance Tests**: Memory and speed benchmarks
 
@@ -976,7 +1003,7 @@ tests/REslava.Result.SourceGenerators.Tests/
 # .github/workflows/ci.yml
 - Build Solution: dotnet build --configuration Release
 - Run Tests: dotnet test --configuration Release --no-build
-- Total Tests: 1902+ passing
+- Total Tests: 1,928+ passing
 - Coverage: 95%+ code coverage
 ```
 
@@ -1002,7 +1029,7 @@ tests/REslava.Result.SourceGenerators.Tests/
 
 ### 🔍 Test Quality Metrics
 **High Standards**
-- ✅ **1902/1902 tests passing** (100% success rate)
+- ✅ **1,928/1,928 tests passing** (100% success rate)
 - ✅ **95%+ code coverage** (comprehensive coverage)
 - ✅ **Zero flaky tests** (reliable CI/CD)
 - ✅ **Fast execution** (complete suite < 10 seconds)
@@ -1011,7 +1038,7 @@ tests/REslava.Result.SourceGenerators.Tests/
 ### 🏃‍♂️ Running Tests Locally
 **Quick Test Commands**
 ```bash
-# Run all tests (1902+ tests)
+# Run all tests (1,928+ tests)
 dotnet test --configuration Release
 
 # Run only Source Generator tests (16 tests)
@@ -1028,7 +1055,7 @@ dotnet test --filter "ResultToIResult"    # 6 tests
 
 **Test Output Example**
 ```
-Test summary: total: 1902, failed: 0, succeeded: 1902, skipped: 0, duration: 7.8s
+Test summary: total: 1928, failed: 0, succeeded: 1928, skipped: 0, duration: 7.8s
 Build succeeded in 8.3s
 ```
 
@@ -1088,7 +1115,7 @@ Build succeeded in 8.3s
 
 ## 📚 Deep Dive Documentation
 
-### 🎯 **Choose Your Path**
+### 🎯 **Navigate by Goal**
 
 | I'm building a... | 📖 Start Here | 🎯 What You'll Learn |
 |------------------|---------------|---------------------|
@@ -1096,7 +1123,7 @@ Build succeeded in 8.3s
 | **Library/Service** | [🏗️ Core Library](#-reslavaresult-core-library) | Result pattern, validation, error handling |
 | **Custom Generator** | [📖 Custom Generator Guide](docs/how-to-create-custom-generator.md) | Build your own source generators |
 | **Advanced App** | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, OneOf, validation rules |
-| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 1902+ tests, CI/CD, test strategies |
+| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 1,928+ tests, CI/CD, test strategies |
 | **Curious About Magic** | [🏗️ Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
 
 ### 📚 **Complete Reference**
@@ -1112,6 +1139,7 @@ Build succeeded in 8.3s
 ### 🎯 **Hands-On Samples**
 
 - **🚀 [FastMinimalAPI Demo](samples/FastMinimalAPI.REslava.Result.Demo/README.md)** - Production-ready .NET 10 Minimal API showcase
+  - **SmartEndpoints vs Manual** - Side-by-side comparison (~85% less code)
   - **OpenAPI 3.0 + Scalar UI** - Modern API documentation
   - **REslava.Result patterns** - Result<T> and OneOf<T1,T2,T3,T4> discriminated unions
   - **Real-world scenarios** - Users, Products, Orders with full CRUD operations
@@ -1210,17 +1238,20 @@ public IResult GetUser(int id) =>
 
 ## 🎯 Roadmap
 
-### v1.10.0 (Current) ✅
-- OneOfToIResult Extensions (T1,T2 & T1,T2,T3)
-- Smart Auto-Detection
-- Zero-Configuration Setup
+### v1.12.1 (Current) ✅
+- SmartEndpoints with DI + async support
+- OneOf4ToIResult Generator (4-way discriminated unions)
+- FastMinimalAPI Demo with SmartEndpoints showcase
+- Console Samples (13 progressive examples)
+- OpenAPI 3.0 + Scalar UI integration
 
 ### Future Versions
-- [ ] Advanced LINQ Operators
-- [ ] Task-based Async Patterns
-- [ ] Custom Monad Builders
-- [ ] Performance Profiling Tools
-- [ ] Additional Framework Integrations
+- [ ] Diagnostic Roslyn analyzers (catch unsafe Result.Value access)
+- [ ] ValueResult<T> struct variant for hot paths
+- [ ] CancellationToken support in all async methods
+- [ ] LINQ query comprehension syntax
+- [ ] Performance benchmarks vs FluentResults, ErrorOr
+- [ ] Additional framework integrations
 
 ---
 
@@ -1263,7 +1294,10 @@ Made with ❤️ by [Rafa Eslava](https://github.com/reslava) for developers com
 
 ## 📈 Version History
 
-- **v1.11.0** - SmartEndpoints integration with OneOf extensions
-- **v1.10.3** - OneOf2ToIResult & OneOf3ToIResult generators  
-- **v1.10.2** - Initial Result<T> to IResult conversion
-- **v1.9.x** - Core Result types and error handling
+- **v1.12.1** - SmartEndpoints DI + async support, FastMinimalAPI demo, Console samples
+- **v1.12.0** - OneOf4ToIResult generator, enhanced SmartEndpoints, 1,928 tests passing
+- **v1.11.0** - SmartEndpoints generator for zero-boilerplate API generation
+- **v1.10.3** - OneOf2ToIResult & OneOf3ToIResult generators
+- **v1.10.2** - Initial ResultToIResult generator
+- **v1.10.1** - Core Result types and error handling
+- **v1.10.0** - Framework foundation with ROP patterns

@@ -93,6 +93,16 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
                             continue;
 
                         var returnType = methodSymbol.ReturnType.ToDisplayString();
+                        var isAsync = false;
+
+                        // Detect async: unwrap Task<T> to get inner type
+                        if (returnType.StartsWith("System.Threading.Tasks.Task<"))
+                        {
+                            isAsync = true;
+                            returnType = returnType.Substring("System.Threading.Tasks.Task<".Length);
+                            returnType = returnType.Substring(0, returnType.Length - 1);
+                        }
+
                         if (!returnType.Contains("Result<") && !returnType.Contains("OneOf<"))
                             continue;
 
@@ -102,6 +112,7 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
                             ClassName = classSymbol.Name,
                             Namespace = classSymbol.ContainingNamespace?.ToDisplayString() ?? "Global",
                             ReturnType = returnType,
+                            IsAsync = isAsync,
                             Route = InferRoute(methodSymbol.Name, routePrefix, methodSymbol.Parameters),
                             HttpMethod = InferHttpMethod(methodSymbol.Name),
                             Parameters = methodSymbol.Parameters.Select(p => new ParameterMetadata

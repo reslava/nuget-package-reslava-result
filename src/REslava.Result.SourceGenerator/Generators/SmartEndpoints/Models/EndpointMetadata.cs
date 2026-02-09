@@ -16,6 +16,7 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.Models
         public bool IsOneOf { get; set; }
         public bool IsOneOf4 { get; set; }
         public bool IsResult { get; set; }
+        public bool IsAsync { get; set; }
         public List<ParameterMetadata> Parameters { get; set; } = new();
         public string ClassName { get; set; } = string.Empty;
         public string Namespace { get; set; } = string.Empty;
