@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.12.2] - 2026-02-09
+
+### 🔧 Fixed
+
+**SmartEndpoints Source Generator**
+- Fixed SmartEndpointsGenerator to delegate to orchestrator instead of emitting hardcoded stub endpoint
+  - Removed inline placeholder code (`/api/simple/test`) that bypassed the real generator pipeline
+  - Generator now follows the same SOLID pattern as all other generators (Generator → Orchestrator)
+- Added dependency injection support in generated endpoints
+  - Services are now injected via ASP.NET Minimal API parameter binding instead of `new ClassName()`
+- Added async/await support in generated endpoints
+  - Detects `Task<Result<T>>` and `Task<OneOf<...>>` return types
+  - Generates proper `async`/`await` lambda syntax
+- Added missing `using` directives in generated code
+  - `using System.Threading.Tasks;`
+  - `using Generated.ResultExtensions;`
+  - `using Generated.OneOfExtensions;`
+
+---
+
 ## [1.12.1] - 2026-02-08
 
 ### ✨ Added
