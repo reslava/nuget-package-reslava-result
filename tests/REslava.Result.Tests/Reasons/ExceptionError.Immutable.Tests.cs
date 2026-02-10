@@ -222,8 +222,6 @@ public sealed class ExceptionErrorImmutableTests
         // Assert - Exception property should be get-only
         var exceptionProperty = typeof(ExceptionError).GetProperty("Exception");
         Assert.IsNotNull(exceptionProperty);
-        // TODO: Check this
-        //Assert.IsNull(exceptionProperty!.SetMethod);
         Assert.IsNotNull(exceptionProperty!.SetMethod);
     }
 
@@ -555,47 +553,6 @@ public sealed class ExceptionErrorImmutableTests
 
     #endregion
 
-    #region Map/Bind Exception Handling Tests
-
-    // TODO: Uncomment and implement when Map is available
-    // [TestMethod]
-    // public void Map_WhenMapperThrows_ReturnsExceptionError()
-    // {
-    //     // Arrange
-    //     var result = Result<int>.Ok(10);
-    //     var expectedException = new InvalidOperationException("Mapper failed");
-
-    //     // Act
-    //     var mapped = result.Map<string>(x => throw expectedException);
-
-    //     // Assert
-    //     Assert.IsTrue(mapped.IsFailed);
-    //     Assert.AreEqual(1, mapped.Errors.Count);
-    //     var exceptionError = mapped.Errors[0] as ExceptionError;
-    //     Assert.IsNotNull(exceptionError);
-    //     Assert.AreSame(expectedException, exceptionError!.Exception);
-    // }
-
-    // TODO: Uncomment and implement when Bind is available
-    // [TestMethod]
-    // public void Bind_WhenBinderThrows_ReturnsExceptionError()
-    // {
-    //     // Arrange
-    //     var result = Result<int>.Ok(10);
-    //     var expectedException = new InvalidOperationException("Binder failed");
-
-    //     // Act
-    //     var bound = result.Bind<string>(x => throw expectedException);
-
-    //     // Assert
-    //     Assert.IsTrue(bound.IsFailed);
-    //     var exceptionError = bound.Errors[0] as ExceptionError;
-    //     Assert.IsNotNull(exceptionError);
-    //     Assert.AreSame(expectedException, exceptionError!.Exception);
-    // }
-
-    #endregion
-
     #region Real-World Scenario Tests
 
     [TestMethod]
@@ -646,49 +603,6 @@ public sealed class ExceptionErrorImmutableTests
         Assert.AreEqual("/api/users", error.Tags["Endpoint"]);
         Assert.AreEqual(3, error.Tags["RetryCount"]);
     }
-
-    // TODO: Uncomment and implement when Bind is available
-    // [TestMethod]
-    // public void ExceptionError_ValidationPipeline_Scenario()
-    // {
-    //     // Arrange & Act
-    //     var result = Result<string>.Ok("test@example.com")
-    //         .Bind(email =>
-    //         {
-    //             if (string.IsNullOrEmpty(email))
-    //                 throw new ArgumentException("Email cannot be empty");
-    //             return Result<string>.Ok(email.ToLower());
-    //         })
-    //         .Bind(email =>
-    //         {
-    //             if (!email.Contains("@"))
-    //                 throw new FormatException("Invalid email format");
-    //             return Result<string>.Ok(email);
-    //         });
-
-    //     // Assert
-    //     Assert.IsTrue(result.IsSuccess);
-    //     Assert.AreEqual("test@example.com", result.Value);
-    // }
-
-    // TODO: Uncomment and implement when Map is available
-    // [TestMethod]
-    // public void ExceptionError_ChainedOperations_PreservesFirstException()
-    // {
-    //     // Arrange
-    //     var firstException = new ArgumentException("First error");
-
-    //     // Act
-    //     var result = Result<int>.Ok(10)
-    //         .Map<string>(x => throw firstException)
-    //         .Map(s => s.ToUpper()); // This won't execute
-
-    //     // Assert
-    //     Assert.IsTrue(result.IsFailed);
-    //     var exceptionError = result.Errors[0] as ExceptionError;
-    //     Assert.IsNotNull(exceptionError);
-    //     Assert.AreSame(firstException, exceptionError!.Exception);
-    // }
 
     #endregion
 

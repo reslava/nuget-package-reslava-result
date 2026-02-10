@@ -1,14 +1,50 @@
-name: Simple Release
+name: Release
 
 on:
   push:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
-  release:
+  build-and-test:
     runs-on: ubuntu-latest
-    
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDKs
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Cache NuGet Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/Directory.Build.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Build Solution
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: dotnet test --configuration Release --no-build --logger "console;verbosity=normal"
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -20,130 +56,42 @@ jobs:
 
       - name: Validate Version
         run: |
-          echo "🔍 Checking version consistency..."
-    
-          # Extract version from <Version> tag, not <GeneratorPackageVersion>
           version=$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)
           tag_version="${{ github.ref_name }}"
           tag_version_clean="${tag_version#v}"
-          
+
           if [[ "$version" == "$tag_version_clean" ]]; then
-            echo "✅ Version $tag_version matches Directory.Build.props"
+            echo "Version $tag_version matches Directory.Build.props"
           else
-            echo "❌ Version mismatch: Directory.Build.props=$version, tag=$tag_version"
+            echo "Version mismatch: Directory.Build.props=$version, tag=$tag_version"
             exit 1
           fi
 
       - name: Build and Pack
         run: |
-          echo "🏗️ Building core packages..."
-          
-          # Build core library only
-          echo "📚 Building REslava.Result..."
           dotnet build src/REslava.Result/REslava.Result.csproj --configuration Release
-          
-          # Build source generators only  
-          echo "🔧 Building REslava.Result.SourceGenerators..."
           dotnet build src/REslava.Result.SourceGenerator/REslava.Result.SourceGenerators.csproj --configuration Release
-          
-          echo "📦 Packing packages..."
           dotnet pack src/REslava.Result/REslava.Result.csproj --configuration Release --output ./packages
           dotnet pack src/REslava.Result.SourceGenerator/REslava.Result.SourceGenerators.csproj --configuration Release --output ./packages
 
       - name: Publish to NuGet
         run: |
-          echo "📦 Publishing to NuGet..."
-          # Only publish main packages, not samples
-          find ./packages -name "REslava.Result.*.nupkg" -not -name "*.Samples.*" -exec dotnet nuget push {} \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate \;
+          for pkg in ./packages/REslava.Result.*.nupkg; do
+            if [[ "$pkg" != *".Samples."* ]]; then
+              echo "Publishing $pkg..."
+              dotnet nuget push "$pkg" \
+                --api-key ${{ secrets.NUGET_API_KEY }} \
+                --source https://api.nuget.org/v3/index.json \
+                --skip-duplicate
+            fi
+          done
 
-      - name: Generate Release Notes (if missing)
-        run: |
-          RELEASE_FILE="docs/github/GITHUB_RELEASE_${{ github.ref_name }}.md"
-          if [ ! -f "$RELEASE_FILE" ]; then
-            echo "📝 Generating release notes for ${{ github.ref_name }}..."
-            
-            # Create the release notes file using echo
-            echo "# 🚀 REslava.Result ${{ github.ref_name }}" > "$RELEASE_FILE"
-            echo "" >> "$RELEASE_FILE"
-            echo "> **Railway-Oriented Programming for .NET** - Complete functional programming framework with revolutionary OneOf auto-conversion!" >> "$RELEASE_FILE"
-            echo "" >> "$RELEASE_FILE"
-            echo "## 📦 Installation" >> "$RELEASE_FILE"
-            echo "" >> "$RELEASE_FILE"
-            echo '```bash' >> "$RELEASE_FILE"
-            echo "# Core functional programming library (${{ github.ref_name }})" >> "$RELEASE_FILE"
-            echo "dotnet add package REslava.Result" >> "$RELEASE_FILE"
-            echo "" >> "$RELEASE_FILE"
-            echo "# ASP.NET integration + OneOf extensions (${{ github.ref_name }})" >> "$RELEASE_FILE"
-            echo "dotnet add package REslava.Result.SourceGenerators" >> "$RELEASE_FILE"
-            echo '```' >> "$RELEASE_FILE"
-            echo "" >> "$RELEASE_FILE"
-            echo "## 📊 Package Information" >> "$RELEASE_FILE"
-            echo "" >> "$RELEASE_FILE"
-            echo "| Package | NuGet Link |" >> "$RELEASE_FILE"
-            echo "|---------|------------|" >> "$RELEASE_FILE"
-            echo "**REslava.Result** | [📦 View on NuGet](https://www.nuget.org/packages/REslava.Result/${{ github.ref_name }}) |" >> "$RELEASE_FILE"
-            echo "**REslava.Result.SourceGenerators** | [📦 View on NuGet](https://www.nuget.org/packages/REslava.Result.SourceGenerators/${{ github.ref_name }}) |" >> "$RELEASE_FILE"
-            echo "" >> "$RELEASE_FILE"
-            echo "## 📚 Documentation & Resources" >> "$RELEASE_FILE"
-            echo "" >> "$RELEASE_FILE"
-            echo "- 📖 **[Main Documentation](https://github.com/reslava/nuget-package-reslava-result)**" >> "$RELEASE_FILE"
-            echo "- 🐛 **[Issue Tracker](https://github.com/reslava/nuget-package-reslava-result/issues)**" >> "$RELEASE_FILE"
-            echo "- 💬 **[Discussions](https://github.com/reslava/nuget-package-reslava-result/discussions)**" >> "$RELEASE_FILE"
-            echo "" >> "$RELEASE_FILE"
-            echo "---" >> "$RELEASE_FILE"
-            echo "**🚀 Ready to revolutionize your error handling? Install REslava.Result today!**" >> "$RELEASE_FILE"
-            
-            echo "✅ Release notes generated at $RELEASE_FILE"
-            git add "$RELEASE_FILE"
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
-            git commit -m "docs: Auto-generate release notes for ${{ github.ref_name }}" || echo "No changes to commit"
-          else
-            echo "✅ Release notes already exist at $RELEASE_FILE"
-          fi
-
-      - name: Create GitHub Release (with file)
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           body_path: docs/github/GITHUB_RELEASE_${{ github.ref_name }}.md
           draft: false
           prerelease: false
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create GitHub Release (Fallback)
-        if: failure()
-        uses: softprops/action-gh-release@v2
-        with:
-          body: |
-            # 🚀 REslava.Result.SourceGenerators ${{ github.ref_name }}
-            
-            ## 📦 Package Information
-            - **Core Library**: [REslava.Result ${{ github.ref_name }}](https://www.nuget.org/packages/REslava.Result/${{ github.ref_name }})
-            - **Source Generator**: [REslava.Result.SourceGenerators ${{ github.ref_name }}](https://www.nuget.org/packages/REslava.Result.SourceGenerators/${{ github.ref_name }})
-            
-            ## 🚀 Installation
-            ```xml
-            <PackageReference Include="REslava.Result" Version="${{ github.ref_name }}" />
-            <PackageReference Include="REslava.Result.SourceGenerators" Version="${{ github.ref_name }}" />
-            ```
-            
-            ## ✅ What's Included
-            - SOLID architecture source generator
-            - HTTP method extensions: ToIResult, ToPostResult, ToPutResult, ToDeleteResult, ToPatchResult
-            - Support for .NET 8.0, 9.0, 10.0
-            - Comprehensive error handling
-            - **NEW**: Intelligent HTTP status mapping for OneOf types
-            
-            ---
-            
-            📖 [Documentation](https://github.com/reslava/nuget-package-reslava-result)
-            🐛 [Issues](https://github.com/reslava/nuget-package-reslava-result/issues)
-          draft: false
-          prerelease: false
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

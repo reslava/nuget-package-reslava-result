@@ -126,15 +126,6 @@
     <Compile Include="Generators\OneOf4ToIResult\Attributes\GenerateOneOf4ExtensionsAttributeGenerator.cs" />
     <Compile Include="Generators\OneOf4ToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
     <Compile Include="Generators\OneOf4ToIResult\CodeGeneration\OneOf4ToIResultExtensionGenerator.cs" />
-    
-    <!-- Core OneOf Models and Utilities -->
-    <!-- TODO: Delete these files if confirmed unnecessary - moved to docs\archive -->
-    <!-- <Compile Include="Core\OneOf\Models\OneOfTypeInfo.cs" /> -->
-    <!-- <Compile Include="Core\OneOf\Models\OneOfMappingResult.cs" /> -->
-    <!-- <Compile Include="Core\OneOf\Models\OneOfGenerationContext.cs" /> -->
-    <!-- END-TODO -->
-    <!-- <Compile Include="Core\OneOf\Utilities\OneOfHttpStatusCodeMapper.cs" /> -->
-    <!-- <Compile Include="Core\OneOf\Utilities\OneOfTypeHelper.cs" /> -->
   </ItemGroup>
 
 </Project>
