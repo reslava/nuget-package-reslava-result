@@ -65,6 +65,12 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints
         public string[]? Policies { get; set; }
 
         /// <summary>
+        /// Gets or sets the default required roles.
+        /// Generates .RequireAuthorization(new AuthorizeAttribute { Roles = ""..."" }).
+        /// </summary>
+        public string[]? Roles { get; set; }
+
+        /// <summary>
         /// Gets or sets the HTTP method mapping strategy.
         /// </summary>
         public EndpointMappingStrategy Strategy { get; set; } = EndpointMappingStrategy.Convention;

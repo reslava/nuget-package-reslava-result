@@ -45,10 +45,17 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
 
             var builder = new StringBuilder();
 
+            // Check if any endpoint uses Roles (needs AuthorizeAttribute)
+            var anyRoles = controllers.Any(c => c.Endpoints.Any(e => e.Roles != null && e.Roles.Any()));
+
             // Using statements
             builder.AppendLine("using Microsoft.AspNetCore.Builder;");
             builder.AppendLine("using Microsoft.AspNetCore.Http;");
             builder.AppendLine("using Microsoft.AspNetCore.Routing;");
+            if (anyRoles)
+            {
+                builder.AppendLine("using Microsoft.AspNetCore.Authorization;");
+            }
             builder.AppendLine("using System;");
             builder.AppendLine("using System.Threading.Tasks;");
             builder.AppendLine("using Generated.ResultExtensions;");
@@ -163,6 +170,29 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
                 else
                 {
                     chain.Add($".Produces({produces.StatusCode})");
+                }
+            }
+
+            // Authorization chain
+            if (endpoint.AllowAnonymous)
+            {
+                chain.Add(".AllowAnonymous()");
+            }
+            else if (endpoint.RequiresAuth)
+            {
+                if (endpoint.Roles != null && endpoint.Roles.Any())
+                {
+                    var rolesStr = string.Join(",", endpoint.Roles);
+                    chain.Add($".RequireAuthorization(new AuthorizeAttribute {{ Roles = \"{rolesStr}\" }})");
+                }
+                else if (endpoint.Policies != null && endpoint.Policies.Any())
+                {
+                    var policiesStr = string.Join(", ", endpoint.Policies.Select(p => $"\"{p}\""));
+                    chain.Add($".RequireAuthorization({policiesStr})");
+                }
+                else
+                {
+                    chain.Add(".RequireAuthorization()");
                 }
             }
 

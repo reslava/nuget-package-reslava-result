@@ -21,13 +21,17 @@ namespace FastMinimalAPI.REslava.Result.Demo.SmartEndpoints;
 /// Showcases OneOf4 pattern: CreateOrder can return 4 different types
 /// (UserNotFoundError | InsufficientStockError | ValidationError | OrderResponse)
 /// </summary>
-[AutoGenerateEndpoints(RoutePrefix = "/api/smart/orders")]
+[AutoGenerateEndpoints(RoutePrefix = "/api/smart/orders", RequiresAuth = true)]
 public class SmartOrderController
 {
     private readonly OrderService _service;
 
     public SmartOrderController(OrderService service) => _service = service;
 
+    /// <summary>
+    /// Public read access — no authentication required
+    /// </summary>
+    [SmartAllowAnonymous]
     public async Task<Result<List<OrderResponse>>> GetOrders()
         => await _service.GetAllOrdersAsync();
 

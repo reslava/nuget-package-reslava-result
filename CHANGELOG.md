@@ -4,9 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
-## [Unreleased]
+## [1.13.0] - 2026-02-10
 
 ### ✨ Added
+
+**SmartEndpoints: Authorization & Policy Support**
+- Class-level `RequiresAuth = true` on `[AutoGenerateEndpoints]` — all endpoints emit `.RequireAuthorization()`
+- Class-level `Policies = new[] { "Admin" }` — emits `.RequireAuthorization("Admin")`
+- Class-level `Roles = new[] { "Admin", "Manager" }` — emits `.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin,Manager" })`
+- Method-level `[SmartAllowAnonymous]` attribute — overrides class auth, emits `.AllowAnonymous()`
+- Method-level `[AutoMapEndpoint(AllowAnonymous = true, Roles = ...)]` — fine-grained control
+- Auth inheritance: class-level defaults propagate to all methods unless overridden
+- Auto-adds `.Produces(401)` to OpenAPI metadata for auth-protected endpoints
+- Conditional `using Microsoft.AspNetCore.Authorization;` only when Roles are used
+- 12 new authorization tests (`SmartEndpoints_AuthorizationTests.cs`)
+
+**Demo App: JWT Bearer Authentication Showcase**
+- JWT Bearer auth configured for SmartEndpoints auth demo
+- `/auth/token` endpoint generates test JWTs with optional role parameter
+- `SmartOrderController` uses `RequiresAuth = true` with `[SmartAllowAnonymous]` on `GetOrders()`
+- Side-by-side comparison: authenticated SmartOrders vs unauthenticated SmartProducts
 
 **SmartEndpoints: OpenAPI Metadata Auto-Generation**
 - Endpoints now emit full OpenAPI metadata from return type analysis at compile time

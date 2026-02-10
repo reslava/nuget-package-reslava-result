@@ -18,11 +18,13 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
     {
         private readonly IAttributeGenerator _autoGenerateAttributeGenerator;
         private readonly IAttributeGenerator _autoMapAttributeGenerator;
+        private readonly IAttributeGenerator _smartAllowAnonymousAttributeGenerator;
 
         public SmartEndpointsOrchestrator()
         {
             _autoGenerateAttributeGenerator = new AutoGenerateEndpointsAttributeGenerator();
             _autoMapAttributeGenerator = new AutoMapEndpointAttributeGenerator();
+            _smartAllowAnonymousAttributeGenerator = new SmartAllowAnonymousAttributeGenerator();
         }
 
         public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -34,6 +36,8 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
                     _autoGenerateAttributeGenerator.GenerateAttribute());
                 ctx.AddSource("AutoMapEndpointAttribute.g.cs",
                     _autoMapAttributeGenerator.GenerateAttribute());
+                ctx.AddSource("SmartAllowAnonymousAttribute.g.cs",
+                    _smartAllowAnonymousAttributeGenerator.GenerateAttribute());
             });
 
             // Step 2: Detect classes with [AutoGenerateEndpoints]
@@ -106,13 +110,34 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
                 tags.Add(GenerateTagFromClassName(classSymbol.Name));
             }
 
+            // Extract auth properties from class attribute
+            var requiresAuth = false;
+            var policies = new List<string>();
+            var roles = new List<string>();
+            if (attr != null)
+            {
+                var authArg = attr.NamedArguments.FirstOrDefault(kv => kv.Key == "RequiresAuth");
+                if (authArg.Key == "RequiresAuth" && authArg.Value.Value is bool authVal)
+                    requiresAuth = authVal;
+
+                policies = ExtractStringArrayFromAttribute(attr, "Policies");
+                roles = ExtractStringArrayFromAttribute(attr, "Roles");
+
+                // If policies or roles are set, auth is implicitly required
+                if (policies.Any() || roles.Any())
+                    requiresAuth = true;
+            }
+
             var controller = new ControllerMetadata
             {
                 ClassName = classSymbol.Name,
                 Namespace = classSymbol.ContainingNamespace?.ToDisplayString() ?? "Global",
                 RoutePrefix = routePrefix,
                 Tags = tags,
-                HasAutoGenerateAttribute = true
+                HasAutoGenerateAttribute = true,
+                RequiresAuth = requiresAuth,
+                Policies = policies,
+                Roles = roles
             };
 
             // Process public methods
@@ -122,7 +147,7 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
                 if (methodSymbol == null || !methodSymbol.DeclaredAccessibility.HasFlag(Accessibility.Public))
                     continue;
 
-                var endpoint = BuildEndpointMetadata(methodSymbol, classSymbol, routePrefix);
+                var endpoint = BuildEndpointMetadata(methodSymbol, classSymbol, routePrefix, controller);
                 if (endpoint != null)
                 {
                     controller.Endpoints.Add(endpoint);
@@ -135,7 +160,8 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
         private EndpointMetadata BuildEndpointMetadata(
             IMethodSymbol methodSymbol,
             INamedTypeSymbol classSymbol,
-            string routePrefix)
+            string routePrefix,
+            ControllerMetadata controller)
         {
             // Unwrap Task<T> if async
             var actualReturnType = methodSymbol.ReturnType;
@@ -191,11 +217,80 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
                 }).ToList()
             };
 
-            // Build OpenAPI metadata
+            // Extract method-level auth attributes
+            ExtractMethodAuthMetadata(methodSymbol, endpoint);
+
+            // Apply class-level auth inheritance (method overrides take priority)
+            ApplyAuthInheritance(endpoint, controller);
+
+            // Build OpenAPI metadata (after auth, so Produces(401) can be added)
             endpoint.Summary = ExtractSummary(methodSymbol);
             endpoint.ProducesList = BuildProducesList(endpoint);
 
             return endpoint;
+        }
+
+        private void ExtractMethodAuthMetadata(IMethodSymbol methodSymbol, EndpointMetadata endpoint)
+        {
+            var attrs = methodSymbol.GetAttributes();
+
+            // Check for [SmartAllowAnonymous]
+            if (attrs.Any(a => a.AttributeClass?.Name == "SmartAllowAnonymousAttribute"))
+            {
+                endpoint.AllowAnonymous = true;
+                return; // AllowAnonymous wins — skip other auth extraction
+            }
+
+            // Check for [AutoMapEndpoint] with auth properties
+            var mapAttr = attrs.FirstOrDefault(a => a.AttributeClass?.Name == "AutoMapEndpointAttribute");
+            if (mapAttr != null)
+            {
+                var allowAnonArg = mapAttr.NamedArguments.FirstOrDefault(kv => kv.Key == "AllowAnonymous");
+                if (allowAnonArg.Key == "AllowAnonymous" && allowAnonArg.Value.Value is bool anonVal && anonVal)
+                {
+                    endpoint.AllowAnonymous = true;
+                    return;
+                }
+
+                var authArg = mapAttr.NamedArguments.FirstOrDefault(kv => kv.Key == "RequiresAuth");
+                if (authArg.Key == "RequiresAuth" && authArg.Value.Value is bool authVal)
+                    endpoint.RequiresAuth = authVal;
+
+                var methodPolicies = ExtractStringArrayFromAttributeData(mapAttr, "Policies");
+                if (methodPolicies.Any())
+                    endpoint.Policies = methodPolicies;
+
+                var methodRoles = ExtractStringArrayFromAttributeData(mapAttr, "Roles");
+                if (methodRoles.Any())
+                    endpoint.Roles = methodRoles;
+
+                // If policies or roles set, auth is implicitly required
+                if (endpoint.Policies.Any() || endpoint.Roles.Any())
+                    endpoint.RequiresAuth = true;
+            }
+        }
+
+        private void ApplyAuthInheritance(EndpointMetadata endpoint, ControllerMetadata controller)
+        {
+            // If method explicitly allows anonymous, skip inheritance
+            if (endpoint.AllowAnonymous)
+                return;
+
+            // If method already has its own auth config, skip inheritance
+            if (endpoint.RequiresAuth)
+                return;
+
+            // Inherit class-level auth defaults
+            if (controller.RequiresAuth)
+            {
+                endpoint.RequiresAuth = true;
+
+                if (!endpoint.Policies.Any() && controller.Policies.Any())
+                    endpoint.Policies = new List<string>(controller.Policies);
+
+                if (!endpoint.Roles.Any() && controller.Roles.Any())
+                    endpoint.Roles = new List<string>(controller.Roles);
+            }
         }
 
         #region OpenAPI Metadata Helpers
@@ -312,9 +407,37 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
                 }
             }
 
+            // Auto-add 401 for auth-required endpoints
+            if (endpoint.RequiresAuth && !endpoint.AllowAnonymous && seenStatusCodes.Add(401))
+            {
+                produces.Add(new ProducesMetadata { StatusCode = 401 });
+            }
+
             // Sort: 200 first, then errors ascending
             produces.Sort((a, b) => a.StatusCode.CompareTo(b.StatusCode));
             return produces;
+        }
+
+        private List<string> ExtractStringArrayFromAttribute(AttributeData attr, string propertyName)
+        {
+            var result = new List<string>();
+            if (attr == null) return result;
+
+            var arg = attr.NamedArguments.FirstOrDefault(kv => kv.Key == propertyName);
+            if (arg.Key == propertyName && arg.Value.Kind == TypedConstantKind.Array)
+            {
+                foreach (var val in arg.Value.Values)
+                {
+                    if (val.Value != null)
+                        result.Add(val.Value.ToString());
+                }
+            }
+            return result;
+        }
+
+        private List<string> ExtractStringArrayFromAttributeData(AttributeData attr, string propertyName)
+        {
+            return ExtractStringArrayFromAttribute(attr, propertyName);
         }
 
         private List<string> ExtractTagsFromAttribute(AttributeData attr)

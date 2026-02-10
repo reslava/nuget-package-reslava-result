@@ -19,6 +19,9 @@
 
     <!-- In-Memory Database for Demo -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.0" />
+
+    <!-- JWT Bearer Authentication for SmartEndpoints Auth Demo -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>

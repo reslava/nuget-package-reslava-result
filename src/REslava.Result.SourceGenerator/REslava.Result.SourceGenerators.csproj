@@ -95,6 +95,7 @@
     <Compile Include="Generators\SmartEndpoints\Orchestration\SmartEndpointsOrchestrator.cs" />
     <Compile Include="Generators\SmartEndpoints\Attributes\AutoGenerateEndpointsAttributeGenerator.cs" />
     <Compile Include="Generators\SmartEndpoints\Attributes\AutoMapEndpointAttributeGenerator.cs" />
+    <Compile Include="Generators\SmartEndpoints\Attributes\SmartAllowAnonymousAttributeGenerator.cs" />
     <Compile Include="Generators\SmartEndpoints\CodeGeneration\SmartEndpointExtensionGenerator.cs" />
     
     <!-- ResultToIResult Generator - Refactored version -->

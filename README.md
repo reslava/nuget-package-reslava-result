@@ -28,10 +28,11 @@
 | **ASP.NET source generators** | **✅** | — | — | — |
 | **SmartEndpoints (zero-boilerplate APIs)** | **✅** | — | — | — |
 | **OpenAPI metadata auto-generation** | **✅** | — | — | — |
+| **Authorization & Policy support** | **✅** | — | — | — |
 | Validation framework | ✅ | Basic | — | ✅ |
 | Zero dependencies | ✅ | ✅ | ✅ | — |
 
-**Unique advantage**: SmartEndpoints auto-generates complete Minimal API endpoints from your business logic — including routing, DI, HTTP status mapping, error handling, and full OpenAPI metadata (`.Produces<T>()`, `.WithSummary()`, `.WithTags()`). No other .NET library does this.
+**Unique advantage**: SmartEndpoints auto-generates complete Minimal API endpoints from your business logic — including routing, DI, HTTP status mapping, error handling, full OpenAPI metadata (`.Produces<T>()`, `.WithSummary()`, `.WithTags()`), and authorization (`.RequireAuthorization()`, `.AllowAnonymous()`). No other .NET library does this.
 
 ---
 
@@ -1216,15 +1217,16 @@ public IResult GetUser(int id) =>
 
 ## 🎯 Roadmap
 
-### v1.12.2 (Current) ✅
+### v1.13.0 (Current) ✅
+- **SmartEndpoints: Authorization & Policy Support** — `RequiresAuth`, `Roles`, `Policies`, `[SmartAllowAnonymous]`, `.RequireAuthorization()`, `.AllowAnonymous()`, auto `.Produces(401)`
+- SmartEndpoints: OpenAPI Metadata Auto-Generation — `.Produces<T>()`, `.WithSummary()`, `.WithTags()`, `MapGroup`
+- JWT Bearer auth demo with `/auth/token` endpoint
 - SmartEndpoints with DI + async support
 - OneOf4ToIResult Generator (4-way discriminated unions)
 - FastMinimalAPI Demo with SmartEndpoints showcase
-- **SmartEndpoints: OpenAPI Metadata Auto-Generation** — `.Produces<T>()`, `.WithSummary()`, `.WithTags()`, `MapGroup`, error type → status code mapping
 - OpenAPI 3.0 + Scalar UI integration
 
 ### Next Up
-- [ ] SmartEndpoints: Authorization & Policy Support (`[Authorize]`, `RequireAuthorization()`)
 - [ ] LINQ query comprehension syntax for Result<T>
 - [ ] Diagnostic Roslyn analyzers (catch unsafe Result.Value access)
 
@@ -1275,6 +1277,7 @@ Made with ❤️ by [Rafa Eslava](https://github.com/reslava) for developers com
 
 ## 📈 Version History
 
+- **v1.13.0** - SmartEndpoints Authorization & Policy Support (RequireAuthorization, AllowAnonymous, Roles, Policies, Produces(401))
 - **v1.12.2** - SmartEndpoints OpenAPI metadata auto-generation (Produces, WithSummary, WithTags, MapGroup)
 - **v1.12.1** - SmartEndpoints DI + async support, FastMinimalAPI demo, Console samples
 - **v1.12.0** - OneOf4ToIResult generator, enhanced SmartEndpoints, 1,928 tests passing

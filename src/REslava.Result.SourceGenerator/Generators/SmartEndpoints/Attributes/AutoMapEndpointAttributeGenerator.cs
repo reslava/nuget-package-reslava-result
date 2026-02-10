@@ -70,6 +70,17 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints
         /// </summary>
         public string[]? Policies { get; set; }
 
+        /// <summary>
+        /// Gets or sets the required roles.
+        /// </summary>
+        public string[]? Roles { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether this endpoint allows anonymous access,
+        /// overriding class-level RequiresAuth.
+        /// </summary>
+        public bool AllowAnonymous { get; set; }
+
         public AutoMapEndpointAttribute(string route)
         {
             Route = route ?? throw new ArgumentNullException(nameof(route));

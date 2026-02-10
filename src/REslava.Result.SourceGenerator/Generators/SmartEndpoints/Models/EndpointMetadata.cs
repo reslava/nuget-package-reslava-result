@@ -49,6 +49,17 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.Models
         public List<string> Policies { get; set; } = new();
 
         /// <summary>
+        /// Required roles for this endpoint.
+        /// </summary>
+        public List<string> Roles { get; set; } = new();
+
+        /// <summary>
+        /// Whether this endpoint explicitly allows anonymous access,
+        /// overriding class-level RequiresAuth.
+        /// </summary>
+        public bool AllowAnonymous { get; set; }
+
+        /// <summary>
         /// Route prefix from the class-level attribute (e.g., "/api/smart/products").
         /// Used to compute relative routes when generating MapGroup.
         /// </summary>
@@ -110,5 +121,20 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.Models
         public List<EndpointMetadata> Endpoints { get; set; } = new();
         public bool HasAutoGenerateAttribute { get; set; }
         public List<string> Tags { get; set; } = new();
+
+        /// <summary>
+        /// Whether all endpoints in this controller require authentication by default.
+        /// </summary>
+        public bool RequiresAuth { get; set; }
+
+        /// <summary>
+        /// Class-level authorization policies.
+        /// </summary>
+        public List<string> Policies { get; set; } = new();
+
+        /// <summary>
+        /// Class-level required roles.
+        /// </summary>
+        public List<string> Roles { get; set; } = new();
     }
 }

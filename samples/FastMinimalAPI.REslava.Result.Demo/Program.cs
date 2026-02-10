@@ -3,8 +3,13 @@ using FastMinimalAPI.REslava.Result.Demo.Endpoints;
 using FastMinimalAPI.REslava.Result.Demo.Services;
 using FastMinimalAPI.REslava.Result.Demo.SmartEndpoints;
 using Generated.SmartEndpoints;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +27,7 @@ builder.Services.Configure<Microsoft.AspNetCore.OpenApi.OpenApiOptions>(options 
         document.Info = new()
         {
             Title = "Fast Minimal API - REslava.Result Demo",
-            Version = "v1.12.1",
+            Version = "v1.13.0",
             Description = """
             Production-ready demonstration of type-safe error handling in ASP.NET Core Minimal APIs
 
@@ -68,6 +73,21 @@ builder.Services.AddCors(options =>
     });
 });
 
+// JWT Bearer authentication for SmartEndpoints auth demo
+var jwtKey = "REslava-Demo-SuperSecret-Key-Min32Chars!";
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Seed database
@@ -86,6 +106,8 @@ app.MapOpenApi();
 app.MapScalarApiReference();
 
 app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Manual endpoints (traditional approach — full control, more boilerplate)
 app.MapUserEndpoints();
@@ -106,6 +128,36 @@ app.MapGet("/health", () => Results.Ok(new
 }))
 .WithName("HealthCheck")
 .WithTags("Health")
+.Produces<object>(200);
+
+// Auth token endpoint — generates test JWTs for SmartEndpoints auth demo
+app.MapPost("/auth/token", (string? role) =>
+{
+    var claims = new List<Claim>
+    {
+        new(ClaimTypes.Name, "demo-user"),
+        new(ClaimTypes.Email, "demo@reslava.dev"),
+        new("sub", "demo-user-001")
+    };
+    if (!string.IsNullOrEmpty(role))
+        claims.Add(new Claim(ClaimTypes.Role, role));
+
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+    var token = new JwtSecurityToken(
+        expires: DateTime.UtcNow.AddHours(1),
+        claims: claims,
+        signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
+
+    return Results.Ok(new
+    {
+        token = new JwtSecurityTokenHandler().WriteToken(token),
+        expires = token.ValidTo,
+        role = role ?? "none"
+    });
+})
+.WithName("GenerateToken")
+.WithTags("Auth")
+.WithSummary("Generate a test JWT token for SmartEndpoints auth demo")
 .Produces<object>(200);
 
 // Welcome endpoint

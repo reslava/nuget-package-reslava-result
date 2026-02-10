@@ -1,6 +1,6 @@
 # Fast Minimal API - REslava.Result Demo
 
-**Production-ready demonstration of type-safe error handling in ASP.NET Core Minimal APIs using REslava.Result library v1.12.2**
+**Production-ready demonstration of type-safe error handling in ASP.NET Core Minimal APIs using REslava.Result library v1.13.0**
 
 ---
 
@@ -15,6 +15,8 @@ This demo application demonstrates **real-world patterns** for building robust M
 - ✅ **Complex business logic** with multi-step validation
 - ✅ **SmartEndpoints** - auto-generated endpoints via source generator (~85% less boilerplate)
 - ✅ **OpenAPI metadata auto-generation** — `.Produces<T>(200)`, `.Produces(statusCode)`, `.WithSummary()`, `.WithTags()`, `MapGroup` — all inferred from return types at compile time
+- ✅ **Authorization & Policy support** — `RequiresAuth`, `[SmartAllowAnonymous]`, `.RequireAuthorization()`, `.AllowAnonymous()`, auto `.Produces(401)` for auth-protected endpoints
+- ✅ **JWT Bearer authentication** — test token generation via `/auth/token` endpoint
 
 ---
 
@@ -22,7 +24,7 @@ This demo application demonstrates **real-world patterns** for building robust M
 
 ### Prerequisites
 - .NET 8.0 or higher
-- REslava.Result v1.12.2 (automatically installed via NuGet)
+- REslava.Result v1.13.0 (automatically installed via NuGet)
 
 ### Run the Demo
 ```bash
@@ -102,11 +104,11 @@ return result.Match(
 
 **Why OneOf4?** REslava.Result supports `OneOf<T1,T2>`, `OneOf<T1,T2,T3>`, and `OneOf<T1,T2,T3,T4>`. The OrderService uses OneOf4 to handle **3 error types** + **1 success type** = 4 cases total. User inactive validation is consolidated into `ValidationError` for consistency.
 
-### ⚡ SmartEndpoints: Zero-Boilerplate Alternative + OpenAPI Metadata
+### ⚡ SmartEndpoints: Zero-Boilerplate Alternative + OpenAPI Metadata + Authorization
 
 **SmartEndpoints/SmartProductController.cs** - Same functionality, ~85% less code
 
-The `[AutoGenerateEndpoints]` attribute + naming conventions automatically generate complete Minimal API endpoints **with full OpenAPI metadata**:
+The `[AutoGenerateEndpoints]` attribute + naming conventions automatically generate complete Minimal API endpoints **with full OpenAPI metadata and authorization support**:
 
 ```csharp
 // ✅ YOU WRITE: Pure business logic (SmartProductController.cs — 43 lines total!)
@@ -135,11 +137,28 @@ smartProductGroup.MapGet("/{id}", async (int id, SmartProductController service)
     .Produces(404);  // ← ProductNotFoundError
 ```
 
-**Everything auto-generated from return types:**
+**Authorization support (SmartOrderController.cs):**
+```csharp
+// ✅ Class-level auth + method-level override
+[AutoGenerateEndpoints(RoutePrefix = "/api/smart/orders", RequiresAuth = true)]
+public class SmartOrderController
+{
+    [SmartAllowAnonymous]  // ← Public read access
+    public async Task<Result<List<OrderResponse>>> GetOrders() => ...
+
+    // All other methods require authentication (inherited from class)
+    public async Task<OneOf<OrderNotFoundError, OrderResponse>> GetOrder(int id) => ...
+}
+
+// 🎉 GENERATED: .RequireAuthorization() / .AllowAnonymous() + .Produces(401)
+```
+
+**Everything auto-generated from return types and attributes:**
 - **Method name** → HTTP method + `.WithName()` + `.WithSummary()`
 - **Class name** → `.WithTags()` + `MapGroup()`
 - **Success type** → `.Produces<T>(200)`
 - **Error types** → `.Produces(statusCode)` (NotFound→404, Conflict→409, Validation→400, etc.)
+- **Auth** → `.RequireAuthorization()` / `.AllowAnonymous()` + auto `.Produces(401)`
 
 | Approach | Products | Orders | Total |
 |----------|----------|--------|-------|
@@ -530,15 +549,23 @@ curl -X POST http://localhost:5000/api/orders \
 ### SmartEndpoints (side-by-side comparison)
 
 ```bash
-# Same data, same behavior — auto-generated endpoints
+# Same data, same behavior — auto-generated endpoints (no auth required)
 curl http://localhost:5000/api/smart/products
 curl http://localhost:5000/api/smart/products/1
-curl http://localhost:5000/api/smart/orders
 
-# OneOf4 error handling (auto-mapped HTTP status codes)
+# SmartOrders: GET is public (AllowAnonymous), others require auth
+curl http://localhost:5000/api/smart/orders          # 200 OK (AllowAnonymous)
+curl http://localhost:5000/api/smart/orders/1         # 401 Unauthorized (no token)
+
+# Get a test JWT token
+TOKEN=$(curl -s -X POST "http://localhost:5000/auth/token?role=admin" | jq -r '.token')
+
+# Authenticated requests
+curl http://localhost:5000/api/smart/orders/1 -H "Authorization: Bearer $TOKEN"    # 404 (auth OK)
 curl -X POST http://localhost:5000/api/smart/orders \
   -H "Content-Type: application/json" \
-  -d '{"userId": 999, "items": [{"productId": 1, "quantity": 1}]}'
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"userId": 1, "items": [{"productId": 1, "quantity": 1}]}'
 ```
 
 ---
@@ -623,8 +650,9 @@ app.MapGet("/users/{id}", async (int id) =>
 
 - **ASP.NET Core 10.0** - Minimal APIs
 - **Entity Framework Core** - In-Memory Database
-- **REslava.Result v1.12.2** - Type-safe error handling
-- **REslava.Result.SourceGenerators** - SmartEndpoints source generator with OpenAPI metadata auto-generation
+- **REslava.Result v1.13.0** - Type-safe error handling
+- **REslava.Result.SourceGenerators** - SmartEndpoints source generator with OpenAPI metadata + authorization support
+- **Microsoft.AspNetCore.Authentication.JwtBearer** - JWT Bearer authentication for auth demo
 - **Microsoft.AspNetCore.OpenApi** - OpenAPI 3.0 support (built-in .NET 10)
 - **Scalar.AspNetCore** - Modern API documentation UI
 
@@ -651,6 +679,6 @@ MIT License - See LICENSE file for details
 
 ---
 
-**Built with ❤️ using REslava.Result v1.12.2**
+**Built with ❤️ using REslava.Result v1.13.0**
 
 *Demonstrating production-ready patterns for type-safe error handling in ASP.NET Core Minimal APIs*
