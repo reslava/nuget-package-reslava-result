@@ -3,42 +3,57 @@ using Microsoft.CodeAnalysis.Text;
 using REslava.Result.SourceGenerators.Core.Interfaces;
 using System.Text;
 
-namespace REslava.Result.SourceGenerators.Generators.OneOf4ToIResult.CodeGeneration
+namespace REslava.Result.SourceGenerators.Generators.OneOfToIResult.CodeGeneration
 {
     /// <summary>
-    /// Generates OneOf4ToIResult extension methods - FIXED
+    /// Generates OneOf{N}ToIResult extension methods, parameterized by arity.
+    /// Single class handles OneOf2, OneOf3, and OneOf4 extension generation.
     /// </summary>
-    public class OneOf4ToIResultExtensionGenerator : ICodeGenerator
+    public class OneOfToIResultExtensionGenerator : ICodeGenerator
     {
+        private readonly int _arity;
+
+        public OneOfToIResultExtensionGenerator(int arity)
+        {
+            _arity = arity;
+        }
+
         public SourceText GenerateCode(Compilation compilation, object config)
         {
             var builder = new StringBuilder();
-            
+
+            // Usings
             builder.AppendLine("using Microsoft.AspNetCore.Http;");
             builder.AppendLine("using REslava.Result.AdvancedPatterns;");
             builder.AppendLine("using System;");
             builder.AppendLine();
-            
+
+            // Class
             builder.AppendLine("namespace Generated.OneOfExtensions");
             builder.AppendLine("{");
             builder.AppendLine("    /// <summary>");
-            builder.AppendLine("    /// Extension methods for converting OneOf with 4 types to IResult.");
+            builder.AppendLine($"    /// Extension methods for converting OneOf with {_arity} types to IResult.");
             builder.AppendLine("    /// </summary>");
-            builder.AppendLine("    public static class OneOf4Extensions");
+            builder.AppendLine($"    public static class OneOf{_arity}Extensions");
             builder.AppendLine("    {");
-            
-            // FIX: Add generic type parameters <T1, T2, T3, T4>
-            builder.AppendLine("        public static IResult ToIResult<T1, T2, T3, T4>(this OneOf<T1, T2, T3, T4> oneOf)");
+
+            // ToIResult method
+            var typeParams = string.Join(", ", GenerateSequence("T", _arity));
+            builder.AppendLine($"        public static IResult ToIResult<{typeParams}>(this OneOf<{typeParams}> oneOf)");
             builder.AppendLine("        {");
             builder.AppendLine("            return oneOf.Match(");
-            builder.AppendLine("                t1 => IsErrorType(typeof(T1)) ? MapErrorToHttpResult(t1, typeof(T1)) : Results.Ok(t1),");
-            builder.AppendLine("                t2 => IsErrorType(typeof(T2)) ? MapErrorToHttpResult(t2, typeof(T2)) : Results.Ok(t2),");
-            builder.AppendLine("                t3 => IsErrorType(typeof(T3)) ? MapErrorToHttpResult(t3, typeof(T3)) : Results.Ok(t3),");
-            builder.AppendLine("                t4 => IsErrorType(typeof(T4)) ? MapErrorToHttpResult(t4, typeof(T4)) : Results.Ok(t4)");
+
+            for (int i = 1; i <= _arity; i++)
+            {
+                var comma = i < _arity ? "," : "";
+                builder.AppendLine($"                t{i} => IsErrorType(typeof(T{i})) ? MapErrorToHttpResult(t{i}, typeof(T{i})) : Results.Ok(t{i}){comma}");
+            }
+
             builder.AppendLine("            );");
             builder.AppendLine("        }");
             builder.AppendLine();
-            
+
+            // MapErrorToHttpResult helper
             builder.AppendLine("        private static IResult MapErrorToHttpResult(object error, Type errorType)");
             builder.AppendLine("        {");
             builder.AppendLine("            if (error == null)");
@@ -67,6 +82,8 @@ namespace REslava.Result.SourceGenerators.Generators.OneOf4ToIResult.CodeGenerat
             builder.AppendLine("            return Results.BadRequest(error?.ToString() ?? \"Error\");");
             builder.AppendLine("        }");
             builder.AppendLine();
+
+            // IsErrorType helper
             builder.AppendLine("        private static bool IsErrorType(Type type)");
             builder.AppendLine("        {");
             builder.AppendLine("            if (type == null) return false;");
@@ -88,8 +105,16 @@ namespace REslava.Result.SourceGenerators.Generators.OneOf4ToIResult.CodeGenerat
             builder.AppendLine("        }");
             builder.AppendLine("    }");
             builder.AppendLine("}");
-            
+
             return SourceText.From(builder.ToString(), Encoding.UTF8);
+        }
+
+        private static string[] GenerateSequence(string prefix, int count)
+        {
+            var result = new string[count];
+            for (int i = 0; i < count; i++)
+                result[i] = $"{prefix}{i + 1}";
+            return result;
         }
     }
 }

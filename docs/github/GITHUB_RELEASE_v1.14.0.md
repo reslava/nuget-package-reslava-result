@@ -58,9 +58,9 @@ Process(Save());                // OK — passed as argument
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| `REslava.Result` | **v1.14.0** | Core library |
-| `REslava.Result.SourceGenerators` | **v1.14.0** | ASP.NET source generators |
-| `REslava.Result.Analyzers` | **v1.14.0** | Roslyn safety analyzers (NEW) |
+| `REslava.Result` | v1.14.0 - [📦 View on NuGet](https://www.nuget.org/packages/REslava.Result/1.14.0) | | Core library |
+| `REslava.Result.SourceGenerators` | v1.14.0 - [📦 View on NuGet](https://www.nuget.org/packages/REslava.Result.SourceGenerators/1.14.0) | | ASP.NET source generators |
+| `REslava.Result.Analyzers` | v1.14.0 - [📦 View on NuGet](https://www.nuget.org/packages/REslava.Result.Analyzers/1.14.0) | | Roslyn safety analyzers (NEW) |
 
 ---
 

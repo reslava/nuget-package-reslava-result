@@ -107,27 +107,14 @@
     <Compile Include="Generators\ResultToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
     <Compile Include="Generators\ResultToIResult\CodeGeneration\ResultToIResultExtensionGenerator.cs" />
 
-    <!-- OneOf2ToIResult Generator - Following OneOf2 Pattern -->
-    <Compile Include="Generators\OneOf2ToIResult\OneOf2ToIResultGenerator.cs" />
-    <Compile Include="Generators\OneOf2ToIResult\Orchestration\OneOf2ToIResultOrchestrator.cs" />
-    <Compile Include="Generators\OneOf2ToIResult\Attributes\GenerateOneOf2ExtensionsAttributeGenerator.cs" />
-    <Compile Include="Generators\OneOf2ToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
-    <Compile Include="Generators\OneOf2ToIResult\CodeGeneration\OneOf2ToIResultExtensionGenerator.cs" />
-
-    <!-- OneOf3ToIResult Generator - Following OneOf2 Pattern -->
-    <Compile Include="Generators\OneOf3ToIResult\OneOf3ToIResultGenerator.cs" />
-    <Compile Include="Generators\OneOf3ToIResult\Orchestration\OneOf3ToIResultOrchestrator.cs" />
-    <Compile Include="Generators\OneOf3ToIResult\Attributes\GenerateOneOf3ExtensionsAttributeGenerator.cs" />
-    <Compile Include="Generators\OneOf3ToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
-    <Compile Include="Generators\OneOf3ToIResult\CodeGeneration\OneOf3ToIResultExtensionGenerator.cs" />
-    <Compile Include="Generators\OneOf2ToIResult\CodeGeneration\OneOf2ToIResultExtensionGenerator.cs" />
-    
-    <!-- OneOf4ToIResult Generator - ENABLED for v1.12.0 -->
-    <Compile Include="Generators\OneOf4ToIResult\OneOf4ToIResultGenerator.cs" />
-    <Compile Include="Generators\OneOf4ToIResult\Orchestration\OneOf4ToIResultOrchestrator.cs" />
-    <Compile Include="Generators\OneOf4ToIResult\Attributes\GenerateOneOf4ExtensionsAttributeGenerator.cs" />
-    <Compile Include="Generators\OneOf4ToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
-    <Compile Include="Generators\OneOf4ToIResult\CodeGeneration\OneOf4ToIResultExtensionGenerator.cs" />
+    <!-- OneOfToIResult Generators - Consolidated (OneOf2, OneOf3, OneOf4) -->
+    <Compile Include="Generators\OneOfToIResult\OneOf2ToIResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\OneOf3ToIResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\OneOf4ToIResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\Orchestration\OneOfToIResultOrchestrator.cs" />
+    <Compile Include="Generators\OneOfToIResult\Attributes\OneOfExtensionsAttributeGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\CodeGeneration\OneOfToIResultExtensionGenerator.cs" />
   </ItemGroup>
 
 </Project>

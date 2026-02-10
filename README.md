@@ -755,27 +755,20 @@ SourceGenerator/
 │   │   ├── Attributes/            # 🏷️ Auto-generated attributes
 │   │   ├── CodeGeneration/        # 💻 Extension method generation
 │   │   └── Orchestration/         # 🎼 Pipeline coordination
-│   ├── OneOf2ToIResult/          # 🚀 OneOf<T1,T2> → HTTP (NEW!)
-│   │   ├── Attributes/            # 🏷️ OneOf2-specific attributes
-│   │   ├── CodeGeneration/        # 💻 OneOf2 extensions
-│   │   └── Orchestration/         # 🎼 OneOf2 pipeline
-│   ├── OneOf3ToIResult/          # 🎯 OneOf<T1,T2,T3> → HTTP
-│   │   ├── Attributes/            # 🏷️ OneOf3-specific attributes
-│   │   ├── CodeGeneration/        # 💻 OneOf3 extensions
-│   │   └── Orchestration/         # 🎼 OneOf3 pipeline
-│   ├── OneOf4ToIResult/          # 🆕 OneOf<T1,T2,T3,T4> → HTTP (v1.12.0)
-│   │   ├── Attributes/            # 🏷️ OneOf4-specific attributes
-│   │   ├── CodeGeneration/        # 💻 OneOf4 extensions
-│   │   └── Orchestration/         # 🎼 OneOf4 pipeline
+│   ├── OneOfToIResult/            # 🚀 OneOf<T1,...,TN> → HTTP (consolidated v1.14.1)
+│   │   ├── OneOf2ToIResultGenerator.cs  # 🎯 Thin wrapper (arity=2)
+│   │   ├── OneOf3ToIResultGenerator.cs  # 🎯 Thin wrapper (arity=3)
+│   │   ├── OneOf4ToIResultGenerator.cs  # 🎯 Thin wrapper (arity=4)
+│   │   ├── Attributes/            # 🏷️ Shared attribute generators
+│   │   ├── CodeGeneration/        # 💻 Arity-parameterized extensions
+│   │   └── Orchestration/         # 🎼 Single shared orchestrator
 │   └── SmartEndpoints/            # ⚡ Auto-generate Minimal APIs (v1.11.0+)
 │       ├── Attributes/            # 🏷️ AutoGenerateEndpoints attribute
 │       ├── CodeGeneration/        # 💻 SmartEndpointExtensionGenerator
 │       ├── Models/                # 📋 EndpointMetadata
 │       └── Orchestration/         # 🎼 SmartEndpointsOrchestrator
-└── Tests/                         # 🧪 Comprehensive Test Suite (1,928+ tests)
-    ├── OneOf2ToIResult/          # ✅ 5/5 tests passing
-    ├── OneOf3ToIResult/          # ✅ 4/4 tests passing
-    ├── OneOf4ToIResult/          # ✅ 5/5 tests passing
+└── Tests/                         # 🧪 Comprehensive Test Suite (1,976+ tests)
+    ├── OneOfToIResult/           # ✅ 12/12 tests (unified, covers arity 2/3/4)
     ├── SmartEndpoints/           # ✅ 4/4 tests passing
     ├── ResultToIResult/          # ✅ 6/6 tests passing
     ├── CoreLibrary/              # 📚 Base library tests
@@ -1323,6 +1316,7 @@ Made with ❤️ by [Rafa Eslava](https://github.com/reslava) for developers com
 
 ## 📈 Version History
 
+- **v1.14.1** - Internal refactor: consolidated OneOf2/3/4ToIResult generators into single arity-parameterized OneOfToIResult (15 files → 7)
 - **v1.14.0** - NEW: REslava.Result.Analyzers package (RESL1001 unsafe .Value access, RESL1002 discarded Result), package icons for all NuGet packages
 - **v1.13.0** - SmartEndpoints Authorization & Policy Support (RequireAuthorization, AllowAnonymous, Roles, Policies, Produces(401))
 - **v1.12.2** - SmartEndpoints OpenAPI metadata auto-generation (Produces, WithSummary, WithTags, MapGroup)

@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.14.1] - 2026-02-10
+
+### 🔧 Changed
+
+**Source Generator Consolidation: OneOfToIResult**
+- Consolidated `OneOf2ToIResult`, `OneOf3ToIResult`, `OneOf4ToIResult` into a single `OneOfToIResult` directory
+- Replaced 15 near-identical files with 7 arity-parameterized shared implementations
+- Single `OneOfToIResultOrchestrator` handles all arities (2, 3, 4) via constructor parameter
+- 3 thin `[Generator]` wrappers remain (Roslyn requires separate classes per generator)
+- Unified test file with 12 tests replacing 3 separate test files
+- No API changes — generated output is identical
+
+---
+
 ## [1.14.0] - 2026-02-10
 
 ### ✨ Added
