@@ -1219,6 +1219,7 @@ public IResult GetUser(int id) =>
 
 ### v1.13.0 (Current) ✅
 - **SmartEndpoints: Authorization & Policy Support** — `RequiresAuth`, `Roles`, `Policies`, `[SmartAllowAnonymous]`, `.RequireAuthorization()`, `.AllowAnonymous()`, auto `.Produces(401)`
+- **LINQ query comprehension syntax for Result<T>** — `Select`, `SelectMany` (2-param + 3-param), `Where`, full async variants, 35 tests passing
 - SmartEndpoints: OpenAPI Metadata Auto-Generation — `.Produces<T>()`, `.WithSummary()`, `.WithTags()`, `MapGroup`
 - JWT Bearer auth demo with `/auth/token` endpoint
 - SmartEndpoints with DI + async support
@@ -1227,7 +1228,6 @@ public IResult GetUser(int id) =>
 - OpenAPI 3.0 + Scalar UI integration
 
 ### Next Up
-- [ ] LINQ query comprehension syntax for Result<T>
 - [ ] Diagnostic Roslyn analyzers (catch unsafe Result.Value access)
 
 ### Future Versions

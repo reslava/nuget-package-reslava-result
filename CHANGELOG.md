@@ -19,6 +19,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - Conditional `using Microsoft.AspNetCore.Authorization;` only when Roles are used
 - 12 new authorization tests (`SmartEndpoints_AuthorizationTests.cs`)
 
+### 📚 Documented
+
+**LINQ Query Syntax for Result<T>** (already implemented, now formally documented)
+- `Select`, `SelectMany` (2-param + 3-param for query syntax), `Where` — all with async variants
+- Enables: `from user in GetUser(id) from account in GetAccount(user.AccountId) select ...`
+- 35 tests passing across net8.0, net9.0, net10.0
+- Console sample: `05_LINQSyntax.cs` with 8 progressive examples
+- Moved from "Next Up" to "Current" in roadmap
+
+### ✨ Added
+
 **Demo App: JWT Bearer Authentication Showcase**
 - JWT Bearer auth configured for SmartEndpoints auth demo
 - `/auth/token` endpoint generates test JWTs with optional role parameter
