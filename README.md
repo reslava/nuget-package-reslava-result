@@ -29,6 +29,7 @@
 | **SmartEndpoints (zero-boilerplate APIs)** | **✅** | — | — | — |
 | **OpenAPI metadata auto-generation** | **✅** | — | — | — |
 | **Authorization & Policy support** | **✅** | — | — | — |
+| **Roslyn safety analyzers** | **✅** | — | — | — |
 | Validation framework | ✅ | Basic | — | ✅ |
 | Zero dependencies | ✅ | ✅ | ✅ | — |
 
@@ -68,8 +69,9 @@
 ### Installation
 
 ```bash
-dotnet add package REslava.Result.SourceGenerators
-dotnet add package REslava.Result
+dotnet add package REslava.Result                      # Core library
+dotnet add package REslava.Result.SourceGenerators     # ASP.NET source generators
+dotnet add package REslava.Result.Analyzers            # Roslyn safety analyzers
 ```
 
 ### Complete Generator Showcase
@@ -196,6 +198,42 @@ app.MapGet("/users/oneof/{id}", async (int id) =>
 {
     return GetOneOfUser(id); // Auto-converts OneOf<T1,T2,T3> too!
 });
+```
+
+#### 🛡️ Safety Analyzers — Compile-Time Diagnostics (NEW v1.14.0!)
+
+Catch common Result<T> mistakes **at compile time** before they reach production:
+
+```csharp
+// RESL1001 — Unsafe .Value access without guard
+var result = GetUser(id);
+var name = result.Value;        // ⚠️ Warning: Access to '.Value' without checking 'IsSuccess'
+
+// ✅ Safe alternatives:
+if (result.IsSuccess)
+    var name = result.Value;    // No warning — guarded by IsSuccess
+
+var name = result.Match(        // No warning — pattern matching
+    onSuccess: u => u.Name,
+    onFailure: _ => "Unknown");
+
+var name = result.GetValueOr(   // No warning — safe default
+    defaultUser).Name;
+```
+
+```csharp
+// RESL1002 — Discarded Result<T> return value
+Save();                         // ⚠️ Warning: Return value of type 'Result<T>' is discarded
+await SaveAsync();              // ⚠️ Warning: errors silently swallowed
+
+// ✅ Safe alternatives:
+var result = Save();            // No warning — assigned
+return Save();                  // No warning — returned
+Process(Save());                // No warning — passed as argument
+```
+
+```bash
+dotnet add package REslava.Result.Analyzers
 ```
 
 ---
@@ -788,7 +826,13 @@ graph TB
 
 ## 📦 Package Structure
 
-**What you get when you install REslava.Result.SourceGenerators:**
+**Three NuGet packages for a complete development experience:**
+
+| Package | Purpose |
+|---------|---------|
+| `REslava.Result` | Core library — Result&lt;T&gt;, Maybe&lt;T&gt;, OneOf, LINQ, validation |
+| `REslava.Result.SourceGenerators` | ASP.NET source generators — SmartEndpoints, ToIResult, OneOf extensions |
+| `REslava.Result.Analyzers` | Roslyn safety analyzers — RESL1001, RESL1002 compile-time diagnostics |
 
 ### 🚀 NuGet Package Contents
 ```
@@ -1144,6 +1188,9 @@ dotnet add package REslava.Result
 
 # ASP.NET integration + OneOf extensions
 dotnet add package REslava.Result.SourceGenerators
+
+# Roslyn safety analyzers (compile-time diagnostics)
+dotnet add package REslava.Result.Analyzers
 ```
 
 ### Scenario 1: Functional Programming Foundation
@@ -1217,18 +1264,17 @@ public IResult GetUser(int id) =>
 
 ## 🎯 Roadmap
 
-### v1.13.0 (Current) ✅
+### v1.14.0 (Current) ✅
+- **NEW: REslava.Result.Analyzers NuGet package** — Roslyn diagnostic analyzers for compile-time safety
+  - **RESL1001**: Warns on unsafe `.Value` access without `IsSuccess`/`IsFailed` guard
+  - **RESL1002**: Warns when `Result<T>` / `Task<Result<T>>` return value is discarded
+- Package icon and README added to all NuGet packages
+- Release pipeline publishes 3 packages (Core, SourceGenerators, Analyzers)
+
+### v1.13.0 ✅
 - **SmartEndpoints: Authorization & Policy Support** — `RequiresAuth`, `Roles`, `Policies`, `[SmartAllowAnonymous]`, `.RequireAuthorization()`, `.AllowAnonymous()`, auto `.Produces(401)`
 - **LINQ query comprehension syntax for Result<T>** — `Select`, `SelectMany` (2-param + 3-param), `Where`, full async variants, 35 tests passing
 - SmartEndpoints: OpenAPI Metadata Auto-Generation — `.Produces<T>()`, `.WithSummary()`, `.WithTags()`, `MapGroup`
-- JWT Bearer auth demo with `/auth/token` endpoint
-- SmartEndpoints with DI + async support
-- OneOf4ToIResult Generator (4-way discriminated unions)
-- FastMinimalAPI Demo with SmartEndpoints showcase
-- OpenAPI 3.0 + Scalar UI integration
-
-### Next Up
-- [ ] Diagnostic Roslyn analyzers (catch unsafe Result.Value access)
 
 ### Future Versions
 - [ ] ValueResult<T> struct variant for hot paths
@@ -1277,6 +1323,7 @@ Made with ❤️ by [Rafa Eslava](https://github.com/reslava) for developers com
 
 ## 📈 Version History
 
+- **v1.14.0** - NEW: REslava.Result.Analyzers package (RESL1001 unsafe .Value access, RESL1002 discarded Result), package icons for all NuGet packages
 - **v1.13.0** - SmartEndpoints Authorization & Policy Support (RequireAuthorization, AllowAnonymous, Roles, Policies, Produces(401))
 - **v1.12.2** - SmartEndpoints OpenAPI metadata auto-generation (Produces, WithSummary, WithTags, MapGroup)
 - **v1.12.1** - SmartEndpoints DI + async support, FastMinimalAPI demo, Console samples

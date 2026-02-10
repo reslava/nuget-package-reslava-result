@@ -24,6 +24,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>source-generator;result;minimal-api;aspnetcore;iresult;code-generation</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
     
     <!-- Source Link -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -42,9 +43,10 @@
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
   </PropertyGroup>
 
-  <!-- Include README in package -->
+  <!-- Include README and icon in package -->
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
     <!-- Add content files to avoid NU5017 -->
     <Content Include="MapToProblemDetailsAttribute.cs" Pack="true" PackagePath="content" />
   </ItemGroup>

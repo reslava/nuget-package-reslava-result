@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.14.0] - 2026-02-10
+
+### ✨ Added
+
+**NEW: REslava.Result.Analyzers NuGet Package**
+- New companion NuGet package providing Roslyn diagnostic analyzers for REslava.Result
+- **RESL1001 — Unsafe Result<T>.Value access**: Warns when `.Value` is accessed without checking `IsSuccess` or `IsFailed` first. Detects 5 guard patterns: `if (result.IsSuccess)`, `if (!result.IsFailed)`, else-branch of `IsFailed`, early return, and early throw
+- **RESL1002 — Discarded Result<T> return value**: Warns when a method returning `Result<T>` or `Task<Result<T>>` is called and the return value is ignored, silently swallowing errors
+- 18 analyzer tests (10 for RESL1001, 8 for RESL1002)
+- Zero-dependency analyzer — ships as `analyzers/dotnet/cs` in the NuGet package
+
+**NuGet Package Improvements**
+- Added package icon to REslava.Result.SourceGenerators and REslava.Result.Analyzers
+- Added package README to REslava.Result.Analyzers
+- Release pipeline now builds and publishes all 3 packages
+
+### 🔧 Fixed
+
+**CI/CD Pipeline**
+- Release workflow now includes REslava.Result.Analyzers in build, pack, and publish steps
+
+---
+
 ## [1.13.0] - 2026-02-10
 
 ### ✨ Added
