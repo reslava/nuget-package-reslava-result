@@ -135,7 +135,7 @@ namespace TestNamespace
         var output = RunGenerator(new OneOf4ToIResultGenerator(), source, includeOneOfRef: true);
 
         Assert.IsTrue(output.Contains("GenerateOneOf4ExtensionsAttribute"), "Should generate OneOf4 attribute");
-        Assert.IsTrue(output.Contains("MapToProblemDetailsAttribute"), "Should generate mapping attribute");
+        // MapToProblemDetailsAttribute is shared and only emitted by OneOf2 generator (tested in OneOf2_Should_Generate_Attributes)
     }
 
     [TestMethod]
