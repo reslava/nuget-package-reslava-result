@@ -42,8 +42,13 @@ namespace REslava.Result.SourceGenerators.Generators.OneOfToIResult.Orchestratio
                 spc.AddSource($"GenerateOneOf{_arity}ExtensionsAttribute.g.cs",
                     _extensionsAttributeGenerator.GenerateAttribute());
 
-                spc.AddSource($"OneOf{_arity}.MapToProblemDetailsAttribute.g.cs",
-                    _mapToProblemDetailsAttributeGenerator.GenerateAttribute());
+                // Only emit the shared MapToProblemDetailsAttribute once (from arity 2)
+                // to avoid duplicate type definitions across OneOf2/3/4 generators
+                if (_arity == 2)
+                {
+                    spc.AddSource($"MapToProblemDetailsAttribute.g.cs",
+                        _mapToProblemDetailsAttributeGenerator.GenerateAttribute());
+                }
             });
 
             // Stage 2: Extension method generation
