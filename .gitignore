@@ -81,6 +81,7 @@ Desktop.ini
 *.swo
 *~
 .windsurf/
+.claude/
 
 ###################
 
@@ -105,3 +106,4 @@ docs/internal/
 *.g.cs
 GeneratedFiles/
 **/GeneratedFiles/
+nul
