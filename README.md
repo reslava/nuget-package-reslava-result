@@ -12,7 +12,7 @@
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 ![Test Suite](https://img.shields.io/badge/tests-1928%20passing-brightgreen)
 
-**🏗️ Complete Functional Programming Framework + ASP.NET Integration + OneOf Extensions**
+**📐 Complete Functional Programming Framework + ASP.NET Integration + OneOf Extensions**
 
 </div>
 
@@ -44,10 +44,10 @@
 | [🚀 Quick Start](#-quick-start) | Installation and complete generator showcase |
 | [📚 Choose Your Path](#-choose-your-path) | Find exactly what you need |
 | [🎯 The Transformation: 70-90% Less Code](#-the-transformation-70-90-less-code) | See how boilerplate disappears |
-| [🏗️ REslava.Result Core Library](#-reslavaresult-core-library) | Functional programming foundation |
+| [📐 REslava.Result Core Library](#-reslavaresult-core-library) | Functional programming foundation |
 | [🚀 ASP.NET Integration](#-aspnet-integration) | ResultToIResult and HTTP mapping |
 | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, LINQ, functional composition |
-| [🏗️ Complete Architecture](#-complete-architecture) | How generators work internally |
+| [📐 Complete Architecture](#-complete-architecture) | How generators work internally |
 | [📦 Package Structure](#-package-structure) | What you get with each package |
 | [🎯 Quick Examples](#-quick-examples) | Real-world code samples |
 | [📈 Production Benefits](#-production-benefits) | Enterprise-ready advantages |
@@ -245,11 +245,11 @@ dotnet add package REslava.Result.Analyzers
 | 🎯 **I'm building a...** | 📖 **Start Here** | 🚀 **What You'll Learn** |
 |--------------------------|-------------------|---------------------------|
 | **Web API** | [🌐 ASP.NET Integration](#-aspnet-integration) | Auto-conversion, error mapping, OneOf extensions |
-| **Library/Service** | [🏗️ Core Library](#-reslavaresult-core-library) | Result pattern, validation, functional programming |
+| **Library/Service** | [📐 Core Library](#-reslavaresult-core-library) | Result pattern, validation, functional programming |
 | **Custom Generator** | [📖 Custom Generator Guide](docs/how-to-create-custom-generator.md) | Build your own source generators |
 | **Advanced App** | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, OneOf, validation rules |
 | **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 1,928+ tests, CI/CD, test strategies |
-| **Curious About Magic** | [🏗️ Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
+| **Curious About Magic** | [📐 Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
 
 ---
 
@@ -309,7 +309,7 @@ public async Task<Result<User>> CreateUser(CreateUserRequest request) =>
 
 ---
 
-## 🏗️ REslava.Result Core Library
+## 📐 REslava.Result Core Library
 
 ### 🧠 Functional Programming Foundation
 **Railway-Oriented Programming (ROP)**
@@ -714,7 +714,7 @@ public ref struct ValidationSpan(ReadOnlySpan<char> input)
 
 ---
 
-## 🏗️ Complete Architecture
+## 📐 Complete Architecture
 
 **REslava.Result is a comprehensive ecosystem with two main components that work together seamlessly:**
 
@@ -745,7 +745,7 @@ src/
 **Zero-Boilerplate Code Generation**
 ```
 SourceGenerator/
-├── Core/                           # 🏗️ Generator Infrastructure
+├── Core/                           # 📐 Generator Infrastructure
 │   ├── CodeGeneration/            # 📝 CodeBuilder utilities
 │   ├── Utilities/                 # 🌐 HttpStatusCodeMapper, AttributeParser
 │   ├── Configuration/             # ⚙️ Configuration base classes
@@ -976,7 +976,7 @@ return GetUser(id).ToIResult(); // 🆕 Automatic HTTP mapping!
 - **Integration Tests**: 9 endpoint tests for complete ASP.NET integration
 - **Performance Tests**: Memory and speed benchmarks
 
-### 🏗️ Source Generator Test Architecture
+### 📐 Source Generator Test Architecture
 **Complete Test Coverage for v1.12.0**
 ```
 tests/REslava.Result.SourceGenerators.Tests/
@@ -1136,11 +1136,11 @@ Build succeeded in 8.3s
 | I'm building a... | 📖 Start Here | 🎯 What You'll Learn |
 |------------------|---------------|---------------------|
 | **Web API** | [🌐 ASP.NET Integration](#-the-transformation-70-90-less-code) | Auto-conversion, OneOf extensions, error mapping |
-| **Library/Service** | [🏗️ Core Library](#-reslavaresult-core-library) | Result pattern, validation, error handling |
+| **Library/Service** | [📐 Core Library](#-reslavaresult-core-library) | Result pattern, validation, error handling |
 | **Custom Generator** | [📖 Custom Generator Guide](docs/how-to-create-custom-generator.md) | Build your own source generators |
 | **Advanced App** | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, OneOf, validation rules |
 | **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 1,928+ tests, CI/CD, test strategies |
-| **Curious About Magic** | [🏗️ Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
+| **Curious About Magic** | [📐 Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
 
 ### 📚 **Complete Reference**
 
