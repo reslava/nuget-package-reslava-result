@@ -69,10 +69,12 @@ public partial class Result<TValue> : Result, IResultResponse<TValue>
     /// </summary>
     /// <typeparam name="TOut">The type of the output value.</typeparam>
     /// <param name="binder">The async function that returns a new Result.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
     /// <returns>The result of the binder function with accumulated success reasons, or a failed result.</returns>
-    public async Task<Result<TOut>> BindAsync<TOut>(Func<TValue, Task<Result<TOut>>> binder)
+    public async Task<Result<TOut>> BindAsync<TOut>(Func<TValue, Task<Result<TOut>>> binder, CancellationToken cancellationToken = default)
     {
         binder = binder.EnsureNotNull(nameof(binder));
+        cancellationToken.ThrowIfCancellationRequested();
 
         // If already failed, convert to new type with same reasons
         if (IsFailed)

@@ -10,7 +10,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-2271%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests-2318%20passing-brightgreen)
 
 **📐 Complete Functional Programming Framework + ASP.NET Integration + OneOf Extensions**
 
@@ -204,7 +204,7 @@ app.MapGet("/users/oneof/{id}", async (int id) =>
 
 #### 🛡️ Safety Analyzers — Compile-Time Diagnostics
 
-Catch common Result<T> and OneOf mistakes **at compile time** with 4 diagnostics and 2 code fixes:
+Catch common Result<T> and OneOf mistakes **at compile time** with 5 diagnostics and 3 code fixes:
 
 ```csharp
 // RESL1001 — Unsafe .Value access without guard [Warning + Code Fix]
@@ -245,6 +245,19 @@ else
 
 // ✅ Cleaner with Match():
 var x = result.Match(v => v, e => HandleErrors(e));
+```
+
+```csharp
+// RESL1004 — Task<Result<T>> assigned without await [Warning + Code Fix]
+async Task M()
+{
+    var result = GetFromDb(id);     // ⚠️ Warning: 'GetFromDb' returns Task<Result<T>> but is not awaited
+                                    // 💡 Fix: Add 'await'
+}
+
+// ✅ Safe alternatives:
+var result = await GetFromDb(id);   // No warning — properly awaited
+Task<Result<User>> task = GetFromDb(id); // No warning — explicit Task type (intentional)
 ```
 
 ```csharp
@@ -1331,7 +1344,12 @@ public IResult GetUser(int id) =>
 
 ## 🎯 Roadmap
 
-### v1.18.0 (Current) ✅
+### v1.19.0 (Current) ✅
+- **RESL1004 — Async Result Not Awaited** — detects `Task<Result<T>>` assigned without `await` + code fix
+- **CancellationToken Support Throughout** — `CancellationToken cancellationToken = default` on all async methods (source-compatible)
+- 5 diagnostics + 3 code fixes, 2,318 total tests
+
+### v1.18.0 ✅
 - **Task-Based Async Patterns** — `Result.WhenAll()` (typed tuples), `Result.Retry()` (exponential backoff), `.Timeout()` extension
 - Concurrent execution with typed 2/3/4-arity tuple results and error aggregation
 - CancellationToken support, exception-safe task inspection, TimeoutTag metadata

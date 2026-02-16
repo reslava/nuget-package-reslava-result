@@ -46,6 +46,7 @@ public partial class Result<TValue>
     /// </summary>
     /// <param name="operation">The async operation to execute that returns TValue.</param>
     /// <param name="errorHandler">Optional custom error handler. If null, creates an ExceptionError.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
     /// <returns>A task containing a successful Result with the operation's return value, or a failed Result with the error.</returns>
     /// <example>
     /// <code>
@@ -56,9 +57,11 @@ public partial class Result<TValue>
     /// </example>
     public static async Task<Result<TValue>> TryAsync(
         Func<Task<TValue>> operation,
-        Func<Exception, IError>? errorHandler = null)
+        Func<Exception, IError>? errorHandler = null,
+        CancellationToken cancellationToken = default)
     {
         operation = operation.EnsureNotNull(nameof(operation));
+        cancellationToken.ThrowIfCancellationRequested();
 
         try
         {

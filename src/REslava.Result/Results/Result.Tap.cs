@@ -32,6 +32,7 @@ public partial class Result
     /// Useful for async logging, telemetry, or other side effects that shouldn't affect the result flow.
     /// </summary>
     /// <param name="action">The async action to execute if the result is successful.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
     /// <returns>A task containing the original result unchanged.</returns>
     /// <example>
     /// <code>
@@ -39,9 +40,10 @@ public partial class Result
     ///     .TapAsync(async () => await logger.LogAsync("Operation completed"));
     /// </code>
     /// </example>
-    public async Task<Result> TapAsync(Func<Task> action)
+    public async Task<Result> TapAsync(Func<Task> action, CancellationToken cancellationToken = default)
     {
         action = action.EnsureNotNull(nameof(action));
+        cancellationToken.ThrowIfCancellationRequested();
         if (IsSuccess)
         {
             await action();
@@ -86,6 +88,7 @@ public partial class Result<TValue>
     /// Useful for async logging the value, telemetry, or other side effects that shouldn't affect the result flow.
     /// </summary>
     /// <param name="action">The async action to execute with the value if the result is successful.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
     /// <returns>A task containing the original result unchanged.</returns>
     /// <example>
     /// <code>
@@ -93,10 +96,11 @@ public partial class Result<TValue>
     ///     .TapAsync(async u => await logger.LogAsync($"User created: {u.Name}"));
     /// </code>
     /// </example>
-    public async Task<Result<TValue>> TapAsync(Func<TValue, Task> action)
+    public async Task<Result<TValue>> TapAsync(Func<TValue, Task> action, CancellationToken cancellationToken = default)
     {
         action = action.EnsureNotNull(nameof(action));
-        
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (IsSuccess)
         {
             try

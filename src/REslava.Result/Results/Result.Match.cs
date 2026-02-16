@@ -102,17 +102,20 @@ public static class ResultMatchExtensions
     /// <param name="result">The result to match.</param>
     /// <param name="onSuccess">Async function to execute on success.</param>
     /// <param name="onFailure">Async function to execute on failure with errors.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
     /// <returns>A task containing the result of the executed function.</returns>
     public static async Task<TOut> MatchAsync<TOut>(
         this Result result,
         Func<Task<TOut>> onSuccess,
-        Func<ImmutableList<IError>, Task<TOut>> onFailure)
+        Func<ImmutableList<IError>, Task<TOut>> onFailure,
+        CancellationToken cancellationToken = default)
     {
         result = result.EnsureNotNull(nameof(result));
         onSuccess = onSuccess.EnsureNotNull(nameof(onSuccess));
         onFailure = onFailure.EnsureNotNull(nameof(onFailure));
-        return result.IsSuccess 
-            ? await onSuccess() 
+        cancellationToken.ThrowIfCancellationRequested();
+        return result.IsSuccess
+            ? await onSuccess()
             : await onFailure(result.Errors);
     }
 
@@ -124,17 +127,20 @@ public static class ResultMatchExtensions
     /// <param name="result">The result to match.</param>
     /// <param name="onSuccess">Async function to execute on success with value.</param>
     /// <param name="onFailure">Async function to execute on failure with errors.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
     /// <returns>A task containing the result of the executed function.</returns>
     public static async Task<TOut> MatchAsync<T, TOut>(
         this Result<T> result,
         Func<T, Task<TOut>> onSuccess,
-        Func<ImmutableList<IError>, Task<TOut>> onFailure)
+        Func<ImmutableList<IError>, Task<TOut>> onFailure,
+        CancellationToken cancellationToken = default)
     {
         result = result.EnsureNotNull(nameof(result));
         onSuccess = onSuccess.EnsureNotNull(nameof(onSuccess));
         onFailure = onFailure.EnsureNotNull(nameof(onFailure));
-        return result.IsSuccess 
-            ? await onSuccess(result.Value!) 
+        cancellationToken.ThrowIfCancellationRequested();
+        return result.IsSuccess
+            ? await onSuccess(result.Value!)
             : await onFailure(result.Errors);
     }
 
@@ -144,15 +150,18 @@ public static class ResultMatchExtensions
     /// <param name="result">The result to match.</param>
     /// <param name="onSuccess">Async action to execute on success.</param>
     /// <param name="onFailure">Async action to execute on failure with errors.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
     /// <returns>A task representing the async operation.</returns>
     public static async Task MatchAsync(
         this Result result,
-        Func<Task> onSuccess, 
-        Func<ImmutableList<IError>, Task> onFailure)
+        Func<Task> onSuccess,
+        Func<ImmutableList<IError>, Task> onFailure,
+        CancellationToken cancellationToken = default)
     {
         result = result.EnsureNotNull(nameof(result));
         onSuccess = onSuccess.EnsureNotNull(nameof(onSuccess));
         onFailure = onFailure.EnsureNotNull(nameof(onFailure));
+        cancellationToken.ThrowIfCancellationRequested();
         if (result.IsSuccess)
         {
             await onSuccess();
@@ -170,15 +179,18 @@ public static class ResultMatchExtensions
     /// <param name="result">The result to match.</param>
     /// <param name="onSuccess">Async action to execute on success with value.</param>
     /// <param name="onFailure">Async action to execute on failure with errors.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
     /// <returns>A task representing the async operation.</returns>
     public static async Task MatchAsync<T>(
         this Result<T> result,
-        Func<T, Task> onSuccess, 
-        Func<ImmutableList<IError>, Task> onFailure)
+        Func<T, Task> onSuccess,
+        Func<ImmutableList<IError>, Task> onFailure,
+        CancellationToken cancellationToken = default)
     {
         result = result.EnsureNotNull(nameof(result));
         onSuccess = onSuccess.EnsureNotNull(nameof(onSuccess));
         onFailure = onFailure.EnsureNotNull(nameof(onFailure));
+        cancellationToken.ThrowIfCancellationRequested();
         if (result.IsSuccess)
         {
             await onSuccess(result.Value!);

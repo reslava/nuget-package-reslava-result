@@ -121,10 +121,12 @@ public static class ResultValidationExtensions
     public static async Task<Result<T>> EnsureAsync<T>(
         this Task<Result<T>> resultTask,
         Func<T, bool> predicate,
-        Error error)
+        Error error,
+        CancellationToken cancellationToken = default)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
         error = error.EnsureNotNull(nameof(error));
+        cancellationToken.ThrowIfCancellationRequested();
 
         var result = await resultTask;
 
@@ -149,9 +151,11 @@ public static class ResultValidationExtensions
     public static async Task<Result<T>> EnsureAsync<T>(
         this Task<Result<T>> resultTask,
         Func<T, bool> predicate,
-        string errorMessage)
+        string errorMessage,
+        CancellationToken cancellationToken = default)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
+        cancellationToken.ThrowIfCancellationRequested();
 
         var result = await resultTask;
 
@@ -191,10 +195,12 @@ public static class ResultValidationExtensions
     public static async Task<Result<T>> EnsureAsync<T>(
         this Result<T> result,
         Func<T, Task<bool>> predicate,
-        Error error)
+        Error error,
+        CancellationToken cancellationToken = default)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
         error = error.EnsureNotNull(nameof(error));
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (result.IsFailed)
         {
@@ -211,9 +217,11 @@ public static class ResultValidationExtensions
     public static async Task<Result<T>> EnsureAsync<T>(
         this Result<T> result,
         Func<T, Task<bool>> predicate,
-        string errorMessage)
+        string errorMessage,
+        CancellationToken cancellationToken = default)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (result.IsFailed)
         {
@@ -242,10 +250,12 @@ public static class ResultValidationExtensions
     public static async Task<Result<T>> EnsureAsync<T>(
         this Task<Result<T>> resultTask,
         Func<T, Task<bool>> predicate,
-        Error error)
+        Error error,
+        CancellationToken cancellationToken = default)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
         error = error.EnsureNotNull(nameof(error));
+        cancellationToken.ThrowIfCancellationRequested();
 
         var result = await resultTask;
 
@@ -264,9 +274,11 @@ public static class ResultValidationExtensions
     public static async Task<Result<T>> EnsureAsync<T>(
         this Task<Result<T>> resultTask,
         Func<T, Task<bool>> predicate,
-        string errorMessage)
+        string errorMessage,
+        CancellationToken cancellationToken = default)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
+        cancellationToken.ThrowIfCancellationRequested();
 
         var result = await resultTask;
 
@@ -300,11 +312,13 @@ public static class ResultValidationExtensions
     /// </summary>
     public static Task<Result<T>> EnsureNotNullAsync<T>(
         this Task<Result<T>> resultTask,
-        string errorMessage) where T : class
+        string errorMessage,
+        CancellationToken cancellationToken = default) where T : class
     {
         return resultTask.EnsureAsync(
             v => v is not null,
-            errorMessage ?? "Value can not be null");
+            errorMessage ?? "Value can not be null",
+            cancellationToken);
     }
 
     #endregion

@@ -13,8 +13,9 @@ public static class ResultExtensions
     /// <summary>
     /// Awaits the result then executes a side effect without modifying it.
     /// </summary>
-    public static async Task<Result> TapAsync(this Task<Result> resultTask, Action action)
+    public static async Task<Result> TapAsync(this Task<Result> resultTask, Action action, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
         if (result.IsSuccess)
         {
@@ -26,8 +27,9 @@ public static class ResultExtensions
     /// <summary>
     /// Awaits the result then executes an async side effect without modifying it.
     /// </summary>
-    public static async Task TapAsync(this Task<Result> resultTask, Func<Task> action)
+    public static async Task TapAsync(this Task<Result> resultTask, Func<Task> action, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
         if (result.IsSuccess)
         {
@@ -44,8 +46,9 @@ public static class ResultExtensions
     /// <summary>
     /// Awaits the result then executes a side effect without modifying it.
     /// </summary>
-    public static async Task<Result<T>> TapAsync<T>(this Task<Result<T>> resultTask, Action<T> action)
+    public static async Task<Result<T>> TapAsync<T>(this Task<Result<T>> resultTask, Action<T> action, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
         if (result.IsSuccess)
         {
@@ -57,8 +60,9 @@ public static class ResultExtensions
     /// <summary>
     /// Awaits the result then executes an async side effect without modifying it.
     /// </summary>
-    public static async Task<Result<T>> TapAsync<T>(this Task<Result<T>> resultTask, Func<T, Task> action)
+    public static async Task<Result<T>> TapAsync<T>(this Task<Result<T>> resultTask, Func<T, Task> action, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
         if (result.IsSuccess)
         {
@@ -76,8 +80,9 @@ public static class ResultExtensions
         return result;
     }
 
-    public static async Task<Result<T>> TapOnFailureAsync<T>(this Result<T> result, Func<IError, Task> action)
+    public static async Task<Result<T>> TapOnFailureAsync<T>(this Result<T> result, Func<IError, Task> action, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         if (result.IsFailed)
         {
             await action(result.Errors[0]);
@@ -94,11 +99,12 @@ public static class ResultExtensions
             action(result.Errors[0]);
         return result;            
     }
-    public static async Task<Result> TapOnFailureAsync(this Result result, Func<IError, Task> action)
+    public static async Task<Result> TapOnFailureAsync(this Result result, Func<IError, Task> action, CancellationToken cancellationToken = default)
     {
         ValidationExtensions.EnsureNotNull(action, nameof(action));
         ValidationExtensions.EnsureNotNullOrEmpty(result.Errors, nameof(result.Errors));
-        if (result.IsFailed) 
+        cancellationToken.ThrowIfCancellationRequested();
+        if (result.IsFailed)
             await action(result.Errors[0]);
         return result;
     }
@@ -106,8 +112,10 @@ public static class ResultExtensions
     // Task<Result<T>> extensions
     public static async Task<Result<T>> TapOnFailureAsync<T>(
         this Task<Result<T>> resultTask,
-        Action<IError> action)
+        Action<IError> action,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
         if (result.IsFailed)
             action(result.Errors[0]);

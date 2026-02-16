@@ -60,10 +60,12 @@ public partial class Result<TValue>
     /// </summary>
     /// <typeparam name="TOut">The type of the output value.</typeparam>
     /// <param name="mapper">The async function to convert the value.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
     /// <returns>A task containing a new result with the transformed value or the original errors.</returns>
-    public async Task<Result<TOut>> MapAsync<TOut>(Func<TValue, Task<TOut>> mapper)
+    public async Task<Result<TOut>> MapAsync<TOut>(Func<TValue, Task<TOut>> mapper, CancellationToken cancellationToken = default)
     {
         mapper = mapper.EnsureNotNull(nameof(mapper));
+        cancellationToken.ThrowIfCancellationRequested();
 
         // If already failed, propagate all reasons to new type
         if (IsFailed)

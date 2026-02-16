@@ -33,6 +33,15 @@ namespace REslava.Result.Analyzers
             isEnabledByDefault: true,
             description: "When both .Value and .Errors are accessed in complementary if/else branches, Match() is a safer and more concise alternative.");
 
+        public static readonly DiagnosticDescriptor RESL1004_AsyncResultNotAwaited = new(
+            id: "RESL1004",
+            title: "Task<Result<T>> assigned without await",
+            messageFormat: "'{0}' returns Task<Result<T>> but is not awaited. The result will be a Task, not the actual Result.",
+            category: "REslava.Result.Safety",
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: "In async methods, calls returning Task<Result<T>> must be awaited to get the actual Result. Without await, the variable holds a Task which may be implicitly converted, leading to unexpected behavior at runtime.");
+
         public static readonly DiagnosticDescriptor RESL2001_UnsafeOneOfAccess = new(
             id: "RESL2001",
             title: "Unsafe OneOf.AsT* access without IsT* check",

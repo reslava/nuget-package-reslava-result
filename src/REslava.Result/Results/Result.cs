@@ -72,13 +72,16 @@ public partial class Result : IResultResponse
     /// </summary>
     /// <param name="onSuccess">Async action to execute on success.</param>
     /// <param name="onFailure">Async action to execute on failure with errors.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
     /// <returns>A task representing the async operation.</returns>
     public async Task MatchAsync(
-        Func<Task> onSuccess, 
-        Func<ImmutableList<IError>, Task> onFailure)
+        Func<Task> onSuccess,
+        Func<ImmutableList<IError>, Task> onFailure,
+        CancellationToken cancellationToken = default)
     {
         onSuccess = onSuccess.EnsureNotNull(nameof(onSuccess));
         onFailure = onFailure.EnsureNotNull(nameof(onFailure));
+        cancellationToken.ThrowIfCancellationRequested();
         if (IsSuccess)
         {
             await onSuccess();

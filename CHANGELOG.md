@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.19.0] - 2026-02-16
+
+### ✨ Added
+
+**RESL1004 — Async Result Not Awaited Analyzer**
+- Detects `Task<Result<T>>` assigned to `var` without `await` in async methods
+- Code fix: automatically adds `await` keyword
+- Skips: explicit `Task<...>` type declarations, non-async methods, returned tasks
+
+**CancellationToken Support Throughout**
+- Added `CancellationToken cancellationToken = default` to all async methods
+- Instance methods: `TapAsync`, `BindAsync`, `MapAsync`, `MatchAsync`
+- Factory methods: `TryAsync` (generic and non-generic)
+- Extension methods: `BindAsync`, `MapAsync`, `TapAsync`, `TapOnFailureAsync`, `WithSuccessAsync`, `EnsureAsync`, `EnsureNotNullAsync`, `SelectManyAsync`, `SelectAsync`, `WhereAsync`, `MatchAsync`
+- Source-compatible: existing code compiles without changes
+- 13 new CancellationToken tests + 8 new analyzer tests
+
+---
+
 ## [1.18.0] - 2026-02-16
 
 ### ✨ Added

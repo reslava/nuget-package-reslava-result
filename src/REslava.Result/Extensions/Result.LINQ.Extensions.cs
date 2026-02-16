@@ -63,9 +63,11 @@ public static class ResultLINQExtensions
     /// </summary>
     public static async Task<Result<T>> SelectManyAsync<S, T>(
         this Result<S> source,
-        Func<S, Task<Result<T>>> selector)
+        Func<S, Task<Result<T>>> selector,
+        CancellationToken cancellationToken = default)
     {
         selector = selector.EnsureNotNull(nameof(selector));
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (source.IsFailed)
         {
@@ -167,10 +169,12 @@ public static class ResultLINQExtensions
     public static async Task<Result<T>> SelectManyAsync<S, I, T>(
         this Result<S> source,
         Func<S, Task<Result<I>>> selector,
-        Func<S, I, Task<T>> resultSelector)
+        Func<S, I, Task<T>> resultSelector,
+        CancellationToken cancellationToken = default)
     {
         selector = selector.EnsureNotNull(nameof(selector));
         resultSelector = resultSelector.EnsureNotNull(nameof(resultSelector));
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (source.IsFailed)
         {
@@ -208,10 +212,12 @@ public static class ResultLINQExtensions
     public static async Task<Result<T>> SelectManyAsync<S, I, T>(
         this Result<S> source,
         Func<S, Result<I>> selector,
-        Func<S, I, Task<T>> resultSelector)
+        Func<S, I, Task<T>> resultSelector,
+        CancellationToken cancellationToken = default)
     {
         selector = selector.EnsureNotNull(nameof(selector));
         resultSelector = resultSelector.EnsureNotNull(nameof(resultSelector));
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (source.IsFailed)
         {
@@ -249,10 +255,12 @@ public static class ResultLINQExtensions
     public static async Task<Result<T>> SelectManyAsync<S, I, T>(
         this Result<S> source,
         Func<S, Task<Result<I>>> selector,
-        Func<S, I, T> resultSelector)
+        Func<S, I, T> resultSelector,
+        CancellationToken cancellationToken = default)
     {
         selector = selector.EnsureNotNull(nameof(selector));
         resultSelector = resultSelector.EnsureNotNull(nameof(resultSelector));
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (source.IsFailed)
         {
@@ -336,9 +344,11 @@ public static class ResultLINQExtensions
     /// </summary>
     public static async Task<Result<T>> SelectAsync<S, T>(
         this Result<S> source,
-        Func<S, Task<T>> selector)
+        Func<S, Task<T>> selector,
+        CancellationToken cancellationToken = default)
     {
         selector = selector.EnsureNotNull(nameof(selector));
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (source.IsFailed)
         {
@@ -433,9 +443,11 @@ public static class ResultLINQExtensions
     /// </summary>
     public static async Task<Result<S>> WhereAsync<S>(
         this Result<S> source,
-        Func<S, Task<bool>> predicate)
+        Func<S, Task<bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (source.IsFailed)
         {
@@ -461,10 +473,12 @@ public static class ResultLINQExtensions
     public static async Task<Result<S>> WhereAsync<S>(
         this Result<S> source,
         Func<S, Task<bool>> predicate,
-        string errorMessage)
+        string errorMessage,
+        CancellationToken cancellationToken = default)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
         errorMessage = errorMessage.EnsureNotNullOrWhiteSpace(nameof(errorMessage));
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (source.IsFailed)
         {
@@ -494,8 +508,10 @@ public static class ResultLINQExtensions
     public static async Task<Result<S>> WhereAsync<S>(
         this Task<Result<S>> resultTask,
         Func<S, bool> predicate,
-        string errorMessage)
+        string errorMessage,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
         return result.Where(predicate, errorMessage);
     }
@@ -506,10 +522,12 @@ public static class ResultLINQExtensions
     public static async Task<Result<S>> WhereAsync<S>(
         this Task<Result<S>> resultTask,
         Func<S, Task<bool>> predicate,
-        string errorMessage)
+        string errorMessage,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
-        return await result.WhereAsync(predicate, errorMessage);
+        return await result.WhereAsync(predicate, errorMessage, cancellationToken);
     }
 
     /// <summary>
@@ -517,8 +535,10 @@ public static class ResultLINQExtensions
     /// </summary>
     public static async Task<Result<T>> SelectAsync<S, T>(
         this Task<Result<S>> resultTask,
-        Func<S, T> selector)
+        Func<S, T> selector,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
         return result.Select(selector);
     }
@@ -528,10 +548,12 @@ public static class ResultLINQExtensions
     /// </summary>
     public static async Task<Result<T>> SelectAsync<S, T>(
         this Task<Result<S>> resultTask,
-        Func<S, Task<T>> selector)
+        Func<S, Task<T>> selector,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
-        return await result.SelectAsync(selector);
+        return await result.SelectAsync(selector, cancellationToken);
     }
 
     /// <summary>
@@ -539,8 +561,10 @@ public static class ResultLINQExtensions
     /// </summary>
     public static async Task<Result<T>> SelectManyAsync<S, T>(
         this Task<Result<S>> resultTask,
-        Func<S, Result<T>> selector)
+        Func<S, Result<T>> selector,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
         return result.SelectMany(selector);
     }
@@ -550,10 +574,12 @@ public static class ResultLINQExtensions
     /// </summary>
     public static async Task<Result<T>> SelectManyAsync<S, T>(
         this Task<Result<S>> resultTask,
-        Func<S, Task<Result<T>>> selector)
+        Func<S, Task<Result<T>>> selector,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
-        return await result.SelectManyAsync(selector);
+        return await result.SelectManyAsync(selector, cancellationToken);
     }
 
     /// <summary>
@@ -562,8 +588,10 @@ public static class ResultLINQExtensions
     public static async Task<Result<T>> SelectManyAsync<S, I, T>(
         this Task<Result<S>> resultTask,
         Func<S, Result<I>> selector,
-        Func<S, I, T> resultSelector)
+        Func<S, I, T> resultSelector,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
         return result.SelectMany(selector, resultSelector);
     }
@@ -574,10 +602,12 @@ public static class ResultLINQExtensions
     public static async Task<Result<T>> SelectManyAsync<S, I, T>(
         this Task<Result<S>> resultTask,
         Func<S, Task<Result<I>>> selector,
-        Func<S, I, T> resultSelector)
+        Func<S, I, T> resultSelector,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
-        return await result.SelectManyAsync(selector, resultSelector);
+        return await result.SelectManyAsync(selector, resultSelector, cancellationToken);
     }
 
     /// <summary>
@@ -586,10 +616,12 @@ public static class ResultLINQExtensions
     public static async Task<Result<T>> SelectManyAsync<S, I, T>(
         this Task<Result<S>> resultTask,
         Func<S, Result<I>> selector,
-        Func<S, I, Task<T>> resultSelector)
+        Func<S, I, Task<T>> resultSelector,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
-        return await result.SelectManyAsync(selector, resultSelector);
+        return await result.SelectManyAsync(selector, resultSelector, cancellationToken);
     }
 
     /// <summary>
@@ -598,10 +630,12 @@ public static class ResultLINQExtensions
     public static async Task<Result<T>> SelectManyAsync<S, I, T>(
         this Task<Result<S>> resultTask,
         Func<S, Task<Result<I>>> selector,
-        Func<S, I, Task<T>> resultSelector)
+        Func<S, I, Task<T>> resultSelector,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
-        return await result.SelectManyAsync(selector, resultSelector);
+        return await result.SelectManyAsync(selector, resultSelector, cancellationToken);
     }
 
     #endregion
