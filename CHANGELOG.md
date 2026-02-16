@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.17.0] - 2026-02-16
+
+### ✨ Added
+
+**JSON Serialization Support (System.Text.Json)**
+- `JsonConverter<Result<T>>` — serializes as `{ "isSuccess": true, "value": ..., "errors": [], "successes": [] }`
+- `JsonConverter<OneOf<T1,T2>>`, `OneOf<T1,T2,T3>`, `OneOf<T1,T2,T3,T4>` — serializes as `{ "index": 0, "value": ... }`
+- `JsonConverter<Maybe<T>>` — serializes as `{ "hasValue": true, "value": ... }`
+- `JsonSerializerOptions.AddREslavaResultConverters()` extension method to register all converters
+- Error/Success reasons serialized with type name, message, and tags metadata
+- Zero new dependencies — uses built-in `System.Text.Json`
+- All converters use hardcoded camelCase property names for predictable output
+- 48 new serialization tests (16 per TFM)
+
+---
+
 ## [1.16.0] - 2026-02-16
 
 ### 🔧 Changed

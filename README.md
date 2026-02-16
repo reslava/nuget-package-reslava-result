@@ -10,7 +10,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-1928%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests-2148%20passing-brightgreen)
 
 **📐 Complete Functional Programming Framework + ASP.NET Integration + OneOf Extensions**
 
@@ -30,6 +30,7 @@
 | **OpenAPI metadata auto-generation** | **✅** | — | — | — |
 | **Authorization & Policy support** | **✅** | — | — | — |
 | **Roslyn safety analyzers** | **✅** | — | — | — |
+| **JSON serialization (System.Text.Json)** | **✅** | — | — | — |
 | Validation framework | ✅ | Basic | — | ✅ |
 | Zero dependencies | ✅ | ✅ | ✅ | — |
 
@@ -468,6 +469,32 @@ var validator = Validator.Create<User>()
 var result = validator.Validate(user);
 ```
 
+#### **JSON Serialization (System.Text.Json)**
+```csharp
+using REslava.Result.Serialization;
+
+// Register converters once
+var options = new JsonSerializerOptions();
+options.AddREslavaResultConverters();
+
+// Result<T> serialization
+var result = Result<User>.Ok(new User("Alice", "alice@test.com"));
+var json = JsonSerializer.Serialize(result, options);
+// {"isSuccess":true,"value":{"name":"Alice","email":"alice@test.com"},"errors":[],"successes":[]}
+
+var deserialized = JsonSerializer.Deserialize<Result<User>>(json, options);
+
+// OneOf<T1,T2> serialization
+OneOf<Error, User> oneOf = OneOf<Error, User>.FromT2(user);
+var json2 = JsonSerializer.Serialize(oneOf, options);
+// {"index":1,"value":{"name":"Alice","email":"alice@test.com"}}
+
+// Maybe<T> serialization
+var maybe = Maybe<string>.Some("hello");
+var json3 = JsonSerializer.Serialize(maybe, options);
+// {"hasValue":true,"value":"hello"}
+```
+
 ### 🔧 CRTP Pattern & Method Chaining
 **Curiously Recurring Template Pattern**
 ```csharp
@@ -852,7 +879,7 @@ graph TB
 
 | Package | Purpose |
 |---------|---------|
-| `REslava.Result` | Core library — Result&lt;T&gt;, Maybe&lt;T&gt;, OneOf, LINQ, validation |
+| `REslava.Result` | Core library — Result&lt;T&gt;, Maybe&lt;T&gt;, OneOf, LINQ, validation, JSON serialization |
 | `REslava.Result.SourceGenerators` | ASP.NET source generators — SmartEndpoints, ToIResult, OneOf extensions |
 | `REslava.Result.Analyzers` | Roslyn safety analyzers — RESL1001, RESL1002, RESL1003, RESL2001 diagnostics + code fixes |
 
@@ -1286,10 +1313,17 @@ public IResult GetUser(int id) =>
 
 ## 🎯 Roadmap
 
-### v1.15.0 (Current) ✅
+### v1.17.0 (Current) ✅
+- **JSON Serialization Support (System.Text.Json)** — `JsonConverter` implementations for `Result<T>`, `OneOf<T1..T4>`, `Maybe<T>`
+- `AddREslavaResultConverters()` extension method for one-line registration
+- Error/Success reasons serialized with type, message, and tags metadata
+- Zero new dependencies — uses built-in `System.Text.Json`
+
+### v1.16.0 ✅
+- Tailored NuGet README for each of the 3 packages (~60-75 lines each)
+
+### v1.15.0 ✅
 - Repository cleanup: removed unused Node.js toolchain, stale samples, incomplete templates
-- Emoji standardization: `📐` for all architecture/design references across documentation
-- Documentation refresh and consolidated release notes
 
 ### v1.14.x ✅
 - **REslava.Result.Analyzers — 4 diagnostics + 2 code fixes**
@@ -1356,6 +1390,8 @@ See the full list of contributors in [CONTRIBUTORS.md](CONTRIBUTORS.md).
 
 ## 📈 Version History
 
+- **v1.17.0** - JSON Serialization Support: JsonConverter for Result<T>, OneOf, Maybe<T> with System.Text.Json
+- **v1.16.0** - Tailored NuGet READMEs for each package
 - **v1.15.0** - Repository cleanup: removed Node.js toolchain, stale samples, templates; emoji standardization (📐 for architecture)
 - **v1.14.2** - Analyzers Phase 2+3: RESL1003 (prefer Match), RESL2001 (unsafe OneOf.AsT*), code fixes for RESL1001 & RESL2001, shared GuardDetectionHelper
 - **v1.14.1** - Internal refactor: consolidated OneOf2/3/4ToIResult generators into single arity-parameterized OneOfToIResult (15 files → 7)
