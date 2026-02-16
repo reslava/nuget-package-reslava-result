@@ -18,7 +18,7 @@ All the great features from v1.9.5 with proper release process:
 - ✅ `ToDeleteResult<T>()` - DELETE requests working correctly
 - ✅ `ToPatchResult<T>()` - PATCH requests working correctly
 
-### **🏗️ SOLID Architecture**
+### **📐 SOLID Architecture**
 - **Single Responsibility Principle** - Separate classes for attributes, code generation, orchestration
 - **Open/Closed Principle** - Interface-based design for extensibility
 - **Dependency Inversion** - Constructor injection with abstractions

@@ -14,7 +14,7 @@ The Validation Rules Engine provides a powerful, fluent way to define and execut
 - [Extension Methods](#-extension-methods)
 - [Examples](#-examples)
 
-## 🏗️ Core Classes
+## 📐 Core Classes
 
 ### ValidationResult<T>
 

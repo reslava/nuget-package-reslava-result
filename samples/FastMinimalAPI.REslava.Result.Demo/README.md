@@ -174,7 +174,7 @@ Both approaches share the **same services, same database, same error types**. On
 
 ---
 
-## 🏗️ Architecture
+## 📐 Architecture
 
 ### Project Structure
 ```

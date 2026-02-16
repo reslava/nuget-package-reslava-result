@@ -51,7 +51,7 @@
 | [📦 Package Structure](#-package-structure) | What you get with each package |
 | [🎯 Quick Examples](#-quick-examples) | Real-world code samples |
 | [📈 Production Benefits](#-production-benefits) | Enterprise-ready advantages |
-| [🧪 Testing & Quality Assurance](#-testing--quality-assurance) | 1,928+ tests passing |
+| [🧪 Testing & Quality Assurance](#-testing--quality-assurance) | 2,004+ tests passing |
 | [🏢 Real-World Impact](#-real-world-impact) | Success stories and use cases |
 | [🏆 Why Choose REslava.Result?](#-why-choose-reslavaresult) | Unique advantages |
 | [📚 Deep Dive Documentation](#-deep-dive-documentation) | Comprehensive guides |
@@ -200,14 +200,16 @@ app.MapGet("/users/oneof/{id}", async (int id) =>
 });
 ```
 
-#### 🛡️ Safety Analyzers — Compile-Time Diagnostics (NEW v1.14.0!)
+#### 🛡️ Safety Analyzers — Compile-Time Diagnostics
 
-Catch common Result<T> mistakes **at compile time** before they reach production:
+Catch common Result<T> and OneOf mistakes **at compile time** with 4 diagnostics and 2 code fixes:
 
 ```csharp
-// RESL1001 — Unsafe .Value access without guard
+// RESL1001 — Unsafe .Value access without guard [Warning + Code Fix]
 var result = GetUser(id);
 var name = result.Value;        // ⚠️ Warning: Access to '.Value' without checking 'IsSuccess'
+                                // 💡 Fix A: Wrap in if (result.IsSuccess) { ... }
+                                // 💡 Fix B: Replace with result.Match(v => v, e => default)
 
 // ✅ Safe alternatives:
 if (result.IsSuccess)
@@ -216,20 +218,47 @@ if (result.IsSuccess)
 var name = result.Match(        // No warning — pattern matching
     onSuccess: u => u.Name,
     onFailure: _ => "Unknown");
-
-var name = result.GetValueOr(   // No warning — safe default
-    defaultUser).Name;
 ```
 
 ```csharp
-// RESL1002 — Discarded Result<T> return value
+// RESL1002 — Discarded Result<T> return value [Warning]
 Save();                         // ⚠️ Warning: Return value of type 'Result<T>' is discarded
 await SaveAsync();              // ⚠️ Warning: errors silently swallowed
 
 // ✅ Safe alternatives:
 var result = Save();            // No warning — assigned
 return Save();                  // No warning — returned
-Process(Save());                // No warning — passed as argument
+```
+
+```csharp
+// RESL1003 — Prefer Match() over if-check [Info suggestion]
+if (result.IsSuccess)           // ℹ️ Suggestion: Consider using Match() instead
+{
+    var x = result.Value;
+}
+else
+{
+    var e = result.Errors;
+}
+
+// ✅ Cleaner with Match():
+var x = result.Match(v => v, e => HandleErrors(e));
+```
+
+```csharp
+// RESL2001 — Unsafe OneOf.AsT* access without IsT* check [Warning + Code Fix]
+var oneOf = GetResult();        // OneOf<User, NotFound, ValidationError>
+var user = oneOf.AsT1;          // ⚠️ Warning: Access to '.AsT1' without checking '.IsT1'
+                                // 💡 Fix: Replace with oneOf.Match(t1 => t1, t2 => throw ..., t3 => throw ...)
+
+// ✅ Safe alternatives:
+if (oneOf.IsT1)
+    var user = oneOf.AsT1;      // No warning — guarded
+
+var user = oneOf.Match(         // No warning — exhaustive
+    user => user,
+    notFound => throw ...,
+    error => throw ...);
 ```
 
 ```bash
@@ -248,7 +277,7 @@ dotnet add package REslava.Result.Analyzers
 | **Library/Service** | [📐 Core Library](#-reslavaresult-core-library) | Result pattern, validation, functional programming |
 | **Custom Generator** | [📖 Custom Generator Guide](docs/how-to-create-custom-generator.md) | Build your own source generators |
 | **Advanced App** | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, OneOf, validation rules |
-| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 1,928+ tests, CI/CD, test strategies |
+| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 2,004+ tests, CI/CD, test strategies |
 | **Curious About Magic** | [📐 Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
 
 ---
@@ -825,7 +854,7 @@ graph TB
 |---------|---------|
 | `REslava.Result` | Core library — Result&lt;T&gt;, Maybe&lt;T&gt;, OneOf, LINQ, validation |
 | `REslava.Result.SourceGenerators` | ASP.NET source generators — SmartEndpoints, ToIResult, OneOf extensions |
-| `REslava.Result.Analyzers` | Roslyn safety analyzers — RESL1001, RESL1002 compile-time diagnostics |
+| `REslava.Result.Analyzers` | Roslyn safety analyzers — RESL1001, RESL1002, RESL1003, RESL2001 diagnostics + code fixes |
 
 ### 🚀 NuGet Package Contents
 ```
@@ -1054,7 +1083,7 @@ tests/REslava.Result.SourceGenerators.Tests/
 ### 🏃‍♂️ Running Tests Locally
 **Quick Test Commands**
 ```bash
-# Run all tests (1,928+ tests)
+# Run all tests (2,004+ tests)
 dotnet test --configuration Release
 
 # Run only Source Generator tests (16 tests)
@@ -1139,7 +1168,7 @@ Build succeeded in 8.3s
 | **Library/Service** | [📐 Core Library](#-reslavaresult-core-library) | Result pattern, validation, error handling |
 | **Custom Generator** | [📖 Custom Generator Guide](docs/how-to-create-custom-generator.md) | Build your own source generators |
 | **Advanced App** | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, OneOf, validation rules |
-| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 1,928+ tests, CI/CD, test strategies |
+| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 2,004+ tests, CI/CD, test strategies |
 | **Curious About Magic** | [📐 Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
 
 ### 📚 **Complete Reference**
@@ -1257,23 +1286,25 @@ public IResult GetUser(int id) =>
 
 ## 🎯 Roadmap
 
-### v1.14.0 (Current) ✅
-- **NEW: REslava.Result.Analyzers NuGet package** — Roslyn diagnostic analyzers for compile-time safety
-  - **RESL1001**: Warns on unsafe `.Value` access without `IsSuccess`/`IsFailed` guard
-  - **RESL1002**: Warns when `Result<T>` / `Task<Result<T>>` return value is discarded
-- Package icon and README added to all NuGet packages
-- Release pipeline publishes 3 packages (Core, SourceGenerators, Analyzers)
+### v1.15.0 (Current) ✅
+- Repository cleanup: removed unused Node.js toolchain, stale samples, incomplete templates
+- Emoji standardization: `📐` for all architecture/design references across documentation
+- Documentation refresh and consolidated release notes
+
+### v1.14.x ✅
+- **REslava.Result.Analyzers — 4 diagnostics + 2 code fixes**
+  - **RESL1001**: Warns on unsafe `.Value` access + **2 code fixes** (if-guard, Match)
+  - **RESL1002**: Warns when `Result<T>` return value is discarded
+  - **RESL1003**: Suggests `Match()` over if-check with `.Value`/`.Errors`
+  - **RESL2001**: Warns on unsafe `OneOf.AsT*` access + **code fix** (Match)
+- OneOf generator consolidation (15 files → 7)
+- Shared `GuardDetectionHelper` for reusable guard-detection
+- 46 analyzer tests, 2,004+ total tests
 
 ### v1.13.0 ✅
-- **SmartEndpoints: Authorization & Policy Support** — `RequiresAuth`, `Roles`, `Policies`, `[SmartAllowAnonymous]`, `.RequireAuthorization()`, `.AllowAnonymous()`, auto `.Produces(401)`
-- **LINQ query comprehension syntax for Result<T>** — `Select`, `SelectMany` (2-param + 3-param), `Where`, full async variants, 35 tests passing
-- SmartEndpoints: OpenAPI Metadata Auto-Generation — `.Produces<T>()`, `.WithSummary()`, `.WithTags()`, `MapGroup`
-
-### Future Versions
-- [ ] ValueResult<T> struct variant for hot paths
-- [ ] CancellationToken support in all async methods
-- [ ] Performance benchmarks vs FluentResults, ErrorOr
-- [ ] Additional framework integrations
+- **SmartEndpoints: Authorization & Policy Support** — `RequiresAuth`, `Roles`, `Policies`, `[SmartAllowAnonymous]`
+- **LINQ query comprehension syntax for Result<T>** — `Select`, `SelectMany`, `Where` + async variants
+- SmartEndpoints: OpenAPI Metadata Auto-Generation
 
 ---
 
@@ -1325,6 +1356,8 @@ See the full list of contributors in [CONTRIBUTORS.md](CONTRIBUTORS.md).
 
 ## 📈 Version History
 
+- **v1.15.0** - Repository cleanup: removed Node.js toolchain, stale samples, templates; emoji standardization (📐 for architecture)
+- **v1.14.2** - Analyzers Phase 2+3: RESL1003 (prefer Match), RESL2001 (unsafe OneOf.AsT*), code fixes for RESL1001 & RESL2001, shared GuardDetectionHelper
 - **v1.14.1** - Internal refactor: consolidated OneOf2/3/4ToIResult generators into single arity-parameterized OneOfToIResult (15 files → 7)
 - **v1.14.0** - NEW: REslava.Result.Analyzers package (RESL1001 unsafe .Value access, RESL1002 discarded Result), package icons for all NuGet packages
 - **v1.13.0** - SmartEndpoints Authorization & Policy Support (RequireAuthorization, AllowAnonymous, Roles, Policies, Produces(401))

@@ -4,7 +4,7 @@
 
 This guide teaches you how to create custom source generators using the REslava.Result Core Library infrastructure. The Core Library provides reusable components that make generator development dramatically simpler and more maintainable.
 
-## 🏗️ Core Library Architecture
+## 📐 Core Library Architecture
 
 ### **📦 Available Components**
 

@@ -66,7 +66,7 @@ app.MapSmartEndpoints(); // ONE LINE
 
 ---
 
-## 🏗️ **Architecture**
+## 📐 **Architecture**
 
 Follows **your exact patterns** from ResultToIResult and OneOf2ToIResult:
 

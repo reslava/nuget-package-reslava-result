@@ -4,6 +4,49 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.15.0] - 2026-02-15
+
+### 🧹 Removed
+
+**Project Cleanup — Node.js Toolchain & Legacy Files**
+- Removed Node.js release toolchain (`package.json`, `package-lock.json`, `.versionrc.json`) — superseded by `Directory.Build.props` + GitHub Actions `release.yml`
+- Removed Husky git hooks (`.husky/`) and commitlint (`commitlint.config.js`) — commit validation now handled by CI/CD pipeline
+- Removed `scripts/` directory (5 files: `clean-before-test.ps1`, `quick-clean.ps1`, `update-github-release.sh`, `update-versions.js`, `CLEAN-BEFORE-TEST.md`) — superseded by CI/CD pipeline
+- Removed `templates/` directory — incomplete, unpublished dotnet template
+- Removed `samples/NuGetValidationTest/` — stale test project with v1.9.0 package references
+
+### 🔧 Changed
+
+**Documentation Refresh**
+- Standardized emoji: replaced 🏗️ with 📐 across all 34 markdown files (fixed anchor link issues with variation selector)
+- Updated README.md Roadmap section (v1.15.0 current, refreshed milestone descriptions)
+- Removed speculative "Future Versions" section from README.md
+- Updated test counts to 2,004+ throughout documentation
+- Rewrote `samples/README.md` to reflect actual sample projects
+
+---
+
+## [1.14.2] - 2026-02-15
+
+### ✨ Added
+
+**New Analyzers & Code Fixes (Phase 2 + 3)**
+- **RESL1003 — Prefer Match() over if-check**: Info-level suggestion when both `.Value` and `.Errors` are accessed in complementary `if`/`else` branches. Detects all 4 condition variants: `IsSuccess`, `IsFailed`, `!IsSuccess`, `!IsFailed`
+- **RESL2001 — Unsafe OneOf.AsT* access**: Warning when `.AsT1`–`.AsT4` is accessed on `OneOf<T1,...>` without checking the corresponding `.IsT*` first. Supports guard detection via if-checks and early returns
+- **RESL1001 Code Fix**: Two fix options — wrap in `if (result.IsSuccess) { ... }` guard, or replace with `.Match(v => v, e => default)`
+- **RESL2001 Code Fix**: Replaces `.AsT*` with complete `.Match()` call, generating all arity lambdas with `NotImplementedException()` placeholders
+
+**Infrastructure**
+- Shared `GuardDetectionHelper` with parameterized `GuardConfig` — reusable guard detection for both Result and OneOf analyzers
+- Generic `AnalyzerTestHelper` with `CreateAnalyzerTest<T>()` and `CreateCodeFixTest<T,F>()` methods
+- `OneOfStubSource` test stubs for all 3 OneOf arities
+- 28 new analyzer tests (46 total), 2,004 total project tests
+
+### 🔧 Changed
+- Refactored `UnsafeValueAccessAnalyzer` to use shared `GuardDetectionHelper` (247 → ~80 lines)
+
+---
+
 ## [1.14.1] - 2026-02-10
 
 ### 🔧 Changed

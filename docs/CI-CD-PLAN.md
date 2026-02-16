@@ -13,7 +13,7 @@ This document outlines the comprehensive CI/CD improvement plan for REslava.Resu
 5. **Rollback capability** - Ability to undo failed releases
 6. **Monitoring** - Track release success and package health
 
-## 🏗️ Pipeline Architecture
+## 📐 Pipeline Architecture
 
 ### **Phase 1: CI Pipeline (ci.yml)**
 - **Trigger**: Push to main/develop, Pull Requests

@@ -1,4 +1,4 @@
-# 🏗️ SOLID Architecture - REslava.Result.SourceGenerators v1.9.4+
+# 📐 SOLID Architecture - REslava.Result.SourceGenerators v1.9.4+
 
 ## Overview
 
@@ -121,7 +121,7 @@ public interface IOrchestrator
 // No fat interfaces with multiple responsibilities
 ```
 
-## 🏗️ New Architecture Structure
+## 📐 New Architecture Structure
 
 ### Directory Organization
 ```

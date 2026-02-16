@@ -1,6 +1,6 @@
 # 🎉 REslava.Result v1.9.0 - Revolutionary Core Library Architecture
 
-🏗️ **Major Features:**
+📐 **Major Features:**
 - **Modular Core Library** with reusable components for generator development
 - **Configuration-Driven generators** with type-safe configuration management
 - **100% Test Coverage** with 32 tests (18 unit + 14 integration)

@@ -111,7 +111,7 @@ Configuration Parsing: 4/4 tests passed
 📝 Testing Code Generation...
 Code Generation: 4/4 tests passed
 
-🏗️ Testing Core Library Integration...
+📐 Testing Core Library Integration...
 Core Library Integration: 3/3 tests passed
 
 🎯 Integration Test Summary
@@ -231,7 +231,7 @@ Test how Core Library components work together in generator scenarios.
 - **Disabled Features** - Test feature disabling
 - **Error Handling** - Test error handling in generation
 
-##### **🏗️ Core Library Integration (3 tests)**
+##### **📐 Core Library Integration (3 tests)**
 - **CodeBuilder Integration** - Test CodeBuilder usage in generators
 - **HttpStatusCodeMapper Integration** - Test HTTP mapper usage
 - **AttributeParser Integration** - Test attribute parser usage

@@ -4,7 +4,7 @@
 
 REslava.Result.SourceGenerators is built on a **SOLID, extensible architecture** that makes it easy to create your own source generators. Whether you want to generate validation code, caching layers, logging utilities, or custom HTTP mappings, this guide will show you how.
 
-## 🏗️ Understanding the Architecture
+## 📐 Understanding the Architecture
 
 ### 📦 Core Components
 

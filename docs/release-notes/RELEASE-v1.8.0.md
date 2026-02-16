@@ -1,6 +1,6 @@
 # 🚀 REslava.Result v1.8.0 - Enhanced Source Generator Architecture
 
-🏗️ **Major Architecture Evolution - Enhanced Source Generator**
+📐 **Major Architecture Evolution - Enhanced Source Generator**
 
 ✨ **Revolutionary Features:**
 - **Metadata Discovery System** - Revolutionary compile-time error type analysis
@@ -21,7 +21,7 @@
 
 📈 **Architecture Comparison:**
 
-| 🏗️ Architecture | v1.7.3 | v1.8.0 (Enhanced) |
+| 📐 Architecture | v1.7.3 | v1.8.0 (Enhanced) |
 |-------------------|------------|----------------------|
 | Error Mapping | Simple switch statements | **Metadata discovery system** |
 | Custom Types | Not supported | **Full custom error type support** |

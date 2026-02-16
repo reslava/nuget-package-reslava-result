@@ -4,7 +4,7 @@
 
 **v1.9.4** represents a revolutionary architectural transformation of the REslava.Result.SourceGenerators library, implementing SOLID principles to eliminate duplicate generation issues and create a maintainable, extensible codebase.
 
-## 🏗️ Major Architectural Changes
+## 📐 Major Architectural Changes
 
 ### ✨ SOLID Principles Implementation
 

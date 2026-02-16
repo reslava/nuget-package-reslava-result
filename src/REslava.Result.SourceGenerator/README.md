@@ -53,7 +53,7 @@ app.MapPost("/users", async (CreateUserRequest request) =>
 
 ---
 
-## 🏗️ Generator Architecture
+## 📐 Generator Architecture
 
 ### 📦 Complete Generator Suite
 

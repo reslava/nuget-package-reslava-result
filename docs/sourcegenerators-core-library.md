@@ -1,6 +1,6 @@
 # Core Library Architecture
 
-## 🏗️ Overview
+## 📐 Overview
 
 The REslava.Result Core Library is a **revolutionary modular infrastructure** designed to simplify source generator development and provide reusable components for code generation scenarios.
 
@@ -14,7 +14,7 @@ A fluent API for generating well-formatted C# code with proper indentation and s
 - **📝 Fluent Interface** - Chainable methods for natural code generation
 - **🎯 Proper Indentation** - Automatic indentation management
 - **📋 XML Documentation** - Built-in support for XML comments
-- **🏗️ Class/Method Generation** - Helper methods for common constructs
+- **📐 Class/Method Generation** - Helper methods for common constructs
 - **🔧 Generic Support** - Full support for generic type parameters
 
 #### **Example Usage:**
@@ -168,7 +168,7 @@ public class MyGeneratorConfig : GeneratorConfigurationBase<MyGeneratorConfig>
 
 ---
 
-### **🏗️ IncrementalGeneratorBase<TConfig>**
+### **📐 IncrementalGeneratorBase<TConfig>**
 
 Base class for creating configuration-driven incremental source generators.
 

@@ -4,7 +4,7 @@
 
 We're thrilled to announce **v1.9.4** of REslava.Result.SourceGenerators, featuring a complete **SOLID architecture refactoring** that eliminates duplicate generation issues and creates a maintainable, extensible codebase.
 
-## 🏗️ SOLID Principles Implementation
+## 📐 SOLID Principles Implementation
 
 ### ✅ Single Responsibility Principle
 - **Separate classes for attributes, code generation, orchestration**

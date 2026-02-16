@@ -16,8 +16,10 @@
   <ItemGroup>
     <!-- Roslyn analyzer testing -->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="1.1.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="1.1.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.Testing.Verifiers.MSTest" Version="1.1.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.4.0" />
 
     <!-- Test framework -->
     <PackageReference Include="MSTest.TestAdapter" Version="3.8.3" />

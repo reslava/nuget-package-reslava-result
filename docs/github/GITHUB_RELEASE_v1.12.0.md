@@ -119,7 +119,7 @@ return result.ToIResult();
 
 ---
 
-## 🏗️ Architecture Improvements
+## 📐 Architecture Improvements
 
 ### **Complete Generator Ecosystem**
 ```
