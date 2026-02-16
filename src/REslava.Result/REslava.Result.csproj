@@ -32,7 +32,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>result;monad;railway;functional;error-handling;validation;either;option;maybe;fp;minimal-api;aspnetcore;iresult</PackageTags>
     <PackageReleaseNotes>https://github.com/reslava/nuget-package-reslava-result/blob/main/CHANGELOG.md</PackageReleaseNotes>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.REslava.Result.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>    
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 <NoWarn>$(NoWarn);1591;8764;CS8764</NoWarn> <!-- Optional: Suppress missing XML docs warnings and nullability override warning -->
@@ -45,7 +45,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>    
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\docs\nuget\README.REslava.Result.md" Pack="true" PackagePath="\" />
     <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 

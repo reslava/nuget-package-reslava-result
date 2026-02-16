@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.16.0] - 2026-02-16
+
+### 🔧 Changed
+
+**NuGet Package READMEs — Discoverability**
+- Created tailored NuGet README for `REslava.Result` — focused quick-start with before/after code comparison
+- Created tailored NuGet README for `REslava.Result.SourceGenerators` — SmartEndpoints showcase with before/after
+- Created tailored NuGet README for `REslava.Result.Analyzers` — diagnostic rules table with code fix examples
+- Each package now has its own focused README (~60-75 lines) instead of sharing the full GitHub README (~800+ lines)
+- NuGet READMEs stored in `docs/nuget/` directory
+
+---
+
 ## [1.15.0] - 2026-02-15
 
 ### 🧹 Removed
