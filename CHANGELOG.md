@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.18.0] - 2026-02-16
+
+### ✨ Added
+
+**Task-Based Async Patterns (WhenAll, Retry, Timeout)**
+- `Result.WhenAll()` — run 2/3/4 async Result operations concurrently, returning typed tuples with aggregated errors
+- `Result.WhenAll(IEnumerable<Task<Result<T>>>)` — collection variant returning `Result<ImmutableList<T>>`
+- `Result.Retry()` — retry async operations with configurable delay, exponential backoff, and CancellationToken support
+- `.Timeout()` extension on `Task<Result<T>>` — enforce time limits with TimeoutTag metadata on timeout errors
+- Exception-safe: faulted/cancelled tasks wrapped in `ExceptionError`, `OperationCanceledException` stops retries
+- Non-generic overloads for `Result.Retry()` and `.Timeout()`
+- 41 new async pattern tests (per TFM)
+
+---
+
 ## [1.17.0] - 2026-02-16
 
 ### ✨ Added

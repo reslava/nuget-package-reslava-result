@@ -10,7 +10,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-2148%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests-2271%20passing-brightgreen)
 
 **📐 Complete Functional Programming Framework + ASP.NET Integration + OneOf Extensions**
 
@@ -31,6 +31,7 @@
 | **Authorization & Policy support** | **✅** | — | — | — |
 | **Roslyn safety analyzers** | **✅** | — | — | — |
 | **JSON serialization (System.Text.Json)** | **✅** | — | — | — |
+| **Async patterns (WhenAll, Retry, Timeout)** | **✅** | — | — | — |
 | Validation framework | ✅ | Basic | — | ✅ |
 | Zero dependencies | ✅ | ✅ | ✅ | — |
 
@@ -399,6 +400,23 @@ var result = await Result<int>.Ok(id)
     .MapAsync(async user => await ToDtoAsync(user))
     .TapAsync(async dto => await LogAccessAsync(dto))
     .EnsureAsync(async dto => await ValidateDtoAsync(dto), "Invalid DTO");
+```
+
+#### **Async Patterns (WhenAll, Retry, Timeout)**
+```csharp
+// Run multiple async results concurrently — typed tuples!
+var result = await Result.WhenAll(GetUser(id), GetAccount(id));
+var (user, account) = result.Value;
+
+// Retry with exponential backoff
+var result = await Result.Retry(
+    () => CallExternalApi(),
+    maxRetries: 3,
+    delay: TimeSpan.FromSeconds(1),
+    backoffFactor: 2.0);
+
+// Enforce time limits
+var result = await GetSlowData().Timeout(TimeSpan.FromSeconds(5));
 ```
 
 ### 📊 LINQ Integration
@@ -879,7 +897,7 @@ graph TB
 
 | Package | Purpose |
 |---------|---------|
-| `REslava.Result` | Core library — Result&lt;T&gt;, Maybe&lt;T&gt;, OneOf, LINQ, validation, JSON serialization |
+| `REslava.Result` | Core library — Result&lt;T&gt;, Maybe&lt;T&gt;, OneOf, LINQ, validation, JSON serialization, async patterns |
 | `REslava.Result.SourceGenerators` | ASP.NET source generators — SmartEndpoints, ToIResult, OneOf extensions |
 | `REslava.Result.Analyzers` | Roslyn safety analyzers — RESL1001, RESL1002, RESL1003, RESL2001 diagnostics + code fixes |
 
@@ -1313,7 +1331,12 @@ public IResult GetUser(int id) =>
 
 ## 🎯 Roadmap
 
-### v1.17.0 (Current) ✅
+### v1.18.0 (Current) ✅
+- **Task-Based Async Patterns** — `Result.WhenAll()` (typed tuples), `Result.Retry()` (exponential backoff), `.Timeout()` extension
+- Concurrent execution with typed 2/3/4-arity tuple results and error aggregation
+- CancellationToken support, exception-safe task inspection, TimeoutTag metadata
+
+### v1.17.0 ✅
 - **JSON Serialization Support (System.Text.Json)** — `JsonConverter` implementations for `Result<T>`, `OneOf<T1..T4>`, `Maybe<T>`
 - `AddREslavaResultConverters()` extension method for one-line registration
 - Error/Success reasons serialized with type, message, and tags metadata
