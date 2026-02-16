@@ -1,4 +1,4 @@
-# CONTRIBUTORS
+# CONTRIBUTING
 
 This project is maintained by:
 
