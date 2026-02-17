@@ -39,6 +39,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="ResultToIResult\ResultToIResultGeneratorTests.cs" />
+    <Compile Include="ResultToActionResult\ResultToActionResultGeneratorTests.cs" />
     <Compile Include="OneOfToIResult\OneOfToIResultGeneratorTests.cs" />
     <Compile Include="SmartEndpoints\SmartEndpoints_DebugTest.cs" />
     <Compile Include="SmartEndpoints\SmartEndpoints_OneOf4_SimpleTest.cs" />    

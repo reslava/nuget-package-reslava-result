@@ -104,6 +104,12 @@
     <Compile Include="Generators\ResultToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
     <Compile Include="Generators\ResultToIResult\CodeGeneration\ResultToIResultExtensionGenerator.cs" />
 
+    <!-- ResultToActionResult Generator - MVC IActionResult Support -->
+    <Compile Include="Generators\ResultToActionResult\ResultToActionResultGenerator.cs" />
+    <Compile Include="Generators\ResultToActionResult\Orchestration\ResultToActionResultOrchestrator.cs" />
+    <Compile Include="Generators\ResultToActionResult\Attributes\GenerateActionResultExtensionsAttributeGenerator.cs" />
+    <Compile Include="Generators\ResultToActionResult\CodeGeneration\ResultToActionResultExtensionGenerator.cs" />
+
     <!-- OneOfToIResult Generators - Consolidated (OneOf2, OneOf3, OneOf4) -->
     <Compile Include="Generators\OneOfToIResult\OneOf2ToIResultGenerator.cs" />
     <Compile Include="Generators\OneOfToIResult\OneOf3ToIResultGenerator.cs" />

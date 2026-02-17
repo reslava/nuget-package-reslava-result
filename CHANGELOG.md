@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.21.0] - 2026-02-17
+
+### ✨ Added
+- **ResultToActionResult source generator** — `ToActionResult()` extension methods for ASP.NET MVC controllers
+  - Convention-based: reads `HttpStatusCode` tag from domain errors, auto-maps to `IActionResult` types
+  - Explicit overload: `ToActionResult(onSuccess, onFailure)` escape hatch for full control
+  - HTTP verb variants: `ToPostActionResult()` (201), `ToPutActionResult()` (200), `ToPatchActionResult()` (200), `ToDeleteActionResult()` (204)
+  - Private `MapErrorToActionResult` helper: 401→`UnauthorizedResult`, 403→`ForbidResult`, 404→`NotFoundObjectResult`, 409→`ConflictObjectResult`, default→`ObjectResult`
+  - Generated into `namespace Generated.ActionResultExtensions`
+  - Zero runtime dependency — MVC types emitted as string literals by the generator
+- **FastMvcAPI demo app** (`samples/FastMvcAPI.REslava.Result.Demo`)
+  - MVC equivalent of existing Minimal API demo — same domain (Users, Products, Orders)
+  - Showcases `ToActionResult()` one-liners and `OneOf.Match()` with MVC result types
+  - Runs on port 5001 (side-by-side with Minimal API demo on 5000)
+  - Scalar UI at `/scalar/v1`
+- **9 new source generator tests** for ResultToActionResult generator
+
+### Stats
+- 2,813 tests passing across net8.0, net9.0, net10.0 + generator + analyzer tests
+
 ## [1.20.0] - 2026-02-17
 
 ### ✨ Added
