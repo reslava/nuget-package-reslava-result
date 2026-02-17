@@ -85,10 +85,7 @@
     <Compile Include="Core\Interfaces\IAttributeGenerator.cs" />
     <Compile Include="Core\Interfaces\ICodeGenerator.cs" />
     <Compile Include="Core\Interfaces\IGeneratorOrchestrator.cs" />
-    
-    <!-- Core Utilities -->
-    <Compile Include="Core\Utilities\HttpStatusCodeMapper.cs" />
-    
+
     <!-- SmartEndpoints Generator - Automatic Minimal API Generation -->
     <Compile Include="Generators\SmartEndpoints\SmartEndpointsGenerator.cs" />
     <!--Compile Include="Generators\SmartEndpoints\SimpleTestGenerator.cs" /-->

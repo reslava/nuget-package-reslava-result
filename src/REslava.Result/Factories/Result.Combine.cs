@@ -33,12 +33,10 @@ public partial class Result
             return Result.Ok();
         }
 
-        // ✅ Collect all reasons immutably
         var allReasons = resultsList
             .SelectMany(r => r.Reasons)
             .ToImmutableList();
 
-        // ✅ Create new result with combined reasons (immutable)
         return new Result(allReasons);
     }
 
@@ -82,12 +80,10 @@ public partial class Result
         
         if (failures.Count > 0)
         {
-            // ✅ Return failed result with all errors (immutable)
             var allErrors = failures.SelectMany(f => f.Errors);
             return Result.Fail(allErrors);
         }
 
-        // ✅ All succeeded - collect and preserve all success reasons (immutable)
         var allSuccesses = resultsList
             .SelectMany(r => r.Successes)
             .ToImmutableList<IReason>();
@@ -169,12 +165,10 @@ public partial class Result<TValue> : IResultResponse<TValue>
         
         if (failures.Count > 0)
         {
-            // ✅ Return failed result with all errors (immutable)
             var allErrors = failures.SelectMany(f => f.Errors);
             return Result<IEnumerable<TValue>>.Fail(allErrors);
         }
 
-        // ✅ All succeeded - collect values and successes (immutable)
         var values = resultsList.Select(r => r.Value!); // Value is not null when IsSuccess is true
         
         var allSuccesses = resultsList

@@ -4,6 +4,79 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.20.0] - 2026-02-17
+
+### ✨ Added
+
+**Structured Error Hierarchy (Domain Errors)**
+- `NotFoundError` — HTTP 404, with `(entityName, id)` constructor and `EntityName`/`EntityId` tags
+- `ValidationError` — HTTP 422, with `FieldName` property, `(fieldName, message)` constructor
+- `ConflictError` — HTTP 409, with `(entityName, conflictField, conflictValue)` constructor
+- `UnauthorizedError` — HTTP 401, with default "Authentication required" message
+- `ForbiddenError` — HTTP 403, with `(action, resource)` constructor
+- All domain errors use CRTP pattern (`Reason<TSelf>, IError`), carry `HttpStatusCode` and `ErrorType` tags, and support fluent `WithTag`/`WithMessage` chaining
+- 27 new domain error tests
+
+**Test Coverage Hardening (123 new tests)**
+- `ResultConditionalTests` — 39 tests covering all `OkIf`/`FailIf` overloads (non-generic, generic, lazy, async)
+- `ResultTryTests` — 15 tests covering `Try`/`TryAsync` (success, exception, custom handler, null guards, cancellation)
+- `ResultCombineTests` — 18 tests covering `Merge`/`Combine`/`CombineParallelAsync`
+- `ResultTapExtensionsTests` — 30 tests covering `TapOnFailure`/`TapBoth`/`TapAsync` variants
+- `ResultLINQTaskExtensionsTests` — 21 tests covering `Task<Result<S>>` LINQ extensions
+
+### 🔧 Changed
+
+**ResultToIResult Generator — Domain Error-Aware HTTP Mapping**
+- `ToIResult`, `ToPostResult`, `ToPutResult`, `ToPatchResult`, `ToDeleteResult` now read the `HttpStatusCode` tag from domain errors instead of always returning 400
+- Supports both `HttpStatusCode` (library convention) and `StatusCode` (legacy convention) tags
+- Maps: 404→`NotFound`, 401→`Unauthorized`, 403→`Forbid`, 409→`Conflict`, others→`Problem(statusCode)`
+- Extracted shared `MapErrorToIResult` helper (eliminated 5x duplicated error blocks)
+
+**ValidationResult.Failure — Uses ValidationError**
+- `ValidationResult<T>.Failure(string)` now creates `ValidationError` instead of generic `Error`
+- Failures automatically carry `HttpStatusCode=422` and `ErrorType=Validation` tags
+
+**Performance: Cached Computed Properties**
+- `Result.Errors` and `Result.Successes` are now lazy-cached on first access
+- `Result.IsFailed` uses `Errors.Count > 0` instead of re-enumerating `Reasons.OfType<IError>().Any()`
+- Safe because `Result` is immutable (`Reasons` has `private init`)
+
+**SmartEndpoints: Convention-Based Route Prefix**
+- Default route prefix derived from class name (e.g., `UserService` → `/api/users`) instead of hard-coded `/api/test`
+- Strips common suffixes: Service, Controller, Endpoints, Endpoint
+
+**Result.ToString() Override**
+- Base `Result` class now overrides `ToString()`: `Result: IsSuccess='True', Reasons=[...]`
+
+**ExceptionError Namespace Fix**
+- `ExceptionError` moved from global namespace to `REslava.Result` namespace (was polluting consumers' global scope)
+
+**Result\<T\> Constructor Encapsulation**
+- Two `public` constructors changed to `internal` — prevents construction of invalid states bypassing factory methods
+- Added `InternalsVisibleTo("REslava.Result.Tests")`
+
+### 🧹 Removed
+
+**Source Generator Dead Code Cleanup**
+- Deleted duplicate `HttpStatusCodeMapper` (2 files — static and instance versions)
+- Deleted orphan `SmartEndpointExtensionGenerator.cs` (stale intermediate version)
+- Deleted `Test1.cs` (empty placeholder) and `ConsoleTest.cs.disabled` (abandoned)
+- Removed duplicate `ExtractStringArrayFromAttributeData` method in `SmartEndpointsOrchestrator`
+- Removed marker comments from `Result.Combine.cs`, `Result.Conversions.cs`, `Result.Generic.cs`
+
+**Demo App: Migrated to Library Domain Errors**
+- Deleted 3 custom error files (`NotFoundErrors.cs`, `ValidationErrors.cs`, `BusinessErrors.cs`) — 12 custom error classes replaced by 5 library domain errors
+- Simplified OneOf signatures (e.g., `OneOf<ValidationError, InvalidPriceError, ProductResponse>` → `OneOf<ValidationError, ProductResponse>`)
+- Demo app now references local project instead of NuGet package (for latest domain errors)
+
+### 📊 Stats
+
+- **2,798 tests passing** (896 x 3 TFMs + 56 source generator + 54 analyzer)
+- 150 new tests in this release
+- 7 files deleted, 5 domain error types added
+
+---
+
 ## [1.19.0] - 2026-02-16
 
 ### ✨ Added

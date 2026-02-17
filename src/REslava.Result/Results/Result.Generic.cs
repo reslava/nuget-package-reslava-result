@@ -71,10 +71,10 @@ public partial class Result<TValue> : Result, IResultResponse<TValue>
     /// var result = new Result&lt;User&gt;(user, reasons);
     /// </code>
     /// </example>
-    public Result(TValue? value, ImmutableList<IReason> reasons) : base(reasons)
+    internal Result(TValue? value, ImmutableList<IReason> reasons) : base(reasons)
     {
         _value = value;
-    }   
+    }
 
     /// <summary>
     /// Initializes a new instance of the Result&lt;TValue&gt; class with a value and a single reason.
@@ -86,7 +86,7 @@ public partial class Result<TValue> : Result, IResultResponse<TValue>
     /// var result = new Result&lt;User&gt;(user, new Success("User found"));
     /// </code>
     /// </example>
-    public Result(TValue? value, IReason reason) : base(reason)
+    internal Result(TValue? value, IReason reason) : base(reason)
     {
         _value = value;        
     }
@@ -274,7 +274,6 @@ public partial class Result<TValue> : Result, IResultResponse<TValue>
         var successList = successes.ToList();
         if (successList.Count == 0)
             throw new ArgumentException("The successes list cannot be empty", nameof(successes));
-        // ✅ Use _value (private field) instead of ValueOrDefault
         return new Result<TValue>(_value, Reasons.AddRange(successList)); 
     }
 
@@ -295,7 +294,6 @@ public partial class Result<TValue> : Result, IResultResponse<TValue>
     public new Result<TValue> WithError(string message) 
     { 
         ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
-        // ✅ Use _value (private field) instead of ValueOrDefault
         return new Result<TValue>(_value, Reasons.Add(new Error(message))); 
     }
 
@@ -357,7 +355,7 @@ public partial class Result<TValue> : Result, IResultResponse<TValue>
     /// <code>
     /// var result = Result&lt;string&gt;.Ok("Hello World");
     /// Console.WriteLine(result.ToString());
-    /// // Output: Result: IsSuccess='True', Reasons=, Value = Hello World
+    /// // Output: Result: IsSuccess='True', Reasons=[], Value = Hello World
     /// </code>
     /// </example>
     public override string ToString()

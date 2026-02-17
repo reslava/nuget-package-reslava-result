@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- REslava.Result Library -->
+    <!-- REslava.Result Library (local project reference for latest domain errors) -->
     <PackageReference Include="Microsoft.OpenApi" Version="2.0.0" />
-    <PackageReference Include="REslava.Result" Version="1.12.0" />
+    <ProjectReference Include="..\..\src\REslava.Result\REslava.Result.csproj" />
 
     <!-- OpenAPI & Scalar -->
     <PackageReference Include="Scalar.AspNetCore" Version="2.12.36" />

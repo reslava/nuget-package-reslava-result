@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
-using REslava.Result;
+
+namespace REslava.Result;
 
 // ============================================================================
 // ExceptionError (Immutable)

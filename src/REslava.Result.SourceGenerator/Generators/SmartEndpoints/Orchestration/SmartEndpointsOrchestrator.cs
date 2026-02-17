@@ -93,7 +93,16 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
             var attr = classSymbol.GetAttributes()
                 .FirstOrDefault(a => a.AttributeClass?.Name == "AutoGenerateEndpointsAttribute");
 
-            var routePrefix = "/api/test";
+            // Derive default route from class name (e.g., "UserService" → "/api/users")
+            var className = classSymbol.Name;
+            var defaultRoute = "/api/" + className
+                .Replace("Service", "")
+                .Replace("Controller", "")
+                .Replace("Endpoints", "")
+                .Replace("Endpoint", "")
+                .ToLowerInvariant() + "s";
+
+            var routePrefix = defaultRoute;
             if (attr != null)
             {
                 var routeArg = attr.NamedArguments.FirstOrDefault(kv => kv.Key == "RoutePrefix");
@@ -256,11 +265,11 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
                 if (authArg.Key == "RequiresAuth" && authArg.Value.Value is bool authVal)
                     endpoint.RequiresAuth = authVal;
 
-                var methodPolicies = ExtractStringArrayFromAttributeData(mapAttr, "Policies");
+                var methodPolicies = ExtractStringArrayFromAttribute(mapAttr, "Policies");
                 if (methodPolicies.Any())
                     endpoint.Policies = methodPolicies;
 
-                var methodRoles = ExtractStringArrayFromAttributeData(mapAttr, "Roles");
+                var methodRoles = ExtractStringArrayFromAttribute(mapAttr, "Roles");
                 if (methodRoles.Any())
                     endpoint.Roles = methodRoles;
 
@@ -433,11 +442,6 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
                 }
             }
             return result;
-        }
-
-        private List<string> ExtractStringArrayFromAttributeData(AttributeData attr, string propertyName)
-        {
-            return ExtractStringArrayFromAttribute(attr, propertyName);
         }
 
         private List<string> ExtractTagsFromAttribute(AttributeData attr)

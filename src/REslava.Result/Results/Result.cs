@@ -7,11 +7,15 @@ namespace REslava.Result;
 /// </summary>
 public partial class Result : IResultResponse
 {
+    // Lazy-cached filtered collections — safe because Result is immutable
+    private ImmutableList<IError>? _errors;
+    private ImmutableList<ISuccess>? _successes;
+
     public bool IsSuccess => !IsFailed;
-    public bool IsFailed => Reasons.OfType<IError>().Any();
+    public bool IsFailed => Errors.Count > 0;
     public ImmutableList<IReason> Reasons { get; private init; }
-    public ImmutableList<IError> Errors => Reasons.OfType<IError>().ToImmutableList(); 
-    public ImmutableList<ISuccess> Successes => Reasons.OfType<ISuccess>().ToImmutableList();
+    public ImmutableList<IError> Errors => _errors ??= Reasons.OfType<IError>().ToImmutableList();
+    public ImmutableList<ISuccess> Successes => _successes ??= Reasons.OfType<ISuccess>().ToImmutableList();
 
     // Protected constructors - only factory methods create Results
     /// <summary>
@@ -42,6 +46,15 @@ public partial class Result : IResultResponse
     {
         reason = reason.EnsureNotNull(nameof(reason));
         Reasons = ImmutableList.Create(reason);
+    }
+
+    /// <summary>
+    /// Returns a string representation of the Result.
+    /// </summary>
+    public override string ToString()
+    {
+        var reasons = string.Join(", ", Reasons.Select(r => r.Message));
+        return $"Result: IsSuccess='{IsSuccess}', Reasons=[{reasons}]";
     }
 
     /// <summary>

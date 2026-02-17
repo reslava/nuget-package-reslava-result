@@ -1,5 +1,4 @@
 using FastMinimalAPI.REslava.Result.Demo.Data;
-using FastMinimalAPI.REslava.Result.Demo.Errors;
 using FastMinimalAPI.REslava.Result.Demo.Models;
 using Microsoft.EntityFrameworkCore;
 using REslava.Result;
@@ -8,8 +7,10 @@ using REslava.Result.AdvancedPatterns;
 namespace FastMinimalAPI.REslava.Result.Demo.Services;
 
 /// <summary>
-/// OrderService demonstrating complex business logic with multiple validation steps
-/// Showcases OneOf4 patterns for handling multiple error types in order workflows
+/// OrderService demonstrating complex business logic with multiple validation steps.
+/// Uses library domain errors (NotFoundError, ConflictError, ValidationError, ForbiddenError)
+/// instead of custom error classes.
+/// Showcases OneOf4 patterns for handling multiple error types in order workflows.
 /// </summary>
 public class OrderService
 {
@@ -55,7 +56,7 @@ public class OrderService
     /// Get order by ID
     /// Demonstrates OneOf&lt;TError, TSuccess&gt; for simple not-found scenarios
     /// </summary>
-    public async Task<OneOf<OrderNotFoundError, OrderResponse>> GetOrderByIdAsync(int id)
+    public async Task<OneOf<NotFoundError, OrderResponse>> GetOrderByIdAsync(int id)
     {
         var order = await _context.Orders
             .Include(o => o.User)
@@ -65,7 +66,7 @@ public class OrderService
 
         if (order == null)
         {
-            return new OrderNotFoundError(id);
+            return new NotFoundError("Order", id);
         }
 
         var response = new OrderResponse(
@@ -91,12 +92,12 @@ public class OrderService
     /// Get all orders for a specific user
     /// Demonstrates OneOf&lt;TError, TSuccess&gt; with list results
     /// </summary>
-    public async Task<OneOf<UserNotFoundError, List<OrderResponse>>> GetOrdersByUserIdAsync(int userId)
+    public async Task<OneOf<NotFoundError, List<OrderResponse>>> GetOrdersByUserIdAsync(int userId)
     {
         var user = await _context.Users.FindAsync(userId);
         if (user == null)
         {
-            return new UserNotFoundError(userId);
+            return new NotFoundError("User", userId);
         }
 
         var orders = await _context.Orders
@@ -127,37 +128,32 @@ public class OrderService
 
     /// <summary>
     /// Create a new order with complex validation
-    /// ⭐ SHOWCASE: OneOf4 demonstrating multiple error types in complex business logic
-    /// Error Scenarios:
-    /// 1. UserNotFoundError (404) - User doesn't exist
-    /// 2. InsufficientStockError (409) - Not enough inventory
-    /// 3. ValidationError (400) - Invalid input (e.g., empty order, inactive user)
+    /// OneOf4 demonstrating multiple error types in complex business logic:
+    /// 1. NotFoundError (404) - User doesn't exist
+    /// 2. ConflictError (409) - Not enough inventory
+    /// 3. ValidationError (422) - Invalid input (e.g., empty order, inactive user)
     /// Success: OrderResponse with created order details
     /// </summary>
-    public async Task<OneOf<UserNotFoundError, InsufficientStockError, ValidationError, OrderResponse>>
+    public async Task<OneOf<NotFoundError, ConflictError, ValidationError, OrderResponse>>
         CreateOrderAsync(CreateOrderRequest request)
     {
         // Validation 1: Check if order has items
         if (request.Items == null || !request.Items.Any())
         {
-            var error = new ValidationError("Items", "Order must contain at least one item");
-            error.WithTag("Reason", "EmptyOrder");
-            return error;
+            return new ValidationError("Items", "Order must contain at least one item");
         }
 
         // Validation 2: Check if user exists
         var user = await _context.Users.FindAsync(request.UserId);
         if (user == null)
         {
-            return new UserNotFoundError(request.UserId);
+            return new NotFoundError("User", request.UserId);
         }
 
         // Validation 3: Check if user is active
         if (!user.IsActive)
         {
-            var error = new ValidationError("User", $"User account is inactive: {user.Email}", user.Email);
-            error.WithTag("UserId", user.Id).WithTag("Reason", "InactiveAccount");
-            return error;
+            return new ValidationError("User", $"User account is inactive: {user.Email}");
         }
 
         // Validation 4: Check stock availability for all products
@@ -170,12 +166,7 @@ public class OrderService
         if (products.Count != productIds.Distinct().Count())
         {
             var missingIds = productIds.Except(products.Select(p => p.Id));
-            return new InsufficientStockError(
-                missingIds.First(), 
-                "Product not found", 
-                0, 
-                0
-            );
+            return new NotFoundError("Product", missingIds.First());
         }
 
         // Check stock levels and calculate total
@@ -189,25 +180,16 @@ public class OrderService
             // Check if product is available
             if (!product.IsAvailable)
             {
-                var stockError = new InsufficientStockError(
-                    product.Id,
-                    product.Name,
-                    0,
-                    item.Quantity
-                );
-                stockError.WithTag("Reason", "Product is currently unavailable");
-                return stockError;
+                return new ConflictError(
+                    $"Product '{product.Name}' is currently unavailable");
             }
 
             // Check stock level
             if (product.StockQuantity < item.Quantity)
             {
-                return new InsufficientStockError(
-                    product.Id,
-                    product.Name,
-                    product.StockQuantity,
-                    item.Quantity
-                );
+                return new ConflictError(
+                    $"Insufficient stock for product '{product.Name}'. " +
+                    $"Requested: {item.Quantity}, Available: {product.StockQuantity}");
             }
 
             // Reduce stock
@@ -272,7 +254,7 @@ public class OrderService
     /// Update order status
     /// Demonstrates OneOf3 for status update validation
     /// </summary>
-    public async Task<OneOf<OrderNotFoundError, ValidationError, OrderResponse>> 
+    public async Task<OneOf<NotFoundError, ValidationError, OrderResponse>>
         UpdateOrderStatusAsync(int id, string status)
     {
         var order = await _context.Orders
@@ -283,13 +265,14 @@ public class OrderService
 
         if (order == null)
         {
-            return new OrderNotFoundError(id);
+            return new NotFoundError("Order", id);
         }
 
         // Validate status
         if (!Enum.TryParse<OrderStatus>(status, true, out var newStatus))
         {
-            return new ValidationError("Status", $"Invalid order status. Valid values are: {string.Join(", ", Enum.GetNames<OrderStatus>())}", status);
+            return new ValidationError("Status",
+                $"Invalid order status. Valid values are: {string.Join(", ", Enum.GetNames<OrderStatus>())}");
         }
 
         order.Status = newStatus;
@@ -318,7 +301,7 @@ public class OrderService
     /// Cancel an order and restore product stock
     /// Demonstrates OneOf3 with business rule validation
     /// </summary>
-    public async Task<OneOf<OrderNotFoundError, ValidationError, OrderResponse>> CancelOrderAsync(int id)
+    public async Task<OneOf<NotFoundError, ValidationError, OrderResponse>> CancelOrderAsync(int id)
     {
         var order = await _context.Orders
             .Include(o => o.User)
@@ -328,15 +311,14 @@ public class OrderService
 
         if (order == null)
         {
-            return new OrderNotFoundError(id);
+            return new NotFoundError("Order", id);
         }
 
         // Business rule: Can only cancel pending or processing orders
         if (order.Status == OrderStatus.Completed || order.Status == OrderStatus.Cancelled)
         {
-            var error = new ValidationError("OrderStatus", "Cannot cancel order with this status", order.Status.ToString());
-            error.WithTag("OrderId", id).WithTag("CurrentStatus", order.Status.ToString()).WithTag("Reason", "Order already completed or cancelled");
-            return error;
+            return new ValidationError("OrderStatus",
+                $"Cannot cancel order in '{order.Status}' status");
         }
 
         // Restore product stock

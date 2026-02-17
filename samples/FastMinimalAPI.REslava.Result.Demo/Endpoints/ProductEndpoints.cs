@@ -1,12 +1,15 @@
 using FastMinimalAPI.REslava.Result.Demo.Models;
 using FastMinimalAPI.REslava.Result.Demo.Services;
 using Microsoft.AspNetCore.Mvc;
+using REslava.Result;
 
 namespace FastMinimalAPI.REslava.Result.Demo.Endpoints;
 
 /// <summary>
-/// Product endpoints demonstrating inventory management with REslava.Result
-/// Showcases OneOf3 and OneOf4 patterns for complex business validation
+/// Product endpoints demonstrating inventory management with REslava.Result.
+/// Uses library domain errors — no custom error classes needed.
+/// Showcases how ValidationError.FieldName distinguishes different validation failures
+/// without needing separate error types (InvalidPriceError, InvalidStockError, etc.)
 /// </summary>
 public static class ProductEndpoints
 {
@@ -29,15 +32,15 @@ public static class ProductEndpoints
         .Produces<List<ProductResponse>>(200);
 
         // GET /api/products/{id} - Get product by ID
-        // Returns: OneOf<ProductNotFoundError, ProductResponse>
+        // Returns: OneOf<NotFoundError, ProductResponse>
         // HTTP: 404 Not Found | 200 OK
         group.MapGet("/{id:int}", async (int id, ProductService service) =>
         {
             var result = await service.GetProductByIdAsync(id);
-            
+
             return result.Match(
-                case1: error => Results.NotFound(new 
-                { 
+                case1: error => Results.NotFound(new
+                {
                     error = error.Message,
                     productId = id,
                     statusCode = 404
@@ -64,48 +67,41 @@ public static class ProductEndpoints
         .Produces<List<ProductResponse>>(200);
 
         // POST /api/products - Create new product
-        // Returns: OneOf<ValidationError, InvalidPriceError, ProductResponse> (OneOf3)
-        // HTTP: 400 Bad Request | 400 Bad Request (price) | 201 Created
+        // Returns: OneOf<ValidationError, ProductResponse> (simplified from OneOf3!)
+        // HTTP: 422 Unprocessable | 201 Created
         group.MapPost("/", async ([FromBody] CreateProductRequest request, ProductService service) =>
         {
             var result = await service.CreateProductAsync(request);
-            
+
             return result.Match(
-                case1: validationError => Results.BadRequest(new
+                case1: validationError => Results.UnprocessableEntity(new
                 {
                     error = validationError.Message,
-                    field = validationError.Tags.ContainsKey("Field") ? validationError.Tags["Field"] : null,
-                    statusCode = 400
+                    field = validationError.FieldName,
+                    statusCode = 422
                 }),
-                case2: priceError => Results.BadRequest(new
-                {
-                    error = priceError.Message,
-                    field = "Price",
-                    providedValue = priceError.Tags.ContainsKey("ProvidedValue") ? priceError.Tags["ProvidedValue"] : null,
-                    statusCode = 400
-                }),
-                case3: product => Results.Created($"/api/products/{product.Id}", product)
+                case2: product => Results.Created($"/api/products/{product.Id}", product)
             );
         })
         .WithName("CreateProduct")
         .WithSummary("Create a new product")
-        .WithDescription("Creates a new product with inventory tracking. Demonstrates OneOf3 pattern.")
+        .WithDescription("Creates a new product with inventory tracking. ValidationError.FieldName distinguishes price vs stock vs required field failures.")
         .Produces<ProductResponse>(201)
-        .Produces(400);
+        .Produces(422);
 
         // PUT /api/products/{id} - Update product
-        // Returns: OneOf<ValidationError, ProductNotFoundError, InvalidPriceError, ProductResponse> (OneOf4!)
-        // HTTP: 400 Bad Request | 404 Not Found | 400 Bad Request (price) | 200 OK
+        // Returns: OneOf<ValidationError, NotFoundError, ProductResponse> (simplified from OneOf4!)
+        // HTTP: 422 Unprocessable | 404 Not Found | 200 OK
         group.MapPut("/{id:int}", async (int id, [FromBody] UpdateProductRequest request, ProductService service) =>
         {
             var result = await service.UpdateProductAsync(id, request);
-            
+
             return result.Match(
-                case1: validationError => Results.BadRequest(new
+                case1: validationError => Results.UnprocessableEntity(new
                 {
                     error = validationError.Message,
-                    field = validationError.Tags.ContainsKey("Field") ? validationError.Tags["Field"] : null,
-                    statusCode = 400
+                    field = validationError.FieldName,
+                    statusCode = 422
                 }),
                 case2: notFoundError => Results.NotFound(new
                 {
@@ -113,22 +109,15 @@ public static class ProductEndpoints
                     productId = id,
                     statusCode = 404
                 }),
-                case3: priceError => Results.BadRequest(new
-                {
-                    error = priceError.Message,
-                    field = "Price",
-                    providedValue = priceError.Tags.ContainsKey("ProvidedValue") ? priceError.Tags["ProvidedValue"] : null,
-                    statusCode = 400
-                }),
-                case4: product => Results.Ok(product)
+                case3: product => Results.Ok(product)
             );
         })
         .WithName("UpdateProduct")
         .WithSummary("Update an existing product")
-        .WithDescription("Updates product information including price and stock. Demonstrates OneOf4 pattern with 4 possible outcomes.")
+        .WithDescription("Updates product information including price and stock. Simplified from OneOf4 to OneOf3 by using ValidationError for all validation failures.")
         .Produces<ProductResponse>(200)
-        .Produces(400)
-        .Produces(404);
+        .Produces(404)
+        .Produces(422);
 
         // DELETE /api/products/{id} - Delete product
         // Returns: Result<bool>
@@ -136,18 +125,18 @@ public static class ProductEndpoints
         group.MapDelete("/{id:int}", async (int id, ProductService service) =>
         {
             var result = await service.DeleteProductAsync(id);
-            
+
             if (result.IsFailed)
             {
                 var error = result.Errors.First();
-                return Results.NotFound(new 
-                { 
-                    error = error.Message, 
+                return Results.NotFound(new
+                {
+                    error = error.Message,
                     productId = id,
                     statusCode = 404
                 });
             }
-            
+
             return Results.NoContent();
         })
         .WithName("DeleteProduct")
@@ -157,15 +146,15 @@ public static class ProductEndpoints
         .Produces(404);
 
         // PATCH /api/products/{id}/stock - Update product stock
-        // Returns: OneOf<ProductNotFoundError, InvalidStockError, ProductResponse>
-        // HTTP: 404 Not Found | 400 Bad Request | 200 OK
+        // Returns: OneOf<NotFoundError, ValidationError, ProductResponse>
+        // HTTP: 404 Not Found | 422 Unprocessable | 200 OK
         group.MapPatch("/{id:int}/stock", async (int id, [FromBody] UpdateStockRequest request, ProductService service) =>
         {
             var product = await service.GetProductByIdAsync(id);
-            
+
             return await product.Match(
-                case1: error => Task.FromResult<IResult>(Results.NotFound(new 
-                { 
+                case1: error => Task.FromResult<IResult>(Results.NotFound(new
+                {
                     error = error.Message,
                     productId = id,
                     statusCode = 404
@@ -181,14 +170,13 @@ public static class ProductEndpoints
                         Category: null,
                         IsAvailable: null
                     );
-                    
+
                     var updateResult = await service.UpdateProductAsync(id, updateRequest);
-                    
+
                     return updateResult.Match(
-                        case1: validationError => Results.BadRequest(new { error = validationError.Message, statusCode = 400 }),
+                        case1: validationError => Results.UnprocessableEntity(new { error = validationError.Message, statusCode = 422 }),
                         case2: notFoundError => Results.NotFound(new { error = notFoundError.Message, statusCode = 404 }),
-                        case3: priceError => Results.BadRequest(new { error = priceError.Message, statusCode = 400 }),
-                        case4: updatedProduct => Results.Ok(updatedProduct)
+                        case3: updatedProduct => Results.Ok(updatedProduct)
                     );
                 }
             );
@@ -197,8 +185,8 @@ public static class ProductEndpoints
         .WithSummary("Update product stock quantity")
         .WithDescription("Updates the stock quantity for a product and automatically updates availability status")
         .Produces<ProductResponse>(200)
-        .Produces(400)
-        .Produces(404);
+        .Produces(404)
+        .Produces(422);
     }
 }
 

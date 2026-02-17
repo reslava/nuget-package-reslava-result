@@ -3,13 +3,14 @@ using REslava.Result;
 using REslava.Result.AdvancedPatterns;
 using FastMinimalAPI.REslava.Result.Demo.Data;
 using FastMinimalAPI.REslava.Result.Demo.Models;
-using FastMinimalAPI.REslava.Result.Demo.Errors;
 using System.Text.RegularExpressions;
 
 namespace FastMinimalAPI.REslava.Result.Demo.Services;
 
 /// <summary>
-/// User service demonstrating Result pattern with comprehensive error handling
+/// User service demonstrating Result pattern with comprehensive error handling.
+/// Uses library domain errors (NotFoundError, ValidationError, ConflictError)
+/// instead of custom error classes.
 /// </summary>
 public class UserService
 {
@@ -41,17 +42,17 @@ public class UserService
     /// Get user by ID - demonstrates OneOf pattern with NotFoundError
     /// Returns: Success(UserResponse) OR NotFoundError
     /// </summary>
-    public async Task<OneOf<UserNotFoundError, UserResponse>> GetUserByIdAsync(int id)
+    public async Task<OneOf<NotFoundError, UserResponse>> GetUserByIdAsync(int id)
     {
         var user = await _context.Users
             .Include(u => u.Orders)
             .FirstOrDefaultAsync(u => u.Id == id);
 
         if (user == null)
-            return new UserNotFoundError(id);
+            return new NotFoundError("User", id);
 
         var response = new UserResponse(
-            user.Id, user.Email, user.Name, user.Role, 
+            user.Id, user.Email, user.Name, user.Role,
             user.IsActive, user.CreatedAt, user.Orders.Count
         );
 
@@ -60,26 +61,26 @@ public class UserService
 
     /// <summary>
     /// Create user - demonstrates OneOf with multiple error types
-    /// Returns: Success(UserResponse) OR ValidationError OR DuplicateEmailError
+    /// Returns: Success(UserResponse) OR ValidationError OR ConflictError
     /// </summary>
-    public async Task<OneOf<ValidationError, DuplicateEmailError, UserResponse>> CreateUserAsync(CreateUserRequest request)
+    public async Task<OneOf<ValidationError, ConflictError, UserResponse>> CreateUserAsync(CreateUserRequest request)
     {
         // Validation
         if (string.IsNullOrWhiteSpace(request.Email))
-            return new RequiredFieldError("Email");
+            return new ValidationError("Email", "This field is required");
 
         if (!EmailRegex.IsMatch(request.Email))
-            return new InvalidEmailError(request.Email);
+            return new ValidationError("Email", "Invalid email format");
 
         if (string.IsNullOrWhiteSpace(request.Name))
-            return new RequiredFieldError("Name");
+            return new ValidationError("Name", "This field is required");
 
         // Check duplicate email
         var existingUser = await _context.Users
             .FirstOrDefaultAsync(u => u.Email == request.Email);
 
         if (existingUser != null)
-            return new DuplicateEmailError(request.Email);
+            return new ConflictError("User", "email", request.Email);
 
         // Create user
         var user = new User
@@ -95,7 +96,7 @@ public class UserService
         await _context.SaveChangesAsync();
 
         var response = new UserResponse(
-            user.Id, user.Email, user.Name, user.Role, 
+            user.Id, user.Email, user.Name, user.Role,
             user.IsActive, user.CreatedAt, 0
         );
 
@@ -104,9 +105,9 @@ public class UserService
 
     /// <summary>
     /// Update user - demonstrates OneOf4 with 4 possible outcomes
-    /// Returns: ValidationError OR UserNotFoundError OR DuplicateEmailError OR UserResponse
+    /// Returns: ValidationError OR NotFoundError OR ConflictError OR UserResponse
     /// </summary>
-    public async Task<OneOf<ValidationError, UserNotFoundError, DuplicateEmailError, UserResponse>> UpdateUserAsync(
+    public async Task<OneOf<ValidationError, NotFoundError, ConflictError, UserResponse>> UpdateUserAsync(
         int id, UpdateUserRequest request)
     {
         // Find user
@@ -115,20 +116,20 @@ public class UserService
             .FirstOrDefaultAsync(u => u.Id == id);
 
         if (user == null)
-            return new UserNotFoundError(id);
+            return new NotFoundError("User", id);
 
         // Validate email if provided
         if (request.Email != null)
         {
             if (!EmailRegex.IsMatch(request.Email))
-                return new InvalidEmailError(request.Email);
+                return new ValidationError("Email", "Invalid email format");
 
             // Check duplicate email (excluding current user)
             var duplicateEmail = await _context.Users
                 .AnyAsync(u => u.Email == request.Email && u.Id != id);
 
             if (duplicateEmail)
-                return new DuplicateEmailError(request.Email);
+                return new ConflictError("User", "email", request.Email);
 
             user.Email = request.Email;
         }
@@ -146,7 +147,7 @@ public class UserService
         await _context.SaveChangesAsync();
 
         var response = new UserResponse(
-            user.Id, user.Email, user.Name, user.Role, 
+            user.Id, user.Email, user.Name, user.Role,
             user.IsActive, user.CreatedAt, user.Orders.Count
         );
 
@@ -161,15 +162,13 @@ public class UserService
         var user = await _context.Users.FindAsync(id);
 
         if (user == null)
-            return Result<bool>.Fail(new UserNotFoundError(id));
+            return Result<bool>.Fail(new NotFoundError("User", id));
 
         // Check if user has orders
         var hasOrders = await _context.Orders.AnyAsync(o => o.UserId == id);
         if (hasOrders)
         {
-            return Result<bool>.Fail(new Error("Cannot delete user with existing orders")
-                .WithTag("UserId", id)
-                .WithTag("StatusCode", 409));
+            return Result<bool>.Fail(new ConflictError("User", "orders", id));
         }
 
         _context.Users.Remove(user);

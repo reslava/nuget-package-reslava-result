@@ -10,7 +10,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-2318%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests-2798%20passing-brightgreen)
 
 **📐 Complete Functional Programming Framework + ASP.NET Integration + OneOf Extensions**
 
@@ -32,6 +32,7 @@
 | **Roslyn safety analyzers** | **✅** | — | — | — |
 | **JSON serialization (System.Text.Json)** | **✅** | — | — | — |
 | **Async patterns (WhenAll, Retry, Timeout)** | **✅** | — | — | — |
+| **Domain error hierarchy (NotFound, Validation, etc.)** | **✅** | — | Partial | — |
 | Validation framework | ✅ | Basic | — | ✅ |
 | Zero dependencies | ✅ | ✅ | ✅ | — |
 
@@ -53,7 +54,7 @@
 | [📦 Package Structure](#-package-structure) | What you get with each package |
 | [🎯 Quick Examples](#-quick-examples) | Real-world code samples |
 | [📈 Production Benefits](#-production-benefits) | Enterprise-ready advantages |
-| [🧪 Testing & Quality Assurance](#-testing--quality-assurance) | 2,004+ tests passing |
+| [🧪 Testing & Quality Assurance](#-testing--quality-assurance) | 2,798 tests passing |
 | [🏢 Real-World Impact](#-real-world-impact) | Success stories and use cases |
 | [🏆 Why Choose REslava.Result?](#-why-choose-reslavaresult) | Unique advantages |
 | [📚 Deep Dive Documentation](#-deep-dive-documentation) | Comprehensive guides |
@@ -292,7 +293,7 @@ dotnet add package REslava.Result.Analyzers
 | **Library/Service** | [📐 Core Library](#-reslavaresult-core-library) | Result pattern, validation, functional programming |
 | **Custom Generator** | [📖 Custom Generator Guide](docs/how-to-create-custom-generator.md) | Build your own source generators |
 | **Advanced App** | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, OneOf, validation rules |
-| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 2,004+ tests, CI/CD, test strategies |
+| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 2,798+ tests, CI/CD, test strategies |
 | **Curious About Magic** | [📐 Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
 
 ---
@@ -585,13 +586,24 @@ return PatchUser(id, request).ToPatchResult(); // 200 OK or 404
 ```
 
 ### 🧠 Smart HTTP Mapping
-**Intelligent Status Code Detection**
-- **"not found"** → 404 Not Found
-- **"validation"** → 400 Bad Request
-- **"unauthorized"** → 401 Unauthorized
-- **"forbidden"** → 403 Forbidden
-- **"conflict"** → 409 Conflict
-- **Default** → 500 Internal Server Error
+**Domain Error-Aware Status Code Detection (v1.20.0)**
+
+The `ToIResult()` family reads the `HttpStatusCode` tag from domain errors for accurate HTTP mapping:
+
+| Domain Error | HTTP Status | IResult |
+|---|---|---|
+| `NotFoundError` | 404 | `Results.NotFound(message)` |
+| `ValidationError` | 422 | `Results.Problem(detail, statusCode: 422)` |
+| `ConflictError` | 409 | `Results.Conflict(message)` |
+| `UnauthorizedError` | 401 | `Results.Unauthorized()` |
+| `ForbiddenError` | 403 | `Results.Forbid()` |
+| No tag / generic Error | 400 | `Results.Problem(detail, statusCode: 400)` |
+
+```csharp
+// Domain errors automatically map to correct HTTP status codes
+var result = Result<User>.Fail(new NotFoundError("User", 42));
+return result.ToIResult(); // → 404 Not Found (reads HttpStatusCode tag)
+```
 
 ### 📝 Problem Details Integration
 **RFC 7807 Compliance**
@@ -743,16 +755,44 @@ var aggregatedResult = results
     .Tap(users => LogInfo($"Processed {users.Count} users"));
 ```
 
+### 🏷️ Domain Error Hierarchy (v1.20.0)
+**Built-in domain errors with HTTP semantics — no more reinventing error types:**
+```csharp
+// 5 built-in domain error types
+Result<User>.Fail(new NotFoundError("User", userId));          // 404
+Result<User>.Fail(new ValidationError("Email", "Required"));   // 422
+Result<User>.Fail(new ConflictError("User", "email", email));  // 409
+Result<User>.Fail(new UnauthorizedError());                    // 401
+Result<User>.Fail(new ForbiddenError("delete", "admin-panel"));// 403
+
+// Each carries HttpStatusCode tag — auto-mapped by ToIResult()
+var result = await _service.GetUserAsync(id);
+return result.ToIResult(); // NotFoundError → 404, ValidationError → 422
+
+// Pattern matching on error types
+result.Match(
+    onSuccess: user => Ok(user),
+    onFailure: errors => errors.First() switch
+    {
+        NotFoundError nf => NotFound(nf.Message),
+        ValidationError ve => UnprocessableEntity(new { field = ve.FieldName, error = ve.Message }),
+        ConflictError => Conflict(),
+        _ => Problem()
+    });
+
+// Fluent chaining preserved via CRTP
+var error = new NotFoundError("User", 42)
+    .WithTag("RequestId", requestId)
+    .WithMessage("Custom message");  // Returns NotFoundError, not base type
+```
+
 ### 🏷️ Rich Error Context
 **Add structured metadata for debugging and monitoring:**
 ```csharp
 // Error with tags and metadata
-var error = new UserNotFoundError(userId)
-    .WithTag("UserId", userId)
+var error = new NotFoundError("User", userId)
     .WithTag("RequestId", requestId)
-    .WithTag("Timestamp", DateTime.UtcNow)
-    .WithMetadata("Endpoint", "/api/users/{id}")
-    .WithMetadata("HttpMethod", "GET");
+    .WithTag("Timestamp", DateTime.UtcNow);
 
 // Result with rich context
 var result = Result<User>.Fail(error);
@@ -760,11 +800,11 @@ var result = Result<User>.Fail(error);
 // Extract context for logging
 if (result.IsFailed)
 {
-    var error = result.Errors.First();
-    var userId = error.GetTag<string>("UserId");
-    var requestId = error.GetTag<string>("RequestId");
-    
-    logger.LogWarning("User {UserId} not found for request {RequestId}", userId, requestId);
+    var firstError = result.Errors.First();
+    var entity = firstError.Tags.GetValueOrDefault("EntityName");
+    var requestId = firstError.Tags.GetValueOrDefault("RequestId");
+
+    logger.LogWarning("{Entity} not found for request {RequestId}", entity, requestId);
 }
 ```
 
@@ -910,9 +950,9 @@ graph TB
 
 | Package | Purpose |
 |---------|---------|
-| `REslava.Result` | Core library — Result&lt;T&gt;, Maybe&lt;T&gt;, OneOf, LINQ, validation, JSON serialization, async patterns |
-| `REslava.Result.SourceGenerators` | ASP.NET source generators — SmartEndpoints, ToIResult, OneOf extensions |
-| `REslava.Result.Analyzers` | Roslyn safety analyzers — RESL1001, RESL1002, RESL1003, RESL2001 diagnostics + code fixes |
+| `REslava.Result` | Core library — Result&lt;T&gt;, Maybe&lt;T&gt;, OneOf, domain errors (NotFound/Validation/Conflict/Unauthorized/Forbidden), LINQ, validation, JSON serialization, async patterns |
+| `REslava.Result.SourceGenerators` | ASP.NET source generators — SmartEndpoints, domain error-aware ToIResult, OneOf extensions |
+| `REslava.Result.Analyzers` | Roslyn safety analyzers — RESL1001–RESL1004 + RESL2001 (5 diagnostics + 3 code fixes) |
 
 ### 🚀 NuGet Package Contents
 ```
@@ -1057,11 +1097,11 @@ return GetUser(id).ToIResult(); // 🆕 Automatic HTTP mapping!
 ## 🧪 Testing & Quality Assurance
 
 ### 📊 Comprehensive Test Suite
-**1,928+ Tests Passing** 🎉
-- **Source Generator Tests**: 17 tests for all generators
-- **Core Library Tests**: 1,902 tests for REslava.Result functionality (1,902 core + 26 generator = 1,928 total)
-- **Integration Tests**: 9 endpoint tests for complete ASP.NET integration
-- **Performance Tests**: Memory and speed benchmarks
+**2,798 Tests Passing** 🎉
+- **Core Library Tests**: 896 tests per TFM (net8.0, net9.0, net10.0) = 2,688 tests
+- **Source Generator Tests**: 56 tests for all generators
+- **Analyzer Tests**: 54 tests for RESL1001–RESL1004 + RESL2001
+- **Multi-TFM**: All core tests run on 3 target frameworks
 
 ### 📐 Source Generator Test Architecture
 **Complete Test Coverage for v1.12.0**
@@ -1106,7 +1146,7 @@ tests/REslava.Result.SourceGenerators.Tests/
 # .github/workflows/ci.yml
 - Build Solution: dotnet build --configuration Release
 - Run Tests: dotnet test --configuration Release --no-build
-- Total Tests: 1,928+ passing
+- Total Tests: 2,798+ passing
 - Coverage: 95%+ code coverage
 ```
 
@@ -1132,34 +1172,35 @@ tests/REslava.Result.SourceGenerators.Tests/
 
 ### 🔍 Test Quality Metrics
 **High Standards**
-- ✅ **1,928/1,928 tests passing** (100% success rate)
+- ✅ **2,798/2,798 tests passing** (100% success rate)
 - ✅ **95%+ code coverage** (comprehensive coverage)
 - ✅ **Zero flaky tests** (reliable CI/CD)
-- ✅ **Fast execution** (complete suite < 10 seconds)
+- ✅ **Fast execution** (complete suite < 15 seconds)
 - ✅ **Clean architecture** (SOLID test organization)
 
 ### 🏃‍♂️ Running Tests Locally
 **Quick Test Commands**
 ```bash
-# Run all tests (2,004+ tests)
+# Run all tests (2,798 tests across 3 TFMs)
 dotnet test --configuration Release
 
-# Run only Source Generator tests (16 tests)
+# Run only Source Generator tests (56 tests)
 dotnet test tests/REslava.Result.SourceGenerators.Tests/
 
-# Run specific generator tests
-dotnet test --filter "OneOf2ToIResult"    # 5 tests
-dotnet test --filter "OneOf3ToIResult"    # 4 tests  
-dotnet test --filter "ResultToIResult"    # 6 tests
+# Run only Analyzer tests (54 tests)
+dotnet test tests/REslava.Result.Analyzers.Tests/
 
-# Clean environment before testing
-./scripts/clean-before-test.ps1
+# Run core library tests (896 per TFM)
+dotnet test tests/REslava.Result.Tests/
 ```
 
 **Test Output Example**
 ```
-Test summary: total: 1928, failed: 0, succeeded: 1928, skipped: 0, duration: 7.8s
-Build succeeded in 8.3s
+Passed!  - Failed: 0, Passed: 896 - REslava.Result.Tests.dll (net8.0)
+Passed!  - Failed: 0, Passed: 896 - REslava.Result.Tests.dll (net9.0)
+Passed!  - Failed: 0, Passed: 896 - REslava.Result.Tests.dll (net10.0)
+Passed!  - Failed: 0, Passed:  56 - REslava.Result.SourceGenerators.Tests.dll (net10.0)
+Passed!  - Failed: 0, Passed:  54 - REslava.Result.Analyzers.Tests.dll (net10.0)
 ```
 
 ---
@@ -1226,7 +1267,7 @@ Build succeeded in 8.3s
 | **Library/Service** | [📐 Core Library](#-reslavaresult-core-library) | Result pattern, validation, error handling |
 | **Custom Generator** | [📖 Custom Generator Guide](docs/how-to-create-custom-generator.md) | Build your own source generators |
 | **Advanced App** | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, OneOf, validation rules |
-| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 2,004+ tests, CI/CD, test strategies |
+| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 2,798+ tests, CI/CD, test strategies |
 | **Curious About Magic** | [📐 Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
 
 ### 📚 **Complete Reference**
@@ -1344,41 +1385,37 @@ public IResult GetUser(int id) =>
 
 ## 🎯 Roadmap
 
-### v1.19.0 (Current) ✅
+### v1.20.0 (Current) ✅
+- **Structured Error Hierarchy** — 5 built-in domain errors (`NotFoundError`, `ValidationError`, `ConflictError`, `UnauthorizedError`, `ForbiddenError`) with HTTP status code tags and CRTP fluent chaining
+- **ResultToIResult: Domain Error-Aware HTTP Mapping** — reads `HttpStatusCode` tag for accurate status codes (was always 400)
+- **Test Coverage Hardening** — 150 new tests covering OkIf/FailIf, Try, Combine, Tap, LINQ Task extensions
+- **Internal Quality** — cached computed properties, ExceptionError namespace fix, Result\<T\> constructor encapsulation, ToString() override, dead code cleanup, convention-based SmartEndpoints route prefix
+- 2,798 total tests
+
+### v1.19.0 ✅
 - **RESL1004 — Async Result Not Awaited** — detects `Task<Result<T>>` assigned without `await` + code fix
 - **CancellationToken Support Throughout** — `CancellationToken cancellationToken = default` on all async methods (source-compatible)
-- 5 diagnostics + 3 code fixes, 2,318 total tests
+- 5 diagnostics + 3 code fixes
 
 ### v1.18.0 ✅
 - **Task-Based Async Patterns** — `Result.WhenAll()` (typed tuples), `Result.Retry()` (exponential backoff), `.Timeout()` extension
-- Concurrent execution with typed 2/3/4-arity tuple results and error aggregation
-- CancellationToken support, exception-safe task inspection, TimeoutTag metadata
 
 ### v1.17.0 ✅
-- **JSON Serialization Support (System.Text.Json)** — `JsonConverter` implementations for `Result<T>`, `OneOf<T1..T4>`, `Maybe<T>`
-- `AddREslavaResultConverters()` extension method for one-line registration
-- Error/Success reasons serialized with type, message, and tags metadata
-- Zero new dependencies — uses built-in `System.Text.Json`
+- **JSON Serialization Support (System.Text.Json)** — `JsonConverter` for `Result<T>`, `OneOf<T1..T4>`, `Maybe<T>`
 
 ### v1.16.0 ✅
-- Tailored NuGet README for each of the 3 packages (~60-75 lines each)
+- Tailored NuGet README for each of the 3 packages
 
 ### v1.15.0 ✅
 - Repository cleanup: removed unused Node.js toolchain, stale samples, incomplete templates
 
 ### v1.14.x ✅
-- **REslava.Result.Analyzers — 4 diagnostics + 2 code fixes**
-  - **RESL1001**: Warns on unsafe `.Value` access + **2 code fixes** (if-guard, Match)
-  - **RESL1002**: Warns when `Result<T>` return value is discarded
-  - **RESL1003**: Suggests `Match()` over if-check with `.Value`/`.Errors`
-  - **RESL2001**: Warns on unsafe `OneOf.AsT*` access + **code fix** (Match)
+- **REslava.Result.Analyzers** — RESL1001, RESL1002, RESL1003, RESL2001 + 3 code fixes
 - OneOf generator consolidation (15 files → 7)
-- Shared `GuardDetectionHelper` for reusable guard-detection
-- 46 analyzer tests, 2,004+ total tests
 
 ### v1.13.0 ✅
 - **SmartEndpoints: Authorization & Policy Support** — `RequiresAuth`, `Roles`, `Policies`, `[SmartAllowAnonymous]`
-- **LINQ query comprehension syntax for Result<T>** — `Select`, `SelectMany`, `Where` + async variants
+- **LINQ query comprehension syntax for Result<T>**
 - SmartEndpoints: OpenAPI Metadata Auto-Generation
 
 ---
@@ -1431,6 +1468,9 @@ See the full list of contributors in [CONTRIBUTORS.md](CONTRIBUTORS.md).
 
 ## 📈 Version History
 
+- **v1.20.0** - Domain Error Hierarchy (NotFoundError, ValidationError, ConflictError, UnauthorizedError, ForbiddenError), domain error-aware ResultToIResult HTTP mapping, 150 new tests, internal quality fixes, 2,798 tests
+- **v1.19.0** - RESL1004 Async Result Not Awaited analyzer + CancellationToken support throughout
+- **v1.18.0** - Task-Based Async Patterns: WhenAll (typed tuples), Retry (exponential backoff), Timeout
 - **v1.17.0** - JSON Serialization Support: JsonConverter for Result<T>, OneOf, Maybe<T> with System.Text.Json
 - **v1.16.0** - Tailored NuGet READMEs for each package
 - **v1.15.0** - Repository cleanup: removed Node.js toolchain, stale samples, templates; emoji standardization (📐 for architecture)
@@ -1440,7 +1480,7 @@ See the full list of contributors in [CONTRIBUTORS.md](CONTRIBUTORS.md).
 - **v1.13.0** - SmartEndpoints Authorization & Policy Support (RequireAuthorization, AllowAnonymous, Roles, Policies, Produces(401))
 - **v1.12.2** - SmartEndpoints OpenAPI metadata auto-generation (Produces, WithSummary, WithTags, MapGroup)
 - **v1.12.1** - SmartEndpoints DI + async support, FastMinimalAPI demo, Console samples
-- **v1.12.0** - OneOf4ToIResult generator, enhanced SmartEndpoints, 1,928 tests passing
+- **v1.12.0** - OneOf4ToIResult generator, enhanced SmartEndpoints
 - **v1.11.0** - SmartEndpoints generator for zero-boilerplate API generation
 - **v1.10.3** - OneOf2ToIResult & OneOf3ToIResult generators
 - **v1.10.2** - Initial ResultToIResult generator

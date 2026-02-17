@@ -107,7 +107,7 @@ public class ValidationResult<T> : Result<T>
     /// </example>
     public static ValidationResult<T> Failure(string error)
     {
-        return new ValidationResult<T>(ImmutableList.Create<IReason>(new Error(error)));
+        return new ValidationResult<T>(ImmutableList.Create<IReason>(new ValidationError(error)));
     }
     
     /// <summary>

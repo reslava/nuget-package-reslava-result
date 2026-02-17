@@ -3,12 +3,13 @@ using REslava.Result;
 using REslava.Result.AdvancedPatterns;
 using FastMinimalAPI.REslava.Result.Demo.Data;
 using FastMinimalAPI.REslava.Result.Demo.Models;
-using FastMinimalAPI.REslava.Result.Demo.Errors;
 
 namespace FastMinimalAPI.REslava.Result.Demo.Services;
 
 /// <summary>
-/// Product service demonstrating inventory management with Result pattern
+/// Product service demonstrating inventory management with Result pattern.
+/// Uses library domain errors (NotFoundError, ValidationError) instead of custom error classes.
+/// All validation failures use ValidationError with different FieldName values.
 /// </summary>
 public class ProductService
 {
@@ -27,7 +28,7 @@ public class ProductService
         var products = await _context.Products.ToListAsync();
 
         var response = products.Select(p => new ProductResponse(
-            p.Id, p.Name, p.Description, p.Price, p.StockQuantity, 
+            p.Id, p.Name, p.Description, p.Price, p.StockQuantity,
             p.Category, p.IsAvailable, p.CreatedAt
         )).ToList();
 
@@ -37,12 +38,12 @@ public class ProductService
     /// <summary>
     /// Get product by ID - OneOf with NotFound
     /// </summary>
-    public async Task<OneOf<ProductNotFoundError, ProductResponse>> GetProductByIdAsync(int id)
+    public async Task<OneOf<NotFoundError, ProductResponse>> GetProductByIdAsync(int id)
     {
         var product = await _context.Products.FindAsync(id);
 
         if (product == null)
-            return new ProductNotFoundError(id);
+            return new NotFoundError("Product", id);
 
         var response = new ProductResponse(
             product.Id, product.Name, product.Description, product.Price,
@@ -53,25 +54,27 @@ public class ProductService
     }
 
     /// <summary>
-    /// Create product - OneOf3 with validation errors
+    /// Create product - OneOf2 with validation errors (simplified from OneOf3).
+    /// All validation failures (required fields, price, stock) are ValidationError
+    /// with different FieldName values — no need for separate error types.
     /// </summary>
-    public async Task<OneOf<ValidationError, InvalidPriceError, ProductResponse>> CreateProductAsync(
+    public async Task<OneOf<ValidationError, ProductResponse>> CreateProductAsync(
         CreateProductRequest request)
     {
         // Validate required fields
         if (string.IsNullOrWhiteSpace(request.Name))
-            return new RequiredFieldError("Name");
+            return new ValidationError("Name", "This field is required");
 
         if (string.IsNullOrWhiteSpace(request.Category))
-            return new RequiredFieldError("Category");
+            return new ValidationError("Category", "This field is required");
 
         // Validate price
         if (request.Price <= 0)
-            return new InvalidPriceError(request.Price);
+            return new ValidationError("Price", "Price must be greater than 0");
 
         // Validate stock
         if (request.StockQuantity < 0)
-            return new InvalidStockError(request.StockQuantity);
+            return new ValidationError("StockQuantity", "Stock quantity cannot be negative");
 
         // Create product
         var product = new Product
@@ -97,23 +100,23 @@ public class ProductService
     }
 
     /// <summary>
-    /// Update product - OneOf4 demonstrating all 4 error types
+    /// Update product - OneOf3 (simplified from OneOf4 by collapsing validation errors)
     /// </summary>
-    public async Task<OneOf<ValidationError, ProductNotFoundError, InvalidPriceError, ProductResponse>> UpdateProductAsync(
+    public async Task<OneOf<ValidationError, NotFoundError, ProductResponse>> UpdateProductAsync(
         int id, UpdateProductRequest request)
     {
         var product = await _context.Products.FindAsync(id);
 
         if (product == null)
-            return new ProductNotFoundError(id);
+            return new NotFoundError("Product", id);
 
         // Validate price if provided
         if (request.Price.HasValue && request.Price.Value <= 0)
-            return new InvalidPriceError(request.Price.Value);
+            return new ValidationError("Price", "Price must be greater than 0");
 
         // Validate stock if provided
         if (request.StockQuantity.HasValue && request.StockQuantity.Value < 0)
-            return new InvalidStockError(request.StockQuantity.Value);
+            return new ValidationError("StockQuantity", "Stock quantity cannot be negative");
 
         // Update fields
         if (request.Name != null)
@@ -157,7 +160,7 @@ public class ProductService
         var product = await _context.Products.FindAsync(id);
 
         if (product == null)
-            return Result<bool>.Fail(new ProductNotFoundError(id));
+            return Result<bool>.Fail(new NotFoundError("Product", id));
 
         _context.Products.Remove(product);
         await _context.SaveChangesAsync();

@@ -14,14 +14,15 @@ namespace REslava.Result.SourceGenerators.Generators.ResultToIResult.CodeGenerat
         public SourceText GenerateCode(Compilation compilation, object config)
         {
             var builder = new StringBuilder();
-            
+
             // Add using statements
             builder.AppendLine("using Microsoft.AspNetCore.Http;");
             builder.AppendLine("using REslava.Result;");
+            builder.AppendLine("using System.Collections.Generic;");
             builder.AppendLine("using System.Linq;");
             builder.AppendLine("using Generated.ResultExtensions;");
             builder.AppendLine();
-            
+
             // Generate the class and methods
             builder.AppendLine("namespace Generated.ResultExtensions");
             builder.AppendLine("{");
@@ -31,90 +32,97 @@ namespace REslava.Result.SourceGenerators.Generators.ResultToIResult.CodeGenerat
             builder.AppendLine("    /// </summary>");
             builder.AppendLine("    public static class ResultToIResultExtensions");
             builder.AppendLine("    {");
+
+            // ToIResult
             builder.AppendLine("        /// <summary>");
             builder.AppendLine("        /// Converts a Result&lt;T&gt; to an IResult for ASP.NET Core responses.");
             builder.AppendLine("        /// </summary>");
             builder.AppendLine("        public static IResult ToIResult<T>(this Result<T> result)");
             builder.AppendLine("        {");
             builder.AppendLine("            if (result.IsSuccess)");
-            builder.AppendLine("            {");
             builder.AppendLine("                return Results.Ok(result.Value);");
-            builder.AppendLine("            }");
             builder.AppendLine();
-            builder.AppendLine("            var errorMessage = result.Errors.FirstOrDefault()?.Message ?? \"Unknown error\";");
-            builder.AppendLine("            return Results.Problem(");
-            builder.AppendLine("                detail: errorMessage,");
-            builder.AppendLine("                statusCode: 400");
-            builder.AppendLine("            );");
+            builder.AppendLine("            return MapErrorToIResult(result.Errors);");
             builder.AppendLine("        }");
             builder.AppendLine();
+
+            // ToPostResult
             builder.AppendLine("        /// <summary>");
             builder.AppendLine("        /// Converts a Result&lt;T&gt; to a POST result.");
             builder.AppendLine("        /// </summary>");
             builder.AppendLine("        public static IResult ToPostResult<T>(this Result<T> result)");
             builder.AppendLine("        {");
             builder.AppendLine("            if (result.IsSuccess)");
-            builder.AppendLine("            {");
             builder.AppendLine("                return Results.Created($\"/api/items\", result.Value);");
-            builder.AppendLine("            }");
             builder.AppendLine();
-            builder.AppendLine("            var errorMessage = result.Errors.FirstOrDefault()?.Message ?? \"Unknown error\";");
-            builder.AppendLine("            return Results.Problem(");
-            builder.AppendLine("                detail: errorMessage,");
-            builder.AppendLine("                statusCode: 400");
-            builder.AppendLine("            );");
+            builder.AppendLine("            return MapErrorToIResult(result.Errors);");
             builder.AppendLine("        }");
             builder.AppendLine();
+
+            // ToPutResult
             builder.AppendLine("        /// <summary>");
             builder.AppendLine("        /// Converts a Result&lt;T&gt; to a PUT result.");
             builder.AppendLine("        /// </summary>");
             builder.AppendLine("        public static IResult ToPutResult<T>(this Result<T> result)");
             builder.AppendLine("        {");
             builder.AppendLine("            if (result.IsSuccess)");
-            builder.AppendLine("            {");
             builder.AppendLine("                return Results.Ok(result.Value);");
-            builder.AppendLine("            }");
             builder.AppendLine();
-            builder.AppendLine("            var errorMessage = result.Errors.FirstOrDefault()?.Message ?? \"Unknown error\";");
-            builder.AppendLine("            return Results.Problem(");
-            builder.AppendLine("                detail: errorMessage,");
-            builder.AppendLine("                statusCode: 400");
-            builder.AppendLine("            );");
+            builder.AppendLine("            return MapErrorToIResult(result.Errors);");
             builder.AppendLine("        }");
             builder.AppendLine();
+
+            // ToPatchResult
             builder.AppendLine("        /// <summary>");
             builder.AppendLine("        /// Converts a Result&lt;T&gt; to a PATCH result.");
             builder.AppendLine("        /// </summary>");
             builder.AppendLine("        public static IResult ToPatchResult<T>(this Result<T> result)");
             builder.AppendLine("        {");
             builder.AppendLine("            if (result.IsSuccess)");
-            builder.AppendLine("            {");
             builder.AppendLine("                return Results.Ok(result.Value);");
-            builder.AppendLine("            }");
             builder.AppendLine();
-            builder.AppendLine("            var errorMessage = result.Errors.FirstOrDefault()?.Message ?? \"Unknown error\";");
-            builder.AppendLine("            return Results.Problem(");
-            builder.AppendLine("                detail: errorMessage,");
-            builder.AppendLine("                statusCode: 400");
-            builder.AppendLine("            );");
+            builder.AppendLine("            return MapErrorToIResult(result.Errors);");
             builder.AppendLine("        }");
             builder.AppendLine();
+
+            // ToDeleteResult
             builder.AppendLine("        /// <summary>");
             builder.AppendLine("        /// Converts a Result&lt;T&gt; to a DELETE result.");
             builder.AppendLine("        /// </summary>");
             builder.AppendLine("        public static IResult ToDeleteResult<T>(this Result<T> result)");
             builder.AppendLine("        {");
             builder.AppendLine("            if (result.IsSuccess)");
-            builder.AppendLine("            {");
             builder.AppendLine("                return Results.NoContent();");
+            builder.AppendLine();
+            builder.AppendLine("            return MapErrorToIResult(result.Errors);");
+            builder.AppendLine("        }");
+            builder.AppendLine();
+
+            // Shared helper — reads HttpStatusCode tag from domain errors
+            builder.AppendLine("        private static IResult MapErrorToIResult(IReadOnlyList<IError> errors)");
+            builder.AppendLine("        {");
+            builder.AppendLine("            var firstError = errors.FirstOrDefault();");
+            builder.AppendLine("            var errorMessage = firstError?.Message ?? \"Unknown error\";");
+            builder.AppendLine();
+            builder.AppendLine("            var statusCode = 400;");
+            builder.AppendLine("            if (firstError?.Tags != null)");
+            builder.AppendLine("            {");
+            builder.AppendLine("                if (firstError.Tags.TryGetValue(\"HttpStatusCode\", out var code) && code is int sc)");
+            builder.AppendLine("                    statusCode = sc;");
+            builder.AppendLine("                else if (firstError.Tags.TryGetValue(\"StatusCode\", out var code2) && code2 is int sc2)");
+            builder.AppendLine("                    statusCode = sc2;");
             builder.AppendLine("            }");
             builder.AppendLine();
-            builder.AppendLine("            var errorMessage = result.Errors.FirstOrDefault()?.Message ?? \"Unknown error\";");
-            builder.AppendLine("            return Results.Problem(");
-            builder.AppendLine("                detail: errorMessage,");
-            builder.AppendLine("                statusCode: 400");
-            builder.AppendLine("            );");
+            builder.AppendLine("            return statusCode switch");
+            builder.AppendLine("            {");
+            builder.AppendLine("                404 => Results.NotFound(errorMessage),");
+            builder.AppendLine("                401 => Results.Unauthorized(),");
+            builder.AppendLine("                403 => Results.Forbid(),");
+            builder.AppendLine("                409 => Results.Conflict(errorMessage),");
+            builder.AppendLine("                _ => Results.Problem(detail: errorMessage, statusCode: statusCode)");
+            builder.AppendLine("            };");
             builder.AppendLine("        }");
+
             builder.AppendLine("    }");
             builder.AppendLine("}");
 

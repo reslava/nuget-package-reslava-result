@@ -1,12 +1,13 @@
 using FastMinimalAPI.REslava.Result.Demo.Models;
 using FastMinimalAPI.REslava.Result.Demo.Services;
 using Microsoft.AspNetCore.Mvc;
+using REslava.Result;
 
 namespace FastMinimalAPI.REslava.Result.Demo.Endpoints;
 
 /// <summary>
-/// User endpoints demonstrating REslava.Result patterns
-/// All methods automatically convert to IResult with proper HTTP status codes
+/// User endpoints demonstrating REslava.Result patterns with library domain errors.
+/// All methods automatically convert to IResult with proper HTTP status codes.
 /// </summary>
 public static class UserEndpoints
 {
@@ -29,15 +30,15 @@ public static class UserEndpoints
         .Produces<List<UserResponse>>(200);
 
         // GET /api/users/{id} - Get user by ID
-        // Returns: OneOf<UserNotFoundError, UserResponse>
+        // Returns: OneOf<NotFoundError, UserResponse>
         // HTTP: 404 Not Found | 200 OK
         group.MapGet("/{id:int}", async (int id, UserService service) =>
         {
             var result = await service.GetUserByIdAsync(id);
-            
+
             return result.Match(
-                case1: error => Results.NotFound(new 
-                { 
+                case1: error => Results.NotFound(new
+                {
                     error = error.Message,
                     userId = id,
                     statusCode = 404
@@ -52,23 +53,22 @@ public static class UserEndpoints
         .Produces(404);
 
         // POST /api/users - Create new user
-        // Returns: OneOf<ValidationError, DuplicateEmailError, UserResponse>
-        // HTTP: 400 Bad Request | 409 Conflict | 201 Created
+        // Returns: OneOf<ValidationError, ConflictError, UserResponse>
+        // HTTP: 422 Unprocessable | 409 Conflict | 201 Created
         group.MapPost("/", async ([FromBody] CreateUserRequest request, UserService service) =>
         {
             var result = await service.CreateUserAsync(request);
-            
+
             return result.Match(
-                case1: validationError => Results.BadRequest(new
+                case1: validationError => Results.UnprocessableEntity(new
                 {
                     error = validationError.Message,
-                    field = validationError.Tags.ContainsKey("Field") ? validationError.Tags["Field"] : null,
-                    statusCode = 400
+                    field = validationError.FieldName,
+                    statusCode = 422
                 }),
-                case2: duplicateError => Results.Conflict(new
+                case2: conflictError => Results.Conflict(new
                 {
-                    error = duplicateError.Message,
-                    email = duplicateError.Tags.ContainsKey("Email") ? duplicateError.Tags["Email"] : null,
+                    error = conflictError.Message,
                     statusCode = 409
                 }),
                 case3: user => Results.Created($"/api/users/{user.Id}", user)
@@ -78,22 +78,22 @@ public static class UserEndpoints
         .WithSummary("Create a new user")
         .WithDescription("Creates a new user with the provided information")
         .Produces<UserResponse>(201)
-        .Produces(400)
-        .Produces(409);
+        .Produces(409)
+        .Produces(422);
 
         // PUT /api/users/{id} - Update user
-        // Returns: OneOf<ValidationError, UserNotFoundError, DuplicateEmailError, UserResponse> (OneOf4!)
-        // HTTP: 400 Bad Request | 404 Not Found | 409 Conflict | 200 OK
+        // Returns: OneOf<ValidationError, NotFoundError, ConflictError, UserResponse> (OneOf4!)
+        // HTTP: 422 Unprocessable | 404 Not Found | 409 Conflict | 200 OK
         group.MapPut("/{id:int}", async (int id, [FromBody] UpdateUserRequest request, UserService service) =>
         {
             var result = await service.UpdateUserAsync(id, request);
-            
+
             return result.Match(
-                case1: validationError => Results.BadRequest(new
+                case1: validationError => Results.UnprocessableEntity(new
                 {
                     error = validationError.Message,
-                    field = validationError.Tags.ContainsKey("Field") ? validationError.Tags["Field"] : null,
-                    statusCode = 400
+                    field = validationError.FieldName,
+                    statusCode = 422
                 }),
                 case2: notFoundError => Results.NotFound(new
                 {
@@ -101,10 +101,9 @@ public static class UserEndpoints
                     userId = id,
                     statusCode = 404
                 }),
-                case3: duplicateError => Results.Conflict(new
+                case3: conflictError => Results.Conflict(new
                 {
-                    error = duplicateError.Message,
-                    email = duplicateError.Tags.ContainsKey("Email") ? duplicateError.Tags["Email"] : null,
+                    error = conflictError.Message,
                     statusCode = 409
                 }),
                 case4: user => Results.Ok(user)
@@ -114,9 +113,9 @@ public static class UserEndpoints
         .WithSummary("Update an existing user")
         .WithDescription("Updates user information. Demonstrates OneOf4 pattern with 4 possible outcomes.")
         .Produces<UserResponse>(200)
-        .Produces(400)
         .Produces(404)
-        .Produces(409);
+        .Produces(409)
+        .Produces(422);
 
         // DELETE /api/users/{id} - Delete user
         // Returns: Result<bool>
@@ -124,19 +123,25 @@ public static class UserEndpoints
         group.MapDelete("/{id:int}", async (int id, UserService service) =>
         {
             var result = await service.DeleteUserAsync(id);
-            
+
             if (result.IsFailed)
             {
                 var error = result.Errors.First();
-                var statusCode = error.Tags.ContainsKey("StatusCode") 
-                    ? Convert.ToInt32(error.Tags["StatusCode"]) 
-                    : 400;
-                
-                return statusCode == 404 
-                    ? Results.NotFound(new { error = error.Message, userId = id })
-                    : Results.Conflict(new { error = error.Message, userId = id });
+
+                // Domain errors carry HttpStatusCode tag — use it
+                if (error.Tags.TryGetValue("HttpStatusCode", out var code) && code is int statusCode)
+                {
+                    return statusCode switch
+                    {
+                        404 => Results.NotFound(new { error = error.Message, userId = id }),
+                        409 => Results.Conflict(new { error = error.Message, userId = id }),
+                        _ => Results.Problem(detail: error.Message, statusCode: statusCode)
+                    };
+                }
+
+                return Results.Problem(detail: error.Message, statusCode: 400);
             }
-            
+
             return Results.NoContent();
         })
         .WithName("DeleteUser")
