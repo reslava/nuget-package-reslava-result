@@ -1,5 +1,13 @@
 ###################
 
+# Scripts (temp/cache files)
+
+###################
+scripts/.test-counts-cache
+scripts/.test-output-tmp
+
+###################
+
 # .NET
 
 ###################
