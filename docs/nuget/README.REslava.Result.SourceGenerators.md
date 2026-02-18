@@ -1,6 +1,6 @@
 # REslava.Result.SourceGenerators
 
-**Zero-boilerplate ASP.NET Minimal API generation** — write business logic, endpoints generate themselves.
+**Zero-boilerplate ASP.NET endpoint generation** — write business logic, Minimal API + MVC endpoints generate themselves.
 
 [![NuGet](https://img.shields.io/nuget/v/REslava.Result.SourceGenerators?logo=nuget)](https://www.nuget.org/packages/REslava.Result.SourceGenerators)
 [![Downloads](https://img.shields.io/nuget/dt/REslava.Result.SourceGenerators)](https://www.nuget.org/packages/REslava.Result.SourceGenerators)
@@ -8,12 +8,19 @@
 
 ## What It Does
 
-This package contains **5 Roslyn source generators** that eliminate ASP.NET Minimal API boilerplate:
+This package contains **9 Roslyn source generators** that eliminate ASP.NET boilerplate:
 
+**Minimal API**
 - **SmartEndpoints** — auto-generates complete endpoint registration from your service classes
-- **ResultToIResult** — converts `Result<T>` to ASP.NET `IResult` with proper HTTP status codes
-- **OneOfToIResult** — converts `OneOf<T1,...,T4>` to `IResult` with intelligent error-to-status mapping
-- **OpenAPI metadata** — auto-generates `.Produces<T>()`, `.WithSummary()`, `.WithTags()`
+- **ResultToIResult** — converts `Result<T>` to `IResult` with domain error-aware HTTP status codes
+- **OneOfToIResult** — converts `OneOf<T1,...,T4>` to `IResult` with tag-based + heuristic error mapping
+
+**MVC Controllers**
+- **ResultToActionResult** — converts `Result<T>` to `IActionResult` with convention-based HTTP mapping
+- **OneOfToActionResult** — converts `OneOf<T1,...,T4>` to `IActionResult` with domain error auto-mapping
+
+**Cross-cutting**
+- **OpenAPI metadata** — auto-generates `.Produces<T>()`, `.WithSummary()`, `.WithTags()` with accurate error status codes
 - **Authorization** — generates `.RequireAuthorization()`, `.AllowAnonymous()` from attributes
 
 ## Before / After
@@ -86,7 +93,8 @@ The generator infers:
 ## Links
 
 - [GitHub Repository](https://github.com/reslava/nuget-package-reslava-result) — Full documentation, architecture guide
-- [Demo App](https://github.com/reslava/nuget-package-reslava-result/tree/main/samples/FastMinimalAPI.REslava.Result.Demo)
+- [Minimal API Demo](https://github.com/reslava/nuget-package-reslava-result/tree/main/samples/FastMinimalAPI.REslava.Result.Demo)
+- [MVC Demo](https://github.com/reslava/nuget-package-reslava-result/tree/main/samples/FastMvcAPI.REslava.Result.Demo)
 - [Changelog](https://github.com/reslava/nuget-package-reslava-result/blob/main/CHANGELOG.md)
 
 **MIT License** | .NET 8 / 9 / 10

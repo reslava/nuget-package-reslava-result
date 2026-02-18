@@ -331,8 +331,8 @@ namespace TestApp
             // OneOf4 with 3 error types + 1 success
             Assert.IsTrue(code.Contains("Produces<") && code.Contains("OrderResponse"),
                 "OrderResponse should be the success type with .Produces<T>(200)");
-            Assert.IsTrue(code.Contains(".Produces(400)"),
-                "ValidationError should map to 400");
+            Assert.IsTrue(code.Contains(".Produces(422)"),
+                "ValidationError should map to 422");
             Assert.IsTrue(code.Contains(".Produces(404)"),
                 "UserNotFoundError should map to 404");
             Assert.IsTrue(code.Contains(".Produces(409)"),
@@ -364,10 +364,10 @@ namespace TestApp
 }";
             var code = RunGeneratorAndGetExtensions(source);
 
-            // Both ValidationError and InvalidFormatError map to 400 — should only appear once
-            var count400 = CountOccurrences(code, ".Produces(400)");
-            Assert.AreEqual(1, count400,
-                "Two errors mapping to 400 should produce only one .Produces(400)");
+            // Both ValidationError and InvalidFormatError map to 422 — should only appear once
+            var count422 = CountOccurrences(code, ".Produces(422)");
+            Assert.AreEqual(1, count422,
+                "Two errors mapping to 422 should produce only one .Produces(422)");
         }
 
         // ─── HTTP method inference ───

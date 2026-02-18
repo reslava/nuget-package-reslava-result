@@ -3,17 +3,17 @@ using Microsoft.CodeAnalysis.Text;
 using REslava.Result.SourceGenerators.Core.Interfaces;
 using System.Text;
 
-namespace REslava.Result.SourceGenerators.Generators.OneOfToIResult.CodeGeneration
+namespace REslava.Result.SourceGenerators.Generators.OneOfToActionResult.CodeGeneration
 {
     /// <summary>
-    /// Generates OneOf{N}ToIResult extension methods, parameterized by arity.
-    /// Single class handles OneOf2, OneOf3, and OneOf4 extension generation.
+    /// Generates OneOf{N}ToActionResult extension methods for ASP.NET MVC IActionResult,
+    /// parameterized by arity. Mirrors OneOfToIResultExtensionGenerator but targets MVC types.
     /// </summary>
-    public class OneOfToIResultExtensionGenerator : ICodeGenerator
+    public class OneOfToActionResultExtensionGenerator : ICodeGenerator
     {
         private readonly int _arity;
 
-        public OneOfToIResultExtensionGenerator(int arity)
+        public OneOfToActionResultExtensionGenerator(int arity)
         {
             _arity = arity;
         }
@@ -22,8 +22,12 @@ namespace REslava.Result.SourceGenerators.Generators.OneOfToIResult.CodeGenerati
         {
             var builder = new StringBuilder();
 
+            // Nullable enable
+            builder.AppendLine("#nullable enable");
+            builder.AppendLine();
+
             // Usings
-            builder.AppendLine("using Microsoft.AspNetCore.Http;");
+            builder.AppendLine("using Microsoft.AspNetCore.Mvc;");
             builder.AppendLine("using REslava.Result;");
             builder.AppendLine("using REslava.Result.AdvancedPatterns;");
             builder.AppendLine("using System;");
@@ -31,35 +35,35 @@ namespace REslava.Result.SourceGenerators.Generators.OneOfToIResult.CodeGenerati
             builder.AppendLine();
 
             // Class
-            builder.AppendLine("namespace Generated.OneOfExtensions");
+            builder.AppendLine("namespace Generated.OneOfActionResultExtensions");
             builder.AppendLine("{");
             builder.AppendLine("    /// <summary>");
-            builder.AppendLine($"    /// Extension methods for converting OneOf with {_arity} types to IResult.");
+            builder.AppendLine($"    /// Extension methods for converting OneOf with {_arity} types to IActionResult.");
             builder.AppendLine("    /// </summary>");
-            builder.AppendLine($"    public static class OneOf{_arity}Extensions");
+            builder.AppendLine($"    public static class OneOf{_arity}ActionResultExtensions");
             builder.AppendLine("    {");
 
-            // ToIResult method
+            // ToActionResult method
             var typeParams = string.Join(", ", GenerateSequence("T", _arity));
-            builder.AppendLine($"        public static IResult ToIResult<{typeParams}>(this OneOf<{typeParams}> oneOf)");
+            builder.AppendLine($"        public static IActionResult ToActionResult<{typeParams}>(this OneOf<{typeParams}> oneOf)");
             builder.AppendLine("        {");
             builder.AppendLine("            return oneOf.Match(");
 
             for (int i = 1; i <= _arity; i++)
             {
                 var comma = i < _arity ? "," : "";
-                builder.AppendLine($"                t{i} => IsErrorType(typeof(T{i})) ? MapErrorToHttpResult(t{i}, typeof(T{i})) : Results.Ok(t{i}){comma}");
+                builder.AppendLine($"                t{i} => IsErrorType(typeof(T{i})) ? MapErrorToActionResult(t{i}, typeof(T{i})) : (IActionResult)new OkObjectResult(t{i}){comma}");
             }
 
             builder.AppendLine("            );");
             builder.AppendLine("        }");
             builder.AppendLine();
 
-            // MapErrorToHttpResult helper — checks IError.Tags first, falls back to type-name heuristic
-            builder.AppendLine("        private static IResult MapErrorToHttpResult(object error, Type errorType)");
+            // MapErrorToActionResult helper — checks IError.Tags first, falls back to type-name heuristic
+            builder.AppendLine("        private static IActionResult MapErrorToActionResult(object error, Type errorType)");
             builder.AppendLine("        {");
             builder.AppendLine("            if (error == null)");
-            builder.AppendLine("                return Results.Problem(\"Unknown error\", statusCode: 500);");
+            builder.AppendLine("                return new ObjectResult(new { Detail = \"Unknown error\" }) { StatusCode = 500 };");
             builder.AppendLine();
             builder.AppendLine("            var errorMessage = error.ToString() ?? \"Unknown error\";");
             builder.AppendLine();
@@ -76,11 +80,11 @@ namespace REslava.Result.SourceGenerators.Generators.OneOfToIResult.CodeGenerati
             builder.AppendLine("                {");
             builder.AppendLine("                    return statusCode switch");
             builder.AppendLine("                    {");
-            builder.AppendLine("                        404 => Results.NotFound(errorMessage),");
-            builder.AppendLine("                        401 => Results.Unauthorized(),");
-            builder.AppendLine("                        403 => Results.Forbid(),");
-            builder.AppendLine("                        409 => Results.Conflict(errorMessage),");
-            builder.AppendLine("                        _ => Results.Problem(detail: errorMessage, statusCode: statusCode)");
+            builder.AppendLine("                        401 => new UnauthorizedResult(),");
+            builder.AppendLine("                        403 => new ForbidResult(),");
+            builder.AppendLine("                        404 => new NotFoundObjectResult(errorMessage),");
+            builder.AppendLine("                        409 => new ConflictObjectResult(errorMessage),");
+            builder.AppendLine("                        _ => new ObjectResult(new { Detail = errorMessage }) { StatusCode = statusCode }");
             builder.AppendLine("                    };");
             builder.AppendLine("                }");
             builder.AppendLine("            }");
@@ -89,24 +93,24 @@ namespace REslava.Result.SourceGenerators.Generators.OneOfToIResult.CodeGenerati
             builder.AppendLine("            var typeName = errorType.Name;");
             builder.AppendLine();
             builder.AppendLine("            if (typeName.Contains(\"ValidationError\") || typeName.Contains(\"Invalid\"))");
-            builder.AppendLine("                return Results.Problem(detail: errorMessage, statusCode: 422);");
+            builder.AppendLine("                return new ObjectResult(new { Detail = errorMessage }) { StatusCode = 422 };");
             builder.AppendLine();
             builder.AppendLine("            if (typeName.Contains(\"NotFound\") || typeName.Contains(\"Missing\"))");
-            builder.AppendLine("                return Results.NotFound(errorMessage);");
+            builder.AppendLine("                return new NotFoundObjectResult(errorMessage);");
             builder.AppendLine();
             builder.AppendLine("            if (typeName.Contains(\"Conflict\") || typeName.Contains(\"Duplicate\"))");
-            builder.AppendLine("                return Results.Conflict(errorMessage);");
+            builder.AppendLine("                return new ConflictObjectResult(errorMessage);");
             builder.AppendLine();
             builder.AppendLine("            if (typeName.Contains(\"Unauthorized\") || typeName.Contains(\"Authentication\"))");
-            builder.AppendLine("                return Results.Unauthorized();");
+            builder.AppendLine("                return new UnauthorizedResult();");
             builder.AppendLine();
             builder.AppendLine("            if (typeName.Contains(\"Forbidden\") || typeName.Contains(\"Permission\"))");
-            builder.AppendLine("                return Results.Forbid();");
+            builder.AppendLine("                return new ForbidResult();");
             builder.AppendLine();
             builder.AppendLine("            if (typeName.Contains(\"Database\") || typeName.Contains(\"System\") || typeName.Contains(\"Infrastructure\"))");
-            builder.AppendLine("                return Results.Problem(detail: errorMessage, statusCode: 500);");
+            builder.AppendLine("                return new ObjectResult(new { Detail = errorMessage }) { StatusCode = 500 };");
             builder.AppendLine();
-            builder.AppendLine("            return Results.BadRequest(errorMessage);");
+            builder.AppendLine("            return new ObjectResult(new { Detail = errorMessage }) { StatusCode = 400 };");
             builder.AppendLine("        }");
             builder.AppendLine();
 

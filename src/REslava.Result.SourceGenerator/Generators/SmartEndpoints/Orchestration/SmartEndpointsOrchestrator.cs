@@ -372,7 +372,7 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
 
             if (endpoint.IsResult)
             {
-                // Result<T>: T is success type, errors default to 400
+                // Result<T>: T is success type
                 if (endpoint.GenericTypeArguments.Count > 0)
                 {
                     produces.Add(new ProducesMetadata
@@ -382,9 +382,12 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
                     });
                     seenStatusCodes.Add(200);
                 }
-                if (seenStatusCodes.Add(400))
+                // Result<T> can carry any domain error at runtime — declare common status codes
+                // that MapErrorToIResult dispatches (400 as catch-all, plus domain error codes)
+                foreach (var code in new[] { 400, 404, 409, 422 })
                 {
-                    produces.Add(new ProducesMetadata { StatusCode = 400 });
+                    if (seenStatusCodes.Add(code))
+                        produces.Add(new ProducesMetadata { StatusCode = code });
                 }
             }
             else if (endpoint.IsOneOf)
@@ -514,6 +517,8 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
 
             if (name.Contains("notfound") || name.Contains("missing"))
                 return 404;
+            if (name.Contains("validation") || name.Contains("invalid"))
+                return 422;
             if (name.Contains("conflict") || name.Contains("duplicate") || name.Contains("insufficient"))
                 return 409;
             if (name.Contains("unauthorized") || name.Contains("authentication"))
@@ -523,7 +528,7 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
             if (name.Contains("database") || name.Contains("system") || name.Contains("infrastructure"))
                 return 500;
 
-            // Validation, Invalid, and default
+            // Generic errors default to 400
             return 400;
         }
 

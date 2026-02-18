@@ -1,13 +1,14 @@
 using FastMvcAPI.REslava.Result.Demo.Models;
 using FastMvcAPI.REslava.Result.Demo.Services;
 using Generated.ActionResultExtensions;
+using Generated.OneOfActionResultExtensions;
 using Microsoft.AspNetCore.Mvc;
 using REslava.Result;
 
 namespace FastMvcAPI.REslava.Result.Demo.Controllers;
 
 /// <summary>
-/// MVC Controller for Products — showcases ToActionResult() family and explicit overload escape hatch.
+/// MVC Controller for Products — showcases ToActionResult() one-liners and explicit Match() escape hatch.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -26,16 +27,11 @@ public class ProductsController : ControllerBase
         => (await _service.GetAllProductsAsync()).ToActionResult();
 
     /// <summary>
-    /// Get product by ID — OneOf.Match()
+    /// Get product by ID — OneOf&lt;NotFoundError, ProductResponse&gt;.ToActionResult() one-liner
     /// </summary>
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
-    {
-        var result = await _service.GetProductByIdAsync(id);
-        return result.Match(
-            notFound => new NotFoundObjectResult(new { error = notFound.Message }) as IActionResult,
-            product => new OkObjectResult(product));
-    }
+        => (await _service.GetProductByIdAsync(id)).ToActionResult();
 
     /// <summary>
     /// Get products by category — Result&lt;T&gt;.ToActionResult()
@@ -45,29 +41,19 @@ public class ProductsController : ControllerBase
         => (await _service.GetProductsByCategoryAsync(category)).ToActionResult();
 
     /// <summary>
-    /// Create product — OneOf.Match() with ValidationError → 422
+    /// Create product — OneOf&lt;ValidationError, ProductResponse&gt;.ToActionResult()
+    /// ValidationError → 422, success → 200
     /// </summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
-    {
-        var result = await _service.CreateProductAsync(request);
-        return result.Match(
-            validation => new ObjectResult(new { error = validation.Message, field = validation.FieldName }) { StatusCode = 422 } as IActionResult,
-            product => new CreatedAtActionResult(nameof(GetById), "Products", new { id = product.Id }, product));
-    }
+        => (await _service.CreateProductAsync(request)).ToActionResult();
 
     /// <summary>
-    /// Update product — OneOf3.Match()
+    /// Update product — OneOf3&lt;ValidationError, NotFoundError, ProductResponse&gt;.ToActionResult()
     /// </summary>
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateProductRequest request)
-    {
-        var result = await _service.UpdateProductAsync(id, request);
-        return result.Match(
-            validation => new ObjectResult(new { error = validation.Message, field = validation.FieldName }) { StatusCode = 422 } as IActionResult,
-            notFound => new NotFoundObjectResult(new { error = notFound.Message }),
-            product => new OkObjectResult(product));
-    }
+        => (await _service.UpdateProductAsync(id, request)).ToActionResult();
 
     /// <summary>
     /// Delete product — Result&lt;bool&gt;.ToDeleteActionResult()
@@ -77,8 +63,8 @@ public class ProductsController : ControllerBase
         => (await _service.DeleteProductAsync(id)).ToDeleteActionResult();
 
     /// <summary>
-    /// Update stock — Showcases the explicit ToActionResult(onSuccess, onFailure) overload.
-    /// This is the "escape hatch" when you need full control over the response.
+    /// Update stock — Showcases .Match() as an escape hatch for full control over responses.
+    /// Use .Match() when you need custom response bodies or non-standard status codes.
     /// </summary>
     [HttpPatch("{id:int}/stock")]
     public async Task<IActionResult> UpdateStock(int id, [FromBody] UpdateStockRequest request)
@@ -87,7 +73,7 @@ public class ProductsController : ControllerBase
         return result.Match(
             validation => new ObjectResult(new { error = validation.Message, field = validation.FieldName }) { StatusCode = 422 } as IActionResult,
             notFound => new NotFoundObjectResult(new { error = notFound.Message }),
-            product => new OkObjectResult(product));
+            product => new OkObjectResult(new { product, message = "Stock updated successfully" }));
     }
 }
 

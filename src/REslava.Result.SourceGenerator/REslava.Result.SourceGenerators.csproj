@@ -110,6 +110,14 @@
     <Compile Include="Generators\ResultToActionResult\Attributes\GenerateActionResultExtensionsAttributeGenerator.cs" />
     <Compile Include="Generators\ResultToActionResult\CodeGeneration\ResultToActionResultExtensionGenerator.cs" />
 
+    <!-- OneOfToActionResult Generators - MVC IActionResult (OneOf2, OneOf3, OneOf4) -->
+    <Compile Include="Generators\OneOfToActionResult\OneOf2ToActionResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToActionResult\OneOf3ToActionResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToActionResult\OneOf4ToActionResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToActionResult\Orchestration\OneOfToActionResultOrchestrator.cs" />
+    <Compile Include="Generators\OneOfToActionResult\Attributes\OneOfActionResultExtensionsAttributeGenerator.cs" />
+    <Compile Include="Generators\OneOfToActionResult\CodeGeneration\OneOfToActionResultExtensionGenerator.cs" />
+
     <!-- OneOfToIResult Generators - Consolidated (OneOf2, OneOf3, OneOf4) -->
     <Compile Include="Generators\OneOfToIResult\OneOf2ToIResultGenerator.cs" />
     <Compile Include="Generators\OneOfToIResult\OneOf3ToIResultGenerator.cs" />

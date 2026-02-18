@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.22.0] - 2026-02-18
+
+### ✨ Added
+- **OneOfToActionResult source generator** — `ToActionResult()` extension methods for `OneOf<T1,...,T4>` in MVC controllers
+  - 3 thin generator wrappers (OneOf2, OneOf3, OneOf4) with shared orchestrator
+  - IError.Tags-first mapping + type-name heuristic fallback, MVC result types
+  - Generated into `namespace Generated.OneOfActionResultExtensions`
+  - MVC demo controllers updated — all `OneOf.Match()` replaced with `.ToActionResult()` one-liners
+- **12 new source generator tests** for OneOfToActionResult (2/3/4 arity)
+
+### 🔧 Fixed
+- **OneOfToIResult: tag-based error mapping** — `MapErrorToHttpResult` now checks `IError.Tags["HttpStatusCode"]` first, falls back to type-name heuristic only for non-IError types. Domain errors with custom `HttpStatusCode` tags now map correctly.
+- **ValidationError → 422** — OneOfToIResult heuristic and SmartEndpoints OpenAPI both now map `ValidationError`/`Invalid` to 422 (was 400)
+
+### 📝 Changed
+- **SmartEndpoints OpenAPI: accurate error status codes** — `DetermineOpenApiStatusCode` maps `ValidationError` to 422 (was 400). `Result<T>` endpoints now declare `.Produces(400)`, `.Produces(404)`, `.Produces(409)`, `.Produces(422)` (was only 400).
+
+### Stats
+- 2,825 tests passing across net8.0, net9.0, net10.0 + generator + analyzer tests
+
 ## [1.21.0] - 2026-02-17
 
 ### ✨ Added

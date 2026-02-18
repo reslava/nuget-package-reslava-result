@@ -13,6 +13,7 @@
 | **RESL1001** | Unsafe `Result<T>.Value` access without `IsSuccess` check | Warning | Yes (2 options) |
 | **RESL1002** | Discarded `Result<T>` return value | Warning | -- |
 | **RESL1003** | Prefer `Match()` over if-check when both branches access `.Value`/`.Errors` | Info | -- |
+| **RESL1004** | Async `Task<Result<T>>` not awaited | Warning | Yes |
 | **RESL2001** | Unsafe `OneOf.AsT*` access without `IsT*` check | Warning | Yes |
 
 ## Examples
@@ -30,6 +31,9 @@ if (result.IsSuccess)              // Info RESL1003: Consider using Match()
 else
     Console.Write(result.Errors);
 
+var task = GetUserAsync(id);       // Warning RESL1004: Task<Result<T>> not awaited
+// (should be: var result = await GetUserAsync(id);)
+
 var item = oneOf.AsT1;             // Warning RESL2001: Access to '.AsT1' without checking '.IsT1'
 ```
 
@@ -42,6 +46,15 @@ if (result.IsSuccess) { var user = result.Value; }
 
 // Fix B: Replace with Match
 var user = result.Match(v => v, e => default);
+```
+
+**RESL1004** adds `await`:
+```csharp
+// Before
+var task = GetUserAsync(id);
+
+// After (auto-fixed)
+var result = await GetUserAsync(id);
 ```
 
 **RESL2001** replaces unsafe access with Match:

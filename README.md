@@ -10,7 +10,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-2813%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests-2825%20passing-brightgreen)
 
 **📐 Complete Functional Programming Framework + ASP.NET Integration + OneOf Extensions**
 
@@ -54,7 +54,7 @@
 | [📦 Package Structure](#-package-structure) | What you get with each package |
 | [🎯 Quick Examples](#-quick-examples) | Real-world code samples |
 | [📈 Production Benefits](#-production-benefits) | Enterprise-ready advantages |
-| [🧪 Testing & Quality Assurance](#-testing--quality-assurance) | 2,813 tests passing |
+| [🧪 Testing & Quality Assurance](#-testing--quality-assurance) | 2,825 tests passing |
 | [🏢 Real-World Impact](#-real-world-impact) | Success stories and use cases |
 | [🏆 Why Choose REslava.Result?](#-why-choose-reslavaresult) | Unique advantages |
 | [📚 Deep Dive Documentation](#-deep-dive-documentation) | Comprehensive guides |
@@ -293,7 +293,7 @@ dotnet add package REslava.Result.Analyzers
 | **Library/Service** | [📐 Core Library](#-reslavaresult-core-library) | Result pattern, validation, functional programming |
 | **Custom Generator** | [📖 Custom Generator Guide](docs/how-to-create-custom-generator.md) | Build your own source generators |
 | **Advanced App** | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, OneOf, validation rules |
-| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 2,813+ tests, CI/CD, test strategies |
+| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 2,825+ tests, CI/CD, test strategies |
 | **Curious About Magic** | [📐 Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
 
 ---
@@ -653,6 +653,32 @@ public async Task<IActionResult> GetById(int id)
 | `ValidationError` | 422 | `ObjectResult { StatusCode = 422 }` |
 | No tag / other | 400 | `ObjectResult { StatusCode = 400 }` |
 
+### 🎯 OneOfToActionResult Extensions (MVC OneOf Support — v1.22.0)
+**One-liner MVC controllers for discriminated union returns**
+```csharp
+// BEFORE — manual .Match() for every OneOf return
+[HttpPost]
+public async Task<IActionResult> Create([FromBody] CreateOrderRequest request)
+{
+    var result = await _service.CreateOrderAsync(request);
+    return result.Match(
+        notFound => new NotFoundObjectResult(notFound.Message) as IActionResult,
+        conflict => new ConflictObjectResult(conflict.Message),
+        validation => new ObjectResult(validation.Message) { StatusCode = 422 },
+        order => new OkObjectResult(order));
+}
+
+// AFTER — one-liner, domain errors auto-mapped
+[HttpPost]
+public async Task<IActionResult> Create([FromBody] CreateOrderRequest request)
+    => (await _service.CreateOrderAsync(request)).ToActionResult();
+    // NotFoundError → 404, ConflictError → 409, ValidationError → 422, success → 200
+```
+
+Uses the same two-phase error mapping as OneOfToIResult:
+1. **Phase 1**: Checks `IError.Tags["HttpStatusCode"]` for tag-based mapping
+2. **Phase 2**: Falls back to type-name heuristic (NotFound → 404, Conflict → 409, etc.)
+
 ### 📝 Problem Details Integration
 **RFC 7807 Compliance**
 ```csharp
@@ -941,6 +967,13 @@ SourceGenerator/
 │   │   ├── Attributes/            # 🏷️ Shared attribute generators
 │   │   ├── CodeGeneration/        # 💻 Arity-parameterized extensions
 │   │   └── Orchestration/         # 🎼 Single shared orchestrator
+│   ├── OneOfToActionResult/       # 🎯 OneOf<T1,...,TN> → MVC IActionResult (v1.22.0)
+│   │   ├── OneOf2ToActionResultGenerator.cs  # 🎯 Thin wrapper (arity=2)
+│   │   ├── OneOf3ToActionResultGenerator.cs  # 🎯 Thin wrapper (arity=3)
+│   │   ├── OneOf4ToActionResultGenerator.cs  # 🎯 Thin wrapper (arity=4)
+│   │   ├── Attributes/            # 🏷️ Shared attribute generators
+│   │   ├── CodeGeneration/        # 💻 Arity-parameterized extensions
+│   │   └── Orchestration/         # 🎼 Single shared orchestrator
 │   └── SmartEndpoints/            # ⚡ Auto-generate Minimal APIs (v1.11.0+)
 │       ├── Attributes/            # 🏷️ AutoGenerateEndpoints attribute
 │       ├── CodeGeneration/        # 💻 SmartEndpointExtensionGenerator
@@ -948,6 +981,7 @@ SourceGenerator/
 │       └── Orchestration/         # 🎼 SmartEndpointsOrchestrator
 └── Tests/                         # 🧪 Comprehensive Test Suite (1,976+ tests)
     ├── OneOfToIResult/           # ✅ 12/12 tests (unified, covers arity 2/3/4)
+    ├── OneOfToActionResult/      # ✅ 12/12 tests passing (NEW v1.22.0!)
     ├── SmartEndpoints/           # ✅ 4/4 tests passing
     ├── ResultToIResult/          # ✅ 6/6 tests passing
     ├── ResultToActionResult/     # ✅ 9/9 tests passing (NEW v1.21.0!)
@@ -1042,10 +1076,16 @@ YourProject/
 │               │   ├── GenerateOneOf2ExtensionsAttribute.g.cs    # OneOf2 attribute
 │               │   ├── MapToProblemDetailsAttribute.g.cs         # OneOf2 mapping attribute
 │               │   └── OneOf2ToIResultExtensions.g.cs            # OneOf2 HTTP extensions
-│               └── REslava.Result.SourceGenerators.Generators.OneOf3ToIResult.OneOf3ToIResultGenerator/
-│                   ├── GenerateOneOf3ExtensionsAttribute.g.cs    # OneOf3 attribute
-│                   ├── MapToProblemDetailsAttribute.g.cs         # OneOf3 mapping attribute
-│                   └── OneOf3ToIResultExtensions.g.cs            # OneOf3 HTTP extensions
+│               ├── REslava.Result.SourceGenerators.Generators.OneOf3ToIResult.OneOf3ToIResultGenerator/
+│               │   ├── GenerateOneOf3ExtensionsAttribute.g.cs    # OneOf3 attribute
+│               │   ├── MapToProblemDetailsAttribute.g.cs         # OneOf3 mapping attribute
+│               │   └── OneOf3ToIResultExtensions.g.cs            # OneOf3 HTTP extensions
+│               ├── REslava.Result.SourceGenerators.Generators.OneOfToActionResult.OneOf2ToActionResultGenerator/
+│               │   ├── GenerateOneOf2ActionResultExtensionsAttribute.g.cs  # OneOf2 MVC attribute
+│               │   └── OneOf2ActionResultExtensions.g.cs                   # OneOf2 MVC extensions
+│               └── REslava.Result.SourceGenerators.Generators.OneOfToActionResult.OneOf3ToActionResultGenerator/
+│                   ├── GenerateOneOf3ActionResultExtensionsAttribute.g.cs  # OneOf3 MVC attribute
+│                   └── OneOf3ActionResultExtensions.g.cs                   # OneOf3 MVC extensions
 └── bin/
     └── Your compiled application with auto-generated extensions
 ```
@@ -1153,19 +1193,20 @@ return GetUser(id).ToIResult(); // 🆕 Automatic HTTP mapping!
 ## 🧪 Testing & Quality Assurance
 
 ### 📊 Comprehensive Test Suite
-**2,813 Tests Passing** 🎉
+**2,825 Tests Passing** 🎉
 - **Core Library Tests**: 896 tests per TFM (net8.0, net9.0, net10.0) = 2,688 tests
-- **Source Generator Tests**: 65 tests for all generators
+- **Source Generator Tests**: 83 tests for all generators
 - **Analyzer Tests**: 54 tests for RESL1001–RESL1004 + RESL2001
 - **Multi-TFM**: All core tests run on 3 target frameworks
 
 ### 📐 Source Generator Test Architecture
-**Complete Test Coverage for v1.12.0**
+**Complete Test Coverage for v1.22.0**
 ```
 tests/REslava.Result.SourceGenerators.Tests/
 ├── OneOf2ToIResult/          # ✅ 5/5 tests passing
-├── OneOf3ToIResult/          # ✅ 4/4 tests passing  
-├── OneOf4ToIResult/          # ✅ 5/5 tests passing (NEW!)
+├── OneOf3ToIResult/          # ✅ 4/4 tests passing
+├── OneOf4ToIResult/          # ✅ 5/5 tests passing
+├── OneOfToActionResult/      # ✅ 12/12 tests passing (NEW v1.22.0!)
 ├── ResultToIResult/          # ✅ 6/6 tests passing
 ├── ResultToActionResult/     # ✅ 9/9 tests passing (NEW v1.21.0!)
 ├── SmartEndpoints/           # ✅ 4/4 tests passing
@@ -1206,13 +1247,22 @@ tests/REslava.Result.SourceGenerators.Tests/
 - ✅ Conditional generation (zero false positives)
 - ✅ Error-free compilation, initialization, and empty compilation handling
 
+**OneOfToActionResult Generator (NEW v1.22.0)**
+- ✅ Extension method generation for OneOf<T1,...,T4> → IActionResult
+- ✅ IError.Tags["HttpStatusCode"] tag-based mapping (Phase 1)
+- ✅ Type-name heuristic fallback (Phase 2)
+- ✅ MVC result types (OkObjectResult, NotFoundObjectResult, ConflictObjectResult, etc.)
+- ✅ Attribute generation per arity (2/3/4)
+- ✅ Correct namespace (Generated.OneOfActionResultExtensions)
+- ✅ Conditional generation (zero false positives)
+
 ### 🚀 CI/CD Pipeline
 **Automated Testing**
 ```yaml
 # .github/workflows/ci.yml
 - Build Solution: dotnet build --configuration Release
 - Run Tests: dotnet test --configuration Release --no-build
-- Total Tests: 2,813+ passing
+- Total Tests: 2,825+ passing
 - Coverage: 95%+ code coverage
 ```
 
@@ -1238,7 +1288,7 @@ tests/REslava.Result.SourceGenerators.Tests/
 
 ### 🔍 Test Quality Metrics
 **High Standards**
-- ✅ **2,813/2,813 tests passing** (100% success rate)
+- ✅ **2,825/2,825 tests passing** (100% success rate)
 - ✅ **95%+ code coverage** (comprehensive coverage)
 - ✅ **Zero flaky tests** (reliable CI/CD)
 - ✅ **Fast execution** (complete suite < 15 seconds)
@@ -1247,10 +1297,10 @@ tests/REslava.Result.SourceGenerators.Tests/
 ### 🏃‍♂️ Running Tests Locally
 **Quick Test Commands**
 ```bash
-# Run all tests (2,813 tests across 3 TFMs)
+# Run all tests (2,825 tests across 3 TFMs)
 dotnet test --configuration Release
 
-# Run only Source Generator tests (56 tests)
+# Run only Source Generator tests (83 tests)
 dotnet test tests/REslava.Result.SourceGenerators.Tests/
 
 # Run only Analyzer tests (54 tests)
@@ -1333,7 +1383,7 @@ Passed!  - Failed: 0, Passed:  54 - REslava.Result.Analyzers.Tests.dll (net10.0)
 | **Library/Service** | [📐 Core Library](#-reslavaresult-core-library) | Result pattern, validation, error handling |
 | **Custom Generator** | [📖 Custom Generator Guide](docs/how-to-create-custom-generator.md) | Build your own source generators |
 | **Advanced App** | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, OneOf, validation rules |
-| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 2,813+ tests, CI/CD, test strategies |
+| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 2,825+ tests, CI/CD, test strategies |
 | **Curious About Magic** | [📐 Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
 
 ### 📚 **Complete Reference**
@@ -1355,11 +1405,12 @@ Passed!  - Failed: 0, Passed:  54 - REslava.Result.Analyzers.Tests.dll (net10.0)
   - **Real-world scenarios** - Users, Products, Orders with full CRUD operations
   - **Zero exception-based control flow** - Type-safe error handling
 
-- **🎯 [FastMvcAPI Demo](samples/FastMvcAPI.REslava.Result.Demo/)** - MVC Controller demo showcasing `ToActionResult()` (v1.21.0)
+- **🎯 [FastMvcAPI Demo](samples/FastMvcAPI.REslava.Result.Demo/)** - MVC Controller demo showcasing `ToActionResult()` (v1.21.0+)
   - **Result<T>.ToActionResult()** - Convention-based HTTP mapping for MVC controllers
+  - **OneOf<>.ToActionResult()** - Domain error auto-mapping for discriminated unions (v1.22.0)
   - **ToPostActionResult(), ToDeleteActionResult()** - HTTP verb variants
   - **Explicit overload escape hatch** - `ToActionResult(onSuccess, onFailure)` for full control
-  - **OneOf<T1,T2>.Match()** - Discriminated union handling with MVC result types
+  - **Match() escape hatch** - Full control over custom response bodies when needed
   - **Port 5001** - Runs alongside Minimal API demo (port 5000) for side-by-side comparison
 
 - **📚 [Console Samples](samples/REslava.Result.Samples.Console/README.md)** - 13 progressive examples from basic to advanced
@@ -1458,10 +1509,16 @@ public IResult GetUser(int id) =>
 
 ## 🎯 Roadmap
 
-### v1.21.0 (Current) ✅
+### v1.22.0 (Current) ✅
+- **OneOf<>.ToActionResult() — MVC One-Liners** — source-generated `IActionResult` extension methods for `OneOf<T1,...,T4>` in MVC controllers, domain errors auto-map via `IError.Tags["HttpStatusCode"]`
+- **OneOfToIResult: Tag-Based Error Mapping Fix** — `MapErrorToHttpResult` checks `IError.Tags["HttpStatusCode"]` first before falling back to type-name heuristics
+- **SmartEndpoints: Accurate OpenAPI Error Docs** — `ValidationError` → 422 (was 400), `Result<T>` endpoints declare 400/404/409/422
+- 12 new source generator tests, 2,825 total tests
+
+### v1.21.0 ✅
 - **Result<T>.ToActionResult() — ASP.NET MVC Support** — source-generated `IActionResult` extension methods for MVC controllers, convention-based HTTP mapping with explicit overload escape hatch
 - **FastMvcAPI Demo App** — MVC equivalent of FastMinimalAPI demo (Users, Products, Orders) on port 5001
-- 9 new source generator tests, 2,813 total tests
+- 9 new source generator tests
 
 ### v1.20.0 ✅
 - **Structured Error Hierarchy** — 5 built-in domain errors (`NotFoundError`, `ValidationError`, `ConflictError`, `UnauthorizedError`, `ForbiddenError`) with HTTP status code tags and CRTP fluent chaining
@@ -1545,7 +1602,8 @@ See the full list of contributors in [CONTRIBUTORS.md](CONTRIBUTORS.md).
 
 ## 📈 Version History
 
-- **v1.21.0** - ASP.NET MVC Support: Result<T>.ToActionResult() source generator (convention-based + explicit overload), FastMvcAPI demo app, 9 new tests, 2,813 tests
+- **v1.22.0** - Domain Error Completeness: OneOf<>.ToActionResult() MVC generator, OneOfToIResult tag-based error mapping, SmartEndpoints accurate OpenAPI docs (ValidationError → 422), 12 new tests, 2,825 tests
+- **v1.21.0** - ASP.NET MVC Support: Result<T>.ToActionResult() source generator (convention-based + explicit overload), FastMvcAPI demo app, 9 new tests
 - **v1.20.0** - Domain Error Hierarchy (NotFoundError, ValidationError, ConflictError, UnauthorizedError, ForbiddenError), domain error-aware ResultToIResult HTTP mapping, 150 new tests, internal quality fixes
 - **v1.19.0** - RESL1004 Async Result Not Awaited analyzer + CancellationToken support throughout
 - **v1.18.0** - Task-Based Async Patterns: WhenAll (typed tuples), Retry (exponential backoff), Timeout

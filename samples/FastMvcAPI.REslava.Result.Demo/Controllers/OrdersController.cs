@@ -1,13 +1,14 @@
 using FastMvcAPI.REslava.Result.Demo.Models;
 using FastMvcAPI.REslava.Result.Demo.Services;
 using Generated.ActionResultExtensions;
+using Generated.OneOfActionResultExtensions;
 using Microsoft.AspNetCore.Mvc;
 using REslava.Result;
 
 namespace FastMvcAPI.REslava.Result.Demo.Controllers;
 
 /// <summary>
-/// MVC Controller for Orders — showcases OneOf4.Match() for complex error handling
+/// MVC Controller for Orders — showcases OneOf&lt;&gt;.ToActionResult() for auto-mapped error handling
 /// and Result&lt;T&gt;.ToActionResult() for simple cases.
 /// </summary>
 [ApiController]
@@ -27,70 +28,41 @@ public class OrdersController : ControllerBase
         => (await _service.GetAllOrdersAsync()).ToActionResult();
 
     /// <summary>
-    /// Get order by ID — OneOf.Match()
+    /// Get order by ID — OneOf&lt;NotFoundError, OrderResponse&gt;.ToActionResult() one-liner
     /// </summary>
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
-    {
-        var result = await _service.GetOrderByIdAsync(id);
-        return result.Match(
-            notFound => new NotFoundObjectResult(new { error = notFound.Message }) as IActionResult,
-            order => new OkObjectResult(order));
-    }
+        => (await _service.GetOrderByIdAsync(id)).ToActionResult();
 
     /// <summary>
-    /// Get orders by user — OneOf.Match()
+    /// Get orders by user — OneOf&lt;NotFoundError, List&lt;OrderResponse&gt;&gt;.ToActionResult()
     /// </summary>
     [HttpGet("user/{userId:int}")]
     public async Task<IActionResult> GetByUser(int userId)
-    {
-        var result = await _service.GetOrdersByUserIdAsync(userId);
-        return result.Match(
-            notFound => new NotFoundObjectResult(new { error = notFound.Message }) as IActionResult,
-            orders => new OkObjectResult(orders));
-    }
+        => (await _service.GetOrdersByUserIdAsync(userId)).ToActionResult();
 
     /// <summary>
-    /// Create order — OneOf4&lt;NotFoundError, ConflictError, ValidationError, OrderResponse&gt;.Match()
-    /// Showcases the most complex error handling pattern:
-    ///   NotFoundError (404) | ConflictError (409) | ValidationError (422) | OrderResponse (201)
+    /// Create order — OneOf4&lt;NotFoundError, ConflictError, ValidationError, OrderResponse&gt;.ToActionResult()
+    /// Showcases the most complex error handling pattern — all auto-mapped:
+    ///   NotFoundError (404) | ConflictError (409) | ValidationError (422) | OrderResponse (200)
     /// </summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateOrderRequest request)
-    {
-        var result = await _service.CreateOrderAsync(request);
-        return result.Match(
-            notFound => new NotFoundObjectResult(new { error = notFound.Message }) as IActionResult,
-            conflict => new ConflictObjectResult(new { error = conflict.Message }),
-            validation => new ObjectResult(new { error = validation.Message, field = validation.FieldName }) { StatusCode = 422 },
-            order => new CreatedAtActionResult(nameof(GetById), "Orders", new { id = order.Id }, order));
-    }
+        => (await _service.CreateOrderAsync(request)).ToActionResult();
 
     /// <summary>
-    /// Update order status — OneOf3.Match()
+    /// Update order status — OneOf3&lt;NotFoundError, ValidationError, OrderResponse&gt;.ToActionResult()
     /// </summary>
     [HttpPatch("{id:int}/status")]
     public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateOrderStatusRequest request)
-    {
-        var result = await _service.UpdateOrderStatusAsync(id, request.Status.ToString());
-        return result.Match(
-            notFound => new NotFoundObjectResult(new { error = notFound.Message }) as IActionResult,
-            validation => new ObjectResult(new { error = validation.Message, field = validation.FieldName }) { StatusCode = 422 },
-            order => new OkObjectResult(order));
-    }
+        => (await _service.UpdateOrderStatusAsync(id, request.Status.ToString())).ToActionResult();
 
     /// <summary>
-    /// Cancel order — OneOf3.Match()
+    /// Cancel order — OneOf3&lt;NotFoundError, ValidationError, OrderResponse&gt;.ToActionResult()
     /// </summary>
     [HttpDelete("{id:int}/cancel")]
     public async Task<IActionResult> Cancel(int id)
-    {
-        var result = await _service.CancelOrderAsync(id);
-        return result.Match(
-            notFound => new NotFoundObjectResult(new { error = notFound.Message }) as IActionResult,
-            validation => new ObjectResult(new { error = validation.Message, field = validation.FieldName }) { StatusCode = 422 },
-            order => new OkObjectResult(order));
-    }
+        => (await _service.CancelOrderAsync(id)).ToActionResult();
 
     /// <summary>
     /// Get user order statistics — Result&lt;T&gt;.ToActionResult()

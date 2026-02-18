@@ -9,10 +9,13 @@
 ## Why REslava.Result?
 
 - **Result\<T\> + OneOf + Maybe\<T\>** in a single zero-dependency package
+- **Domain error hierarchy** — `NotFoundError`, `ValidationError`, `ConflictError`, `UnauthorizedError`, `ForbiddenError` with HTTP status code tags
 - **Implicit conversions** — just `return user;` or `return new NotFoundError();`
 - **LINQ query syntax** — compose results with `from ... in ... select`
-- **Roslyn safety analyzers** — catch unsafe `.Value` access at compile time
-- **SmartEndpoints** — auto-generate complete ASP.NET Minimal API endpoints (separate package)
+- **Async patterns** — `WhenAll` (typed tuples), `Retry` (exponential backoff), `Timeout`
+- **JSON serialization** — `System.Text.Json` converters for `Result<T>`, `OneOf`, `Maybe<T>`
+- **Roslyn safety analyzers** — catch unsafe `.Value` access at compile time (separate package)
+- **ASP.NET integration** — auto-generate Minimal API + MVC endpoints with domain error mapping (separate package)
 
 No other .NET library combines all of these.
 
@@ -67,7 +70,7 @@ var message = result.Match(
 
 | Package | Description |
 |---------|-------------|
-| [REslava.Result.SourceGenerators](https://www.nuget.org/packages/REslava.Result.SourceGenerators) | Auto-generate ASP.NET Minimal API endpoints, IResult conversions, and OpenAPI metadata |
+| [REslava.Result.SourceGenerators](https://www.nuget.org/packages/REslava.Result.SourceGenerators) | Auto-generate ASP.NET endpoints (Minimal API + MVC), IResult/IActionResult conversions, OneOf extensions, OpenAPI metadata |
 | [REslava.Result.Analyzers](https://www.nuget.org/packages/REslava.Result.Analyzers) | Roslyn analyzers that catch unsafe Result/OneOf usage at compile time |
 
 ## Links
