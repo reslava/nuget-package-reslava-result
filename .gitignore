@@ -5,6 +5,9 @@
 ###################
 scripts/.test-counts-cache
 scripts/.test-output-tmp
+local-nuget/
+nupkgs/
+.czrc
 
 ###################
 
