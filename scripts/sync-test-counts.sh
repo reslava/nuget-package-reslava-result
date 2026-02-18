@@ -133,11 +133,11 @@ update_readme() {
     # Badge: tests-NNNN%20passing
     s|tests-[0-9]+%20passing|tests-${TOTAL}%20passing|g
 
-    # 'N,NNN Tests Passing' heading
-    s|[0-9,]+ Tests Passing|${TOTAL_FMT} Tests Passing|g
+    # '**N,NNN Tests Passing**' heading (only the bold heading line)
+    s|\*\*[0-9,]+ Tests Passing\*\*|**${TOTAL_FMT} Tests Passing**|
 
-    # 'N,NNN/N,NNN tests passing' quality metric
-    s|[0-9,]+/[0-9,]+ tests passing|${TOTAL_FMT}/${TOTAL_FMT} tests passing|g
+    # 'N,NNN/N,NNN tests passing' quality metric (requires comma = 1000+, avoids 5/5 ratios)
+    s|[0-9]+,[0-9]+/[0-9]+,[0-9]+ tests passing|${TOTAL_FMT}/${TOTAL_FMT} tests passing|
 
     # Core library: 'NNN tests per TFM (...) = N,NNN tests'
     s|[0-9]+ tests per TFM \(net[0-9.]+, net[0-9.]+, net[0-9.]+\) = [0-9,]+ tests|${CORE_PER_TFM} tests per TFM (net8.0, net9.0, net10.0) = ${CORE_TOTAL_FMT} tests|
