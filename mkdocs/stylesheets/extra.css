@@ -225,14 +225,14 @@
 
 /* “featured” card variant 
  then in MarkDown:
- - {: .is-featured } deleted .md-typeset */  
-.grid.cards > ul > li:has(p.is-featured) {
+ - {: .is-featured } */  
+.md-typeset .grid.cards > ul > li:has(p.is-featured) {
   border-right-width: 4px;
   border-bottom-width: 4px;
   transform: scale(1.04);
 }
 
-.grid.cards > ul > li:has(p.is-featured)::before {
+.md-typeset .grid.cards > ul > li:has(p.is-featured)::before {
   content: "✨ Featured";
   position: absolute;
   top: 8px;
@@ -245,7 +245,7 @@
   font-weight: bold;
 }
 
-/*.md-typeset .grid.cards > ul > li:has(p.is-featured) {
+.md-typeset .grid.cards > ul > li:has(p.is-featured) {
   transform: rotate(-1deg);
   transition: transform 0.2s ease;
-}*/
+}

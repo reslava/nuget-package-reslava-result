@@ -73,16 +73,16 @@ jobs:
         run: python .github/scripts/add_frontmatter_and_clean_heading.py
       
       - name: Clean up mdsplit output (remove H1 file, flatten folder)
-        run: python .github/scripts/cleanup_mdsplit.py
-        
-      - name: Remove generated TOC file (not needed for MkDocs)
-        run: rm -f mkdocs/table-of-contents.md        
+        run: python .github/scripts/cleanup_mdsplit.py                     
 
       - name: Organize files into folders
         run: python .github/scripts/organize_docs.py
 
       - name: Lowercase all filenames (except index.md)
-        run: python .github/scripts/lowercase_filenames.py        
+        run: python .github/scripts/lowercase_filenames.py    
+        
+      - name: Remove generated TOC file (not needed for MkDocs)
+        run: rm -f mkdocs/table-of-contents.md 
       
       - name: Fix broken links and external references
         run: python .github/scripts/fix_broken_links.py --apply
