@@ -35,7 +35,7 @@ hide:
 -   :material-api: __ASP.NET Integration__  
     Minimal API, MVC, SmartEndpoints, OpenAPI, authorization, and problem details.
     [](aspnet)
-    {: .IsFeatured }
+    {: .is-featured }
 
 -   :material-puzzle: __Architecture & Design__  
     How the library is built – SOLID, package structure, and the source generator pipeline.
