@@ -1514,7 +1514,10 @@ public IResult GetUser(int id) =>
 
 ## 🎯 Roadmap
 
-### v1.24.0 (Current) ✅
+### v1.25.0 (Current) ✅
+- TODO: describe features
+
+### v1.24.0 ✅
 - **`[Validate]` Source Generator** — decorate any record/class to get `.Validate()` returning `Result<T>`; delegates to `Validator.TryValidateObject` (all 20+ `DataAnnotations` types supported); field errors surface as `ValidationError` with `FieldName`; composable with `.Bind()` / `.ToIResult()` / `.ToActionResult()`
 - 7 new generator tests, 2,843 total tests
 
@@ -1618,6 +1621,7 @@ See the full list of contributors in [CONTRIBUTORS.md](CONTRIBUTORS.md).
 
 ## 📈 Version History
 
+- **v1.25.0** - TODO: describe
 - **v1.24.0** - Compile-Time Validation Generator: [Validate] attribute generates .Validate() → Result<T> via Validator.TryValidateObject, 7 new tests, 2,843 tests
 - **v1.23.0** - SmartEndpoints Production Readiness: Endpoint Filters ([SmartFilter]), Output Caching (CacheSeconds), Rate Limiting (RateLimitPolicy), 11 new tests, 2,836 tests
 - **v1.22.0** - Domain Error Completeness: OneOf<>.ToActionResult() MVC generator, OneOfToIResult tag-based error mapping, SmartEndpoints accurate OpenAPI docs (ValidationError → 422), 12 new tests, 2,825 tests
