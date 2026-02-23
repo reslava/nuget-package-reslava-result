@@ -7,7 +7,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ## [1.25.0] - 2026-02-24
 
 ### ✨ Added
--
+- **Documentation website** — MkDocs Material site auto-generated from `README.md` on every push; 8 nav sections, dark/light mode, search, social cards, git revision dates
+- **DocFX API reference landing page** — Bootstrap card grid with namespace cards, Core Types at a Glance, and quick-links to docs/GitHub/NuGet; deployed at `/reference/api/`
+- **CI path filtering** — CI workflow now uses allowlist (`src/**`, `tests/**`) instead of denylist; docs-only commits no longer trigger the test suite
+
+### 🔧 Fixed
+- `organize_docs.py`: `reference/api-docs` path typo corrected to `reference/api-doc`
+- Docs workflow trigger: added `docfx/**` path and corrected self-reference from `mkdocs.yml` to `mkdocs-docfx.yml`
+- MkDocs Reference index: replaced copy-pasted placeholder descriptions with accurate content per card
 
 ### Stats
 - 2,843 tests passing across net8.0, net9.0, net10.0 + generator + analyzer tests
