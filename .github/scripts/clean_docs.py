@@ -10,10 +10,9 @@ from pathlib import Path
 # Directories to exclude from deletion (relative to mkdocs/).
 # Files under these folders (and their subfolders) will NOT be deleted.
 EXCLUDE_DIRS = [
-    "reference/api-doc",   # example – add yours here
+    "reference/api-doc",   
     "architecture/solid",
-    "code-examples/samples"
-    # "other/folder",
+    "code-examples/samples"    
 ]
 
 def main():

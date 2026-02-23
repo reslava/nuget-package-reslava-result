@@ -2,10 +2,199 @@
 _layout: landing
 ---
 
-# This is the **HOMEPAGE**.
+<div class="container-xl py-5">
 
-Refer to [Markdown](http://daringfireball.net/projects/markdown/) for how to write markdown files.
+<!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+<div class="pb-4 mb-5 border-bottom">
+  <h1 class="display-5 fw-bold">
+    REslava.Result
+    <span class="text-muted fw-normal fs-4 ms-2">API Reference</span>
+  </h1>
+  <p class="lead text-muted mb-4">
+    Functional error handling &amp; zero-boilerplate Minimal APIs for .NET.<br>
+    Type-safe <code>Result&lt;T&gt;</code>, discriminated unions, source generators.
+  </p>
 
-## Quick Start Notes:
+  <!-- Quick links -->
+  <div class="d-flex flex-wrap gap-2">
+    <a href="https://reslava.github.io/nuget-package-reslava-result/reference/"
+       class="btn btn-primary">
+      ← Back to Docs
+    </a>
+    <a href="https://github.com/reslava/nuget-package-reslava-result"
+       class="btn btn-outline-secondary">
+      GitHub
+    </a>
+    <a href="https://www.nuget.org/packages/REslava.Result/"
+       class="btn btn-outline-secondary">
+      NuGet: REslava.Result
+    </a>
+    <a href="https://www.nuget.org/packages/REslava.Result.SourceGenerators/"
+       class="btn btn-outline-secondary">
+      NuGet: SourceGenerators
+    </a>
+    <a href="https://www.nuget.org/packages/REslava.Result.Analyzers/"
+       class="btn btn-outline-secondary">
+      NuGet: Analyzers
+    </a>
+  </div>
+</div>
 
-1. Add images to the *images* folder if the file is referencing an image.
+<!-- ── Namespaces ────────────────────────────────────────────────────────── -->
+<h2 class="mb-1">Namespaces</h2>
+<p class="text-muted mb-4">Browse the full type inventory for each namespace.</p>
+
+<div class="row row-cols-1 row-cols-md-2 g-4 mb-5">
+
+  <div class="col">
+    <div class="card h-100 border-start border-4 border-primary shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">
+          <a href="REslava.Result.html" class="text-decoration-none stretched-link">REslava.Result</a>
+        </h5>
+        <p class="card-text text-muted small">
+          Core library. Contains <code>Result&lt;T&gt;</code>, <code>Maybe&lt;T&gt;</code>,
+          <code>OneOf&lt;T1,T2[,T3,T4]&gt;</code>, and the full error hierarchy —
+          <code>Error</code>, <code>ValidationError</code>, <code>ExceptionError</code>,
+          <code>ConversionError</code>, <code>Reason&lt;T&gt;</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100 border-start border-4 border-primary shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">
+          <a href="REslava.Result.AdvancedPatterns.html" class="text-decoration-none stretched-link">REslava.Result.AdvancedPatterns</a>
+        </h5>
+        <p class="card-text text-muted small">
+          Advanced compositional types. Utilities for building richer domain models
+          with discriminated unions, validation pipelines, and structured error hierarchies.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100 border-start border-4 border-primary shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">
+          <a href="REslava.Result.Extensions.html" class="text-decoration-none stretched-link">REslava.Result.Extensions</a>
+        </h5>
+        <p class="card-text text-muted small">
+          Functional extension methods: <code>Map</code>, <code>MapAsync</code>,
+          <code>Bind</code>, <code>BindAsync</code>, <code>Tap</code>, <code>Ensure</code>,
+          <code>WhenAll</code>, <code>Retry</code>, <code>Timeout</code>,
+          <code>ToIResult</code>, <code>ToActionResult</code> and more.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100 border-start border-4 border-primary shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">
+          <a href="REslava.Result.Serialization.html" class="text-decoration-none stretched-link">REslava.Result.Serialization</a>
+        </h5>
+        <p class="card-text text-muted small">
+          <code>System.Text.Json</code> converters for <code>Result&lt;T&gt;</code>,
+          <code>Maybe&lt;T&gt;</code>, and error types. Enables seamless serialization
+          in web APIs and distributed systems.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Core Types at a Glance ────────────────────────────────────────────── -->
+<h2 class="mb-1">Core Types at a Glance</h2>
+<p class="text-muted mb-4">The most commonly used types across the library.</p>
+
+<div class="row row-cols-1 row-cols-md-3 g-3 mb-5">
+
+  <div class="col">
+    <div class="card h-100 bg-body-secondary border-0">
+      <div class="card-body">
+        <h6 class="card-title fw-semibold"><a href="REslava.Result.Result-1.html" class="text-decoration-none">Result&lt;T&gt;</a></h6>
+        <p class="card-text small text-muted">
+          Wraps a success value or a list of errors. The primary return type for all
+          fallible operations. Use <code>.IsSuccess</code>, <code>.Value</code>, <code>.Errors</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100 bg-body-secondary border-0">
+      <div class="card-body">
+        <h6 class="card-title fw-semibold"><a href="REslava.Result.Maybe-1.html" class="text-decoration-none">Maybe&lt;T&gt;</a></h6>
+        <p class="card-text small text-muted">
+          Null-safe optional value. Eliminates <code>null</code> reference checks with
+          a type-safe <code>Some</code> / <code>None</code> distinction.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100 bg-body-secondary border-0">
+      <div class="card-body">
+        <h6 class="card-title fw-semibold"><a href="REslava.Result.OneOf-2.html" class="text-decoration-none">OneOf&lt;T1, T2[, T3, T4]&gt;</a></h6>
+        <p class="card-text small text-muted">
+          Discriminated union. Represents exactly one of 2–4 types.
+          Ideal for service methods that return different success shapes.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100 bg-body-secondary border-0">
+      <div class="card-body">
+        <h6 class="card-title fw-semibold"><a href="REslava.Result.Error.html" class="text-decoration-none">Error hierarchy</a></h6>
+        <p class="card-text small text-muted">
+          <code>Error</code> · <code>ValidationError</code> (field + message) ·
+          <code>ExceptionError</code> · <code>ConversionError</code>.
+          All implement <code>IError</code> with tag-based HTTP status mapping.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100 bg-body-secondary border-0">
+      <div class="card-body">
+        <h6 class="card-title fw-semibold"><a href="REslava.Result.Reason-1.html" class="text-decoration-none">Reason&lt;TReason&gt;</a></h6>
+        <p class="card-text small text-muted">
+          Base class for all reasons (successes and errors). Carries a <code>Message</code>,
+          optional <code>Tags</code> dictionary, and CRTP fluent builder pattern.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100 bg-body-secondary border-0">
+      <div class="card-body">
+        <h6 class="card-title fw-semibold"><a href="REslava.Result.Extensions.html" class="text-decoration-none">Extension methods</a></h6>
+        <p class="card-text small text-muted">
+          Functional pipeline: <code>Map → Bind → Tap → Ensure → ToIResult</code>.
+          Async variants for all operations. Combinators: <code>WhenAll</code>, <code>Retry</code>, <code>Timeout</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Footer note ───────────────────────────────────────────────────────── -->
+<p class="text-muted small border-top pt-4">
+  Use the namespace menu at the top to browse all types.
+  Source generators and analyzer rules are documented in the
+  <a href="https://reslava.github.io/nuget-package-reslava-result/">main docs</a>.
+</p>
+
+</div>
