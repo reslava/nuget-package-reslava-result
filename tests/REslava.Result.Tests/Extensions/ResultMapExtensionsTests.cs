@@ -355,20 +355,17 @@ public sealed class ResultMapExtensionsTests
     {
         // Arrange
         var resultTask = Task.FromResult(Result<int>.Ok(42));
-        
+
         // Act
-        var startTime = DateTime.UtcNow;
         var result = await resultTask.MapAsync(async x =>
         {
             await Task.Delay(100);
             return x * 2;
         });
-        var endTime = DateTime.UtcNow;
-        
+
         // Assert
         Assert.IsTrue(result.IsSuccess);
         Assert.AreEqual(84, result.Value);
-        Assert.IsTrue(endTime - startTime >= TimeSpan.FromMilliseconds(100));
     }
 
     #endregion

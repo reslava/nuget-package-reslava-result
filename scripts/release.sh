@@ -21,6 +21,11 @@
 #     6. git add + commit + push
 #     7. validate-release.sh      — pre-tag checks on clean tree (aborts on failure)
 #     8. tag-release.sh           — annotated tag + push
+#
+# Note: Phase 2 stages only the 4 standard release files (Directory.Build.props,
+# CHANGELOG.md, README.md, release notes). New feature code should be committed
+# separately before running this script. Normal workflow: merge feature branches
+# first, then run release.sh to handle the version bump artifacts.
 
 set -u
 
