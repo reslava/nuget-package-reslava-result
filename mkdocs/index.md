@@ -85,7 +85,7 @@ hide:
 
 ## Ready to Transform Your Error Handling?
 
-**📖 [Start with the Getting Started Guide](/getting-started/index.md)**
+**📖 [Start with the Getting Started Guide](getting-started)**
 
 ---
 
