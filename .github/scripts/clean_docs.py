@@ -11,7 +11,7 @@ from pathlib import Path
 # Files under these folders (and their subfolders) will NOT be deleted.
 EXCLUDE_DIRS = [
     "reference/api-doc",   # example – add yours here
-    "architecture/SOLID",
+    "architecture/solid",
     "code-examples/samples"
     # "other/folder",
 ]
