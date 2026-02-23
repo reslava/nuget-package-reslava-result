@@ -1,8 +1,9 @@
 # REslava.Result - Railway-Oriented Programming for .NET
 
 <div align="center">
-
-[![Documentation](https://img.shields.io/badge/Documentation-mkDocs-0094F5logo=materialformkdocs)](https://reslava.github.io/nuget-package-reslava-result/)
+                  
+[![Documentation](https://img.shields.io/badge/Documentation-mkDocs-0094F5?logo=materialformkdocs)](https://reslava.github.io/nuget-package-reslava-result/)
+[![DocFX](https://img.shields.io/badge/DocFX-API%20Reference-2A579A?logo=docfx&logoColor=white)](https://reslava.github.io/nuget-package-reslava-result/reference/api/index.html)
 ![.NET](https://img.shields.io/badge/.NET-512BD4?logo=dotnet&logoColor=white)
 ![C#](https://img.shields.io/badge/C%23-239120?&logo=csharp&logoColor=white)
 ![NuGet Version](https://img.shields.io/nuget/v/REslava.Result.SourceGenerators?style=flat&logo=nuget)
