@@ -6,7 +6,8 @@ on:
       - 'README.md'
       - 'mkdocs.yml'
       - 'mkdocs/**'
-      - '.github/workflows/mkdocs.yml'
+      - 'docfx/**'
+      - '.github/workflows/mkdocs-docfx.yml'
   workflow_dispatch: 
 
 

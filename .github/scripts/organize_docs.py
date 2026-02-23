@@ -71,7 +71,7 @@ MAPPING = {
     "deep-dive-documentation": "reference",
     "version-history": "reference",
     "roadmap": "reference",
-    "overview": "reference/api-docs",
+    "overview": "reference/api-doc",
 
     # Community
     "contributing": "community",
