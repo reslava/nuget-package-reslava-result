@@ -11,7 +11,7 @@ Quick access to API documentation, version history, roadmap, and deep-dive guide
 
 -   :material-api: __API Documentation__
     Hand-written reference for all public APIs — `Result<T>`, extension methods, error types, `OneOf`, `Maybe`.
-    [](api-doc/overview)
+    [](api-doc)
 
 -   :material-code-braces: __API Reference__
     Auto-generated from XML docs. Browse all namespaces, types, and members.

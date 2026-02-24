@@ -7,12 +7,12 @@ This document provides a comprehensive overview of all available API methods in 
 
 | Category | Document | Description |
 |-----------|----------|-------------|
-| **Reasons** | [Reasons.md](Reasons.md) | All reason types (Success, Error, ExceptionError, ConversionError) and their methods |
-| **Result Methods** | [Result-Methods.md](Result-Methods.md) | Core instance methods on Result classes (Map, Tap, Match, Bind, Conversions) |
-| **Result Factories** | [Result-Factories.md](Result-Factories.md) | Static factory methods for creating Results (Ok, Fail, Combine, Conditional, Try) |
-| **Result Extensions** | [Result-Extensions.md](Result-Extensions.md) | Extension methods for enhanced functionality (LINQ, Validation, Async operations) |
-| **Validation Rules** | [Validation-Rules.md](Validation-Rules.md) | Built-in validation rules and custom validation patterns |
-| **Advanced Patterns** | [advanced-patterns/](advanced-patterns/) | Maybe, OneOf, and other advanced functional patterns |
+| **Reasons** | [Reasons](/reference/api-doc/reasons) | All reason types (Success, Error, ExceptionError, ConversionError) and their methods |
+| **Result Methods** | [Result Methods](/reference/api-doc/result-methods) | Core instance methods on Result classes (Map, Tap, Match, Bind, Conversions) |
+| **Result Factories** | [Result Factories](/reference/api-doc/result-factories) | Static factory methods for creating Results (Ok, Fail, Combine, Conditional, Try) |
+| **Result Extensions** | [Result Extensions](/reference/api-doc/result-extensions) | Extension methods for enhanced functionality (LINQ, Validation, Async operations) |
+| **Validation Rules** | [Validation Rules](/reference/api-doc/validation-rules) | Built-in validation rules and custom validation patterns |
+| **Advanced Patterns** | [Advanced Patterns](advanced-patterns) | Maybe, OneOf, and other advanced functional patterns |
 
 
 ### Result Types
