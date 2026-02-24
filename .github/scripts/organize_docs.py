@@ -56,6 +56,7 @@ MAPPING = {
     "problem-details": "aspnet",
     "oneof-to-iresult": "aspnet",
     "one-of-to-iresult": "aspnet",
+    "oneof--iresult": "aspnet",                              # mdsplit strips → character
 
     # Architecture
     "architecture": "architecture",

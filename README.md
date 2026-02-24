@@ -60,13 +60,13 @@ Includes API reference, advanced patterns, and interactive examples.
 - [⚠️ Error Types](#️-error-types) — Domain errors, custom CRTP errors, rich tag context
 - [✅ Validation Rules](#-validation-rules) — Declarative rule-based validation
 - [🏷️ Validation Attributes](#️-validation-attributes) — `[Validate]` source generator
-- [🎲 Maybe\<T>](#-maybet) — Safe null handling with optionals
+- [🎲 Maybe\<T>](#-maybe) — Safe null handling with optionals
 - [🔀 OneOf Unions](#-oneof-unions) — Discriminated unions with exhaustive matching
 - [🧠 Advanced Patterns](#-advanced-patterns) — Functional composition, performance
 
 **🌐 ASP.NET Integration**
 - [🚀 SmartEndpoints](#-smartendpoints) — Zero-boilerplate Minimal APIs with auth, filters, caching
-- [🔀 OneOf → IResult](#-oneof--iresult) — HTTP mapping for discriminated unions
+- [🔀 OneOf to IResult](#-oneof-to-iresult) — HTTP mapping for discriminated unions
 - [🚀 ASP.NET Integration](#-aspnet-integration) — ToIResult, ToActionResult, Problem Details, MVC
 
 **🏛️ Architecture & Design**
@@ -891,7 +891,7 @@ result.Errors.OfType<ValidationError>().ToList().ForEach(e =>
 
 ---
 
-## 🎲 Maybe\<T>
+## 🎲 Maybe
 
 Null-safe optional values — eliminate null reference exceptions with a composable type:
 
@@ -1284,7 +1284,7 @@ public class CatalogController
 
 ---
 
-## 🔀 OneOf → IResult
+## 🔀 OneOf to IResult
 
 Convert `OneOf<T1,T2,...>` discriminated unions to `IResult` in a single call — HTTP status codes are inferred from error type names and `HttpStatusCode` tags.
 
