@@ -31,8 +31,4 @@ Choose your path and start building with REslava.Result in minutes.
     See how REslava.Result eliminates 70–90% of boilerplate in real .NET 10 apps.
     [](the-transformation-70-90-less-code)
 
--   :material-rocket-launch: __Ready to Transform?__
-    Jump right in — all the links you need to get started immediately.
-    [](ready-to-transform-your-error-handling)
-
 </div>

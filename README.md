@@ -53,7 +53,6 @@ Includes API reference, advanced patterns, and interactive examples.
 - [🧪 Quick Start Scenarios](#-quick-start-scenarios) — Hands-on tutorials
 - [📚 Choose Your Path](#-choose-your-path) — Find exactly what you need
 - [🎯 The Transformation](#-the-transformation-70-90-less-code) — 70-90% less boilerplate
-- [🎉 Ready to Transform?](#-ready-to-transform-your-error-handling) — Jump right in
 
 **📘 Core Concepts**
 - [📐 REslava.Result Core Library](#-reslavaresult-core-library) — Result<T>, composition, async, LINQ, OkIf/FailIf, Try/TryAsync
@@ -308,12 +307,6 @@ public async Task<Result<User>> CreateUser(CreateUserRequest request) =>
 ```
 
 **🚀 Result: 70-90% less code, 100% type-safe, automatic HTTP responses, rich error context!**
-
----
-
-## 🎉 Ready to Transform Your Error Handling?
-
-Get started with [📦 Installation](#-installation) and [🚀 Quick Start](#-quick-start).
 
 ---
 

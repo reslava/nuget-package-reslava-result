@@ -19,8 +19,7 @@ MAPPING = {
     "choose-your-path": "getting-started",
     "the-transformation": "getting-started",
     "quick-start-scenarios": "getting-started",
-    "quick-start": "getting-started",
-    "ready-to-transform-your-error-handling": "getting-started",  # call‑to‑action
+    "quick-start": "getting-started",    
 
     # Core Concepts
     "core-concepts": "core-concepts",
