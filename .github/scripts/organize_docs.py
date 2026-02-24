@@ -81,8 +81,7 @@ MAPPING = {
     "roslyn-analyzers": "testing",
 
     # Reference
-    "reference": "reference",
-    "deep-dive-documentation": "reference",
+    "reference": "reference",    
     "version-history": "reference",
     "roadmap": "reference",
     "overview": "reference/api-doc",
