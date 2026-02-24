@@ -9,6 +9,7 @@
 | Project | Framework | Description |
 |---------|-----------|-------------|
 | **[FastMinimalAPI.REslava.Result.Demo](FastMinimalAPI.REslava.Result.Demo/)** | .NET 10 Minimal API | Full-featured demo with SmartEndpoints, OneOf, EF Core In-Memory, Scalar UI |
+| **[FastMvcAPI.REslava.Result.Demo](FastMvcAPI.REslava.Result.Demo/)** | .NET 10 MVC API | Full-featured demo with SmartEndpoints, OneOf, EF Core In-Memory, Scalar UI |
 | **[REslava.Result.Samples.Console](REslava.Result.Samples.Console/)** | .NET 10 Console | Core library examples: Result<T>, Maybe<T>, OneOf, LINQ, Validation |
 
 ---
