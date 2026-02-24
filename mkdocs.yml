@@ -100,7 +100,6 @@ nav:
   - Contributing: community/contributing.md
   - Contributors: community/contributors.md
   - License: community/license.md
-- Table of Contents: table-of-contents.md
 markdown_extensions:
 - admonition
 - pymdownx.details

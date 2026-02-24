@@ -111,11 +111,6 @@ jobs:
           docfx metadata docfx.json
           docfx build docfx.json 
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'   # Use the version your projects target     
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

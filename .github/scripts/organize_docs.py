@@ -15,6 +15,7 @@ DOCS_DIR = Path("mkdocs")
 MAPPING = {
     # Getting Started
     "getting-started": "getting-started",
+    "installation": "getting-started",
     "choose-your-path": "getting-started",
     "the-transformation": "getting-started",
     "quick-start-scenarios": "getting-started",
@@ -28,17 +29,20 @@ MAPPING = {
     "functional-composition": "core-concepts",
     "async-patterns": "core-concepts",
     "linq-integration": "core-concepts",
+    "validation-attributes": "core-concepts",
+    "validation-rules": "core-concepts",
+    "validation": "core-concepts",
     "maybe": "core-concepts",
     "oneof": "core-concepts",
-    "validation": "core-concepts",
     "domain-errors": "core-concepts",
     "error-context": "core-concepts",
     "performance": "core-concepts",
     "advanced-patterns": "core-concepts",
 
     # Code examples
-    "quick-examples": "code-examples",  
-    "examples": "code-examples/samples",                     
+    "quick-examples": "code-examples",
+    "sample-apps": "code-examples",
+    "examples": "code-examples/samples",
 
     # ASP.NET
     "aspnet": "aspnet",
@@ -54,6 +58,8 @@ MAPPING = {
     "architecture": "architecture",
     "complete-architecture": "architecture",
     "package-structure": "architecture",
+    "how-generators-work": "architecture",
+    "reslava.result.sourcegenerators": "architecture",
     "generators": "architecture",
     "solid-architecture": "architecture/solid",
     "uml-v1.12.1-core": "architecture/solid",
