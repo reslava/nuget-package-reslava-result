@@ -9,8 +9,8 @@ Practical C# examples showing REslava.Result in action – Result pattern, funct
 
 <div class="grid cards" markdown>
 
--   :material-language-csharp: __Quick code examples__  
-    Quick examples.
+-   :material-language-csharp: __Quick Examples__
+    Result pattern, composition, async, LINQ, Maybe, OneOf, validation, and HTTP integration — all in one place.
     [](quick-examples)
 
 -   :material-language-csharp: __Sample Applications__

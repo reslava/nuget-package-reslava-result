@@ -47,33 +47,47 @@ Includes API reference, advanced patterns, and interactive examples.
 
 ## 📚 Table of Contents
 
-| 🎯 **Section** | 📖 **Description** |
-|------------------|---------------------|
-| [📦 Installation](#-installation) | NuGet setup, TFMs, prerequisites |
-| [🚀 Quick Start](#-quick-start) | Installation and complete generator showcase |
-| [🧪 Quick Start Scenarios](#-quick-start-scenarios) | Hands-on tutorials |
-| [📚 Choose Your Path](#-choose-your-path) | Find exactly what you need |
-| [🎯 The Transformation: 70-90% Less Code](#-the-transformation-70-90-less-code) | See how boilerplate disappears |
-| [🎉 Ready to Transform?](#-ready-to-transform-your-error-handling) | Jump in — get started now |
-| [📐 REslava.Result Core Library](#-reslavaresult-core-library) | Functional programming foundation |
-| [✅ Validation Rules](#-validation-rules) | Declarative rule-based validation framework |
-| [🏷️ Validation Attributes](#️-validation-attributes) | `[Validate]` source generator (v1.24.0) |
-| [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, LINQ, functional composition |
-| [🚀 ASP.NET Integration](#-aspnet-integration) | Minimal API (ToIResult) + MVC (ToActionResult) |
-| [📐 Complete Architecture](#-complete-architecture) | How generators work internally |
-| [📦 Package Structure](#-package-structure) | What you get with each package |
-| [🎯 Quick Examples](#-quick-examples) | Real-world code samples |
-| [📚 Deep Dive Documentation](#-deep-dive-documentation) | Comprehensive guides |
-| [🧪 Testing & Quality Assurance](#-testing--quality-assurance) | 2,843 tests passing |
-| [📈 Production Benefits](#-production-benefits) | Enterprise-ready advantages |
-| [🌍 Real-World Impact](#-real-world-impact) | Success stories and use cases |
-| [🏆 Why Choose REslava.Result?](#-why-choose-reslavaresult) | Unique advantages |
-| [🎯 Roadmap](#-roadmap) | Future development plans |
-| [📈 Version History](#-version-history) | Release notes and changes |
-| [🤝 Contributing](#-contributing) | How to contribute |
-| [📄 License](#-license) | MIT License details |
-| [🙏 Acknowledgments](#-acknowledgments) | Community credits |
-| [Contributors](#contributors) | Project contributors |
+**🚀 Getting Started**
+- [📦 Installation](#-installation) — NuGet setup, supported TFMs, prerequisites
+- [🚀 Quick Start](#-quick-start) — Installation and complete generator showcase
+- [🧪 Quick Start Scenarios](#-quick-start-scenarios) — Hands-on tutorials
+- [📚 Choose Your Path](#-choose-your-path) — Find exactly what you need
+- [🎯 The Transformation](#-the-transformation-70-90-less-code) — 70-90% less boilerplate
+- [🎉 Ready to Transform?](#-ready-to-transform-your-error-handling) — Jump right in
+
+**📘 Core Concepts**
+- [📐 REslava.Result Core Library](#-reslavaresult-core-library) — Functional programming foundation
+- [✅ Validation Rules](#-validation-rules) — Declarative rule-based validation
+- [🏷️ Validation Attributes](#️-validation-attributes) — `[Validate]` source generator (v1.24.0)
+- [🧠 Advanced Patterns](#-advanced-patterns) — Maybe, OneOf, LINQ, functional composition
+
+**🌐 ASP.NET Integration**
+- [🚀 ASP.NET Integration](#-aspnet-integration) — Minimal API (ToIResult) + MVC (ToActionResult)
+
+**🏛️ Architecture & Design**
+- [📐 Complete Architecture](#-complete-architecture) — How generators work internally
+- [📦 Package Structure](#-package-structure) — What you get with each package
+- [🔧 How Generators Work](#-how-generators-work) — Two-phase source generator pipeline
+
+**💻 Code Examples**
+- [🎯 Quick Examples](#-quick-examples) — Real-world code samples
+
+**🧪 Testing & Quality**
+- [🧪 Testing & Quality Assurance](#-testing--quality-assurance) — 2,843 tests, CI/CD pipeline
+- [📈 Production Benefits](#-production-benefits) — Enterprise-ready advantages
+- [🌍 Real-World Impact](#-real-world-impact) — Success stories and use cases
+- [🏆 Why Choose REslava.Result?](#-why-choose-reslavaresult) — Unique advantages
+
+**📖 Reference**
+- [📚 Deep Dive Documentation](#-deep-dive-documentation) — Comprehensive guides
+- [🎯 Roadmap](#-roadmap) — Future development plans
+- [📈 Version History](#-version-history) — Release notes and changes
+
+**🤝 Community**
+- [🤝 Contributing](#-contributing) — How to contribute
+- [📄 License](#-license) — MIT License details
+- [🙏 Acknowledgments](#-acknowledgments) — Community credits
+- [Contributors](#contributors) — Project contributors
 
 ---
 

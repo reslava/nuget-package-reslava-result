@@ -1,4 +1,6 @@
-# REslava.Result — Core Type Hierarchy (v1.12.1)
+---
+title: REslava.Result — Core Type Hierarchy (v1.25.0)
+---
 
 ##### Legend
 <span style="font-size: 9px;">
@@ -9,7 +11,6 @@
 - purple: struct types
 </span>
 
-## Reason & Error Hierarchy
 
 ```mermaid
 ---
@@ -29,6 +30,13 @@ classDiagram
     class Error:::concrete
     class ExceptionError:::concrete
     class ConversionError:::concrete
+    class NotFoundError:::concrete
+    class ConflictError:::concrete
+    class UnauthorizedError:::concrete
+    class ForbiddenError:::concrete
+    class ValidationError:::concrete {
+        +string? FieldName
+    }
 
     IReason <|.. ISuccess : extends
     IReason <|.. IError : extends
@@ -40,18 +48,27 @@ classDiagram
     Reason_TReason <|-- Error : extends~Error~
     Reason_TReason <|-- ExceptionError : extends~ExceptionError~
     Reason_TReason <|-- ConversionError : extends~ConversionError~
+    Reason_TReason <|-- NotFoundError : extends~NotFoundError~
+    Reason_TReason <|-- ValidationError : extends~ValidationError~
+    Reason_TReason <|-- ConflictError : extends~ConflictError~
+    Reason_TReason <|-- UnauthorizedError : extends~UnauthorizedError~
+    Reason_TReason <|-- ForbiddenError : extends~ForbiddenError~
 
     Success ..|> ISuccess : implements
     Error ..|> IError : implements
     ExceptionError ..|> IError : implements
     ConversionError ..|> IError : implements
+    NotFoundError ..|> IError : implements
+    ValidationError ..|> IError : implements
+    ConflictError ..|> IError : implements
+    UnauthorizedError ..|> IError : implements
+    ForbiddenError ..|> IError : implements
 
     classDef interface fill:#e1f5ff,stroke:#0288d1,stroke-width:2px,color:black
     classDef abstract fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:black
     classDef concrete fill:#d4edda,stroke:#388e3c,stroke-width:2px,color:black
 ```
 
-## Result Hierarchy
 
 ```mermaid
 ---
@@ -81,7 +98,6 @@ classDiagram
     classDef type fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:black
 ```
 
-## Advanced Patterns
 
 ```mermaid
 ---
@@ -132,6 +148,9 @@ classDiagram
 ## Notes
 
 - `Reason<TReason>` uses the **Curiously Recurring Template Pattern (CRTP)** for type-safe reason hierarchies
+- All domain errors (`NotFoundError`, `ValidationError`, `ConflictError`, `UnauthorizedError`, `ForbiddenError`) inherit directly from `Reason<TReason>` — not from `Error` — keeping the CRTP chain type-safe
+- Each domain error sets default `Tags` at construction time: `ErrorType` + `HttpStatusCode` (e.g. 404, 422, 409, 401, 403)
+- `ValidationError` adds an optional `FieldName` property, surfaced by the `[Validate]` source generator (v1.24.0)
 - `Maybe<T>`, `OneOf<T1,T2>`, `OneOf<T1,T2,T3>`, and `OneOf<T1,T2,T3,T4>` are **readonly structs** — zero heap allocations
 - `Result` and `Result<T>` are **classes** — immutable with `ImmutableList<IReason>` for reasons collection
 - `IResultResponse<out TValue>` is **covariant** in TValue for polymorphic result handling
