@@ -8,8 +8,9 @@
 #
 # Steps:
 #   1. Run validate-release.sh (abort if any check fails)
-#   2. Create annotated git tag v{VERSION}
-#   3. Push tag to origin
+#   2. Push main branch to origin (ensures CI fires and branch is up to date)
+#   3. Create annotated git tag v{VERSION}
+#   4. Push tag to origin
 
 set -u
 
@@ -31,7 +32,7 @@ done
 
 # Auto-read version from Directory.Build.props if not provided
 if [[ -z "$VERSION" ]]; then
-  VERSION=$(grep -oP '<Version>\K[^<]+' "$REPO_ROOT/Directory.Build.props" | head -1 || true)
+  VERSION=$(sed -n 's/.*<Version>\([^<]*\).*/\1/p' "$REPO_ROOT/Directory.Build.props" | head -1 || true)
   if [[ -n "$VERSION" ]]; then
     echo "No version specified — using version from Directory.Build.props: $VERSION"
   fi
@@ -62,13 +63,19 @@ if ! bash "$REPO_ROOT/scripts/validate-release.sh" "$VERSION" $SKIP_TESTS_FLAG; 
   exit 1
 fi
 
-# ─── Step 2: Create annotated tag ────────────────────────────────────────────
+# ─── Step 2: Push main branch ────────────────────────────────────────────────
+
+echo ""
+echo "Pushing main to origin..."
+git -C "$REPO_ROOT" push origin main
+
+# ─── Step 3: Create annotated tag ────────────────────────────────────────────
 
 echo ""
 echo "Creating tag ${TAG}..."
 git -C "$REPO_ROOT" tag -a "$TAG" -m "Release ${TAG}"
 
-# ─── Step 3: Push tag ────────────────────────────────────────────────────────
+# ─── Step 4: Push tag ────────────────────────────────────────────────────────
 
 echo "Pushing ${TAG} to origin..."
 git -C "$REPO_ROOT" push origin "$TAG"
