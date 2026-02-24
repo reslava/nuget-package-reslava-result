@@ -50,25 +50,27 @@ Includes API reference, advanced patterns, and interactive examples.
 | 🎯 **Section** | 📖 **Description** |
 |------------------|---------------------|
 | [🚀 Quick Start](#-quick-start) | Installation and complete generator showcase |
+| [🧪 Quick Start Scenarios](#-quick-start-scenarios) | Hands-on tutorials |
 | [📚 Choose Your Path](#-choose-your-path) | Find exactly what you need |
 | [🎯 The Transformation: 70-90% Less Code](#-the-transformation-70-90-less-code) | See how boilerplate disappears |
+| [🎉 Ready to Transform?](#-ready-to-transform-your-error-handling) | Jump in — get started now |
 | [📐 REslava.Result Core Library](#-reslavaresult-core-library) | Functional programming foundation |
-| [🚀 ASP.NET Integration](#-aspnet-integration) | Minimal API (ToIResult) + MVC (ToActionResult) |
 | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, LINQ, functional composition |
+| [🚀 ASP.NET Integration](#-aspnet-integration) | Minimal API (ToIResult) + MVC (ToActionResult) |
 | [📐 Complete Architecture](#-complete-architecture) | How generators work internally |
 | [📦 Package Structure](#-package-structure) | What you get with each package |
 | [🎯 Quick Examples](#-quick-examples) | Real-world code samples |
-| [📈 Production Benefits](#-production-benefits) | Enterprise-ready advantages |
-| [🧪 Testing & Quality Assurance](#-testing--quality-assurance) | 2,825 tests passing |
-| [🏢 Real-World Impact](#-real-world-impact) | Success stories and use cases |
-| [🏆 Why Choose REslava.Result?](#-why-choose-reslavaresult) | Unique advantages |
 | [📚 Deep Dive Documentation](#-deep-dive-documentation) | Comprehensive guides |
-| [🧪 Quick Start Scenarios](#-quick-start-scenarios) | Hands-on tutorials |
+| [🧪 Testing & Quality Assurance](#-testing--quality-assurance) | 2,843 tests passing |
+| [📈 Production Benefits](#-production-benefits) | Enterprise-ready advantages |
+| [🌍 Real-World Impact](#-real-world-impact) | Success stories and use cases |
+| [🏆 Why Choose REslava.Result?](#-why-choose-reslavaresult) | Unique advantages |
 | [🎯 Roadmap](#-roadmap) | Future development plans |
+| [📈 Version History](#-version-history) | Release notes and changes |
 | [🤝 Contributing](#-contributing) | How to contribute |
 | [📄 License](#-license) | MIT License details |
 | [🙏 Acknowledgments](#-acknowledgments) | Community credits |
-| [📈 Version History](#-version-history) | Release notes and changes |
+| [Contributors](#contributors) | Project contributors |
 
 ---
 
@@ -288,6 +290,89 @@ dotnet add package REslava.Result.Analyzers
 
 ---
 
+## 🧪 Quick Start Scenarios
+
+### Installation
+```bash
+# Core functional programming library
+dotnet add package REslava.Result
+
+# ASP.NET integration + OneOf extensions
+dotnet add package REslava.Result.SourceGenerators
+
+# Roslyn safety analyzers (compile-time diagnostics)
+dotnet add package REslava.Result.Analyzers
+```
+
+### Scenario 1: Functional Programming Foundation
+```csharp
+using REslava.Result;
+using static REslava.Result.Functions;
+
+// Core Result pattern usage
+public Result<User> GetUser(int id)
+{
+    if (id <= 0) 
+        return Result<User>.Fail("Invalid user ID");
+    
+    var user = FindUser(id);
+    return user ?? Result<User>.Fail($"User {id} not found");
+}
+
+// Functional composition
+public Result<UserDto> GetUserDto(int id) =>
+    GetUser(id)
+        .Map(ToDto)
+        .Tap(LogAccess)
+        .Ensure(dto => dto.IsActive, "User is inactive");
+
+// LINQ integration
+public Result<UserDto> GetUserDtoLinq(int id) =>
+    from user in GetUser(id)
+    from validation in ValidateUser(user)
+    from dto in ToDto(user)
+    select dto;
+```
+
+### Scenario 2: ASP.NET Integration
+```csharp
+[ApiController]
+public class UsersController : ControllerBase
+{
+    // Automatic HTTP mapping
+    [HttpGet("{id}")]
+    public IResult GetUser(int id) => 
+        GetUser(id).ToIResult(); // 200 OK or 404/400
+    
+    // POST with created response
+    [HttpPost]
+    public IResult CreateUser([FromBody] CreateUserRequest request) =>
+        CreateUser(request).ToPostResult(); // 201 Created or 400
+}
+```
+
+### Scenario 3: OneOf Extensions (NEW!)
+```csharp
+using REslava.Result.AdvancedPatterns.OneOf;
+using Generated.OneOfExtensions;
+
+// REslava.Result internal OneOf with automatic mapping
+public OneOf<ValidationError, NotFoundError, User> GetUser(int id)
+{
+    if (id <= 0) 
+        return new ValidationError("Invalid ID");
+    
+    var user = FindUser(id);
+    return user ?? new NotFoundError($"User {id} not found");
+}
+
+[HttpGet("{id}")]
+public IResult GetUser(int id) => 
+    GetUser(id).ToIResult(); // 400, 404, or 200
+```
+
+---
+
 ## 📚 Choose Your Path
 
 **Find exactly what you need based on your goals:**
@@ -356,6 +441,23 @@ public async Task<Result<User>> CreateUser(CreateUserRequest request) =>
 ```
 
 **🚀 Result: 70-90% less code, 100% type-safe, automatic HTTP responses, rich error context!**
+
+---
+
+## 🎉 Ready to Transform Your Error Handling?
+
+**📖 [Start with Getting Started Guide](docs/getting-started.md)**
+
+---
+
+<div align="center">
+
+**⭐ Star this REslava.Result repository if you find it useful!**
+
+Made with ❤️ by [Rafa Eslava](https://github.com/reslava) for developers community
+
+[Report Bug](https://github.com/reslava/nuget-package-reslava-result/issues) • [Request Feature](https://github.com/reslava/nuget-package-reslava-result/issues) • [Discussions](https://github.com/reslava/nuget-package-reslava-result/discussions)
+</div>
 
 ---
 
@@ -569,146 +671,6 @@ var results = userIds
 
 ---
 
-## 🚀 ASP.NET Integration
-
-### 🌐 ResultToIResult Extensions
-**Complete HTTP Method Support**
-```csharp
-// GET requests
-return GetUser(id).ToIResult(); // 200 OK or 404/400
-
-// POST requests  
-return CreateUser(request).ToPostResult(); // 201 Created or 400
-
-// PUT requests
-return UpdateUser(id, request).ToPutResult(); // 200 OK or 404
-
-// DELETE requests
-return DeleteUser(id).ToDeleteResult(); // 204 No Content or 404
-
-// PATCH requests
-return PatchUser(id, request).ToPatchResult(); // 200 OK or 404
-```
-
-### 🧠 Smart HTTP Mapping
-**Domain Error-Aware Status Code Detection (v1.20.0)**
-
-The `ToIResult()` family reads the `HttpStatusCode` tag from domain errors for accurate HTTP mapping:
-
-| Domain Error | HTTP Status | IResult |
-|---|---|---|
-| `NotFoundError` | 404 | `Results.NotFound(message)` |
-| `ValidationError` | 422 | `Results.Problem(detail, statusCode: 422)` |
-| `ConflictError` | 409 | `Results.Conflict(message)` |
-| `UnauthorizedError` | 401 | `Results.Unauthorized()` |
-| `ForbiddenError` | 403 | `Results.Forbid()` |
-| No tag / generic Error | 400 | `Results.Problem(detail, statusCode: 400)` |
-
-```csharp
-// Domain errors automatically map to correct HTTP status codes
-var result = Result<User>.Fail(new NotFoundError("User", 42));
-return result.ToIResult(); // → 404 Not Found (reads HttpStatusCode tag)
-```
-
-### 🎯 ResultToActionResult Extensions (MVC Support — v1.21.0)
-**Convention-based HTTP mapping for ASP.NET MVC Controllers**
-```csharp
-// Convention-based — domain errors auto-map to correct HTTP status codes
-[HttpGet]
-public async Task<IActionResult> GetAll()
-    => (await _service.GetAllUsersAsync()).ToActionResult();
-
-[HttpPost]
-public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
-    => (await _service.CreateUserAsync(request)).ToPostActionResult();
-
-[HttpDelete("{id:int}")]
-public async Task<IActionResult> Delete(int id)
-    => (await _service.DeleteUserAsync(id)).ToDeleteActionResult();
-    // NotFoundError → 404, ConflictError → 409, success → 204
-
-// Explicit overload — escape hatch for full control
-[HttpGet("{id:int}")]
-public async Task<IActionResult> GetById(int id)
-{
-    return (await _service.GetUserAsync(id))
-        .ToActionResult(
-            onSuccess: user => Ok(user),
-            onFailure: errors => NotFound(errors.First().Message));
-}
-```
-
-| Method | Success | Failure |
-|--------|---------|---------|
-| `ToActionResult<T>()` | `OkObjectResult` (200) | Auto-mapped via `HttpStatusCode` tag |
-| `ToActionResult<T>(onSuccess, onFailure)` | Custom | Custom |
-| `ToPostActionResult<T>()` | `CreatedResult` (201) | Auto-mapped |
-| `ToPutActionResult<T>()` | `OkObjectResult` (200) | Auto-mapped |
-| `ToPatchActionResult<T>()` | `OkObjectResult` (200) | Auto-mapped |
-| `ToDeleteActionResult<T>()` | `NoContentResult` (204) | Auto-mapped |
-
-**MVC Error Auto-Mapping (MapErrorToActionResult)**
-
-| Domain Error | HTTP | MVC Result Type |
-|-------------|------|-----------------|
-| `NotFoundError` | 404 | `NotFoundObjectResult` |
-| `UnauthorizedError` | 401 | `UnauthorizedResult` |
-| `ForbiddenError` | 403 | `ForbidResult` |
-| `ConflictError` | 409 | `ConflictObjectResult` |
-| `ValidationError` | 422 | `ObjectResult { StatusCode = 422 }` |
-| No tag / other | 400 | `ObjectResult { StatusCode = 400 }` |
-
-### 🎯 OneOfToActionResult Extensions (MVC OneOf Support — v1.22.0)
-**One-liner MVC controllers for discriminated union returns**
-```csharp
-// BEFORE — manual .Match() for every OneOf return
-[HttpPost]
-public async Task<IActionResult> Create([FromBody] CreateOrderRequest request)
-{
-    var result = await _service.CreateOrderAsync(request);
-    return result.Match(
-        notFound => new NotFoundObjectResult(notFound.Message) as IActionResult,
-        conflict => new ConflictObjectResult(conflict.Message),
-        validation => new ObjectResult(validation.Message) { StatusCode = 422 },
-        order => new OkObjectResult(order));
-}
-
-// AFTER — one-liner, domain errors auto-mapped
-[HttpPost]
-public async Task<IActionResult> Create([FromBody] CreateOrderRequest request)
-    => (await _service.CreateOrderAsync(request)).ToActionResult();
-    // NotFoundError → 404, ConflictError → 409, ValidationError → 422, success → 200
-```
-
-Uses the same two-phase error mapping as OneOfToIResult:
-1. **Phase 1**: Checks `IError.Tags["HttpStatusCode"]` for tag-based mapping
-2. **Phase 2**: Falls back to type-name heuristic (NotFound → 404, Conflict → 409, etc.)
-
-### 📝 Problem Details Integration
-**RFC 7807 Compliance**
-```csharp
-[MapToProblemDetails(StatusCode = 404, Title = "User Not Found")]
-public class UserNotFoundError : Error
-{
-    public int UserId { get; }
-    public UserNotFoundError(int userId) : base($"User {userId} not found")
-    {
-        UserId = userId;
-        this.WithTag("UserId", userId);
-    }
-}
-
-// Automatically generates:
-{
-    "type": "https://httpstatuses.com/404",
-    "title": "User Not Found",
-    "status": 404,
-    "userId": 123
-}
-```
-
----
-
 ## 🧠 Advanced Patterns
 
 **Take your functional programming skills to the next level with these powerful patterns:**
@@ -915,6 +877,146 @@ public ref struct ValidationSpan(ReadOnlySpan<char> input)
     public Result<ReadOnlySpan<char>> AsResult() =>
         IsValid ? Result<ReadOnlySpan<char>>.Ok(input) 
                 : Result<ReadOnlySpan<char>>.Fail("Invalid email");
+}
+```
+
+---
+
+## 🚀 ASP.NET Integration
+
+### 🌐 ResultToIResult Extensions
+**Complete HTTP Method Support**
+```csharp
+// GET requests
+return GetUser(id).ToIResult(); // 200 OK or 404/400
+
+// POST requests  
+return CreateUser(request).ToPostResult(); // 201 Created or 400
+
+// PUT requests
+return UpdateUser(id, request).ToPutResult(); // 200 OK or 404
+
+// DELETE requests
+return DeleteUser(id).ToDeleteResult(); // 204 No Content or 404
+
+// PATCH requests
+return PatchUser(id, request).ToPatchResult(); // 200 OK or 404
+```
+
+### 🧠 Smart HTTP Mapping
+**Domain Error-Aware Status Code Detection (v1.20.0)**
+
+The `ToIResult()` family reads the `HttpStatusCode` tag from domain errors for accurate HTTP mapping:
+
+| Domain Error | HTTP Status | IResult |
+|---|---|---|
+| `NotFoundError` | 404 | `Results.NotFound(message)` |
+| `ValidationError` | 422 | `Results.Problem(detail, statusCode: 422)` |
+| `ConflictError` | 409 | `Results.Conflict(message)` |
+| `UnauthorizedError` | 401 | `Results.Unauthorized()` |
+| `ForbiddenError` | 403 | `Results.Forbid()` |
+| No tag / generic Error | 400 | `Results.Problem(detail, statusCode: 400)` |
+
+```csharp
+// Domain errors automatically map to correct HTTP status codes
+var result = Result<User>.Fail(new NotFoundError("User", 42));
+return result.ToIResult(); // → 404 Not Found (reads HttpStatusCode tag)
+```
+
+### 🎯 ResultToActionResult Extensions (MVC Support — v1.21.0)
+**Convention-based HTTP mapping for ASP.NET MVC Controllers**
+```csharp
+// Convention-based — domain errors auto-map to correct HTTP status codes
+[HttpGet]
+public async Task<IActionResult> GetAll()
+    => (await _service.GetAllUsersAsync()).ToActionResult();
+
+[HttpPost]
+public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
+    => (await _service.CreateUserAsync(request)).ToPostActionResult();
+
+[HttpDelete("{id:int}")]
+public async Task<IActionResult> Delete(int id)
+    => (await _service.DeleteUserAsync(id)).ToDeleteActionResult();
+    // NotFoundError → 404, ConflictError → 409, success → 204
+
+// Explicit overload — escape hatch for full control
+[HttpGet("{id:int}")]
+public async Task<IActionResult> GetById(int id)
+{
+    return (await _service.GetUserAsync(id))
+        .ToActionResult(
+            onSuccess: user => Ok(user),
+            onFailure: errors => NotFound(errors.First().Message));
+}
+```
+
+| Method | Success | Failure |
+|--------|---------|---------|
+| `ToActionResult<T>()` | `OkObjectResult` (200) | Auto-mapped via `HttpStatusCode` tag |
+| `ToActionResult<T>(onSuccess, onFailure)` | Custom | Custom |
+| `ToPostActionResult<T>()` | `CreatedResult` (201) | Auto-mapped |
+| `ToPutActionResult<T>()` | `OkObjectResult` (200) | Auto-mapped |
+| `ToPatchActionResult<T>()` | `OkObjectResult` (200) | Auto-mapped |
+| `ToDeleteActionResult<T>()` | `NoContentResult` (204) | Auto-mapped |
+
+**MVC Error Auto-Mapping (MapErrorToActionResult)**
+
+| Domain Error | HTTP | MVC Result Type |
+|-------------|------|-----------------|
+| `NotFoundError` | 404 | `NotFoundObjectResult` |
+| `UnauthorizedError` | 401 | `UnauthorizedResult` |
+| `ForbiddenError` | 403 | `ForbidResult` |
+| `ConflictError` | 409 | `ConflictObjectResult` |
+| `ValidationError` | 422 | `ObjectResult { StatusCode = 422 }` |
+| No tag / other | 400 | `ObjectResult { StatusCode = 400 }` |
+
+### 🎯 OneOfToActionResult Extensions (MVC OneOf Support — v1.22.0)
+**One-liner MVC controllers for discriminated union returns**
+```csharp
+// BEFORE — manual .Match() for every OneOf return
+[HttpPost]
+public async Task<IActionResult> Create([FromBody] CreateOrderRequest request)
+{
+    var result = await _service.CreateOrderAsync(request);
+    return result.Match(
+        notFound => new NotFoundObjectResult(notFound.Message) as IActionResult,
+        conflict => new ConflictObjectResult(conflict.Message),
+        validation => new ObjectResult(validation.Message) { StatusCode = 422 },
+        order => new OkObjectResult(order));
+}
+
+// AFTER — one-liner, domain errors auto-mapped
+[HttpPost]
+public async Task<IActionResult> Create([FromBody] CreateOrderRequest request)
+    => (await _service.CreateOrderAsync(request)).ToActionResult();
+    // NotFoundError → 404, ConflictError → 409, ValidationError → 422, success → 200
+```
+
+Uses the same two-phase error mapping as OneOfToIResult:
+1. **Phase 1**: Checks `IError.Tags["HttpStatusCode"]` for tag-based mapping
+2. **Phase 2**: Falls back to type-name heuristic (NotFound → 404, Conflict → 409, etc.)
+
+### 📝 Problem Details Integration
+**RFC 7807 Compliance**
+```csharp
+[MapToProblemDetails(StatusCode = 404, Title = "User Not Found")]
+public class UserNotFoundError : Error
+{
+    public int UserId { get; }
+    public UserNotFoundError(int userId) : base($"User {userId} not found")
+    {
+        UserId = userId;
+        this.WithTag("UserId", userId);
+    }
+}
+
+// Automatically generates:
+{
+    "type": "https://httpstatuses.com/404",
+    "title": "User Not Found",
+    "status": 404,
+    "userId": 123
 }
 ```
 
@@ -1181,17 +1283,54 @@ return GetUser(id).ToIResult(); // 🆕 Automatic HTTP mapping!
 
 ---
 
-## 📈 Production Benefits
+## 📚 Deep Dive Documentation
 
-| 🎯 **Challenge** | 🚀 **REslava.Result Solution** |
-|------------------|------------------------------|
-| **Hidden exceptions** | Explicit error contracts in method signatures |
-| **Complex error handling** | Fluent, chainable operations |
-| **Hard to debug failures** | Rich error context with tags |
-| **Inconsistent error responses** | Automatic RFC 7807 compliance |
-| **Slow development** | 70-90% less boilerplate code |
-| **🆕 OneOf integration pain** | Smart auto-detection, zero configuration |
-| **🆕 Multiple library conflicts** | Perfect coexistence, no compilation errors |
+### 🎯 **Navigate by Goal**
+
+| I'm building a... | 📖 Start Here | 🎯 What You'll Learn |
+|------------------|---------------|---------------------|
+| **Web API** | [🌐 ASP.NET Integration](#-the-transformation-70-90-less-code) | Auto-conversion, OneOf extensions, error mapping |
+| **Library/Service** | [📐 Core Library](#-reslavaresult-core-library) | Result pattern, validation, error handling |
+| **Custom Generator** | [📖 Custom Generator Guide](docs/how-to-create-custom-generator.md) | Build your own source generators |
+| **Advanced App** | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, OneOf, validation rules |
+| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 2,825+ tests, CI/CD, test strategies |
+| **Curious About Magic** | [📐 Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
+
+### 📚 **Complete Reference**
+
+- **📖 [Getting Started Guide](docs/getting-started.md)** - Learn the basics
+- **🌐 [ASP.NET Integration](docs/aspnet-integration.md)** - HTTP mapping details
+- **🚀 [OneOf Extensions](docs/oneof-extensions.md)** - 🆕 External library support
+- **⚡ [Source Generator](docs/source-generator.md)** - Smart auto-detection magic
+- **🧠 [Functional Programming](docs/functional-programming.md)** - Complete ROP methodology
+- **📖 [Custom Generator Guide](docs/how-to-create-custom-generator.md)** - 🆕 Build your own generators
+- **📚 [API Reference](docs/api/)** - Complete technical documentation
+
+### 🎯 **Hands-On Samples**
+
+- **🚀 [FastMinimalAPI Demo](samples/FastMinimalAPI.REslava.Result.Demo/README.md)** - Production-ready .NET 10 Minimal API showcase
+  - **SmartEndpoints vs Manual** - Side-by-side comparison (~85% less code)
+  - **OpenAPI 3.0 + Scalar UI** - Modern API documentation
+  - **REslava.Result patterns** - Result<T> and OneOf<T1,T2,T3,T4> discriminated unions
+  - **Real-world scenarios** - Users, Products, Orders with full CRUD operations
+  - **Zero exception-based control flow** - Type-safe error handling
+
+- **🎯 [FastMvcAPI Demo](samples/FastMvcAPI.REslava.Result.Demo/)** - MVC Controller demo showcasing `ToActionResult()` (v1.21.0+)
+  - **Result<T>.ToActionResult()** - Convention-based HTTP mapping for MVC controllers
+  - **OneOf<>.ToActionResult()** - Domain error auto-mapping for discriminated unions (v1.22.0)
+  - **ToPostActionResult(), ToDeleteActionResult()** - HTTP verb variants
+  - **Explicit overload escape hatch** - `ToActionResult(onSuccess, onFailure)` for full control
+  - **Match() escape hatch** - Full control over custom response bodies when needed
+  - **Port 5001** - Runs alongside Minimal API demo (port 5000) for side-by-side comparison
+
+- **📚 [Console Samples](samples/REslava.Result.Samples.Console/README.md)** - 13 progressive examples from basic to advanced
+  - **Level 1**: Core Result<T> patterns, validation pipelines, error handling
+  - **Level 2**: Async operations, LINQ syntax, custom errors
+  - **Level 3**: Maybe<T>, OneOf patterns, Result↔OneOf conversions
+
+- **🔄 [ASP.NET Integration Samples](samples/ASP.NET/README.md)** - Compare pure .NET 10 vs REslava.Result with source generators
+  - **MinimalApi.Net10.Reference** - Pure .NET 10 implementation (baseline)
+  - **MinimalApi.Net10.REslava.Result.v1.7.3** - REslava.Result + source generators (70-90% less code)
 
 ---
 
@@ -1326,6 +1465,20 @@ Passed!  - Failed: 0, Passed:  54 - REslava.Result.Analyzers.Tests.dll (net10.0)
 
 ---
 
+## 📈 Production Benefits
+
+| 🎯 **Challenge** | 🚀 **REslava.Result Solution** |
+|------------------|------------------------------|
+| **Hidden exceptions** | Explicit error contracts in method signatures |
+| **Complex error handling** | Fluent, chainable operations |
+| **Hard to debug failures** | Rich error context with tags |
+| **Inconsistent error responses** | Automatic RFC 7807 compliance |
+| **Slow development** | 70-90% less boilerplate code |
+| **🆕 OneOf integration pain** | Smart auto-detection, zero configuration |
+| **🆕 Multiple library conflicts** | Perfect coexistence, no compilation errors |
+
+---
+
 ## 🌍 Real-World Impact
 
 ### 🏢 **For Enterprise Teams**
@@ -1375,140 +1528,6 @@ Passed!  - Failed: 0, Passed:  54 - REslava.Result.Analyzers.Tests.dll (net10.0)
 - **Modern C#** - Supports .NET 8, 9, and 10
 - **AOT compatible** - Works with NativeAOT and trimming
 - **🆕 Smart Auto-Detection** - Zero configuration for v1.10.0
-
----
-
-## 📚 Deep Dive Documentation
-
-### 🎯 **Navigate by Goal**
-
-| I'm building a... | 📖 Start Here | 🎯 What You'll Learn |
-|------------------|---------------|---------------------|
-| **Web API** | [🌐 ASP.NET Integration](#-the-transformation-70-90-less-code) | Auto-conversion, OneOf extensions, error mapping |
-| **Library/Service** | [📐 Core Library](#-reslavaresult-core-library) | Result pattern, validation, error handling |
-| **Custom Generator** | [📖 Custom Generator Guide](docs/how-to-create-custom-generator.md) | Build your own source generators |
-| **Advanced App** | [🧠 Advanced Patterns](#-advanced-patterns) | Maybe, OneOf, validation rules |
-| **Testing** | [🧪 Testing & Quality](#-testing--quality-assurance) | 2,825+ tests, CI/CD, test strategies |
-| **Curious About Magic** | [📐 Complete Architecture](#-complete-architecture) | How generators work, SOLID design |
-
-### 📚 **Complete Reference**
-
-- **📖 [Getting Started Guide](docs/getting-started.md)** - Learn the basics
-- **🌐 [ASP.NET Integration](docs/aspnet-integration.md)** - HTTP mapping details
-- **🚀 [OneOf Extensions](docs/oneof-extensions.md)** - 🆕 External library support
-- **⚡ [Source Generator](docs/source-generator.md)** - Smart auto-detection magic
-- **🧠 [Functional Programming](docs/functional-programming.md)** - Complete ROP methodology
-- **📖 [Custom Generator Guide](docs/how-to-create-custom-generator.md)** - 🆕 Build your own generators
-- **📚 [API Reference](docs/api/)** - Complete technical documentation
-
-### 🎯 **Hands-On Samples**
-
-- **🚀 [FastMinimalAPI Demo](samples/FastMinimalAPI.REslava.Result.Demo/README.md)** - Production-ready .NET 10 Minimal API showcase
-  - **SmartEndpoints vs Manual** - Side-by-side comparison (~85% less code)
-  - **OpenAPI 3.0 + Scalar UI** - Modern API documentation
-  - **REslava.Result patterns** - Result<T> and OneOf<T1,T2,T3,T4> discriminated unions
-  - **Real-world scenarios** - Users, Products, Orders with full CRUD operations
-  - **Zero exception-based control flow** - Type-safe error handling
-
-- **🎯 [FastMvcAPI Demo](samples/FastMvcAPI.REslava.Result.Demo/)** - MVC Controller demo showcasing `ToActionResult()` (v1.21.0+)
-  - **Result<T>.ToActionResult()** - Convention-based HTTP mapping for MVC controllers
-  - **OneOf<>.ToActionResult()** - Domain error auto-mapping for discriminated unions (v1.22.0)
-  - **ToPostActionResult(), ToDeleteActionResult()** - HTTP verb variants
-  - **Explicit overload escape hatch** - `ToActionResult(onSuccess, onFailure)` for full control
-  - **Match() escape hatch** - Full control over custom response bodies when needed
-  - **Port 5001** - Runs alongside Minimal API demo (port 5000) for side-by-side comparison
-
-- **📚 [Console Samples](samples/REslava.Result.Samples.Console/README.md)** - 13 progressive examples from basic to advanced
-  - **Level 1**: Core Result<T> patterns, validation pipelines, error handling
-  - **Level 2**: Async operations, LINQ syntax, custom errors
-  - **Level 3**: Maybe<T>, OneOf patterns, Result↔OneOf conversions
-
-- **🔄 [ASP.NET Integration Samples](samples/ASP.NET/README.md)** - Compare pure .NET 10 vs REslava.Result with source generators
-  - **MinimalApi.Net10.Reference** - Pure .NET 10 implementation (baseline)
-  - **MinimalApi.Net10.REslava.Result.v1.7.3** - REslava.Result + source generators (70-90% less code)
-
----
-
-## 🧪 Quick Start Scenarios
-
-### Installation
-```bash
-# Core functional programming library
-dotnet add package REslava.Result
-
-# ASP.NET integration + OneOf extensions
-dotnet add package REslava.Result.SourceGenerators
-
-# Roslyn safety analyzers (compile-time diagnostics)
-dotnet add package REslava.Result.Analyzers
-```
-
-### Scenario 1: Functional Programming Foundation
-```csharp
-using REslava.Result;
-using static REslava.Result.Functions;
-
-// Core Result pattern usage
-public Result<User> GetUser(int id)
-{
-    if (id <= 0) 
-        return Result<User>.Fail("Invalid user ID");
-    
-    var user = FindUser(id);
-    return user ?? Result<User>.Fail($"User {id} not found");
-}
-
-// Functional composition
-public Result<UserDto> GetUserDto(int id) =>
-    GetUser(id)
-        .Map(ToDto)
-        .Tap(LogAccess)
-        .Ensure(dto => dto.IsActive, "User is inactive");
-
-// LINQ integration
-public Result<UserDto> GetUserDtoLinq(int id) =>
-    from user in GetUser(id)
-    from validation in ValidateUser(user)
-    from dto in ToDto(user)
-    select dto;
-```
-
-### Scenario 2: ASP.NET Integration
-```csharp
-[ApiController]
-public class UsersController : ControllerBase
-{
-    // Automatic HTTP mapping
-    [HttpGet("{id}")]
-    public IResult GetUser(int id) => 
-        GetUser(id).ToIResult(); // 200 OK or 404/400
-    
-    // POST with created response
-    [HttpPost]
-    public IResult CreateUser([FromBody] CreateUserRequest request) =>
-        CreateUser(request).ToPostResult(); // 201 Created or 400
-}
-```
-
-### Scenario 3: OneOf Extensions (NEW!)
-```csharp
-using REslava.Result.AdvancedPatterns.OneOf;
-using Generated.OneOfExtensions;
-
-// REslava.Result internal OneOf with automatic mapping
-public OneOf<ValidationError, NotFoundError, User> GetUser(int id)
-{
-    if (id <= 0) 
-        return new ValidationError("Invalid ID");
-    
-    var user = FindUser(id);
-    return user ?? new NotFoundError($"User {id} not found");
-}
-
-[HttpGet("{id}")]
-public IResult GetUser(int id) => 
-    GetUser(id).ToIResult(); // 400, 404, or 200
-```
 
 ---
 
@@ -1576,52 +1595,6 @@ public IResult GetUser(int id) =>
 
 ---
 
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **Functional Programming Community** - For the ROP methodology and patterns
-- **OneOf** library - Excellent discriminated union implementation
-- **Roslyn** team - Powerful source generator framework
-- **.NET** community - Valuable feedback and contributions
-
----
-
-## 🎉 Ready to Transform Your Error Handling?
-
-**📖 [Start with Getting Started Guide](docs/getting-started.md)**
-
----
-
-<div align="center">
-
-**⭐ Star this REslava.Result repository if you find it useful!**
-
-Made with ❤️ by [Rafa Eslava](https://github.com/reslava) for developers community
-
-[Report Bug](https://github.com/reslava/nuget-package-reslava-result/issues) • [Request Feature](https://github.com/reslava/nuget-package-reslava-result/issues) • [Discussions](https://github.com/reslava/nuget-package-reslava-result/discussions)
-</div>
-
----
-
-## Contributors
-
-- [reslava](https://github.com/reslava)
-
-See the full list of contributors in [CONTRIBUTORS.md](CONTRIBUTORS.md).
-
----
-
 ## 📈 Version History
 
 - **v1.25.0** - Documentation Site & API Reference: MkDocs Material website, DocFX Bootstrap landing page, CI path filtering, pipeline fixes, 2,843 tests
@@ -1647,3 +1620,32 @@ See the full list of contributors in [CONTRIBUTORS.md](CONTRIBUTORS.md).
 - **v1.10.2** - Initial ResultToIResult generator
 - **v1.10.1** - Core Result types and error handling
 - **v1.10.0** - Framework foundation with ROP patterns
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Functional Programming Community** - For the ROP methodology and patterns
+- **OneOf** library - Excellent discriminated union implementation
+- **Roslyn** team - Powerful source generator framework
+- **.NET** community - Valuable feedback and contributions
+
+---
+
+## Contributors
+
+- [reslava](https://github.com/reslava)
+
+See the full list of contributors in [CONTRIBUTORS.md](CONTRIBUTORS.md).
+
+---
+
