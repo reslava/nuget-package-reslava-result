@@ -8,9 +8,9 @@ REslava.Result goes beyond basic Result handling with advanced functional progra
 
 | Pattern | Description | Primary Use Case |
 |---------|-------------|------------------|
-| [**Maybe\<T>**](maybe) | Optional values with functional chaining | Safe handling of nullable operations |
-| [**OneOf\<T1, T2>**](oneof) | 2-way discriminated unions | Error/success or alternative value scenarios |
-| [**OneOf\<T1, T2, T3>**](oneof3) | 3-way discriminated unions | Complex state representations |
+| [**Maybe**](maybe) | Optional values with functional chaining | Safe handling of nullable operations |
+| [**OneOf**](oneof) | 2-way discriminated unions | Error/success or alternative value scenarios |
+| [**OneOf3**](oneof3) | 3-way discriminated unions | Complex state representations |
 | [**Result ↔ OneOf**](integration-extensions) | Seamless integration | Migration between patterns |
 | [**Pipeline Extensions**](integration-extensions) | Mixed workflows | Combine patterns naturally |
 
