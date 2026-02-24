@@ -2,16 +2,31 @@ using System.Collections.Immutable;
 
 namespace REslava.Result;
 
-// ============================================================================
-// ExceptionError (Immutable)
-// ============================================================================
+/// <summary>
+/// Wraps a .NET <see cref="Exception"/> as a typed error reason.
+/// Automatically captures the exception type, stack trace, and inner exception message as tags.
+/// Produced automatically by <see cref="Result.Try"/> and <see cref="Result.TryAsync"/>.
+/// </summary>
+/// <example>
+/// <code>
+/// var result = Result&lt;string&gt;.Try(() => File.ReadAllText("config.json"));
+/// if (result.IsFailed)
+/// {
+///     var ex = result.Errors.OfType&lt;ExceptionError&gt;().First();
+///     Console.WriteLine(ex.Exception.Message);      // original exception message
+///     Console.WriteLine(ex.Tags["ExceptionType"]);  // e.g. "FileNotFoundException"
+/// }
+/// </code>
+/// </example>
 public class ExceptionError : Reason<ExceptionError>, IError
-{    
+{
+    /// <summary>Gets the original .NET exception that caused this error.</summary>
     public Exception Exception { get; init; }
 
-    // ========================================================================
-    // Public Constructor - Exception message becomes Error message
-    // ========================================================================
+    /// <summary>
+    /// Creates an error from an exception, using the exception's own message.
+    /// </summary>
+    /// <param name="exception">The exception to wrap. Must not be null.</param>
     public ExceptionError(Exception exception)
         : base(
             exception?.Message ?? "An exception occurred",
@@ -20,9 +35,11 @@ public class ExceptionError : Reason<ExceptionError>, IError
         Exception = exception ?? throw new ArgumentNullException(nameof(exception));
     }
 
-    // ========================================================================
-    // Public Constructor - Custom message
-    // ========================================================================
+    /// <summary>
+    /// Creates an error with a custom message, preserving the original exception for diagnostics.
+    /// </summary>
+    /// <param name="message">Custom human-readable error message.</param>
+    /// <param name="exception">The exception to wrap. Must not be null.</param>
     public ExceptionError(string message, Exception exception)
         : base(
             message,

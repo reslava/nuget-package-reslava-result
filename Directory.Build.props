@@ -28,7 +28,7 @@
     <!-- Documentation -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <!-- Suppress documentation warnings -->
-    <NoWarn>$(NoWarn);CS1591;CS1711;CS1572;CS1712</NoWarn>
+    <!-- Suppress documentation warnings (CS1591 intentionally enabled — missing XML docs are warnings) -->
+    <NoWarn>$(NoWarn);CS1711;CS1572;CS1712</NoWarn>
   </PropertyGroup>
 </Project>
