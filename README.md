@@ -85,6 +85,8 @@ Includes API reference, advanced patterns, and interactive examples.
 - [🏆 Why Choose REslava.Result?](#-why-choose-reslavaresult) — Unique advantages
 
 **📖 Reference**
+- [📖 API Documentation](docs/api/Overview.md) — Namespace overview and type reference
+- [📚 API Reference](https://reslava.github.io/nuget-package-reslava-result/reference/api/index.html) — Complete hosted technical documentation
 - [📚 Deep Dive Documentation](#-deep-dive-documentation) — Comprehensive guides
 - [🎯 Roadmap](#-roadmap) — Future development plans
 - [📈 Version History](#-version-history) — Release notes and changes
@@ -1854,7 +1856,6 @@ return GetUser(id).ToIResult(); // 🆕 Automatic HTTP mapping!
 - **🌐 [ASP.NET Integration](#-aspnet-integration)** - HTTP mapping, Minimal API, MVC
 - **📐 [Core Library](#-reslavaresult-core-library)** - Result<T>, Maybe<T>, OneOf, error handling
 - **⚙️ [How Generators Work](#-how-generators-work)** - Source generator internals
-- **📚 [API Reference](https://reslava.github.io/nuget-package-reslava-result/reference/api/index.html)** - Complete technical documentation
 
 ### 🎯 **Hands-On Samples**
 
