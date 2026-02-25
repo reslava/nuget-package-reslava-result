@@ -17,7 +17,7 @@ public partial class Result<TValue> : Result, IResultResponse<TValue>
         binder = binder.EnsureNotNull(nameof(binder));
 
         // If already failed, convert to new type with same reasons
-        if (IsFailed)
+        if (IsFailure)
         {
             return new Result<TOut>(default, Reasons);
         }
@@ -77,7 +77,7 @@ public partial class Result<TValue> : Result, IResultResponse<TValue>
         cancellationToken.ThrowIfCancellationRequested();
 
         // If already failed, convert to new type with same reasons
-        if (IsFailed)
+        if (IsFailure)
         {
             return new Result<TOut>(default, Reasons);
         }

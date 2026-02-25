@@ -39,7 +39,7 @@ public sealed class ResultTapTests
         var tappedResult = result.Tap(x => tappedValue = x);
         
         // Assert
-        Assert.IsTrue(tappedResult.IsFailed);
+        Assert.IsTrue(tappedResult.IsFailure);
         Assert.AreEqual(0, tappedValue);
         Assert.HasCount(1, tappedResult.Errors);
     }
@@ -54,7 +54,7 @@ public sealed class ResultTapTests
         var tappedResult = result.Tap(x => throw new InvalidOperationException("Tap error"));
         
         // Assert
-        Assert.IsTrue(tappedResult.IsFailed);
+        Assert.IsTrue(tappedResult.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(tappedResult.Errors[0]);
         var exceptionError = (ExceptionError)tappedResult.Errors[0];
         Assert.AreEqual("Tap error", exceptionError.Exception.Message);
@@ -111,7 +111,7 @@ public sealed class ResultTapTests
             .Tap(x => tappedValue = x * 2);
         
         // Assert
-        Assert.IsTrue(tappedResult.IsFailed);
+        Assert.IsTrue(tappedResult.IsFailure);
         Assert.AreEqual(42, tappedValue);
         Assert.IsInstanceOfType<ExceptionError>(tappedResult.Errors[0]);
     }

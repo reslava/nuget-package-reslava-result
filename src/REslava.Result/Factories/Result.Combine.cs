@@ -18,7 +18,7 @@ public partial class Result
     ///     Result.Fail("Error in step 3")
     /// };
     /// var merged = Result.Merge(results);
-    /// // merged.IsFailed == true
+    /// // merged.IsFailure == true
     /// // merged.Errors contains "Error in step 3"
     /// // merged.Successes contains "Step 1", "Step 2"
     /// </code>
@@ -76,7 +76,7 @@ public partial class Result
             return Result.Ok();
         }
 
-        var failures = resultsList.Where(r => r.IsFailed).ToList();
+        var failures = resultsList.Where(r => r.IsFailure).ToList();
         
         if (failures.Count > 0)
         {
@@ -161,7 +161,7 @@ public partial class Result<TValue> : IResultResponse<TValue>
             return Result<IEnumerable<TValue>>.Ok(Enumerable.Empty<TValue>());
         }
 
-        var failures = resultsList.Where(r => r.IsFailed).ToList();
+        var failures = resultsList.Where(r => r.IsFailure).ToList();
         
         if (failures.Count > 0)
         {

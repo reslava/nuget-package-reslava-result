@@ -126,7 +126,7 @@ public static class ProductEndpoints
         {
             var result = await service.DeleteProductAsync(id);
 
-            if (result.IsFailed)
+            if (result.IsFailure)
             {
                 var error = result.Errors.First();
                 return Results.NotFound(new

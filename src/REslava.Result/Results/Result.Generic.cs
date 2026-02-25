@@ -37,7 +37,7 @@ public partial class Result<TValue> : Result, IResultResponse<TValue>
     {
         get
         {
-            if (IsFailed)
+            if (IsFailure)
             {
                 var errorMessages = string.Join(", ", Errors.Select(e => e.Message));
                 throw new InvalidOperationException(
@@ -288,7 +288,7 @@ public partial class Result<TValue> : Result, IResultResponse<TValue>
     /// <code>
     /// var result = Result&lt;User&gt;.Ok(user)
     ///     .WithError("User validation failed");
-    /// // result.IsFailed will be true
+    /// // result.IsFailure will be true
     /// </code>
     /// </example>
     public new Result<TValue> WithError(string message) 
@@ -308,7 +308,7 @@ public partial class Result<TValue> : Result, IResultResponse<TValue>
     /// var error = new Error("Database connection failed")
     ///     .WithTag("Database", "Users");
     /// var result = Result&lt;User&gt;.Ok(user).WithError(error);
-    /// // result.IsFailed will be true
+    /// // result.IsFailure will be true
     /// </code>
     /// </example>
     public new Result<TValue> WithError(IError error) 
@@ -332,7 +332,7 @@ public partial class Result<TValue> : Result, IResultResponse<TValue>
     ///     new Error("Password too short")
     /// };
     /// var result = Result&lt;User&gt;.Ok(user).WithErrors(errors);
-    /// // result.IsFailed will be true
+    /// // result.IsFailure will be true
     /// </code>
     /// </example>
     public new Result<TValue> WithErrors(IEnumerable<IError> errors) 

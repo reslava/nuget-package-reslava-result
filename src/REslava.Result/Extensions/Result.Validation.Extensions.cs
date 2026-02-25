@@ -18,7 +18,7 @@ public static class ResultValidationExtensions
         predicate = predicate.EnsureNotNull(nameof(predicate));
         error = error.EnsureNotNull(nameof(error));
 
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             return result;
         }
@@ -47,7 +47,7 @@ public static class ResultValidationExtensions
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
 
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             return result;
         }
@@ -81,7 +81,7 @@ public static class ResultValidationExtensions
             throw new ArgumentException("At least one validation is required", nameof(validations));
         }
 
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             return result;
         }
@@ -130,7 +130,7 @@ public static class ResultValidationExtensions
 
         var result = await resultTask;
 
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             return result;
         }
@@ -159,7 +159,7 @@ public static class ResultValidationExtensions
 
         var result = await resultTask;
 
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             return result;
         }
@@ -202,7 +202,7 @@ public static class ResultValidationExtensions
         error = error.EnsureNotNull(nameof(error));
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             return result;
         }
@@ -223,7 +223,7 @@ public static class ResultValidationExtensions
         predicate = predicate.EnsureNotNull(nameof(predicate));
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             return result;
         }
@@ -259,7 +259,7 @@ public static class ResultValidationExtensions
 
         var result = await resultTask;
 
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             return result;
         }
@@ -282,7 +282,7 @@ public static class ResultValidationExtensions
 
         var result = await resultTask;
 
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             return result;
         }

@@ -44,7 +44,7 @@ public sealed class DomainErrorTests
     {
         var result = Result<string>.Fail(new NotFoundError("User", 1));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<NotFoundError>(result.Errors[0]);
     }
 
@@ -100,7 +100,7 @@ public sealed class DomainErrorTests
     {
         var result = Result<string>.Fail(new ValidationError("Email", "Invalid"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ValidationError>(result.Errors[0]);
     }
 
@@ -143,7 +143,7 @@ public sealed class DomainErrorTests
     {
         var result = Result<string>.Fail(new ConflictError("User", "email", "a@b.com"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ConflictError>(result.Errors[0]);
     }
 
@@ -185,7 +185,7 @@ public sealed class DomainErrorTests
     {
         var result = Result<string>.Fail(new UnauthorizedError());
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<UnauthorizedError>(result.Errors[0]);
     }
 
@@ -237,7 +237,7 @@ public sealed class DomainErrorTests
     {
         var result = Result<string>.Fail(new ForbiddenError("Delete", "Order"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ForbiddenError>(result.Errors[0]);
     }
 

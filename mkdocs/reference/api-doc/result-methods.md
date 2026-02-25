@@ -13,7 +13,7 @@ Core methods for generic Result<TValue> class.
 |----------|------|-------------|
 | **Value** | `TValue` | Gets the value if the result is successful. Throws if failed |
 | **IsSuccess** | `bool` | Gets whether the result is successful |
-| **IsFailed** | `bool` | Gets whether the result is failed |
+| **IsFailure** | `bool` | Gets whether the result is failed |
 | **Reasons** | `ImmutableList<IReason>` | Gets all reasons (successes and errors) |
 | **Errors** | `ImmutableList<IError>` | Gets only error reasons |
 | **Successes** | `ImmutableList<ISuccess>` | Gets only success reasons |

@@ -23,7 +23,7 @@ public static class OrderEndpoints
         {
             var result = await orderService.GetAllOrdersAsync();
 
-            if (result.IsFailed)
+            if (result.IsFailure)
             {
                 return Results.Problem(
                     detail: string.Join(", ", result.Errors.Select(e => e.Message)),
@@ -189,7 +189,7 @@ public static class OrderEndpoints
         {
             var result = await orderService.GetUserOrderStatisticsAsync(userId);
 
-            if (result.IsFailed)
+            if (result.IsFailure)
             {
                 return Results.Problem(
                     detail: string.Join(", ", result.Errors.Select(e => e.Message)),

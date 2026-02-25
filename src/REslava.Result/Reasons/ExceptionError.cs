@@ -10,7 +10,7 @@ namespace REslava.Result;
 /// <example>
 /// <code>
 /// var result = Result&lt;string&gt;.Try(() => File.ReadAllText("config.json"));
-/// if (result.IsFailed)
+/// if (result.IsFailure)
 /// {
 ///     var ex = result.Errors.OfType&lt;ExceptionError&gt;().First();
 ///     Console.WriteLine(ex.Exception.Message);      // original exception message

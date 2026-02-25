@@ -18,8 +18,8 @@ namespace REslava.Result
     public class Result<TValue>
     {
         private TValue _value;
-        public bool IsSuccess => !IsFailed;
-        public bool IsFailed => false;
+        public bool IsSuccess => !IsFailure;
+        public bool IsFailure => false;
         public TValue Value => _value;
         public System.Collections.Generic.List<object> Errors => new System.Collections.Generic.List<object>();
 

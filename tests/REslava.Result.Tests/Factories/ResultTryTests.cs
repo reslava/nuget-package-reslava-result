@@ -23,7 +23,7 @@ public sealed class ResultTryTests
     {
         var result = Result.Try(() => throw new InvalidOperationException("boom"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
         Assert.AreEqual("boom", result.Errors[0].Message);
     }
@@ -35,7 +35,7 @@ public sealed class ResultTryTests
             () => throw new InvalidOperationException("boom"),
             ex => new Error($"Custom: {ex.Message}"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Custom: boom", result.Errors[0].Message);
     }
 
@@ -70,7 +70,7 @@ public sealed class ResultTryTests
         var result = await Result.TryAsync(
             () => throw new InvalidOperationException("async boom"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
         Assert.AreEqual("async boom", result.Errors[0].Message);
     }
@@ -82,7 +82,7 @@ public sealed class ResultTryTests
             () => throw new InvalidOperationException("async boom"),
             ex => new Error($"Custom: {ex.Message}"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Custom: async boom", result.Errors[0].Message);
     }
 
@@ -115,7 +115,7 @@ public sealed class ResultTryTests
         var result = Result<int>.Try(
             () => throw new InvalidOperationException("boom"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
     }
 
@@ -126,7 +126,7 @@ public sealed class ResultTryTests
             () => throw new FormatException("bad format"),
             ex => new Error($"Parse failed: {ex.Message}"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Parse failed: bad format", result.Errors[0].Message);
     }
 
@@ -165,7 +165,7 @@ public sealed class ResultTryTests
         var result = await Result<int>.TryAsync(
             () => throw new InvalidOperationException("async boom"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
     }
 
@@ -176,7 +176,7 @@ public sealed class ResultTryTests
             () => throw new FormatException("bad"),
             ex => new Error($"Custom: {ex.Message}"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Custom: bad", result.Errors[0].Message);
     }
 
@@ -199,7 +199,7 @@ public sealed class ResultTryTests
             throw new InvalidOperationException("delayed boom");
         });
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
     }
 

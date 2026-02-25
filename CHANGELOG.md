@@ -157,7 +157,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 **Performance: Cached Computed Properties**
 - `Result.Errors` and `Result.Successes` are now lazy-cached on first access
-- `Result.IsFailed` uses `Errors.Count > 0` instead of re-enumerating `Reasons.OfType<IError>().Any()`
+- `Result.IsFailure` uses `Errors.Count > 0` instead of re-enumerating `Reasons.OfType<IError>().Any()`
 - Safe because `Result` is immutable (`Reasons` has `private init`)
 
 **SmartEndpoints: Convention-Based Route Prefix**
@@ -286,7 +286,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### ✨ Added
 
 **New Analyzers & Code Fixes (Phase 2 + 3)**
-- **RESL1003 — Prefer Match() over if-check**: Info-level suggestion when both `.Value` and `.Errors` are accessed in complementary `if`/`else` branches. Detects all 4 condition variants: `IsSuccess`, `IsFailed`, `!IsSuccess`, `!IsFailed`
+- **RESL1003 — Prefer Match() over if-check**: Info-level suggestion when both `.Value` and `.Errors` are accessed in complementary `if`/`else` branches. Detects all 4 condition variants: `IsSuccess`, `IsFailure`, `!IsSuccess`, `!IsFailure`
 - **RESL2001 — Unsafe OneOf.AsT* access**: Warning when `.AsT1`–`.AsT4` is accessed on `OneOf<T1,...>` without checking the corresponding `.IsT*` first. Supports guard detection via if-checks and early returns
 - **RESL1001 Code Fix**: Two fix options — wrap in `if (result.IsSuccess) { ... }` guard, or replace with `.Match(v => v, e => default)`
 - **RESL2001 Code Fix**: Replaces `.AsT*` with complete `.Match()` call, generating all arity lambdas with `NotImplementedException()` placeholders
@@ -322,7 +322,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 **NEW: REslava.Result.Analyzers NuGet Package**
 - New companion NuGet package providing Roslyn diagnostic analyzers for REslava.Result
-- **RESL1001 — Unsafe Result<T>.Value access**: Warns when `.Value` is accessed without checking `IsSuccess` or `IsFailed` first. Detects 5 guard patterns: `if (result.IsSuccess)`, `if (!result.IsFailed)`, else-branch of `IsFailed`, early return, and early throw
+- **RESL1001 — Unsafe Result<T>.Value access**: Warns when `.Value` is accessed without checking `IsSuccess` or `IsFailure` first. Detects 5 guard patterns: `if (result.IsSuccess)`, `if (!result.IsFailure)`, else-branch of `IsFailure`, early return, and early throw
 - **RESL1002 — Discarded Result<T> return value**: Warns when a method returning `Result<T>` or `Task<Result<T>>` is called and the return value is ignored, silently swallowing errors
 - 18 analyzer tests (10 for RESL1001, 8 for RESL1002)
 - Zero-dependency analyzer — ships as `analyzers/dotnet/cs` in the NuGet package

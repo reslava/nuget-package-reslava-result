@@ -125,7 +125,7 @@ public static class Result_OneOf_Conversions
 
     private static Result<User> ProcessUser(Result<User> userResult)
     {
-        if (userResult.IsFailed)
+        if (userResult.IsFailure)
             return userResult;
 
         var user = userResult.Value;

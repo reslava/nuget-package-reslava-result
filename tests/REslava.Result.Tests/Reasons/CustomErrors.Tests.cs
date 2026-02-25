@@ -159,7 +159,7 @@
 //         var result = Result<string>.Fail(error);
 
 //         // Assert
-//         Assert.IsTrue(result.IsFailed);
+//         Assert.IsTrue(result.IsFailure);
 //         Assert.AreEqual("Email: Invalid email format", result.Errors[0].Message);
 //     }
 
@@ -332,7 +332,7 @@
 //         var result = Result<string>.Fail(error);
 
 //         // Assert
-//         Assert.IsTrue(result.IsFailed);
+//         Assert.IsTrue(result.IsFailure);
 //         Assert.AreEqual("User with id 'user-999' not found", result.Errors[0].Message);
 //         Assert.AreEqual(404, result.Errors[0].Tags["StatusCode"]);
 //     }
@@ -399,7 +399,7 @@
 //             });
 
 //         // Assert
-//         Assert.IsTrue(result.IsFailed);
+//         Assert.IsTrue(result.IsFailure);
 //         Assert.AreEqual(403, result.Errors[0].Tags["StatusCode"]);
 //     }
 
@@ -420,7 +420,7 @@
 //             .WithError(dbError);
 
 //         // Assert
-//         Assert.IsTrue(result.IsFailed);
+//         Assert.IsTrue(result.IsFailure);
 //         Assert.AreEqual(2, result.Errors.Count);
 //         Assert.IsInstanceOfType<ValidationError>(result.Errors[0]);
 //         Assert.IsInstanceOfType<DatabaseError>(result.Errors[1]);
@@ -464,7 +464,7 @@
 //             .WithError(phoneError);
 
 //         // Assert
-//         Assert.IsTrue(result.IsFailed);
+//         Assert.IsTrue(result.IsFailure);
 //         Assert.AreEqual(3, result.Errors.Count);
 //         Assert.IsTrue(result.Errors.All(e => e is ValidationError));
 //     }
@@ -484,7 +484,7 @@
 //         var result = Result<string>.Fail(error);
 
 //         // Assert
-//         Assert.IsTrue(result.IsFailed);
+//         Assert.IsTrue(result.IsFailure);
 //         var dbError = result.Errors[0] as DatabaseError;
 //         Assert.IsNotNull(dbError);
 //         Assert.AreEqual(3, dbError!.Tags["RetryCount"]);
@@ -504,7 +504,7 @@
 //         var result = Result<string>.Fail(error);
 
 //         // Assert
-//         Assert.IsTrue(result.IsFailed);
+//         Assert.IsTrue(result.IsFailure);
 //         Assert.AreEqual(404, result.Errors[0].Tags["StatusCode"]);
 //         Assert.IsTrue(result.Errors[0].Tags.ContainsKey("RequestId"));
 //         Assert.AreEqual("/api/orders/ORD-12345", result.Errors[0].Tags["Endpoint"]);

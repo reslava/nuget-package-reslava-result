@@ -503,7 +503,7 @@ public sealed class SuccessImmutableTests
             .WithError("Minor issue");
 
         // Assert
-        Assert.IsTrue(result.IsFailed); // Has error, so it's failed
+        Assert.IsTrue(result.IsFailure); // Has error, so it's failed
         Assert.HasCount(1, result.Successes);
         Assert.HasCount(1, result.Errors);
     }

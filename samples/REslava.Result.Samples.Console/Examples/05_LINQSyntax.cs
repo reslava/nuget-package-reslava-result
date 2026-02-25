@@ -46,7 +46,7 @@ public static class LINQSyntaxSamples
         var result3 = from x in Result<int>.Fail("Error")
                       select x * 2;
 
-        System.Console.WriteLine($"Failed result: {result3.IsFailed}");
+        System.Console.WriteLine($"Failed result: {result3.IsFailure}");
 
         System.Console.WriteLine();
     }
@@ -107,8 +107,8 @@ public static class LINQSyntaxSamples
                       where x > 18
                       select x;
 
-        System.Console.WriteLine($"Where (fail): {result2.IsFailed}");
-        if (result2.IsFailed)
+        System.Console.WriteLine($"Where (fail): {result2.IsFailure}");
+        if (result2.IsFailure)
         {
             System.Console.WriteLine($"  Error: {result2.Errors[0].Message}");
         }
@@ -117,8 +117,8 @@ public static class LINQSyntaxSamples
         var result3 = Result<int>.Ok(15)
             .Where(x => x > 18, "Must be greater than 18");
 
-        System.Console.WriteLine($"Where with message: {result3.IsFailed}");
-        if (result3.IsFailed)
+        System.Console.WriteLine($"Where with message: {result3.IsFailure}");
+        if (result3.IsFailure)
         {
             System.Console.WriteLine($"  Error: {result3.Errors[0].Message}");
         }
@@ -153,7 +153,7 @@ public static class LINQSyntaxSamples
         var result2 = Result<int>.Ok(5)
             .SelectMany(x => Result<string>.Fail("Conversion failed"));
 
-        System.Console.WriteLine($"SelectMany (failed): {result2.IsFailed}");
+        System.Console.WriteLine($"SelectMany (failed): {result2.IsFailure}");
 
         // Chained SelectMany
         var result3 = Result<int>.Ok(1)
@@ -202,8 +202,8 @@ public static class LINQSyntaxSamples
                       from z in Result<int>.Ok(10)
                       select x + y + z;
 
-        System.Console.WriteLine($"Failed from: {result4.IsFailed}");
-        if (result4.IsFailed)
+        System.Console.WriteLine($"Failed from: {result4.IsFailure}");
+        if (result4.IsFailure)
         {
             System.Console.WriteLine($"  Error: {result4.Errors[0].Message}");
         }
@@ -259,7 +259,7 @@ public static class LINQSyntaxSamples
                       where e.Contains("@")
                       select e;
 
-        System.Console.WriteLine($"Invalid email: {invalid.IsFailed}");
+        System.Console.WriteLine($"Invalid email: {invalid.IsFailure}");
 
         System.Console.WriteLine();
     }

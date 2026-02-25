@@ -29,7 +29,7 @@ public sealed class ResultLINQTaskExtensionsTests
         var result = await resultTask.SelectManyAsync(
             x => Result<string>.Ok(x.ToString()));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Source error", result.Errors[0].Message);
     }
 
@@ -57,7 +57,7 @@ public sealed class ResultLINQTaskExtensionsTests
         var result = await resultTask.SelectManyAsync(
             x => Task.FromResult(Result<string>.Ok(x.ToString())));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     #endregion
@@ -86,7 +86,7 @@ public sealed class ResultLINQTaskExtensionsTests
             _ => Result<int>.Fail("Selector failed"),
             (original, intermediate) => $"{original}+{intermediate}");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     #endregion
@@ -161,7 +161,7 @@ public sealed class ResultLINQTaskExtensionsTests
                 return $"{original}*5={intermediate}";
             });
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     #endregion
@@ -186,7 +186,7 @@ public sealed class ResultLINQTaskExtensionsTests
 
         var result = await resultTask.SelectAsync(x => x * 2);
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     [TestMethod]
@@ -225,7 +225,7 @@ public sealed class ResultLINQTaskExtensionsTests
         var result = await resultTask.WhereAsync(
             x => x > 5, "Must be > 5");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Must be > 5", result.Errors[0].Message);
     }
 
@@ -248,7 +248,7 @@ public sealed class ResultLINQTaskExtensionsTests
         var result = await resultTask.WhereAsync(
             x => Task.FromResult(x > 5), "Must be > 5");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     [TestMethod]
@@ -259,7 +259,7 @@ public sealed class ResultLINQTaskExtensionsTests
         var result = await resultTask.WhereAsync(
             x => x > 5, "Must be > 5");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Source error", result.Errors[0].Message);
     }
 
@@ -286,7 +286,7 @@ public sealed class ResultLINQTaskExtensionsTests
             .SelectManyAsync(_ => Result<int>.Fail("Mid fail"))
             .SelectAsync(x => x + 1);
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Mid fail", result.Errors[0].Message);
     }
 

@@ -42,7 +42,7 @@ public class OneOfResultIntegrationExtensionsTests
         );
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("User error: User not found", result.Errors.First().Message);
     }
 
@@ -56,7 +56,7 @@ public class OneOfResultIntegrationExtensionsTests
         Result<UserDto> result = oneOf.SelectToResult(user => new UserDto(user.Name));
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Database error", result.Errors.First().Message);
     }
 
@@ -109,7 +109,7 @@ public class OneOfResultIntegrationExtensionsTests
         Result<UserDto> result = oneOf.SelectToResult(user => new UserDto(user.Name));
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("User not found", result.Errors.First().Message);
     }
 
@@ -167,7 +167,7 @@ public class OneOfResultIntegrationExtensionsTests
         );
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Bind error: User not found", result.Errors.First().Message);
     }
 
@@ -220,7 +220,7 @@ public class OneOfResultIntegrationExtensionsTests
         Result<User> result = oneOf.BindToResult(user => ValidateUser(user));
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("User not found", result.Errors.First().Message);
     }
 

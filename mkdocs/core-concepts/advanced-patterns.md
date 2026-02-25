@@ -168,7 +168,7 @@ var error = new NotFoundError("User", userId)
 var result = Result<User>.Fail(error);
 
 // Extract context for logging
-if (result.IsFailed)
+if (result.IsFailure)
 {
     var firstError = result.Errors.First();
     var entity = firstError.Tags.GetValueOrDefault("EntityName");

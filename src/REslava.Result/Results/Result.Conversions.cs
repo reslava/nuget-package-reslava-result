@@ -22,7 +22,7 @@ public partial class Result
     /// </example>
     public Result<TValue> ToResult<TValue>(TValue value)
     {
-        if (IsFailed)
+        if (IsFailure)
         {
             return new Result<TValue>(default, Reasons);
         }
@@ -57,7 +57,7 @@ public partial class Result
     {
         ValidationExtensions.EnsureNotNull(valueFactory, nameof(valueFactory));
 
-        if (IsFailed)
+        if (IsFailure)
         {
             return new Result<TValue>(default, Reasons);
         }

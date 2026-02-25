@@ -31,7 +31,7 @@ public sealed class ResultWhenAllTests
             Task.FromResult(Result<string>.Fail("error1")),
             Task.FromResult(Result<int>.Ok(42)));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual(1, result.Errors.Count);
         Assert.AreEqual("error1", result.Errors[0].Message);
     }
@@ -43,7 +43,7 @@ public sealed class ResultWhenAllTests
             Task.FromResult(Result<string>.Ok("hello")),
             Task.FromResult(Result<int>.Fail("error2")));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual(1, result.Errors.Count);
         Assert.AreEqual("error2", result.Errors[0].Message);
     }
@@ -55,7 +55,7 @@ public sealed class ResultWhenAllTests
             Task.FromResult(Result<string>.Fail("error1")),
             Task.FromResult(Result<int>.Fail("error2")));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual(2, result.Errors.Count);
         Assert.AreEqual("error1", result.Errors[0].Message);
         Assert.AreEqual("error2", result.Errors[1].Message);
@@ -70,7 +70,7 @@ public sealed class ResultWhenAllTests
             faultedTask,
             Task.FromResult(Result<int>.Ok(42)));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsTrue(result.Errors.Any(e => e.Message.Contains("boom")));
     }
 
@@ -85,7 +85,7 @@ public sealed class ResultWhenAllTests
             canceledTask,
             Task.FromResult(Result<int>.Ok(42)));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     // =========================================================================
@@ -114,7 +114,7 @@ public sealed class ResultWhenAllTests
             Task.FromResult(Result<int>.Fail("err1")),
             Task.FromResult(Result<bool>.Fail("err2")));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual(2, result.Errors.Count);
     }
 
@@ -147,7 +147,7 @@ public sealed class ResultWhenAllTests
             Task.FromResult(Result<bool>.Fail("e3")),
             Task.FromResult(Result<double>.Fail("e4")));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual(4, result.Errors.Count);
     }
 
@@ -186,7 +186,7 @@ public sealed class ResultWhenAllTests
 
         var result = await Result.WhenAll(tasks.AsEnumerable());
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual(2, result.Errors.Count);
     }
 
@@ -212,7 +212,7 @@ public sealed class ResultWhenAllTests
 
         var result = await Result.WhenAll(tasks.AsEnumerable());
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsTrue(result.Errors.Any(e => e.Message.Contains("boom")));
     }
 

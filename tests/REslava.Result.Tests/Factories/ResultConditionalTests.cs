@@ -22,7 +22,7 @@ public sealed class ResultConditionalTests
     {
         var result = Result.OkIf(false, "Must be valid");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Must be valid", result.Errors[0].Message);
     }
 
@@ -41,7 +41,7 @@ public sealed class ResultConditionalTests
         var error = new Error("Custom error");
         var result = Result.OkIf(false, error);
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Custom error", result.Errors[0].Message);
     }
 
@@ -60,7 +60,7 @@ public sealed class ResultConditionalTests
     {
         var result = Result.OkIf(false, "Bad", "All good");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Bad", result.Errors[0].Message);
     }
 
@@ -77,7 +77,7 @@ public sealed class ResultConditionalTests
     {
         var result = Result.OkIf(() => false, "Lazy failed");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Lazy failed", result.Errors[0].Message);
     }
 
@@ -88,7 +88,7 @@ public sealed class ResultConditionalTests
             () => throw new InvalidOperationException("boom"),
             "Error");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
         Assert.AreEqual("boom", result.Errors[0].Message);
     }
@@ -110,7 +110,7 @@ public sealed class ResultConditionalTests
             () => Task.FromResult(false),
             "Async failed");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Async failed", result.Errors[0].Message);
     }
 
@@ -121,7 +121,7 @@ public sealed class ResultConditionalTests
             () => throw new InvalidOperationException("async boom"),
             "Error");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
     }
 
@@ -134,7 +134,7 @@ public sealed class ResultConditionalTests
     {
         var result = Result.FailIf(true, "Should fail");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Should fail", result.Errors[0].Message);
     }
 
@@ -152,7 +152,7 @@ public sealed class ResultConditionalTests
         var error = new Error("Custom fail");
         var result = Result.FailIf(true, error);
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Custom fail", result.Errors[0].Message);
     }
 
@@ -179,7 +179,7 @@ public sealed class ResultConditionalTests
     {
         var result = Result.FailIf(true, "Error", "Passed");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     [TestMethod]
@@ -187,7 +187,7 @@ public sealed class ResultConditionalTests
     {
         var result = Result.FailIf(() => true, "Lazy fail");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     [TestMethod]
@@ -205,7 +205,7 @@ public sealed class ResultConditionalTests
             () => throw new InvalidOperationException("boom"),
             "Error");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
     }
 
@@ -216,7 +216,7 @@ public sealed class ResultConditionalTests
             () => Task.FromResult(true),
             "Async fail");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     [TestMethod]
@@ -236,7 +236,7 @@ public sealed class ResultConditionalTests
             () => throw new InvalidOperationException("async boom"),
             "Error");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
     }
 
@@ -258,7 +258,7 @@ public sealed class ResultConditionalTests
     {
         var result = Result<int>.OkIf(false, 42, "Not valid");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Not valid", result.Errors[0].Message);
     }
 
@@ -276,7 +276,7 @@ public sealed class ResultConditionalTests
     {
         var result = Result<string>.OkIf(false, "hello", new Error("err"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("err", result.Errors[0].Message);
     }
 
@@ -297,7 +297,7 @@ public sealed class ResultConditionalTests
         var called = false;
         var result = Result<int>.OkIf(false, () => { called = true; return 99; }, "Error");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsFalse(called);
     }
 
@@ -309,7 +309,7 @@ public sealed class ResultConditionalTests
             () => throw new InvalidOperationException("factory boom"),
             "Error");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
     }
 
@@ -334,7 +334,7 @@ public sealed class ResultConditionalTests
             () => { called = true; return Task.FromResult(42); },
             "Error");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsFalse(called);
     }
 
@@ -359,7 +359,7 @@ public sealed class ResultConditionalTests
             () => { valueCalled = true; return 100; },
             "Error");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsFalse(valueCalled);
     }
 
@@ -383,7 +383,7 @@ public sealed class ResultConditionalTests
             () => Task.FromResult(77),
             "Error");
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
     }
 
@@ -396,7 +396,7 @@ public sealed class ResultConditionalTests
     {
         var result = Result<int>.FailIf(true, "Bad", 42);
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Bad", result.Errors[0].Message);
     }
 
@@ -414,7 +414,7 @@ public sealed class ResultConditionalTests
     {
         var result = Result<int>.FailIf(true, new Error("err"), 42);
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     [TestMethod]
@@ -441,7 +441,7 @@ public sealed class ResultConditionalTests
         var called = false;
         var result = Result<int>.FailIf(true, "Error", () => { called = true; return 99; });
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsFalse(called);
     }
 
@@ -465,7 +465,7 @@ public sealed class ResultConditionalTests
             "Failed",
             () => 55);
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     [TestMethod]
@@ -476,7 +476,7 @@ public sealed class ResultConditionalTests
             "Async fail",
             () => Task.FromResult(42));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     [TestMethod]
@@ -499,7 +499,7 @@ public sealed class ResultConditionalTests
             "Error",
             () => throw new InvalidOperationException("factory boom"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
     }
 

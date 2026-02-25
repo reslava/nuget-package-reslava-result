@@ -124,7 +124,7 @@ public static class UserEndpoints
         {
             var result = await service.DeleteUserAsync(id);
 
-            if (result.IsFailed)
+            if (result.IsFailure)
             {
                 var error = result.Errors.First();
 

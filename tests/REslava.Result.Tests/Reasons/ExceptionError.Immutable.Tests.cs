@@ -528,7 +528,7 @@ public sealed class ExceptionErrorImmutableTests
         var result = Result.Fail(error);
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.HasCount(1, result.Errors);
         Assert.AreEqual("Database error", result.Errors[0].Message);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
@@ -545,7 +545,7 @@ public sealed class ExceptionErrorImmutableTests
         var result = Result<int>.Fail(error);
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         var exceptionError = result.Errors[0] as ExceptionError;
         Assert.IsNotNull(exceptionError);
         Assert.AreSame(exception, exceptionError!.Exception);
@@ -578,7 +578,7 @@ public sealed class ExceptionErrorImmutableTests
         var result = Result<int>.Fail(error);
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Database operation failed", result.Errors[0].Message);
         Assert.AreEqual("localhost", result.Errors[0].Tags["Server"]);
         Assert.IsTrue(result.Errors[0].Tags.ContainsKey("ExceptionType"));

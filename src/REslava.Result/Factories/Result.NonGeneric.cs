@@ -108,7 +108,7 @@ public partial class Result
     /// <example>
     /// <code>
     /// var result = Result.Fail("Operation failed");
-    /// Console.WriteLine(result.IsFailed); // true
+    /// Console.WriteLine(result.IsFailure); // true
     /// </code>
     /// </example>
     public static Result Fail(string message)
@@ -288,7 +288,7 @@ public partial class Result
     /// <code>
     /// var result = Result.Ok()
     ///     .WithError("Operation failed");
-    /// // result.IsFailed will be true
+    /// // result.IsFailure will be true
     /// </code>
     /// </example>
     public Result WithError(string message)
@@ -307,7 +307,7 @@ public partial class Result
     /// <code>
     /// var error = new Error("Database connection failed");
     /// var result = Result.Ok().WithError(error);
-    /// // result.IsFailed will be true
+    /// // result.IsFailure will be true
     /// </code>
     /// </example>
     public Result WithError(IError error)
@@ -331,7 +331,7 @@ public partial class Result
     ///     new Error("Password too short")
     /// };
     /// var result = Result.Ok().WithErrors(errors);
-    /// // result.IsFailed will be true
+    /// // result.IsFailure will be true
     /// </code>
     /// </example>
     public Result WithErrors(IEnumerable<IError> errors)

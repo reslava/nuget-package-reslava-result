@@ -71,8 +71,8 @@ namespace REslava.Result.Analyzers.Analyzers
 
         /// <summary>
         /// Extracts variable name and check direction from conditions like:
-        /// result.IsSuccess (positive), !result.IsFailed (positive),
-        /// result.IsFailed (negative), !result.IsSuccess (negative)
+        /// result.IsSuccess (positive), !result.IsFailure (positive),
+        /// result.IsFailure (negative), !result.IsSuccess (negative)
         /// </summary>
         private static bool TryGetResultCheckInfo(
             ExpressionSyntax condition,
@@ -88,9 +88,9 @@ namespace REslava.Result.Analyzers.Analyzers
             {
                 if (TryGetMemberCheck(prefix.Operand, out variableName, out var propertyName))
                 {
-                    // !IsSuccess → negative, !IsFailed → positive
-                    isPositiveCheck = propertyName == "IsFailed";
-                    return propertyName == "IsSuccess" || propertyName == "IsFailed";
+                    // !IsSuccess → negative, !IsFailure → positive
+                    isPositiveCheck = propertyName == "IsFailure";
+                    return propertyName == "IsSuccess" || propertyName == "IsFailure";
                 }
                 return false;
             }
@@ -98,9 +98,9 @@ namespace REslava.Result.Analyzers.Analyzers
             // Handle direct: x.Property
             if (TryGetMemberCheck(condition, out variableName, out var propName))
             {
-                // IsSuccess → positive, IsFailed → negative
+                // IsSuccess → positive, IsFailure → negative
                 isPositiveCheck = propName == "IsSuccess";
-                return propName == "IsSuccess" || propName == "IsFailed";
+                return propName == "IsSuccess" || propName == "IsFailure";
             }
 
             return false;

@@ -41,7 +41,7 @@ public static class ValidationPipelineSamples
             .Ensure(age => age >= 18, "Must be 18 or older");
 
         System.Console.WriteLine($"Age 15 validation: {result2.IsSuccess}");
-        if (result2.IsFailed)
+        if (result2.IsFailure)
         {
             System.Console.WriteLine($"  Error: {result2.Errors[0].Message}");
         }
@@ -73,7 +73,7 @@ public static class ValidationPipelineSamples
             .Ensure(e => e.Length >= 5, "Email too short");
 
         System.Console.WriteLine($"\nInvalid email: {invalid.IsSuccess}");
-        if (invalid.IsFailed)
+        if (invalid.IsFailure)
         {
             System.Console.WriteLine($"  First error: {invalid.Errors[0].Message}");
         }
@@ -100,7 +100,7 @@ public static class ValidationPipelineSamples
             );
 
         System.Console.WriteLine($"Password validation: {result.IsSuccess}");
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             System.Console.WriteLine($"Errors found: {result.Errors.Count}");
             foreach (var error in result.Errors)
@@ -142,7 +142,7 @@ public static class ValidationPipelineSamples
         var result = Result<int>.Ok(age)
             .Ensure(a => a >= 18, error);
 
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             System.Console.WriteLine($"Error: {result.Errors[0].Message}");
             System.Console.WriteLine($"  Field: {result.Errors[0].Tags["Field"]}");
@@ -173,7 +173,7 @@ public static class ValidationPipelineSamples
             .EnsureNotNull("Value cannot be null");
 
         System.Console.WriteLine($"Null validation: {result2.IsSuccess}");
-        if (result2.IsFailed)
+        if (result2.IsFailure)
         {
             System.Console.WriteLine($"  Error: {result2.Errors[0].Message}");
         }
@@ -225,7 +225,7 @@ public static class ValidationPipelineSamples
 
         var invalidResult = ValidateUser(invalidUser);
         System.Console.WriteLine($"\nInvalid user validation: {invalidResult.IsSuccess}");
-        if (invalidResult.IsFailed)
+        if (invalidResult.IsFailure)
         {
             System.Console.WriteLine($"Errors: {invalidResult.Errors.Count}");
             foreach (var error in invalidResult.Errors)
@@ -281,7 +281,7 @@ public static class ValidationPipelineSamples
         );
 
         System.Console.WriteLine($"OkIf (age 15): {result2.IsSuccess}");
-        if (result2.IsFailed)
+        if (result2.IsFailure)
         {
             System.Console.WriteLine($"  Error: {result2.Errors[0].Message}");
         }
@@ -295,7 +295,7 @@ public static class ValidationPipelineSamples
         );
 
         System.Console.WriteLine($"\nFailIf (temp 45): {result3.IsSuccess}");
-        if (result3.IsFailed)
+        if (result3.IsFailure)
         {
             System.Console.WriteLine($"  Error: {result3.Errors[0].Message}");
         }

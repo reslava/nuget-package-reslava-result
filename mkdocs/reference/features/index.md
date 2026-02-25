@@ -12,7 +12,7 @@ hide:
 |---------|------------------|---------|------|
 | `Result<T>` type | Type-safe success/failure container | v1.0.0 | `## REslava.Result Core Library` |
 | `Result<T>.Ok(value)` / `Fail(error)` | Factory methods | v1.0.0 | `## REslava.Result Core Library` |
-| `Result<T>.IsSuccess` / `IsFailed` | Status properties | v1.0.0 | `## REslava.Result Core Library` |
+| `Result<T>.IsSuccess` / `IsFailure` | Status properties | v1.0.0 | `## REslava.Result Core Library` |
 | `Result<T>.Value` | Value access (unsafe without IsSuccess guard) | v1.0.0 | `## REslava.Result Core Library` |
 | `GetValueOr()` / `TryGetValue()` | Safe value access | v1.0.0 | `## 📐 REslava.Result Core Library` — `### Complete Method Catalog` |
 | `Match()` | Exhaustive pattern matching | v1.0.0 | `## REslava.Result Core Library` |

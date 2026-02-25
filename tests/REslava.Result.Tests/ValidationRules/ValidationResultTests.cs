@@ -158,7 +158,7 @@ public class ValidationResultTests
         // Act & Assert
         Assert.IsInstanceOfType(result, typeof(Result<TestEntity>));
         Assert.IsTrue(result.IsSuccess);
-        Assert.IsFalse(result.IsFailed);
+        Assert.IsFalse(result.IsFailure);
     }
 
     [TestMethod]

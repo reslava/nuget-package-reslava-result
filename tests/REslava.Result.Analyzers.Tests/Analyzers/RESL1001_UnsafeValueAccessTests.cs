@@ -44,7 +44,7 @@ class C
     }
 
     [TestMethod]
-    public async Task ValueAccess_InsideNotIsFailedGuard_NoReport()
+    public async Task ValueAccess_InsideNotIsFailureGuard_NoReport()
     {
         var test = AnalyzerTestHelper.CreateTest(@"
 using REslava.Result;
@@ -54,7 +54,7 @@ class C
     void M()
     {
         var result = Result<int>.Ok(42);
-        if (!result.IsFailed)
+        if (!result.IsFailure)
         {
             var x = result.Value;
         }
@@ -64,7 +64,7 @@ class C
     }
 
     [TestMethod]
-    public async Task ValueAccess_InElseBranchOfIsFailed_NoReport()
+    public async Task ValueAccess_InElseBranchOfIsFailure_NoReport()
     {
         var test = AnalyzerTestHelper.CreateTest(@"
 using REslava.Result;
@@ -74,7 +74,7 @@ class C
     void M()
     {
         var result = Result<int>.Ok(42);
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             return;
         }
@@ -88,7 +88,7 @@ class C
     }
 
     [TestMethod]
-    public async Task ValueAccess_AfterEarlyReturnOnIsFailed_NoReport()
+    public async Task ValueAccess_AfterEarlyReturnOnIsFailure_NoReport()
     {
         var test = AnalyzerTestHelper.CreateTest(@"
 using REslava.Result;
@@ -98,7 +98,7 @@ class C
     void M()
     {
         var result = Result<int>.Ok(42);
-        if (result.IsFailed) return;
+        if (result.IsFailure) return;
         var x = result.Value;
     }
 }");
@@ -135,7 +135,7 @@ class C
     void M()
     {
         var result = Result<int>.Ok(42);
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             var x = result.{|RESL1001:Value|};
         }

@@ -15,7 +15,7 @@ namespace REslava.Result.Analyzers.Analyzers
     {
         private static readonly GuardDetectionHelper.GuardConfig ResultGuardConfig = new(
             positiveProperties: new[] { "IsSuccess" },
-            negativeProperties: new[] { "IsFailed" });
+            negativeProperties: new[] { "IsFailure" });
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
             => ImmutableArray.Create(Descriptors.RESL1001_UnsafeValueAccess);
@@ -60,7 +60,7 @@ namespace REslava.Result.Analyzers.Analyzers
             if (!IsResultType(expressionType, resultType))
                 return;
 
-            // Check if .Value is guarded by IsSuccess/IsFailed
+            // Check if .Value is guarded by IsSuccess/IsFailure
             if (GuardDetectionHelper.IsGuardedByCheck(memberAccess, ResultGuardConfig))
                 return;
 

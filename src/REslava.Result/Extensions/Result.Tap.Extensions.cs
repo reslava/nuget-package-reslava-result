@@ -73,7 +73,7 @@ public static class ResultExtensions
 
     public static Result<T> TapOnFailure<T>(this Result<T> result, Action<IError> action)
     {
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             action(result.Errors[0]);
         }
@@ -83,7 +83,7 @@ public static class ResultExtensions
     public static async Task<Result<T>> TapOnFailureAsync<T>(this Result<T> result, Func<IError, Task> action, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (result.IsFailed)
+        if (result.IsFailure)
         {
             await action(result.Errors[0]);
         }
@@ -95,7 +95,7 @@ public static class ResultExtensions
     {
         ValidationExtensions.EnsureNotNull(action, nameof(action));
         ValidationExtensions.EnsureNotNullOrEmpty(result.Errors, nameof(result.Errors));
-        if (result.IsFailed)
+        if (result.IsFailure)
             action(result.Errors[0]);
         return result;            
     }
@@ -104,7 +104,7 @@ public static class ResultExtensions
         ValidationExtensions.EnsureNotNull(action, nameof(action));
         ValidationExtensions.EnsureNotNullOrEmpty(result.Errors, nameof(result.Errors));
         cancellationToken.ThrowIfCancellationRequested();
-        if (result.IsFailed)
+        if (result.IsFailure)
             await action(result.Errors[0]);
         return result;
     }
@@ -117,7 +117,7 @@ public static class ResultExtensions
     {
         cancellationToken.ThrowIfCancellationRequested();
         var result = await resultTask;
-        if (result.IsFailed)
+        if (result.IsFailure)
             action(result.Errors[0]);
         return result;
     }
@@ -127,7 +127,7 @@ public static class ResultExtensions
         this Result<T> result,
         Action<ImmutableList<IError>> action)
     {        
-        if (result.IsFailed)
+        if (result.IsFailure)
             action(result.Errors);
         return result;
     }

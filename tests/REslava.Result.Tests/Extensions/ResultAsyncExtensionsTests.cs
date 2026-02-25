@@ -54,7 +54,7 @@ public sealed class ResultAsyncExtensionsTests
         var result = await resultTask.MapAsync(x => x * 2);
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(error, result.Errors[0]);
     }
 
@@ -106,7 +106,7 @@ public sealed class ResultAsyncExtensionsTests
         var result = await resultTask.WithSuccessAsync("Operation completed");
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(error, result.Errors[0]);
     }
 
@@ -138,7 +138,7 @@ public sealed class ResultAsyncExtensionsTests
         var result = await resultTask.EnsureAsync(x => x > 100, "Value must be greater than 100");
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Value must be greater than 100", result.Errors[0].Message);
     }
 
@@ -171,7 +171,7 @@ public sealed class ResultAsyncExtensionsTests
         var result = await resultTask.EnsureAsync(x => x > 0, "Value must be positive");
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(originalError, result.Errors[0]);
     }
 
@@ -212,7 +212,7 @@ public sealed class ResultAsyncExtensionsTests
         });
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(error, result.Errors[0]);
     }
 
@@ -231,7 +231,7 @@ public sealed class ResultAsyncExtensionsTests
         });
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(binderError, result.Errors[0]);
     }
 
@@ -287,7 +287,7 @@ public sealed class ResultAsyncExtensionsTests
         var result = await resultTask.TapAsync(x => capturedValue = x);
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(error, result.Errors[0]);
         Assert.AreEqual(0, capturedValue);
     }
@@ -332,7 +332,7 @@ public sealed class ResultAsyncExtensionsTests
             .WithSuccessAsync("This should not be added");
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Value must be greater than 100", result.Errors[0].Message);
         Assert.HasCount(1, result.Successes); // Only initial success
     }
@@ -352,7 +352,7 @@ public sealed class ResultAsyncExtensionsTests
         var result = await resultTask.MapAsync(throwingMapper);
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
         Assert.AreEqual("Mapper failed", result.Errors[0].Message);
     }
@@ -372,7 +372,7 @@ public sealed class ResultAsyncExtensionsTests
         var result = await resultTask.MapAsync(throwingAsyncMapper);
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
         Assert.AreEqual("Async mapper failed", result.Errors[0].Message);
     }
@@ -391,7 +391,7 @@ public sealed class ResultAsyncExtensionsTests
         });
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
         Assert.AreEqual("Binder failed", result.Errors[0].Message);
     }

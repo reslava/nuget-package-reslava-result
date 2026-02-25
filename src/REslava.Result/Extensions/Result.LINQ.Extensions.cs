@@ -32,7 +32,7 @@ public static class ResultLINQExtensions
         selector = selector.EnsureNotNull(nameof(selector));
 
         // If source failed, propagate failure to new type
-        if (source.IsFailed)
+        if (source.IsFailure)
         {
             return new Result<T>(default, source.Reasons);
         }
@@ -69,7 +69,7 @@ public static class ResultLINQExtensions
         selector = selector.EnsureNotNull(nameof(selector));
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (source.IsFailed)
+        if (source.IsFailure)
         {
             return new Result<T>(default, source.Reasons);
         }
@@ -130,7 +130,7 @@ public static class ResultLINQExtensions
         selector = selector.EnsureNotNull(nameof(selector));
         resultSelector = resultSelector.EnsureNotNull(nameof(resultSelector));
 
-        if (source.IsFailed)
+        if (source.IsFailure)
         {
             return new Result<T>(default, source.Reasons);
         }
@@ -139,7 +139,7 @@ public static class ResultLINQExtensions
         {
             var intermediateResult = selector(source.Value!);
 
-            if (intermediateResult.IsFailed)
+            if (intermediateResult.IsFailure)
             {
                 // Combine errors from both source and intermediate
                 var combinedReasons = source.Errors.ToImmutableList<IReason>()
@@ -176,7 +176,7 @@ public static class ResultLINQExtensions
         resultSelector = resultSelector.EnsureNotNull(nameof(resultSelector));
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (source.IsFailed)
+        if (source.IsFailure)
         {
             return new Result<T>(default, source.Reasons);
         }
@@ -185,7 +185,7 @@ public static class ResultLINQExtensions
         {
             var intermediateResult = await selector(source.Value!);
 
-            if (intermediateResult.IsFailed)
+            if (intermediateResult.IsFailure)
             {
                 var combinedReasons = source.Errors.ToImmutableList<IReason>()
                     .AddRange(intermediateResult.Reasons);
@@ -219,7 +219,7 @@ public static class ResultLINQExtensions
         resultSelector = resultSelector.EnsureNotNull(nameof(resultSelector));
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (source.IsFailed)
+        if (source.IsFailure)
         {
             return new Result<T>(default, source.Reasons);
         }
@@ -228,7 +228,7 @@ public static class ResultLINQExtensions
         {
             var intermediateResult = selector(source.Value!);
 
-            if (intermediateResult.IsFailed)
+            if (intermediateResult.IsFailure)
             {
                 var combinedReasons = source.Errors.ToImmutableList<IReason>()
                     .AddRange(intermediateResult.Reasons);
@@ -262,7 +262,7 @@ public static class ResultLINQExtensions
         resultSelector = resultSelector.EnsureNotNull(nameof(resultSelector));
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (source.IsFailed)
+        if (source.IsFailure)
         {
             return new Result<T>(default, source.Reasons);
         }
@@ -271,7 +271,7 @@ public static class ResultLINQExtensions
         {
             var intermediateResult = await selector(source.Value!);
 
-            if (intermediateResult.IsFailed)
+            if (intermediateResult.IsFailure)
             {
                 var combinedReasons = source.Errors.ToImmutableList<IReason>()
                     .AddRange(intermediateResult.Reasons);
@@ -316,7 +316,7 @@ public static class ResultLINQExtensions
     {
         selector = selector.EnsureNotNull(nameof(selector));
 
-        if (source.IsFailed)
+        if (source.IsFailure)
         {
             return new Result<T>(default, source.Reasons);
         }
@@ -350,7 +350,7 @@ public static class ResultLINQExtensions
         selector = selector.EnsureNotNull(nameof(selector));
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (source.IsFailed)
+        if (source.IsFailure)
         {
             return new Result<T>(default, source.Reasons);
         }
@@ -393,7 +393,7 @@ public static class ResultLINQExtensions
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
 
-        if (source.IsFailed)
+        if (source.IsFailure)
         {
             return source;
         }
@@ -421,7 +421,7 @@ public static class ResultLINQExtensions
         predicate = predicate.EnsureNotNull(nameof(predicate));
         errorMessage = errorMessage.EnsureNotNullOrWhiteSpace(nameof(errorMessage));
 
-        if (source.IsFailed)
+        if (source.IsFailure)
         {
             return source;
         }
@@ -449,7 +449,7 @@ public static class ResultLINQExtensions
         predicate = predicate.EnsureNotNull(nameof(predicate));
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (source.IsFailed)
+        if (source.IsFailure)
         {
             return source;
         }
@@ -480,7 +480,7 @@ public static class ResultLINQExtensions
         errorMessage = errorMessage.EnsureNotNullOrWhiteSpace(nameof(errorMessage));
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (source.IsFailed)
+        if (source.IsFailure)
         {
             return source;
         }

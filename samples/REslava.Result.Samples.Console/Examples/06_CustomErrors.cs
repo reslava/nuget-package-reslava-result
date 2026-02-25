@@ -35,7 +35,7 @@ public static class CustomErrorsSamples
         var notFoundError = new NotFoundError("User", "user-123");
         var result1 = Result<User>.Fail(notFoundError);
 
-        System.Console.WriteLine($"NotFoundError: {result1.IsFailed}");
+        System.Console.WriteLine($"NotFoundError: {result1.IsFailure}");
         System.Console.WriteLine($"  Message: {result1.Errors[0].Message}");
         System.Console.WriteLine($"  Entity: {result1.Errors[0].GetTagString("EntityType")}");
         System.Console.WriteLine($"  ID: {result1.Errors[0].GetTagString("EntityId")}");
@@ -45,7 +45,7 @@ public static class CustomErrorsSamples
         var validationError = new ValidationError("Email", "Invalid format");
         var result2 = Result<string>.Fail(validationError);
 
-        System.Console.WriteLine($"\nValidationError: {result2.IsFailed}");
+        System.Console.WriteLine($"\nValidationError: {result2.IsFailure}");
         System.Console.WriteLine($"  Message: {result2.Errors[0].Message}");
         System.Console.WriteLine($"  Field: {result2.Errors[0].GetTagString("Field")}");
         System.Console.WriteLine($"  Type: {result2.Errors[0].GetTagString("ErrorType")}");
@@ -54,7 +54,7 @@ public static class CustomErrorsSamples
         var authError = new AuthorizationError("user-456", "admin:write");
         var result3 = Result<string>.Fail(authError);
 
-        System.Console.WriteLine($"\nAuthorizationError: {result3.IsFailed}");
+        System.Console.WriteLine($"\nAuthorizationError: {result3.IsFailure}");
         System.Console.WriteLine($"  Message: {result3.Errors[0].Message}");
         System.Console.WriteLine($"  User: {result3.Errors[0].GetTagString("UserId")}");
         System.Console.WriteLine($"  Permission: {result3.Errors[0].GetTagString("RequiredPermission")}");
@@ -349,8 +349,8 @@ public static class CustomErrorsSamples
                     Age = a
                 }));
 
-        System.Console.WriteLine($"Pipeline with custom errors: {result.IsFailed}");
-        if (result.IsFailed)
+        System.Console.WriteLine($"Pipeline with custom errors: {result.IsFailure}");
+        if (result.IsFailure)
         {
             foreach (var error in result.Errors)
             {

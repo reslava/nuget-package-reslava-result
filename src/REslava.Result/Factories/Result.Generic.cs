@@ -118,7 +118,7 @@ public partial class Result<TValue>
     /// <code>
     /// var nonGenericResult = Result.Fail("Operation failed");
     /// var genericResult = Result&lt;User&gt;.FromResult(nonGenericResult);
-    /// // genericResult.IsFailed is true
+    /// // genericResult.IsFailure is true
     /// </code>
     /// </example>
     public static Result<TValue> FromResult(Result result)
@@ -143,7 +143,7 @@ public partial class Result<TValue>
     /// <example>
     /// <code>
     /// var result = Result&lt;User&gt;.Fail("User not found");
-    /// Console.WriteLine(result.IsFailed); // true
+    /// Console.WriteLine(result.IsFailure); // true
     /// </code>
     /// </example>
     public static new Result<TValue> Fail(string message)

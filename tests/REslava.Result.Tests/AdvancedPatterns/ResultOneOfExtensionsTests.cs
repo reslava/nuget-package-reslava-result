@@ -87,7 +87,7 @@ public class ResultOneOfExtensionsTests
         Result<User> result = oneOf.ToResult(error => new Error(error.Message));
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("User not found", result.Errors.First().Message);
     }
 

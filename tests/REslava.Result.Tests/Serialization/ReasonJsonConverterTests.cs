@@ -15,7 +15,7 @@ public class ReasonJsonConverterTests
         var json = JsonSerializer.Serialize(original, _options);
         var deserialized = JsonSerializer.Deserialize<Result<string>>(json, _options)!;
 
-        Assert.IsTrue(deserialized.IsFailed);
+        Assert.IsTrue(deserialized.IsFailure);
         Assert.AreEqual("Something went wrong", deserialized.Errors[0].Message);
     }
 
@@ -30,7 +30,7 @@ public class ReasonJsonConverterTests
         var json = JsonSerializer.Serialize(original, _options);
         var deserialized = JsonSerializer.Deserialize<Result<string>>(json, _options)!;
 
-        Assert.IsTrue(deserialized.IsFailed);
+        Assert.IsTrue(deserialized.IsFailure);
         Assert.AreEqual("Validation failed", deserialized.Errors[0].Message);
         Assert.AreEqual(2, deserialized.Errors[0].Tags.Count);
 
@@ -69,7 +69,7 @@ public class ReasonJsonConverterTests
 
         var deserialized = JsonSerializer.Deserialize<Result<string>>(json, _options)!;
 
-        Assert.IsTrue(deserialized.IsFailed);
+        Assert.IsTrue(deserialized.IsFailure);
         Assert.AreEqual("Test exception", deserialized.Errors[0].Message);
         // Deserializes as Error, not ExceptionError
         Assert.IsInstanceOfType<Error>(deserialized.Errors[0]);
@@ -136,7 +136,7 @@ public class ReasonJsonConverterTests
         var json = JsonSerializer.Serialize(original, _options);
         var deserialized = JsonSerializer.Deserialize<Result<string>>(json, _options)!;
 
-        Assert.IsTrue(deserialized.IsFailed);
+        Assert.IsTrue(deserialized.IsFailure);
         Assert.AreEqual(0, deserialized.Errors[0].Tags.Count);
     }
 }

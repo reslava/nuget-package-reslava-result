@@ -34,7 +34,7 @@ class Test
     }
 
     [TestMethod]
-    public async Task IfIsFailed_WithErrorsAndValue_Reports()
+    public async Task IfIsFailure_WithErrorsAndValue_Reports()
     {
         const string testCode = @"
 using REslava.Result;
@@ -44,7 +44,7 @@ class Test
     void M()
     {
         var result = Result<int>.Ok(42);
-        {|RESL1003:if|} (result.IsFailed)
+        {|RESL1003:if|} (result.IsFailure)
         {
             var e = result.Errors;
         }
@@ -86,7 +86,7 @@ class Test
     }
 
     [TestMethod]
-    public async Task IfNotIsFailed_WithValueAndErrors_Reports()
+    public async Task IfNotIsFailure_WithValueAndErrors_Reports()
     {
         const string testCode = @"
 using REslava.Result;
@@ -96,7 +96,7 @@ class Test
     void M()
     {
         var result = Result<int>.Ok(42);
-        {|RESL1003:if|} (!result.IsFailed)
+        {|RESL1003:if|} (!result.IsFailure)
         {
             var x = result.Value;
         }

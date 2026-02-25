@@ -43,7 +43,7 @@ public sealed class ResultConversionsEdgeCasesTests
         Result<int> result = error;
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.HasCount(1, result.Errors);
         Assert.AreEqual("Something went wrong", result.Errors[0].Message);
     }
@@ -92,7 +92,7 @@ public sealed class ResultConversionsEdgeCasesTests
         Result<int> result = errors;
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.HasCount(2, result.Errors);
         Assert.AreEqual("Error 1", result.Errors[0].Message);
         Assert.AreEqual("Error 2", result.Errors[1].Message);
@@ -121,7 +121,7 @@ public sealed class ResultConversionsEdgeCasesTests
         Result<int> result = errors;
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.HasCount(1, result.Errors);
         
         var conversionError = result.Errors[0] as ConversionError;
@@ -149,7 +149,7 @@ public sealed class ResultConversionsEdgeCasesTests
         Result<int> result = errors;
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.HasCount(2, result.Errors);
         Assert.AreEqual("List error 1", result.Errors[0].Message);
     }
@@ -177,7 +177,7 @@ public sealed class ResultConversionsEdgeCasesTests
         Result<int> result = errors;
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.HasCount(1, result.Errors);
         
         var conversionError = result.Errors[0] as ConversionError;
@@ -205,7 +205,7 @@ public sealed class ResultConversionsEdgeCasesTests
         Result<int> result = errors;
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.HasCount(2, result.Errors);
     }
 
@@ -232,7 +232,7 @@ public sealed class ResultConversionsEdgeCasesTests
         Result<string> result = errors;
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         var conversionError = result.Errors[0] as ConversionError;
         Assert.IsNotNull(conversionError);
         Assert.Contains("Empty exception error array provided", conversionError.Message);
@@ -261,7 +261,7 @@ public sealed class ResultConversionsEdgeCasesTests
         Result<int> result = errors;
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         var conversionError = result.Errors[0] as ConversionError;
         Assert.IsNotNull(conversionError);
         Assert.Contains("Empty exception error list provided", conversionError.Message);
@@ -355,7 +355,7 @@ public sealed class ResultConversionsEdgeCasesTests
         Result baseResult = typedResult.ToResult();
 
         // Assert
-        Assert.IsTrue(baseResult.IsFailed);
+        Assert.IsTrue(baseResult.IsFailure);
         Assert.HasCount(1, baseResult.Errors);
         Assert.AreEqual("Error occurred", baseResult.Errors[0].Message);
     }
@@ -387,7 +387,7 @@ public sealed class ResultConversionsEdgeCasesTests
         var typedResult = baseResult.ToResult(42);
 
         // Assert
-        Assert.IsTrue(typedResult.IsFailed);
+        Assert.IsTrue(typedResult.IsFailure);
         Assert.HasCount(1, typedResult.Errors);
         Assert.AreEqual("Base error", typedResult.Errors[0].Message);
     }
@@ -409,7 +409,7 @@ public sealed class ResultConversionsEdgeCasesTests
         Result<User> result = validationErrors;
 
         // Assert: Should get ConversionError, not crash
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ConversionError>(result.Errors[0]);
         Assert.Contains("Empty error list", result.Errors[0].Message);
     }
@@ -464,7 +464,7 @@ public sealed class ResultConversionsEdgeCasesTests
         Result<int> result = errors;
 
         // Assert: Can detect conversion issues for monitoring
-        if (result.IsFailed && result.Errors.Any(e => e is ConversionError))
+        if (result.IsFailure && result.Errors.Any(e => e is ConversionError))
         {
             var conversionError = result.Errors.OfType<ConversionError>().First();
             

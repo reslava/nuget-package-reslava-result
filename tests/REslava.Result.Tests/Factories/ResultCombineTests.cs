@@ -28,7 +28,7 @@ public sealed class ResultCombineTests
             Result.Fail("Error in step 2"),
             Result.Ok().WithSuccess("Step 3"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual(1, result.Errors.Count);
         Assert.AreEqual(2, result.Successes.Count);
     }
@@ -48,7 +48,7 @@ public sealed class ResultCombineTests
             Result.Fail("Error 1"),
             Result.Fail("Error 2"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual(2, result.Errors.Count);
     }
 
@@ -83,7 +83,7 @@ public sealed class ResultCombineTests
             Result.Fail("Error 1"),
             Result.Fail("Error 2"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual(2, result.Errors.Count);
         // Combine only keeps errors on failure, unlike Merge
     }
@@ -103,7 +103,7 @@ public sealed class ResultCombineTests
             Result.Ok(),
             Result.Fail("Error"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     [TestMethod]
@@ -111,7 +111,7 @@ public sealed class ResultCombineTests
     {
         var result = Result.Combine(Result.Fail("Only error"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Only error", result.Errors[0].Message);
     }
 
@@ -149,7 +149,7 @@ public sealed class ResultCombineTests
             Task.FromResult(Result.Fail("Error"))
         });
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     [TestMethod]
@@ -187,7 +187,7 @@ public sealed class ResultCombineTests
             Result<int>.Fail("Error A"),
             Result<int>.Fail("Error B"));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual(2, result.Errors.Count);
     }
 
@@ -251,7 +251,7 @@ public sealed class ResultCombineTests
             Task.FromResult(Result<int>.Fail("Error"))
         });
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     [TestMethod]

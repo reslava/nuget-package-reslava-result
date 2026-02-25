@@ -25,7 +25,7 @@ public sealed class ResultGenericTests
         
         // Assert
         Assert.IsTrue(result.IsSuccess);
-        Assert.IsFalse(result.IsFailed);
+        Assert.IsFalse(result.IsFailure);
         Assert.AreEqual(value, result.Value);
         Assert.IsEmpty(result.Errors);
         Assert.HasCount(1, result.Successes);
@@ -43,7 +43,7 @@ public sealed class ResultGenericTests
         
         // Assert
         Assert.IsTrue(result.IsSuccess);
-        Assert.IsFalse(result.IsFailed);
+        Assert.IsFalse(result.IsFailure);
         Assert.AreEqual(value, result.Value);
         Assert.IsEmpty(result.Errors);
         Assert.HasCount(1, result.Successes);
@@ -60,7 +60,7 @@ public sealed class ResultGenericTests
         
         // Assert
         Assert.IsFalse(result.IsSuccess);
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.HasCount(1, result.Errors);
         Assert.AreEqual("Something went wrong", result.Errors[0].Message);
         Assert.IsEmpty(result.Successes);
@@ -241,7 +241,7 @@ public sealed class ResultGenericTests
         Result<int> result = error;
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(error, result.Errors[0]);
     }
 
@@ -274,7 +274,7 @@ public sealed class ResultGenericTests
         var newResult = result.WithReason(new Error("Added"));
         
         // Assert
-        Assert.IsTrue(newResult.IsFailed);
+        Assert.IsTrue(newResult.IsFailure);
         Assert.HasCount(2, newResult.Errors);
     }
 
@@ -325,7 +325,7 @@ public sealed class ResultGenericTests
         var newResult = result.WithError("New error");
         
         // Assert
-        Assert.IsTrue(newResult.IsFailed);
+        Assert.IsTrue(newResult.IsFailure);
         Assert.HasCount(2, newResult.Reasons);
     }
 
@@ -339,7 +339,7 @@ public sealed class ResultGenericTests
         var newResult = result.WithError("Added error");
         
         // Assert
-        Assert.IsTrue(newResult.IsFailed);
+        Assert.IsTrue(newResult.IsFailure);
         Assert.HasCount(2, newResult.Errors);
     }
 

@@ -97,7 +97,7 @@ public class ResultJsonConverterTests
         var json = JsonSerializer.Serialize(original, _options);
         var deserialized = JsonSerializer.Deserialize<Result<string>>(json, _options)!;
 
-        Assert.IsTrue(deserialized.IsFailed);
+        Assert.IsTrue(deserialized.IsFailure);
         Assert.AreEqual(1, deserialized.Errors.Count);
         Assert.AreEqual("Not found", deserialized.Errors[0].Message);
     }
@@ -114,7 +114,7 @@ public class ResultJsonConverterTests
         var json = JsonSerializer.Serialize(original, _options);
         var deserialized = JsonSerializer.Deserialize<Result<string>>(json, _options)!;
 
-        Assert.IsTrue(deserialized.IsFailed);
+        Assert.IsTrue(deserialized.IsFailure);
         Assert.AreEqual(2, deserialized.Errors.Count);
         Assert.AreEqual("Name is required", deserialized.Errors[0].Message);
         Assert.AreEqual("Email is invalid", deserialized.Errors[1].Message);

@@ -159,7 +159,7 @@ public class ValidationResult<T> : Result<T>
     
     /// <summary>
     /// Gets a value indicating whether the validation was successful.
-    /// This is a convenience property that returns the opposite of IsFailed.
+    /// This is a convenience property that returns the opposite of IsFailure.
     /// </summary>
     /// <value>
     /// <c>true</c> if the validation passed; otherwise, <c>false</c>.

@@ -11,8 +11,8 @@ public partial class Result : IResultResponse
     private ImmutableList<IError>? _errors;
     private ImmutableList<ISuccess>? _successes;
 
-    public bool IsSuccess => !IsFailed;
-    public bool IsFailed => Errors.Count > 0;
+    public bool IsSuccess => !IsFailure;
+    public bool IsFailure => Errors.Count > 0;
     public ImmutableList<IReason> Reasons { get; private init; }
     public ImmutableList<IError> Errors => _errors ??= Reasons.OfType<IError>().ToImmutableList();
     public ImmutableList<ISuccess> Successes => _successes ??= Reasons.OfType<ISuccess>().ToImmutableList();

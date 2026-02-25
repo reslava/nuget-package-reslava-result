@@ -45,8 +45,8 @@ public static class ErrorHandlingSamples
             throw new InvalidOperationException("Something went wrong");
         });
 
-        System.Console.WriteLine($"Try with exception: {result2.IsFailed}");
-        if (result2.IsFailed)
+        System.Console.WriteLine($"Try with exception: {result2.IsFailure}");
+        if (result2.IsFailure)
         {
             var error = result2.Errors[0] as ExceptionError;
             System.Console.WriteLine($"  Error type: {error?.Exception.GetType().Name}");
@@ -61,8 +61,8 @@ public static class ErrorHandlingSamples
                 .WithTag("Severity", "High")
         );
 
-        System.Console.WriteLine($"\nTry with custom handler: {result3.IsFailed}");
-        if (result3.IsFailed)
+        System.Console.WriteLine($"\nTry with custom handler: {result3.IsFailure}");
+        if (result3.IsFailure)
         {
             System.Console.WriteLine($"  Message: {result3.Errors[0].Message}");
             System.Console.WriteLine($"  Code: {result3.Errors[0].Tags["ErrorCode"]}");
@@ -74,8 +74,8 @@ public static class ErrorHandlingSamples
         System.Console.WriteLine($"\nGeneric Try (valid): {result4.IsSuccess}, Value: {result4.Value}");
 
         var result5 = Result<int>.Try(() => int.Parse("invalid"));
-        System.Console.WriteLine($"Generic Try (invalid): {result5.IsFailed}");
-        if (result5.IsFailed)
+        System.Console.WriteLine($"Generic Try (invalid): {result5.IsFailure}");
+        if (result5.IsFailure)
         {
             System.Console.WriteLine($"  Error: {result5.Errors[0].Message}");
         }
@@ -101,7 +101,7 @@ public static class ErrorHandlingSamples
             var error1 = new ExceptionError(ex);
             var result1 = Result.Fail(error1);
 
-            System.Console.WriteLine($"ExceptionError created: {result1.IsFailed}");
+            System.Console.WriteLine($"ExceptionError created: {result1.IsFailure}");
             System.Console.WriteLine($"  Message: {result1.Errors[0].Message}");
             System.Console.WriteLine($"  Exception type: {result1.Errors[0].Tags["ExceptionType"]}");
 
@@ -219,7 +219,7 @@ public static class ErrorHandlingSamples
         System.Console.WriteLine($"  Retryable: {result.Errors[0].Tags["Retryable"]}");
 
         // Using metadata for recovery logic
-        if (result.IsFailed && (bool)result.Errors[0].Tags["Retryable"])
+        if (result.IsFailure && (bool)result.Errors[0].Tags["Retryable"])
         {
             System.Console.WriteLine("\n  ⟳ Operation can be retried");
         }
@@ -332,8 +332,8 @@ public static class ErrorHandlingSamples
         var result6 = Result<int>.Ok(3);
 
         var combined2 = Result<int>.Combine(result4, result5, result6);
-        System.Console.WriteLine($"\nCombine (with failure): {combined2.IsFailed}");
-        if (combined2.IsFailed)
+        System.Console.WriteLine($"\nCombine (with failure): {combined2.IsFailure}");
+        if (combined2.IsFailure)
         {
             System.Console.WriteLine($"  Errors: {string.Join(", ", combined2.Errors.Select(e => e.Message))}");
         }
@@ -344,7 +344,7 @@ public static class ErrorHandlingSamples
         var failure = Result.Fail("Step 3 failed");
 
         var merged = Result.Merge(success1, success2, failure);
-        System.Console.WriteLine($"\nMerge (all reasons): {merged.IsFailed}");
+        System.Console.WriteLine($"\nMerge (all reasons): {merged.IsFailure}");
         System.Console.WriteLine($"  Successes: {merged.Successes.Count}");
         System.Console.WriteLine($"  Errors: {merged.Errors.Count}");
         foreach (var success in merged.Successes)
@@ -372,8 +372,8 @@ public static class ErrorHandlingSamples
         // Result<int> result1 = nullError;  // This causes the error
         Result<int> result1 = Result<int>.Fail("Simulated conversion error");
         
-        System.Console.WriteLine($"Null error conversion: {result1.IsFailed}");
-        if (result1.IsFailed)
+        System.Console.WriteLine($"Null error conversion: {result1.IsFailure}");
+        if (result1.IsFailure)
         {
             var conversionError = result1.Errors[0] as ConversionError;
             System.Console.WriteLine($"  Error type: {conversionError?.GetType().Name}");
@@ -387,8 +387,8 @@ public static class ErrorHandlingSamples
         // Result<string> result2 = emptyErrors;  // This causes the error
         Result<string> result2 = Result<string>.Fail("Simulated empty array error");
         
-        System.Console.WriteLine($"\nEmpty array conversion: {result2.IsFailed}");
-        if (result2.IsFailed)
+        System.Console.WriteLine($"\nEmpty array conversion: {result2.IsFailure}");
+        if (result2.IsFailure)
         {
             var conversionError = result2.Errors[0] as ConversionError;
             System.Console.WriteLine($"  Message: {conversionError?.Message}");
@@ -401,8 +401,8 @@ public static class ErrorHandlingSamples
         // Result<int> result3 = nullList;
         Result<int> result3 = Result<int>.Fail("Simulated null list error");
         
-        System.Console.WriteLine($"\nNull list conversion: {result3.IsFailed}");
-        if (result3.IsFailed)
+        System.Console.WriteLine($"\nNull list conversion: {result3.IsFailure}");
+        if (result3.IsFailure)
         {
             var conversionError = result3.Errors[0] as ConversionError;
             System.Console.WriteLine($"  Message: {conversionError?.Message}");

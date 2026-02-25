@@ -38,7 +38,7 @@ public sealed class ResultBindTests
         var boundResult = result.Bind(x => new Result<string>("never called", new Success("Never")));
         
         // Assert
-        Assert.IsTrue(boundResult.IsFailed);
+        Assert.IsTrue(boundResult.IsFailure);
         Assert.HasCount(1, boundResult.Errors);
         Assert.AreEqual("Original error", boundResult.Errors[0].Message);
     }
@@ -54,7 +54,7 @@ public sealed class ResultBindTests
         var boundResult = result.Bind(x => new Result<string>("value", ImmutableList.Create<IReason>(binderError)));
         
         // Assert
-        Assert.IsTrue(boundResult.IsFailed);
+        Assert.IsTrue(boundResult.IsFailure);
         Assert.HasCount(1, boundResult.Errors);
         Assert.AreEqual("Binder error", boundResult.Errors[0].Message);
     }
@@ -69,7 +69,7 @@ public sealed class ResultBindTests
         var boundResult = result.Bind<int>(x => throw new InvalidOperationException("Binder error"));
         
         // Assert
-        Assert.IsTrue(boundResult.IsFailed);
+        Assert.IsTrue(boundResult.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(boundResult.Errors[0]);
         var exceptionError = (ExceptionError)boundResult.Errors[0];
         Assert.AreEqual("Binder error", exceptionError.Exception.Message);
@@ -120,7 +120,7 @@ public sealed class ResultBindTests
             .Bind(i => new Result<double>(i * 2.0, new Success("Never")));
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.HasCount(1, result.Errors);
         Assert.AreEqual("Middle failure", result.Errors[0].Message);
     }

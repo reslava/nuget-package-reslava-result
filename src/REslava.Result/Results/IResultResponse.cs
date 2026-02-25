@@ -12,7 +12,7 @@ public interface IResultResponse
     bool IsSuccess { get; }
 
     /// <summary>Gets a value indicating whether this result represents a failed outcome.</summary>
-    bool IsFailed { get; }
+    bool IsFailure { get; }
 
     /// <summary>Gets all reasons (both errors and successes) attached to this result.</summary>
     ImmutableList<IReason> Reasons { get; }
@@ -20,7 +20,7 @@ public interface IResultResponse
     /// <summary>Gets the error reasons. Empty when <see cref="IsSuccess"/> is <c>true</c>.</summary>
     ImmutableList<IError> Errors { get; }
 
-    /// <summary>Gets the success reasons. Empty when <see cref="IsFailed"/> is <c>true</c>.</summary>
+    /// <summary>Gets the success reasons. Empty when <see cref="IsFailure"/> is <c>true</c>.</summary>
     ImmutableList<ISuccess> Successes { get; }
 }
 

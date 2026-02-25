@@ -37,7 +37,7 @@ public sealed class ResultMapExtensionsTests
         var result = await resultTask.MapAsync(x => x.ToString());
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(error, result.Errors[0]);
     }
 
@@ -68,7 +68,7 @@ public sealed class ResultMapExtensionsTests
         var result = await resultTask.MapAsync(throwingMapper);
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
         var exceptionError = (ExceptionError)result.Errors[0];
         Assert.AreEqual("Mapper error", exceptionError.Exception.Message);
@@ -159,7 +159,7 @@ public sealed class ResultMapExtensionsTests
         });
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(error, result.Errors[0]);
     }
 
@@ -178,7 +178,7 @@ public sealed class ResultMapExtensionsTests
         });
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
         var exceptionError = (ExceptionError)result.Errors[0];
         Assert.AreEqual("Async mapper error", exceptionError.Exception.Message);

@@ -36,7 +36,7 @@ public sealed class ResultMapTests
         var mappedResult = result.Map(x => x.ToString());
         
         // Assert
-        Assert.IsTrue(mappedResult.IsFailed);
+        Assert.IsTrue(mappedResult.IsFailure);
         Assert.HasCount(1, mappedResult.Errors);
         Assert.AreEqual("Test error", mappedResult.Errors[0].Message);
     }
@@ -51,7 +51,7 @@ public sealed class ResultMapTests
         var mappedResult = result.Map<int>(x => throw new InvalidOperationException("Mapper error"));
         
         // Assert
-        Assert.IsTrue(mappedResult.IsFailed);
+        Assert.IsTrue(mappedResult.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(mappedResult.Errors[0]);
         var exceptionError = (ExceptionError)mappedResult.Errors[0];
         Assert.AreEqual("Mapper error", exceptionError.Exception.Message);
@@ -103,7 +103,7 @@ public sealed class ResultMapTests
             .Map(x => x.ToString());
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
     }
 

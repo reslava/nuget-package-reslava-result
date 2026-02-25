@@ -36,7 +36,7 @@ public static class ValidationRulesSamples
         // Test invalid email
         var invalidResult = emailValidator.Validate("invalid-email");
         System.Console.WriteLine($"Invalid email: {invalidResult.IsSuccess}");
-        if (invalidResult.IsFailed)
+        if (invalidResult.IsFailure)
         {
             foreach (var error in invalidResult.ValidationErrors)
                 System.Console.WriteLine($"  Error: {error.Message}");

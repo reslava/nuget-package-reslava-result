@@ -46,8 +46,8 @@ public static class AsyncOperationsSamples
             throw new InvalidOperationException("Async operation failed");
         });
 
-        System.Console.WriteLine($"TryAsync with exception: {result2.IsFailed}");
-        if (result2.IsFailed)
+        System.Console.WriteLine($"TryAsync with exception: {result2.IsFailure}");
+        if (result2.IsFailure)
         {
             System.Console.WriteLine($"  Error: {result2.Errors[0].Message}");
         }
@@ -64,8 +64,8 @@ public static class AsyncOperationsSamples
                 .WithTag("Retryable", true)
         );
 
-        System.Console.WriteLine($"\nTryAsync with custom handler: {result3.IsFailed}");
-        if (result3.IsFailed)
+        System.Console.WriteLine($"\nTryAsync with custom handler: {result3.IsFailure}");
+        if (result3.IsFailure)
         {
             System.Console.WriteLine($"  Message: {result3.Errors[0].Message}");
             System.Console.WriteLine($"  Retryable: {result3.Errors[0].Tags["Retryable"]}");
@@ -401,8 +401,8 @@ public static class AsyncOperationsSamples
 
         var combined2 = await Result<User>.CombineParallelAsync(tasks2);
 
-        System.Console.WriteLine($"\nCombineParallelAsync (with failure): {combined2.IsFailed}");
-        if (combined2.IsFailed)
+        System.Console.WriteLine($"\nCombineParallelAsync (with failure): {combined2.IsFailure}");
+        if (combined2.IsFailure)
         {
             System.Console.WriteLine($"  Errors: {combined2.Errors.Count}");
             foreach (var error in combined2.Errors)
@@ -486,8 +486,8 @@ public static class AsyncOperationsSamples
                 return new UserDto();
             });
 
-        System.Console.WriteLine($"Failed pipeline result: {failedResult.IsFailed}");
-        if (failedResult.IsFailed)
+        System.Console.WriteLine($"Failed pipeline result: {failedResult.IsFailure}");
+        if (failedResult.IsFailure)
         {
             System.Console.WriteLine($"  Error: {failedResult.Errors[0].Message}");
         }

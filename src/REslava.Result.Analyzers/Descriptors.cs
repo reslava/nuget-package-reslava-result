@@ -10,7 +10,7 @@ namespace REslava.Result.Analyzers
         public static readonly DiagnosticDescriptor RESL1001_UnsafeValueAccess = new(
             id: "RESL1001",
             title: "Unsafe Result<T>.Value access without IsSuccess check",
-            messageFormat: "Access to '.Value' without checking 'IsSuccess' or 'IsFailed'. Use 'Match()', 'GetValueOr()', or check 'IsSuccess' first.",
+            messageFormat: "Access to '.Value' without checking 'IsSuccess' or 'IsFailure'. Use 'Match()', 'GetValueOr()', or check 'IsSuccess' first.",
             category: "REslava.Result.Safety",
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true,

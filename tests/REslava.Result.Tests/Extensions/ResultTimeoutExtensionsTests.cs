@@ -26,7 +26,7 @@ public sealed class ResultTimeoutExtensionsTests
 
         var result = await resultTask.Timeout(TimeSpan.FromMilliseconds(50));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsTrue(result.Errors[0].Message.Contains("timed out"));
     }
 
@@ -38,7 +38,7 @@ public sealed class ResultTimeoutExtensionsTests
 
         var result = await resultTask.Timeout(TimeSpan.FromMilliseconds(50));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsTrue(result.Errors[0].Tags.ContainsKey("TimeoutTag"));
         Assert.IsTrue(result.Errors[0].Tags.ContainsKey("Timeout"));
     }
@@ -51,7 +51,7 @@ public sealed class ResultTimeoutExtensionsTests
 
         var result = await resultTask.Timeout(TimeSpan.FromSeconds(3));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsTrue(result.Errors[0].Message.Contains("3s"));
     }
 
@@ -63,7 +63,7 @@ public sealed class ResultTimeoutExtensionsTests
 
         var result = await resultTask.Timeout(TimeSpan.FromMilliseconds(50));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsTrue(result.Errors[0].Message.Contains("50ms"));
     }
 
@@ -74,7 +74,7 @@ public sealed class ResultTimeoutExtensionsTests
 
         var result = await resultTask.Timeout(TimeSpan.FromSeconds(5));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("original error", result.Errors[0].Message);
     }
 
@@ -85,7 +85,7 @@ public sealed class ResultTimeoutExtensionsTests
 
         var result = await resultTask.Timeout(TimeSpan.FromSeconds(5));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsTrue(result.Errors[0].Message.Contains("boom"));
     }
 
@@ -100,7 +100,7 @@ public sealed class ResultTimeoutExtensionsTests
 
         var result = await resultTask.Timeout(TimeSpan.FromSeconds(1), cts.Token);
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     [TestMethod]
@@ -139,7 +139,7 @@ public sealed class ResultTimeoutExtensionsTests
 
         var result = await resultTask.Timeout(TimeSpan.FromMilliseconds(50));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsTrue(result.Errors[0].Message.Contains("timed out"));
     }
 }

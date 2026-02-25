@@ -19,7 +19,7 @@ namespace REslava.Result.Analyzers.Helpers
             /// <summary>Property names that mean "safe to access" (e.g., "IsSuccess", "IsT1").</summary>
             public string[] PositiveProperties { get; }
 
-            /// <summary>Property names that mean "NOT safe to access" (e.g., "IsFailed").</summary>
+            /// <summary>Property names that mean "NOT safe to access" (e.g., "IsFailure").</summary>
             public string[] NegativeProperties { get; }
 
             public GuardConfig(string[] positiveProperties, string[] negativeProperties)
@@ -95,7 +95,7 @@ namespace REslava.Result.Analyzers.Helpers
                     return true;
             }
 
-            // !x.NegativeProp (e.g., !x.IsFailed)
+            // !x.NegativeProp (e.g., !x.IsFailure)
             if (condition is PrefixUnaryExpressionSyntax prefix
                 && prefix.IsKind(SyntaxKind.LogicalNotExpression))
             {
@@ -114,7 +114,7 @@ namespace REslava.Result.Analyzers.Helpers
         /// </summary>
         private static bool IsNegativeGuard(ExpressionSyntax condition, string variableName, GuardConfig config)
         {
-            // x.NegativeProp (e.g., x.IsFailed)
+            // x.NegativeProp (e.g., x.IsFailure)
             foreach (var prop in config.NegativeProperties)
             {
                 if (IsPropertyCheck(condition, variableName, prop))

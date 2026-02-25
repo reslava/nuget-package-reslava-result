@@ -18,7 +18,7 @@ public sealed class ResultTapExtensionsTests
 
         var returned = result.TapOnFailure(error => captured = error);
 
-        Assert.IsTrue(returned.IsFailed);
+        Assert.IsTrue(returned.IsFailure);
         Assert.IsNotNull(captured);
         Assert.AreEqual("First error", captured!.Message);
     }
@@ -57,7 +57,7 @@ public sealed class ResultTapExtensionsTests
 
         var returned = result.TapOnFailure(errors => captured = errors);
 
-        Assert.IsTrue(returned.IsFailed);
+        Assert.IsTrue(returned.IsFailure);
         Assert.IsNotNull(captured);
         Assert.AreEqual(2, captured!.Count);
     }
@@ -89,7 +89,7 @@ public sealed class ResultTapExtensionsTests
             return Task.CompletedTask;
         });
 
-        Assert.IsTrue(returned.IsFailed);
+        Assert.IsTrue(returned.IsFailure);
         Assert.IsNotNull(captured);
         Assert.AreEqual("Error", captured!.Message);
     }
@@ -122,7 +122,7 @@ public sealed class ResultTapExtensionsTests
 
         var returned = result.TapOnFailure(error => captured = error);
 
-        Assert.IsTrue(returned.IsFailed);
+        Assert.IsTrue(returned.IsFailure);
         Assert.IsNotNull(captured);
         Assert.AreEqual("Error", captured!.Message);
     }
@@ -153,7 +153,7 @@ public sealed class ResultTapExtensionsTests
             return Task.CompletedTask;
         });
 
-        Assert.IsTrue(returned.IsFailed);
+        Assert.IsTrue(returned.IsFailure);
         Assert.IsNotNull(captured);
     }
 
@@ -169,7 +169,7 @@ public sealed class ResultTapExtensionsTests
 
         var returned = await resultTask.TapOnFailureAsync(error => captured = error);
 
-        Assert.IsTrue(returned.IsFailed);
+        Assert.IsTrue(returned.IsFailure);
         Assert.IsNotNull(captured);
         Assert.AreEqual("Error", captured!.Message);
     }
@@ -213,7 +213,7 @@ public sealed class ResultTapExtensionsTests
         var returned = result.TapBoth(r => captured = r);
 
         Assert.IsNotNull(captured);
-        Assert.IsTrue(captured!.IsFailed);
+        Assert.IsTrue(captured!.IsFailure);
         Assert.AreSame(result, returned);
     }
 
@@ -256,7 +256,7 @@ public sealed class ResultTapExtensionsTests
 
         var returned = await resultTask.TapAsync(() => executed = true);
 
-        Assert.IsTrue(returned.IsFailed);
+        Assert.IsTrue(returned.IsFailure);
         Assert.IsFalse(executed);
     }
 
@@ -299,7 +299,7 @@ public sealed class ResultTapExtensionsTests
 
         var returned = await resultTask.TapAsync(_ => executed = true);
 
-        Assert.IsTrue(returned.IsFailed);
+        Assert.IsTrue(returned.IsFailure);
         Assert.IsFalse(executed);
     }
 

@@ -36,7 +36,7 @@ public sealed class ResultValidationExtensionsTests
         var validatedResult = result.Ensure(x => x > 0, new Error("Value must be positive"));
         
         // Assert
-        Assert.IsTrue(validatedResult.IsFailed);
+        Assert.IsTrue(validatedResult.IsFailure);
         Assert.HasCount(1, validatedResult.Errors);
         Assert.AreEqual("Value must be positive", validatedResult.Errors[0].Message);
     }
@@ -51,7 +51,7 @@ public sealed class ResultValidationExtensionsTests
         var validatedResult = result.Ensure(x => x > 0, new Error("Value must be positive"));
         
         // Assert
-        Assert.IsTrue(validatedResult.IsFailed);
+        Assert.IsTrue(validatedResult.IsFailure);
         Assert.HasCount(1, validatedResult.Errors);
         Assert.AreEqual("Original error", validatedResult.Errors[0].Message);
     }
@@ -112,7 +112,7 @@ public sealed class ResultValidationExtensionsTests
         }, new Error("Value must be positive"));
         
         // Assert
-        Assert.IsTrue(validatedResult.IsFailed);
+        Assert.IsTrue(validatedResult.IsFailure);
         Assert.HasCount(1, validatedResult.Errors);
         Assert.AreEqual("Value must be positive", validatedResult.Errors[0].Message);
     }
@@ -131,7 +131,7 @@ public sealed class ResultValidationExtensionsTests
         }, new Error("Value must be positive"));
         
         // Assert
-        Assert.IsTrue(validatedResult.IsFailed);
+        Assert.IsTrue(validatedResult.IsFailure);
         Assert.HasCount(1, validatedResult.Errors);
         Assert.AreEqual("Original error", validatedResult.Errors[0].Message);
     }
@@ -170,7 +170,7 @@ public sealed class ResultValidationExtensionsTests
             .Ensure(x => x % 2 == 0, new Error("Value must be even"));
         
         // Assert
-        Assert.IsTrue(validatedResult.IsFailed);
+        Assert.IsTrue(validatedResult.IsFailure);
         Assert.HasCount(1, validatedResult.Errors);
         Assert.AreEqual("Value must be positive", validatedResult.Errors[0].Message);
     }
@@ -206,7 +206,7 @@ public sealed class ResultValidationExtensionsTests
             .Ensure(u => !string.IsNullOrEmpty(u.Name), new Error("User name is required"));
         
         // Assert
-        Assert.IsTrue(validatedResult.IsFailed);
+        Assert.IsTrue(validatedResult.IsFailure);
         Assert.HasCount(1, validatedResult.Errors);
         Assert.AreEqual("User ID must be positive", validatedResult.Errors[0].Message);
     }
@@ -254,7 +254,7 @@ public sealed class ResultValidationExtensionsTests
         var validatedResult = result.Ensure(s => s != null, new Error("String must not be null"));
         
         // Assert
-        Assert.IsTrue(validatedResult.IsFailed);
+        Assert.IsTrue(validatedResult.IsFailure);
         Assert.HasCount(1, validatedResult.Errors);
         Assert.AreEqual("String must not be null", validatedResult.Errors[0].Message);
     }
@@ -269,7 +269,7 @@ public sealed class ResultValidationExtensionsTests
         var validatedResult = result.Ensure(s => throw new InvalidOperationException("Validation error"), new Error("Message"));
         
         // Assert
-        Assert.IsTrue(validatedResult.IsFailed);
+        Assert.IsTrue(validatedResult.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(validatedResult.Errors[0]);
         var exceptionError = (ExceptionError)validatedResult.Errors[0];
         Assert.AreEqual("Validation error", exceptionError.Exception.Message);

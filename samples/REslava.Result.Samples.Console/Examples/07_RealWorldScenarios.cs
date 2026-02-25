@@ -664,7 +664,7 @@ public static class RealWorldScenariosSamples
         );
 
         var results = await Task.WhenAll(tasks);
-        var failures = results.Where(r => r.IsFailed).ToList();
+        var failures = results.Where(r => r.IsFailure).ToList();
 
         if (failures.Count == recipients.Length)
         {

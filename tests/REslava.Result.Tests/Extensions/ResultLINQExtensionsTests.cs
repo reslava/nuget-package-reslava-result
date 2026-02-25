@@ -37,7 +37,7 @@ public sealed class ResultLINQExtensionsTests
         var result = source.SelectMany(x => Result<string>.Ok("never called"));
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(error, result.Errors[0]);
     }
 
@@ -68,7 +68,7 @@ public sealed class ResultLINQExtensionsTests
         var result = source.SelectMany<int, int>(x => throw new InvalidOperationException("Selector error"));
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
         var exceptionError = (ExceptionError)result.Errors[0];
         Assert.AreEqual("Selector error", exceptionError.Exception.Message);
@@ -95,7 +95,7 @@ public sealed class ResultLINQExtensionsTests
         var result = source.SelectMany(x => Result<string>.Fail(selectorError));
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(selectorError, result.Errors[0]);
     }
 
@@ -143,7 +143,7 @@ public sealed class ResultLINQExtensionsTests
         var result = await source.SelectManyAsync(x => Task.FromResult(Result<string>.Ok("never called")));
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(error, result.Errors[0]);
     }
 
@@ -174,7 +174,7 @@ public sealed class ResultLINQExtensionsTests
         var result = await source.SelectManyAsync<int, int>(x => throw new InvalidOperationException("Async selector error"));
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
         var exceptionError = (ExceptionError)result.Errors[0];
         Assert.AreEqual("Async selector error", exceptionError.Exception.Message);
@@ -241,7 +241,7 @@ public sealed class ResultLINQExtensionsTests
             (x, y) => "never reached");
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(error, result.Errors[0]);
     }
 
@@ -258,7 +258,7 @@ public sealed class ResultLINQExtensionsTests
             (x, y) => "never reached");
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(collectionError, result.Errors[0]);
     }
 
@@ -334,7 +334,7 @@ public sealed class ResultLINQExtensionsTests
             (x, y) => "never reached");
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
         var exceptionError = (ExceptionError)result.Errors[0];
         Assert.AreEqual("Collection selector error", exceptionError.Exception.Message);
@@ -352,7 +352,7 @@ public sealed class ResultLINQExtensionsTests
             (x, y) => throw new InvalidOperationException("Result selector error"));
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsInstanceOfType<ExceptionError>(result.Errors[0]);
         var exceptionError = (ExceptionError)result.Errors[0];
         Assert.AreEqual("Result selector error", exceptionError.Exception.Message);
@@ -391,7 +391,7 @@ public sealed class ResultLINQExtensionsTests
             (x, y) => "never reached");
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(error, result.Errors[0]);
     }
 
@@ -510,7 +510,7 @@ public sealed class ResultLINQExtensionsTests
                     select $"{y}_{z}";
         
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreSame(middleError, result.Errors[0]);
     }
 

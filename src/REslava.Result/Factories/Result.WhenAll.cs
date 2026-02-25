@@ -141,7 +141,7 @@ public partial class Result
         }
 
         var results = taskList.Select(GetSafeResult).ToList();
-        var errors = results.Where(r => r.IsFailed).SelectMany(r => r.Errors).ToList();
+        var errors = results.Where(r => r.IsFailure).SelectMany(r => r.Errors).ToList();
 
         if (errors.Count > 0)
             return Result<ImmutableList<T>>.Fail(errors);
@@ -171,7 +171,7 @@ public partial class Result
     private static List<IError> CollectErrors(params Result[] results)
     {
         return results
-            .Where(r => r.IsFailed)
+            .Where(r => r.IsFailure)
             .SelectMany(r => r.Errors)
             .ToList();
     }

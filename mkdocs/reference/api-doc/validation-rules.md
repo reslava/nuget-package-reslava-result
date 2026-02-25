@@ -24,7 +24,7 @@ Represents the result of a validation operation.
 public class ValidationResult<T> : IResultResponse<T>
 {
     public bool IsSuccess { get; }
-    public bool IsFailed { get; }
+    public bool IsFailure { get; }
     public bool IsValid { get; }
     public T? Value { get; }
     public IReadOnlyList<IReason> Reasons { get; }
@@ -332,7 +332,7 @@ public async Task<Result<User>> RegisterUserAsync(UserRegistrationDto dto)
 {
     // Validate input using validation rules
     var validationResult = await userValidator.ValidateAsync(dto);
-    if (validationResult.IsFailed)
+    if (validationResult.IsFailure)
         return Result<User>.Fail(validationResult.Errors);
     
     // Create user
@@ -340,7 +340,7 @@ public async Task<Result<User>> RegisterUserAsync(UserRegistrationDto dto)
     
     // Save to database
     var saveResult = await userRepository.SaveAsync(user);
-    if (saveResult.IsFailed)
+    if (saveResult.IsFailure)
         return saveResult;
     
     return Result<User>.Ok(user);
@@ -380,7 +380,7 @@ var validator = ValidatorRulesBuilder<string>
     .Build();
 
 var result = validator.Validate("throw");
-// result.IsFailed will be true
+// result.IsFailure will be true
 // result.Errors[0] will be an ExceptionError
 ```
 

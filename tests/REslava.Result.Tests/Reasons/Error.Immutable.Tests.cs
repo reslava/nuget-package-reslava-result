@@ -450,7 +450,7 @@ public sealed class ErrorImmutableTests
         var result = Result.Fail(error);
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.HasCount(1, result.Errors);
         Assert.AreEqual("Database connection failed", result.Errors[0].Message);
         Assert.AreEqual("localhost", result.Errors[0].Tags["Server"]);
@@ -468,7 +468,7 @@ public sealed class ErrorImmutableTests
         var result = Result<string>.Fail(error);
 
         // Assert
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual("Validation failed", result.Errors[0].Message);
     }
 

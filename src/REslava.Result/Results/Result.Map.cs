@@ -17,7 +17,7 @@ public partial class Result<TValue>
         mapper = mapper.EnsureNotNull(nameof(mapper));
 
         // If already failed, propagate all reasons to new type
-        if (IsFailed)
+        if (IsFailure)
         {
             return new Result<TOut>(default, Reasons);
         }
@@ -68,7 +68,7 @@ public partial class Result<TValue>
         cancellationToken.ThrowIfCancellationRequested();
 
         // If already failed, propagate all reasons to new type
-        if (IsFailed)
+        if (IsFailure)
         {
             return new Result<TOut>(default, Reasons);
         }

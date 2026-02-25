@@ -49,7 +49,7 @@ public sealed class ResultRetryTests
             return Result<int>.Fail("always fails");
         }, maxRetries: 2, delay: TimeSpan.FromMilliseconds(10));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         // 3 attempts × (1 marker error + 1 original error) = 6 errors
         Assert.AreEqual(6, result.Errors.Count);
     }
@@ -62,7 +62,7 @@ public sealed class ResultRetryTests
             return Result<int>.Fail("fail");
         }, maxRetries: 1, delay: TimeSpan.FromMilliseconds(10));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsTrue(result.Errors.Any(e => e.Message.Contains("Retry attempt 1 of 2")));
         Assert.IsTrue(result.Errors.Any(e => e.Message.Contains("Retry attempt 2 of 2")));
     }
@@ -79,7 +79,7 @@ public sealed class ResultRetryTests
 
         sw.Stop();
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         // Delays: 50ms + 100ms = 150ms minimum
         Assert.IsTrue(sw.ElapsedMilliseconds >= 120, $"Took {sw.ElapsedMilliseconds}ms, expected >= 120ms");
     }
@@ -96,7 +96,7 @@ public sealed class ResultRetryTests
 
         sw.Stop();
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         // Delays: 50ms + 50ms = 100ms minimum
         Assert.IsTrue(sw.ElapsedMilliseconds >= 80, $"Took {sw.ElapsedMilliseconds}ms, expected >= 80ms");
     }
@@ -112,7 +112,7 @@ public sealed class ResultRetryTests
             return Result<int>.Fail("fail");
         }, maxRetries: 3, delay: TimeSpan.FromMilliseconds(10), cancellationToken: cts.Token);
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
     }
 
     [TestMethod]
@@ -131,7 +131,7 @@ public sealed class ResultRetryTests
 
         var result = await task;
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.IsTrue(callCount <= 2, $"Expected <= 2 calls but got {callCount}");
     }
 
@@ -163,7 +163,7 @@ public sealed class ResultRetryTests
             throw new OperationCanceledException();
         }, maxRetries: 5, delay: TimeSpan.FromMilliseconds(10));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual(1, callCount);
     }
 
@@ -178,7 +178,7 @@ public sealed class ResultRetryTests
             return Result<int>.Fail("fail");
         }, maxRetries: 0, delay: TimeSpan.FromMilliseconds(10));
 
-        Assert.IsTrue(result.IsFailed);
+        Assert.IsTrue(result.IsFailure);
         Assert.AreEqual(1, callCount);
     }
 

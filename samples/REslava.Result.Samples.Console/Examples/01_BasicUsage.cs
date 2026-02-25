@@ -59,7 +59,7 @@ public static class BasicUsageSamples
 
         // Simple failure
         var result1 = Result.Fail("Something went wrong");
-        System.Console.WriteLine($"Is failed: {result1.IsFailed}");
+        System.Console.WriteLine($"Is failed: {result1.IsFailure}");
         System.Console.WriteLine($"Error: {result1.Errors[0].Message}");
 
         // Failure with custom error
