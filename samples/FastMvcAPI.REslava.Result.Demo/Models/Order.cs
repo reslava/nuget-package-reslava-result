@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations;
+using REslava.Result.SourceGenerators;
+
 namespace FastMvcAPI.REslava.Result.Demo.Models;
 
 public class Order
@@ -32,7 +35,24 @@ public enum OrderStatus
     Cancelled
 }
 
-public record CreateOrderRequest(int UserId, List<OrderItemRequest> Items);
-public record OrderItemRequest(int ProductId, int Quantity);
+/// <summary>
+/// [Validate] triggers the source generator to emit a .Validate() → Result&lt;CreateOrderRequest&gt; extension.
+/// The MVC controller calls req.Validate() explicitly before the service call.
+/// </summary>
+[Validate]
+public record CreateOrderRequest(
+    [property: Range(1, int.MaxValue, ErrorMessage = "UserId must be a positive integer")]
+    int UserId,
+
+    [property: Required(ErrorMessage = "At least one order item is required")]
+    List<OrderItemRequest> Items);
+
+public record OrderItemRequest(
+    [property: Range(1, int.MaxValue, ErrorMessage = "ProductId must be a positive integer")]
+    int ProductId,
+
+    [property: Range(1, 1_000, ErrorMessage = "Quantity must be between 1 and 1,000")]
+    int Quantity);
+
 public record OrderResponse(int Id, int UserId, string UserName, List<OrderItemResponse> Items, decimal TotalAmount, string Status, DateTime CreatedAt);
 public record OrderItemResponse(int ProductId, string ProductName, int Quantity, decimal UnitPrice, decimal Subtotal);

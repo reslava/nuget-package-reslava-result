@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations;
+using REslava.Result.SourceGenerators;
+
 namespace FastMinimalAPI.REslava.Result.Demo.Models;
 
 /// <summary>
@@ -42,14 +45,27 @@ public enum OrderStatus
 }
 
 /// <summary>
-/// DTO for creating a new order
+/// DTO for creating a new order.
+/// [Validate] triggers the source generator to emit a .Validate() → Result&lt;CreateOrderRequest&gt; extension.
+/// SmartEndpoints auto-injects the validation guard in the POST /api/smart/orders lambda.
 /// </summary>
-public record CreateOrderRequest(int UserId, List<OrderItemRequest> Items);
+[Validate]
+public record CreateOrderRequest(
+    [property: Range(1, int.MaxValue, ErrorMessage = "UserId must be a positive integer")]
+    int UserId,
+
+    [property: Required(ErrorMessage = "At least one order item is required")]
+    List<OrderItemRequest> Items);
 
 /// <summary>
 /// DTO for order item in create request
 /// </summary>
-public record OrderItemRequest(int ProductId, int Quantity);
+public record OrderItemRequest(
+    [property: Range(1, int.MaxValue, ErrorMessage = "ProductId must be a positive integer")]
+    int ProductId,
+
+    [property: Range(1, 1_000, ErrorMessage = "Quantity must be between 1 and 1,000")]
+    int Quantity);
 
 /// <summary>
 /// DTO for order response

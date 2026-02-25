@@ -18,9 +18,14 @@ namespace FastMinimalAPI.REslava.Result.Demo.SmartEndpoints;
 ///   PUT    /api/smart/products/{id}   → UpdateProduct(int id, request)
 ///   DELETE /api/smart/products/{id}   → DeleteProduct(int id)
 ///
-/// Note: All validation errors (price, stock, required fields) are now
-/// a single ValidationError type with different FieldName values.
-/// This simplifies OneOf from OneOf4 to OneOf3 and OneOf3 to OneOf2.
+/// [Validate] on CreateProductRequest: since v1.24.0, the generator detects the
+/// [Validate] attribute on the POST body parameter and auto-emits the guard block:
+///   var validation = request.Validate();
+///   if (!validation.IsSuccess) return validation.ToIResult();
+/// — before the service call, with no code change needed here.
+///
+/// CancellationToken: service methods accept a CancellationToken (v1.27.0).
+/// The generator injects it as a lambda parameter automatically.
 /// </summary>
 [AutoGenerateEndpoints(RoutePrefix = "/api/smart/products")]
 public class SmartProductController
@@ -29,18 +34,20 @@ public class SmartProductController
 
     public SmartProductController(ProductService service) => _service = service;
 
-    public async Task<Result<List<ProductResponse>>> GetProducts()
+    public async Task<Result<List<ProductResponse>>> GetProducts(CancellationToken cancellationToken = default)
         => await _service.GetAllProductsAsync();
 
-    public async Task<OneOf<NotFoundError, ProductResponse>> GetProduct(int id)
+    public async Task<OneOf<NotFoundError, ProductResponse>> GetProduct(int id, CancellationToken cancellationToken = default)
         => await _service.GetProductByIdAsync(id);
 
-    public async Task<OneOf<ValidationError, ProductResponse>> CreateProduct(CreateProductRequest request)
-        => await _service.CreateProductAsync(request);
+    // CreateProductRequest is decorated with [Validate] — the generator emits the
+    // validation guard automatically in the POST lambda (no extra code needed here).
+    public async Task<OneOf<ValidationError, ProductResponse>> CreateProduct(CreateProductRequest request, CancellationToken cancellationToken = default)
+        => await _service.CreateProductAsync(request, cancellationToken);
 
-    public async Task<OneOf<ValidationError, NotFoundError, ProductResponse>> UpdateProduct(int id, UpdateProductRequest request)
+    public async Task<OneOf<ValidationError, NotFoundError, ProductResponse>> UpdateProduct(int id, UpdateProductRequest request, CancellationToken cancellationToken = default)
         => await _service.UpdateProductAsync(id, request);
 
-    public async Task<Result<bool>> DeleteProduct(int id)
+    public async Task<Result<bool>> DeleteProduct(int id, CancellationToken cancellationToken = default)
         => await _service.DeleteProductAsync(id);
 }

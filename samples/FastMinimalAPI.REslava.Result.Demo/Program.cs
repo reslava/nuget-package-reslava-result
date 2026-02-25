@@ -5,6 +5,7 @@ using FastMinimalAPI.REslava.Result.Demo.Services;
 using FastMinimalAPI.REslava.Result.Demo.SmartEndpoints;
 using Generated.SmartEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -28,17 +29,21 @@ builder.Services.Configure<Microsoft.AspNetCore.OpenApi.OpenApiOptions>(options 
         document.Info = new()
         {
             Title = "Fast Minimal API - REslava.Result Demo",
-            Version = "v1.13.0",
+            Version = "v1.28.0",
             Description = """
             Production-ready demonstration of type-safe error handling in ASP.NET Core Minimal APIs
 
             Features:
             - Result<T> pattern for railway-oriented programming
-            - OneOf<T1,T2,T3,T4> discriminated unions
+            - OneOf<T1..T6> discriminated unions
             - Zero exception-based control flow
             - Rich error context with metadata
             - Automatic HTTP status code mapping
             - Type-safe error handling at compile time
+            - [Validate] auto-injection in SmartEndpoints (v1.24.0)
+            - Native Validation DSL — 19 fluent rules (v1.27.0)
+            - [FluentValidate] migration bridge (v1.28.0, optional)
+            - CancellationToken auto-injection in SmartEndpoints (v1.27.0)
             """,
             Contact = new()
             {
@@ -59,10 +64,21 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<OrderService>();
 
+// v1.28.0 — Validation showcase services
+builder.Services.AddScoped<ValidationDemoService>();
+builder.Services.AddScoped<FluentValidationDemoService>();
+
+// v1.28.0 — FluentValidation bridge: register IValidator<T> for the [FluentValidate] demo
+// ⚠️ OPTIONAL: only needed when migrating from FluentValidation
+builder.Services.AddScoped<FluentValidation.IValidator<FastMinimalAPI.REslava.Result.Demo.SmartEndpoints.CreateFluentProductRequest>,
+    FastMinimalAPI.REslava.Result.Demo.SmartEndpoints.CreateFluentProductRequestValidator>();
+
 // Register SmartEndpoint controllers (resolved via DI by the generated endpoints)
 builder.Services.AddScoped<SmartProductController>();
 builder.Services.AddScoped<SmartOrderController>();
 builder.Services.AddScoped<SmartCatalogController>();
+builder.Services.AddScoped<SmartValidationController>();
+builder.Services.AddScoped<SmartFluentValidationController>();
 
 // Output caching (for SmartCatalogController CacheSeconds demo)
 builder.Services.AddOutputCache();
@@ -195,7 +211,13 @@ app.MapGet("/", () => Results.Ok(new
         openapi = "/openapi/v1.json",
         health = "/health",
         manual = new { users = "/api/users", products = "/api/products", orders = "/api/orders" },
-        smart = new { products = "/api/smart/products", orders = "/api/smart/orders", catalog = "/api/smart/catalog" }
+        smart = new {
+            products = "/api/smart/products",
+            orders = "/api/smart/orders",
+            catalog = "/api/smart/catalog",
+            validation = "/api/smart/validation",
+            fluentValidation = "/api/smart/fluent-validation"
+        }
     },
     documentation = "https://github.com/reslava/nuget-package-reslava-result",
     features = new[]
@@ -206,6 +228,10 @@ app.MapGet("/", () => Results.Ok(new
         "OneOf<T1,T2,T3,T4> for advanced patterns (4 types)",
         "SmartEndpoints: auto-generated endpoints via source generator (~85% less code)",
         "SmartEndpoints: Filters, Output Caching, and Rate Limiting via attributes",
+        "SmartEndpoints: [Validate] auto-injection + guard (v1.24.0)",
+        "SmartEndpoints: CancellationToken auto-injection (v1.27.0)",
+        "Native Validation DSL — 19 fluent rules (v1.27.0)",
+        "[FluentValidate] migration bridge — optional (v1.28.0)",
         "Railway-oriented programming",
         "Zero exception-based control flow",
         "Production-ready error responses",

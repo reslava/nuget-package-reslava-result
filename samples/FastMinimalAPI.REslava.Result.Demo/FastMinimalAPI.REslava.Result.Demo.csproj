@@ -22,11 +22,17 @@
 
     <!-- JWT Bearer Authentication for SmartEndpoints Auth Demo -->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+
+    <!-- FluentValidation — optional bridge demo (SmartFluentValidationController) -->
+    <!-- ⚠️ OPTIONAL: only needed to demonstrate [FluentValidate] migration bridge -->
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Local Source Generator Reference -->
+    <!-- Local Source Generator References -->
     <ProjectReference Include="..\..\src\REslava.Result.SourceGenerator\REslava.Result.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <!-- FluentValidation bridge generator — optional, for [FluentValidate] demo -->
+    <ProjectReference Include="..\..\src\REslava.Result.FluentValidation\REslava.Result.FluentValidation.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

@@ -59,7 +59,8 @@ public class ProductService
     /// with different FieldName values — no need for separate error types.
     /// </summary>
     public async Task<OneOf<ValidationError, ProductResponse>> CreateProductAsync(
-        CreateProductRequest request)
+        CreateProductRequest request,
+        CancellationToken cancellationToken = default)
     {
         // Validate required fields
         if (string.IsNullOrWhiteSpace(request.Name))
@@ -89,7 +90,7 @@ public class ProductService
         };
 
         _context.Products.Add(product);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         var response = new ProductResponse(
             product.Id, product.Name, product.Description, product.Price,
