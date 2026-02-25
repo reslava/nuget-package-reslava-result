@@ -150,22 +150,33 @@ hide:
 
 | Feature | Short Description | Version | Docs |
 |---------|------------------|---------|------|
-| RESL1001 | Unsafe `.Value` access without `IsSuccess` guard — Warning + Code Fix | v1.14.0 | `## 🛡️ Safety Analyzers` — `### RESL1001` |
-| RESL1002 | Discarded `Result<T>` return value — Warning | v1.14.0 | `## 🛡️ Safety Analyzers` — `### RESL1002` |
-| RESL1003 | Prefer `Match()` over `if`-check — Info suggestion | v1.14.2 | `## 🛡️ Safety Analyzers` — `### RESL1003` |
-| RESL1004 | `Task<Result<T>>` not awaited — Warning + Code Fix | v1.19.0 | `## 🛡️ Safety Analyzers` — `### RESL1004` |
-| RESL1005 | Suggest domain-specific error type — Info | v1.26.0 | `## 🛡️ Safety Analyzers` — `### RESL1005` |
-| RESL1006 | Both `[Validate]` and `[FluentValidate]` on same type — Error | v1.28.0 | `## 🛡️ Safety Analyzers` — `### RESL1006` |
-| RESL2001 | Unsafe `OneOf.AsT*` without `IsT*` guard — Warning + Code Fix | v1.14.2 | `## 🛡️ Safety Analyzers` — `### RESL2001` |
-| Code Fix: RESL1001 | Wrap in `if (IsSuccess)` guard or replace with `.Match()` | v1.14.2 | `## 🛡️ Safety Analyzers` — `### RESL1001` |
-| Code Fix: RESL1004 | Add `await` keyword | v1.19.0 | `## 🛡️ Safety Analyzers` — `### RESL1004` |
-| Code Fix: RESL2001 | Replace `.AsT*` with exhaustive `.Match()` | v1.14.2 | `## 🛡️ Safety Analyzers` — `### RESL2001` |
+!!! warning "| RESL1001 | Unsafe `.Value` access without `IsSuccess` guard — Warning + Code Fix | v1.14.0 | `## 🛡️ Safety Analyzers` — `### RESL1001` |"
+
+!!! warning "| RESL1002 | Discarded `Result<T>` return value — Warning | v1.14.0 | `## 🛡️ Safety Analyzers` — `### RESL1002` |"
+
+!!! warning "| RESL1003 | Prefer `Match()` over `if`-check — Info suggestion | v1.14.2 | `## 🛡️ Safety Analyzers` — `### RESL1003` |"
+
+!!! warning "| RESL1004 | `Task<Result<T>>` not awaited — Warning + Code Fix | v1.19.0 | `## 🛡️ Safety Analyzers` — `### RESL1004` |"
+
+!!! warning "| RESL1005 | Suggest domain-specific error type — Info | v1.26.0 | `## 🛡️ Safety Analyzers` — `### RESL1005` |"
+
+!!! warning "| RESL1006 | Both `[Validate]` and `[FluentValidate]` on same type — Error | v1.28.0 | `## 🛡️ Safety Analyzers` — `### RESL1006` |"
+
+!!! warning "| RESL2001 | Unsafe `OneOf.AsT*` without `IsT*` guard — Warning + Code Fix | v1.14.2 | `## 🛡️ Safety Analyzers` — `### RESL2001` |"
+
+!!! warning "| Code Fix: RESL1001 | Wrap in `if (IsSuccess)` guard or replace with `.Match()` | v1.14.2 | `## 🛡️ Safety Analyzers` — `### RESL1001` |"
+
+!!! warning "| Code Fix: RESL1004 | Add `await` keyword | v1.19.0 | `## 🛡️ Safety Analyzers` — `### RESL1004` |"
+
+!!! warning "| Code Fix: RESL2001 | Replace `.AsT*` with exhaustive `.Match()` | v1.14.2 | `## 🛡️ Safety Analyzers` — `### RESL2001` |"
+
 
 ---
 
 ## Summary
 
-**v1.28.0** — 109 features across 11 categories.
+!!! new "**v1.28.0** — 109 features across 11 categories."
+
 
 | Category | Total Features |
 |----------|---------------|
