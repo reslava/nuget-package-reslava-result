@@ -46,11 +46,11 @@ The functional programming foundation of REslava.Result. Learn each piece step b
     [](maybe/)
 
 -   :simple-oneplus: __OneOf Unions__
-    Discriminated unions for multiple typed outcomes with exhaustive matching.
+    Discriminated unions for 2–6 typed outcomes with exhaustive matching and arity chain conversions.
     [](oneof-unions/)
 
 -   :material-check-all: __Validation Rules__
-    Declarative rule-based validation that accumulates all failures.
+    Declarative rule-based validation — raw predicates or the native DSL (`NotEmpty`, `MaxLength`, `EmailAddress`, `Range`, ...).
     [](validation-rules/)
 
 -   :material-tag-check: __Validation Attributes__

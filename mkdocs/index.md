@@ -13,7 +13,7 @@ hide:
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-2862%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests-3313%20passing-brightgreen)
 </div>
 
 **:material-api: The only .NET library that blends functional error handling with compile‑time API generation.**
@@ -50,7 +50,7 @@ hide:
     [](code-examples/)
 
 -   :material-test-tube: __Testing & Quality__
-    2,862+ tests, CI/CD, real‑world impact, and production benefits.
+    3,313+ tests, CI/CD, real‑world impact, and production benefits.
     [](testing)
 
 -   :material-book-open-variant: __Reference__  
@@ -73,7 +73,7 @@ hide:
     | | REslava.Result | FluentResults | ErrorOr | LanguageExt |
     |---|:---:|:---:|:---:|:---:|
     | Result&lt;T&gt; pattern | ✅ | ✅ | ✅ | ✅ |
-    | OneOf discriminated unions | ✅ (2-4 types) | — | — | ✅ |
+    | OneOf discriminated unions | ✅ (2-6 types) | — | — | ✅ |
     | Maybe&lt;T&gt; | ✅ | — | — | ✅ |
     | **ASP.NET source generators (Minimal API + MVC)** | **✅** | — | — | — |
     | **SmartEndpoints (zero-boilerplate APIs)** | **✅** | — | — | — |

@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.27.0] - 2026-02-25
+
+### ✨ Added
+- **CancellationToken Support in SmartEndpoints** — generated endpoint lambdas detect `CancellationToken cancellationToken = default` in service method signatures and inject it as an endpoint parameter; service methods remain opt-in; fully backward-compatible
+- **OneOf5 / OneOf6** — new `OneOf<T1..T5>` and `OneOf<T1..T6>` readonly structs with full `Match`, `Switch`, `MapT*`, `BindT*`, equality, `GetHashCode`, `ToString`, and implicit conversions; matching the same API surface as OneOf2–OneOf4
+- **OneOf chain extensions** — complete arity chain in `OneOfExtensions`: `ToFourWay`, `ToFiveWay`, `ToSixWay` up-conversions (anchors the new type via a `defaultValue` parameter) plus nullable, mapper, and `WithFallback` down-conversions across the full 2↔3↔4↔5↔6 chain
+- **Native Validation DSL** — 19 fluent extension methods on `ValidatorRuleBuilder<T>` via `ValidatorRuleBuilderExtensions`; `Expression<Func<T, TProperty>>` selectors auto-infer property names for default error messages:
+  - **String**: `NotEmpty`, `NotWhiteSpace`, `MinLength`, `MaxLength`, `Length`, `EmailAddress`, `Matches`, `StartsWith`, `EndsWith`, `Contains`
+  - **Numeric** (generic `where TNum : struct, IComparable<TNum>`): `GreaterThan`, `LessThan`, `Range`, `Positive`, `NonNegative` — work for `int`, `long`, `double`, `decimal`, etc.
+  - **Collection**: `NotEmpty<T,TItem>`, `MinCount`, `MaxCount`
+  - **Reference**: `NotNull`
+- **DocFX API Reference** — all public types, members, and XML documentation now fully surfaced in the hosted API reference at `/reference/api/`
+
+### 🔧 Fixed
+- **OneOf4 bug fixes** — 10+ edge-case fixes across `AsT*` guard behaviour, `MapT*` propagation, `BindT*` null handling
+- **OneOf5/6 source generators** — added `OneOf5ToIResultGenerator`, `OneOf6ToIResultGenerator`, `OneOf5ToActionResultGenerator`, `OneOf6ToActionResultGenerator`
+
+### Stats
+- 3,313 tests passing across net8.0, net9.0, net10.0 + generator (131) + analyzer (68)
+
+---
+
 ## [1.26.0] - 2026-02-24
 
 ### ✨ Added

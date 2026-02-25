@@ -5,7 +5,7 @@ hide:
 
 # Testing & Quality
 
-2,862+ passing tests, 95%+ coverage, and real‑world reliability.
+3,313+ passing tests, 95%+ coverage, and real‑world reliability.
 
 <div class="grid cards" markdown>
 

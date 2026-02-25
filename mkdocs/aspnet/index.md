@@ -38,6 +38,10 @@ Plug REslava.Result into your web stack – Minimal API, MVC, and everything in 
     `CacheSeconds` and `RateLimitPolicy` at class and method level.
     [](smartendpoints/#output-caching-rate-limiting)
 
+-   :material-timer-sand: __CancellationToken__
+    Service methods that declare `CancellationToken` get it automatically threaded through the generated lambda.
+    [](smartendpoints/#cancellationtoken-support)
+
 -   :material-alert-box: __Problem Details__
     RFC 7807 compliant error responses via `[MapToProblemDetails]`.
     [](asp.net-integration/#problem-details-integration)

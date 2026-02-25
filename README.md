@@ -12,7 +12,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-2862%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests-3313%20passing-brightgreen)
 
 </div>
 
@@ -28,7 +28,7 @@ Includes API reference, advanced patterns, and interactive examples.
 | | REslava.Result | FluentResults | ErrorOr | LanguageExt |
 |---|:---:|:---:|:---:|:---:|
 | Result&lt;T&gt; pattern | ✅ | ✅ | ✅ | ✅ |
-| OneOf discriminated unions | ✅ (2-4 types) | — | — | ✅ |
+| OneOf discriminated unions | ✅ (2-6 types) | — | — | ✅ |
 | Maybe&lt;T&gt; | ✅ | — | — | ✅ |
 | **ASP.NET source generators (Minimal API + MVC)** | **✅** | — | — | — |
 | **SmartEndpoints (zero-boilerplate APIs)** | **✅** | — | — | — |
@@ -77,7 +77,7 @@ Includes API reference, advanced patterns, and interactive examples.
 - [🎯 Quick Examples](#-quick-examples) — Real-world code samples
 
 **🧪 Testing & Quality**
-- [🧪 Testing & Quality Assurance](#-testing--quality-assurance) — 2,862 tests, CI/CD pipeline
+- [🧪 Testing & Quality Assurance](#-testing--quality-assurance) — 3,313 tests, CI/CD pipeline
 - [🛡️ Safety Analyzers](#️-safety-analyzers) — RESL1001–RESL1005 + RESL2001, 6 diagnostics + 3 code fixes
 - [📈 Production Benefits](#-production-benefits) — Enterprise-ready advantages
 - [🌍 Real-World Impact](#-real-world-impact) — Success stories and use cases
@@ -85,7 +85,7 @@ Includes API reference, advanced patterns, and interactive examples.
 
 **📖 Reference**
 - [📖 API Documentation](docs/api/Overview.md) — Namespace overview and type reference
-- [📚 API Reference](https://reslava.github.io/nuget-package-reslava-result/reference/api/index.html) — Complete hosted technical documentation
+- [📚 API Reference](https://reslava.github.io/nuget-package-reslava-result/reference/api/index.html) — Complete DocFX API reference — all public types, members, and XML docs
 - [🎯 Roadmap](#-roadmap) — Future development plans
 - [📈 Version History](#-version-history) — Release notes and changes
 
@@ -830,6 +830,37 @@ var validator = Validator.Create<RegisterRequest>()
     .Rule(r => r.Password, new PasswordValidator());
 ```
 
+### Native Validation DSL
+
+**v1.27.0** — `ValidatorRuleBuilderExtensions` adds 19 named, fluent methods on `ValidatorRuleBuilder<T>`. Property names are inferred automatically from `Expression<Func<T, TProperty>>` for clear default error messages — no raw predicates needed:
+
+```csharp
+// Before — verbose, raw predicates, manual error messages
+var validator = new ValidatorRuleBuilder<CreateUserRequest>()
+    .Rule(u => u.Name, "NotEmpty", "Name is required", v => !string.IsNullOrEmpty(v))
+    .Rule(u => u.Name, "MaxLength", "Name is too long", v => v.Length <= 100)
+    .Rule(u => u.Email, "Email", "Invalid email", v => emailRegex.IsMatch(v))
+    .Rule(u => u.Age, "Range", "Age must be 18–120", v => v >= 18 && v <= 120)
+    .Build();
+
+// After — native DSL, field names auto-inferred in default messages
+var validator = new ValidatorRuleBuilder<CreateUserRequest>()
+    .NotEmpty(u => u.Name)                    // "'Name' must not be empty."
+    .MaxLength(u => u.Name, 100)              // "'Name' must not exceed 100 characters."
+    .EmailAddress(u => u.Email)               // "'Email' must be a valid email address."
+    .Range(u => u.Age, 18, 120)              // "'Age' must be between 18 and 120."
+    .Build();
+```
+
+| Category | Rules |
+|----------|-------|
+| **String** | `NotEmpty`, `NotWhiteSpace`, `MinLength`, `MaxLength`, `Length`, `EmailAddress`, `Matches`, `StartsWith`, `EndsWith`, `Contains` |
+| **Numeric** (`IComparable<TNum>`) | `GreaterThan`, `LessThan`, `Range`, `Positive`, `NonNegative` |
+| **Collection** | `NotEmpty<TItem>`, `MinCount`, `MaxCount` |
+| **Reference** | `NotNull` |
+
+All numeric rules are generic — work with `int`, `long`, `double`, `decimal`, and any `IComparable<TNum>`.
+
 ---
 
 ## 🏷️ Validation Attributes
@@ -978,7 +1009,7 @@ return GetUser(id).Match(
     user            => Results.Ok(user));
 ```
 
-### Arities: 2, 3, 4
+### Arities: 2, 3, 4, 5, 6
 
 ```csharp
 // OneOf<T1, T2> — binary outcome
@@ -989,6 +1020,24 @@ OneOf<ValidationError, NotFoundError, User> result = ValidateAndGet(id);
 
 // OneOf<T1, T2, T3, T4> — four-way outcome (v1.12.0+)
 OneOf<ValidationError, UnauthorizedError, NotFoundError, Order> result = GetOrder(id);
+
+// OneOf<T1, T2, T3, T4, T5> — five-way outcome (v1.27.0+)
+OneOf<ValidationError, UnauthorizedError, NotFoundError, ConflictError, Order> result = ProcessOrder(id);
+
+// OneOf<T1, T2, T3, T4, T5, T6> — six-way outcome (v1.27.0+)
+OneOf<ValidationError, UnauthorizedError, NotFoundError, ConflictError, ForbiddenError, Order> result = ComplexOp(id);
+```
+
+Chain extension methods convert between adjacent arities:
+
+```csharp
+// Up-convert: add a new type slot (anchors the new type via defaultValue — not used at runtime)
+OneOf<ValidationError, NotFoundError, User> three = ...;
+OneOf<ValidationError, NotFoundError, User, ConflictError> four = three.ToFourWay(default(ConflictError));
+OneOf<ValidationError, NotFoundError, User, ConflictError, ForbiddenError> five = four.ToFiveWay(default(ForbiddenError));
+
+// Down-convert: narrows to lower arity — returns null if the dropped type slot was active
+OneOf<ValidationError, NotFoundError, User>? narrowed = four.ToThreeWay();
 ```
 
 ### Convert to `Result<T>` or `IResult`
@@ -1022,7 +1071,7 @@ return GetUser(id).ToIResult();     // 422 / 404 / 200
 | Pattern | Best For | When to Avoid |
 |---------|----------|---------------|
 | **Maybe\<T>** | Optional values, cache lookups | When you need error details |
-| **OneOf\<T1,...>** | Typed multi-outcome returns, API responses | When you have >4 outcomes |
+| **OneOf\<T1,...>** | Typed multi-outcome returns, API responses | When you have >6 outcomes |
 | **Result + LINQ** | Complex data pipelines with query syntax | Simple single-step operations |
 | **Compose / Sequence** | Multi-step pipelines, fan-out/fan-in | Single-step operations |
 
@@ -1328,6 +1377,42 @@ catalogGroup.MapPost("", async (CreateProductRequest request, CatalogController 
 ```
 
 Before v1.26.0 this required a manual `.Validate().ToIResult()` in the endpoint body. Now placing `[Validate]` on the request type is the only signal required. Only POST/PUT body parameters are auto-validated; GET query parameters are not affected.
+
+### CancellationToken Support
+
+**v1.27.0** — When a service method declares `CancellationToken cancellationToken = default`, SmartEndpoints detects it and injects the cancellation token through the generated lambda automatically. Methods without this parameter are unaffected — fully backward-compatible.
+
+```csharp
+[AutoGenerateEndpoints(RoutePrefix = "/api/users")]
+public class UserController
+{
+    // CancellationToken detected — generator threads it through
+    public async Task<Result<User>> GetUser(int id, CancellationToken cancellationToken = default)
+        => await _service.GetByIdAsync(id, cancellationToken);
+
+    // No CancellationToken — generated normally, no change
+    public async Task<Result<List<User>>> GetUsers()
+        => await _service.GetAllAsync();
+}
+```
+
+Generated lambdas (v1.27.0+):
+
+```csharp
+// With CancellationToken — ct injected by ASP.NET Minimal API
+userGroup.MapGet("/{id}", async (int id, UserController service, CancellationToken ct) =>
+{
+    var result = await service.GetUser(id, ct);
+    return result.ToIResult();
+});
+
+// Without CancellationToken — unchanged
+userGroup.MapGet("", async (UserController service) =>
+{
+    var result = await service.GetUsers();
+    return result.ToIResult();
+});
+```
 
 ---
 
@@ -2222,7 +2307,15 @@ Triggers when the message string implies a known HTTP error category:
 
 ## 🎯 Roadmap
 
-### v1.26.0 (Current) ✅
+### v1.27.0 (Current) ✅
+- **CancellationToken Support in SmartEndpoints** — generated lambdas detect `CancellationToken` in service method signatures and inject it as an endpoint parameter; backward-compatible
+- **OneOf5 / OneOf6** — `OneOf<T1..T5>` and `OneOf<T1..T6>` structs with full `Match`, `Switch`, `MapT*`, `BindT*`, equality, and implicit conversions; OneOf4 bug fixes
+- **OneOf chain extensions** — `ToFourWay`, `ToFiveWay`, `ToSixWay` and corresponding down-conversions across the full 2↔3↔4↔5↔6 arity chain
+- **Native Validation DSL** — 19 fluent methods on `ValidatorRuleBuilder<T>`: `NotEmpty`, `NotWhiteSpace`, `MinLength`, `MaxLength`, `Length`, `EmailAddress`, `Matches`, `StartsWith`, `EndsWith`, `Contains`, `GreaterThan`, `LessThan`, `Range`, `Positive`, `NonNegative`, `NotEmpty<TItem>`, `MinCount`, `MaxCount`, `NotNull`; `Expression<Func<T, TProperty>>` auto-infers field names
+- **DocFX API Reference** — all public types, members, and XML docs fully surfaced at `/reference/api/`
+- 3,313 tests
+
+### v1.26.0 ✅
 - **RESL1005 analyzer** — Info-level diagnostic suggests domain error types (`NotFoundError`, `ConflictError`, etc.) when `new Error("...")` message implies an HTTP error category; 14 new tests
 - **SmartEndpoints Auto-Validation** — `[Validate]` on a body parameter type auto-injects `.Validate()` into the generated lambda; returns 422 early on failure; 5 new tests
 - 2,862 tests
@@ -2291,6 +2384,7 @@ Triggers when the message string implies a known HTTP error category:
 
 ## 📈 Version History
 
+- **v1.27.0** - CancellationToken Support in SmartEndpoints, OneOf5/OneOf6 + OneOf4 fixes + chain extensions (ToFourWay↔ToSixWay), Native Validation DSL (19 methods on ValidatorRuleBuilder<T>), DocFX full XML docs, 451 new tests, 3,313 tests
 - **v1.26.0** - RESL1005 domain error suggestion analyzer, SmartEndpoints auto-validation ([Validate] on body param type injects .Validate() into lambda), 19 new tests, 2,862 tests
 - **v1.25.0** - Documentation Site & API Reference: MkDocs Material website, DocFX Bootstrap landing page, CI path filtering, pipeline fixes, 2,843 tests
 - **v1.24.0** - Compile-Time Validation Generator: [Validate] attribute generates .Validate() → Result<T> via Validator.TryValidateObject, 7 new tests, 2,843 tests

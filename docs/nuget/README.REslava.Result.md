@@ -8,12 +8,13 @@
 
 ## Why REslava.Result?
 
-- **Result\<T\> + OneOf + Maybe\<T\>** in a single zero-dependency package
+- **Result\<T\> + OneOf (2–6 types) + Maybe\<T\>** in a single zero-dependency package
 - **Domain error hierarchy** — `NotFoundError`, `ValidationError`, `ConflictError`, `UnauthorizedError`, `ForbiddenError` with HTTP status code tags
 - **Implicit conversions** — just `return user;` or `return new NotFoundError();`
 - **LINQ query syntax** — compose results with `from ... in ... select`
 - **Async patterns** — `WhenAll` (typed tuples), `Retry` (exponential backoff), `Timeout`
 - **JSON serialization** — `System.Text.Json` converters for `Result<T>`, `OneOf`, `Maybe<T>`
+- **Native Validation DSL** — 19 fluent extension methods (`NotEmpty`, `MaxLength`, `EmailAddress`, `Range`, `Positive`, ...) on `ValidatorRuleBuilder<T>` with auto-inferred field names
 - **Roslyn safety analyzers** — catch unsafe `.Value` access at compile time (separate package)
 - **ASP.NET integration** — auto-generate Minimal API + MVC endpoints with domain error mapping (separate package)
 

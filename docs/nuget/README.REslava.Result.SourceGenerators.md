@@ -8,20 +8,21 @@
 
 ## What It Does
 
-This package contains **9 Roslyn source generators** that eliminate ASP.NET boilerplate:
+This package contains **13 Roslyn source generators** that eliminate ASP.NET boilerplate:
 
 **Minimal API**
-- **SmartEndpoints** — auto-generates complete endpoint registration from your service classes
+- **SmartEndpoints** — auto-generates complete endpoint registration from your service classes; includes CancellationToken threading, auto-validation, filters, caching, and rate limiting
 - **ResultToIResult** — converts `Result<T>` to `IResult` with domain error-aware HTTP status codes
-- **OneOfToIResult** — converts `OneOf<T1,...,T4>` to `IResult` with tag-based + heuristic error mapping
+- **OneOfToIResult** — converts `OneOf<T1,...,T6>` to `IResult` with tag-based + heuristic error mapping (arities 2–6)
 
 **MVC Controllers**
 - **ResultToActionResult** — converts `Result<T>` to `IActionResult` with convention-based HTTP mapping
-- **OneOfToActionResult** — converts `OneOf<T1,...,T4>` to `IActionResult` with domain error auto-mapping
+- **OneOfToActionResult** — converts `OneOf<T1,...,T6>` to `IActionResult` with domain error auto-mapping (arities 2–6)
 
 **Cross-cutting**
 - **OpenAPI metadata** — auto-generates `.Produces<T>()`, `.WithSummary()`, `.WithTags()` with accurate error status codes
 - **Authorization** — generates `.RequireAuthorization()`, `.AllowAnonymous()` from attributes
+- **[Validate]** — generates `.Validate()` extension methods from `DataAnnotations`; auto-injected by SmartEndpoints
 
 ## Before / After
 
@@ -85,6 +86,8 @@ The generator infers:
 - **HTTP method** from name: `Get*` -> GET, `Create*`/`Add*` -> POST, `Update*` -> PUT, `Delete*` -> DELETE
 - **Routes** with `{id}` parameters when methods have an `id` parameter
 - **DI** via ASP.NET parameter binding (services injected as lambda parameters)
+- **CancellationToken** — automatically threaded through when service method declares `CancellationToken cancellationToken = default`
+- **Validation** — auto-injects `.Validate()` when request type carries `[Validate]`
 
 ## Requires
 
