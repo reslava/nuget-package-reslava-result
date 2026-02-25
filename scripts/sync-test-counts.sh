@@ -74,6 +74,11 @@ run_tests() {
   local analyzer
   analyzer=$(echo "$summaries" | grep 'Analyzers\.Tests\.dll' | grep -oE 'Passed:[[:space:]]+[0-9]+' | sed 's/Passed:[[:space:]]*//')
 
+  # FluentValidation bridge tests (optional — 0 if project not present)
+  local fluent
+  fluent=$(echo "$summaries" | grep 'FluentValidation\.Tests\.dll' | grep -oE 'Passed:[[:space:]]+[0-9]+' | sed 's/Passed:[[:space:]]*//')
+  fluent=${fluent:-0}
+
   rm -f "$TMPFILE"
 
   if [[ -z "$core_per_tfm" || -z "$generator" || -z "$analyzer" ]]; then
@@ -83,7 +88,7 @@ run_tests() {
   fi
 
   local core_total=$(( core_per_tfm * tfm_count ))
-  local total=$(( core_total + generator + analyzer ))
+  local total=$(( core_total + generator + analyzer + fluent ))
 
   cat > "$CACHE_FILE" <<EOF
 CORE_PER_TFM=$core_per_tfm
@@ -91,10 +96,11 @@ TFM_COUNT=$tfm_count
 CORE_TOTAL=$core_total
 GENERATOR=$generator
 ANALYZER=$analyzer
+FLUENT=$fluent
 TOTAL=$total
 EOF
 
-  echo "Tests passed: core=$core_per_tfm x $tfm_count TFMs ($core_total) + generator=$generator + analyzer=$analyzer = $total total"
+  echo "Tests passed: core=$core_per_tfm x $tfm_count TFMs ($core_total) + generator=$generator + analyzer=$analyzer + fluent=$fluent = $total total"
 }
 
 load_cache() {
@@ -147,6 +153,9 @@ update_readme() {
 
     # 'Analyzer Tests**: NN tests'
     s|Analyzer Tests\*\*: [0-9]+ tests|Analyzer Tests**: ${ANALYZER} tests|
+
+    # 'FluentValidation Bridge Tests**: NN tests'
+    s|FluentValidation Bridge Tests\*\*: [0-9]+ tests|FluentValidation Bridge Tests**: ${FLUENT} tests|
 
     # 'Run all tests (N,NNN tests across N TFMs)'
     s|Run all tests \([0-9,]+ tests across [0-9]+ TFMs\)|Run all tests (${TOTAL_FMT} tests across ${TFM_COUNT} TFMs)|

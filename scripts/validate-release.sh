@@ -164,16 +164,19 @@ else
     CORE_PER_TFM=$(echo "$CORE_LINES" | head -1 | grep -oE 'Passed:[[:space:]]+[0-9]+' | sed 's/Passed:[[:space:]]*//' || true)
     GENERATOR=$(grep -E '^Passed!' "$TMPFILE" | grep 'SourceGenerators\.Tests\.dll' | grep -oE 'Passed:[[:space:]]+[0-9]+' | sed 's/Passed:[[:space:]]*//' || true)
     ANALYZER=$(grep -E '^Passed!' "$TMPFILE" | grep 'Analyzers\.Tests\.dll' | grep -oE 'Passed:[[:space:]]+[0-9]+' | sed 's/Passed:[[:space:]]*//' || true)
+    FLUENT=$(grep -E '^Passed!' "$TMPFILE" | grep 'FluentValidation\.Tests\.dll' | grep -oE 'Passed:[[:space:]]+[0-9]+' | sed 's/Passed:[[:space:]]*//' || true)
+    FLUENT=${FLUENT:-0}
 
     if [[ -n "$CORE_PER_TFM" && -n "$GENERATOR" && -n "$ANALYZER" && "$TFM_COUNT" -gt 0 ]]; then
       CORE_TOTAL=$(( CORE_PER_TFM * TFM_COUNT ))
-      ACTUAL_TOTAL=$(( CORE_TOTAL + GENERATOR + ANALYZER ))
+      ACTUAL_TOTAL=$(( CORE_TOTAL + GENERATOR + ANALYZER + FLUENT ))
       cat > "$CACHE_FILE" <<EOF
 CORE_PER_TFM=$CORE_PER_TFM
 TFM_COUNT=$TFM_COUNT
 CORE_TOTAL=$CORE_TOTAL
 GENERATOR=$GENERATOR
 ANALYZER=$ANALYZER
+FLUENT=$FLUENT
 TOTAL=$ACTUAL_TOTAL
 EOF
     fi
