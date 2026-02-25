@@ -17,6 +17,10 @@ Quick access to API documentation, version history, roadmap, and deep-dive guide
     Auto-generated from XML docs. Browse all namespaces, types, and members.
     [](api/index.html)
 
+-   :material-feature-search: __Feature Reference__
+    All features implemented classified by category.
+    [](features/)    
+
 -   :material-history: __Version History__
     Full changelog from v1.9.4 to present — every feature, fix, and breaking change.
     [](version-history)

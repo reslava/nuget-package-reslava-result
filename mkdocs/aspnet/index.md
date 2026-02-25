@@ -46,7 +46,7 @@ Plug REslava.Result into your web stack – Minimal API, MVC, and everything in 
     RFC 7807 compliant error responses via `[MapToProblemDetails]`.
     [](asp.net-integration/#problem-details-integration)
 
--   :simple-fluentvalidation: __FluentValidation Bridge__
+-   :material-filter-check: __FluentValidation Bridge__
     `[FluentValidate]` — migration aid for teams with existing FV validators. SmartEndpoints auto-injects `IValidator<T>`.
     [](smartendpoints/#fluentvalidation-bridge)
 

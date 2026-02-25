@@ -142,9 +142,9 @@ _layout: landing
   <div class="col">
     <div class="card h-100 bg-body-secondary border-0">
       <div class="card-body">
-        <h6 class="card-title fw-semibold"><a href="REslava.Result.AdvancedPatterns.OneOf-2.html" class="text-decoration-none">OneOf&lt;T1, T2[, T3, T4]&gt;</a></h6>
+        <h6 class="card-title fw-semibold"><a href="REslava.Result.AdvancedPatterns.OneOf-2.html" class="text-decoration-none">OneOf&lt;T1, T2[, T3, T4, T5, T6]&gt;</a></h6>
         <p class="card-text small text-muted">
-          Discriminated union. Represents exactly one of 2–4 types.
+          Discriminated union. Represents exactly one of 2–6 types.
           Ideal for service methods that return different success shapes.
         </p>
       </div>
