@@ -113,6 +113,13 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.Models
         /// causing SmartEndpoints to inject a .Validate() call in the generated lambda.
         /// </summary>
         public bool HasValidateAttribute { get; set; }
+
+        /// <summary>
+        /// True when the parameter's type is decorated with [FluentValidate]
+        /// (from REslava.Result.FluentValidation), causing SmartEndpoints to inject
+        /// IValidator&lt;T&gt; as a lambda parameter and emit a .Validate(validator) call.
+        /// </summary>
+        public bool HasFluentValidateAttribute { get; set; }
     }
 
     /// <summary>

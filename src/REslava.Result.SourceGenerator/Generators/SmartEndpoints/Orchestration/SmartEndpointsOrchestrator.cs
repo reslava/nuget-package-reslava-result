@@ -246,7 +246,10 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
                         ? ParameterSource.CancellationToken
                         : InferParameterSource(p.Name, httpMethod),
                     HasValidateAttribute = p.Type.GetAttributes()
-                        .Any(a => a.AttributeClass?.Name == "ValidateAttribute")
+                        .Any(a => a.AttributeClass?.Name == "ValidateAttribute"),
+                    HasFluentValidateAttribute = p.Type.GetAttributes()
+                        .Any(a => a.AttributeClass?.ToDisplayString() ==
+                                  "REslava.Result.FluentValidation.FluentValidateAttribute")
                 }).ToList()
             };
 

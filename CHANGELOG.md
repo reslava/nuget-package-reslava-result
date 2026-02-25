@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.28.0] - 2026-02-25
+
+### ✨ Added
+- **REslava.Result.FluentValidation** — new 4th NuGet package (generator-only, `DevelopmentDependency=true`); `[FluentValidate]` attribute emits `.Validate(IValidator<T> validator)` + `.ValidateAsync(IValidator<T>, CancellationToken)` extension methods per decorated type; bridge for teams migrating from FluentValidation who want `Result<T>` and SmartEndpoints integration without rewriting existing validators
+- **SmartEndpoints FluentValidation injection** — when a POST/PUT body parameter type is decorated with `[FluentValidate]`, the generated lambda automatically adds `IValidator<T>` as a DI-injected parameter and emits the `.Validate(validator)` guard block; adds `using FluentValidation;` and `using Generated.FluentValidationExtensions;` conditionally
+- **RESL1006 analyzer** — compile-error diagnostic when both `[Validate]` and `[FluentValidate]` are applied to the same type; prevents conflicting `.Validate()` extension method signatures
+
+### Stats
+- 3,339 tests passing across net8.0, net9.0, net10.0 + generator (131) + analyzer (68) + FluentValidation bridge (26)
+
+---
+
 ## [1.27.0] - 2026-02-25
 
 ### ✨ Added

@@ -51,6 +51,15 @@ namespace REslava.Result.Analyzers
             isEnabledByDefault: true,
             description: "Accessing .AsT* on a OneOf without checking the corresponding .IsT* throws InvalidOperationException. Use Match() for safe access.");
 
+        public static readonly DiagnosticDescriptor RESL1006_BothValidateAttributes = new(
+            id: "RESL1006",
+            title: "[Validate] and [FluentValidate] cannot both be applied to the same type",
+            messageFormat: "'{0}' has both [Validate] and [FluentValidate] applied. These attributes generate conflicting '.Validate()' extension methods. Remove one.",
+            category: "REslava.Result.Usage",
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: "[Validate] generates a .Validate() extension using DataAnnotations, while [FluentValidate] generates one using FluentValidation.IValidator<T>. Both cannot coexist on the same type because they produce a compile-time naming conflict.");
+
         public static readonly DiagnosticDescriptor RESL1005_SuggestDomainError = new(
             id: "RESL1005",
             title: "Consider using a domain-specific error type",

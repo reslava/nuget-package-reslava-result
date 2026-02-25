@@ -23,6 +23,7 @@ This package contains **13 Roslyn source generators** that eliminate ASP.NET boi
 - **OpenAPI metadata** — auto-generates `.Produces<T>()`, `.WithSummary()`, `.WithTags()` with accurate error status codes
 - **Authorization** — generates `.RequireAuthorization()`, `.AllowAnonymous()` from attributes
 - **[Validate]** — generates `.Validate()` extension methods from `DataAnnotations`; auto-injected by SmartEndpoints
+- **[FluentValidate]** — (from `REslava.Result.FluentValidation`) SmartEndpoints detects `[FluentValidate]` on body params and auto-injects `IValidator<T>` as a lambda parameter
 
 ## Before / After
 

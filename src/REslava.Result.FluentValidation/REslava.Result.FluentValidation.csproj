@@ -1,0 +1,78 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IsRoslynComponent Condition="'$(Configuration)' == 'Debug'">true</IsRoslynComponent>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+
+    <!-- NuGet Package Configuration -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>REslava.Result.FluentValidation</PackageId>
+    <Authors>REslava</Authors>
+    <Company>REslava</Company>
+    <Product>REslava.Result.FluentValidation</Product>
+    <Description>FluentValidation bridge for REslava.Result — [FluentValidate] source generator emits .Validate(IValidator&lt;T&gt;) extensions with SmartEndpoints auto-injection. Migration aid for teams with existing FluentValidation validators.</Description>
+    <Copyright>Copyright © REslava 2025</Copyright>
+    <PackageProjectUrl>https://reslava.github.io/nuget-package-reslava-result</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>source-generator;result;fluentvalidation;minimal-api;aspnetcore;bridge;migration</PackageTags>
+    <PackageReadmeFile>README.REslava.Result.FluentValidation.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+
+    <!-- Source Link -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Documentation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+
+    <!-- CRITICAL: Generator-only, no runtime binary shipped -->
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+  </PropertyGroup>
+
+  <!-- Include README and icon in package -->
+  <ItemGroup>
+    <None Include="..\..\docs\nuget\README.REslava.Result.FluentValidation.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <!-- Package Dependencies -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.12.0-beta1.25218.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <!-- CRITICAL: Package as a Source Generator -->
+  <ItemGroup>
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+
+  <!-- Build props for IDE experience -->
+  <ItemGroup>
+    <None Include="build\REslava.Result.FluentValidation.props" Pack="true" PackagePath="build" />
+    <None Include="buildTransitive\REslava.Result.FluentValidation.props" Pack="true" PackagePath="buildTransitive" />
+  </ItemGroup>
+
+  <!-- Explicit compile items -->
+  <ItemGroup>
+    <Compile Include="Generators\FluentValidate\FluentValidateGenerator.cs" />
+    <Compile Include="Generators\FluentValidate\Orchestration\FluentValidateOrchestrator.cs" />
+    <Compile Include="Generators\FluentValidate\Attributes\FluentValidateAttributeGenerator.cs" />
+    <Compile Include="Generators\FluentValidate\CodeGeneration\FluentValidateExtensionGenerator.cs" />
+  </ItemGroup>
+
+</Project>

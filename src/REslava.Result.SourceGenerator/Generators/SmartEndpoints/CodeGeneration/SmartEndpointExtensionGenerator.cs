@@ -66,6 +66,14 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
                     e.Parameters.Any(p => p.HasValidateAttribute && p.Source == ParameterSource.Body)));
             if (anyValidation)
                 builder.AppendLine("using Generated.ValidationExtensions;");
+            var anyFluentValidation = controllers.Any(c =>
+                c.Endpoints.Any(e =>
+                    e.Parameters.Any(p => p.HasFluentValidateAttribute && p.Source == ParameterSource.Body)));
+            if (anyFluentValidation)
+            {
+                builder.AppendLine("using FluentValidation;");
+                builder.AppendLine("using Generated.FluentValidationExtensions;");
+            }
             builder.AppendLine();
 
             // Namespace and class
@@ -133,15 +141,20 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
             // Compute relative route (strip prefix since the group handles it)
             var relativeRoute = ComputeRelativeRoute(endpoint.Route, endpoint.RoutePrefix);
 
-            // Build parameter list (method params + DI service)
+            // Build parameter list (method params + optional IValidator<T> + DI service)
             var methodParams = string.Join(", ", endpoint.Parameters.Select(p =>
                 p.Source == ParameterSource.CancellationToken
                     ? $"CancellationToken {p.Name}"
                     : $"{p.Type} {p.Name}"));
             var serviceParam = $"{endpoint.Namespace}.{endpoint.ClassName} service";
+            var fluentBodyParam = endpoint.Parameters
+                .FirstOrDefault(p => p.Source == ParameterSource.Body && p.HasFluentValidateAttribute);
+            var validatorParam = fluentBodyParam != null
+                ? $", IValidator<{fluentBodyParam.Type}> {fluentBodyParam.Name}Validator"
+                : string.Empty;
             var fullParamList = string.IsNullOrEmpty(methodParams)
-                ? serviceParam
-                : $"{methodParams}, {serviceParam}";
+                ? serviceParam + validatorParam
+                : $"{methodParams}{validatorParam}, {serviceParam}";
             var argList = string.Join(", ", endpoint.Parameters.Select(p => p.Name));
 
             var asyncKeyword = endpoint.IsAsync ? "async " : "";
@@ -158,6 +171,14 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.CodeGenerati
             if (validatedBodyParam != null)
             {
                 builder.AppendLine($"                var validation = {validatedBodyParam.Name}.Validate();");
+                builder.AppendLine("                if (!validation.IsSuccess) return validation.ToIResult();");
+                builder.AppendLine();
+            }
+            var fluentValidatedBodyParam = endpoint.Parameters
+                .FirstOrDefault(p => p.Source == ParameterSource.Body && p.HasFluentValidateAttribute);
+            if (fluentValidatedBodyParam != null)
+            {
+                builder.AppendLine($"                var validation = {fluentValidatedBodyParam.Name}.Validate({fluentValidatedBodyParam.Name}Validator);");
                 builder.AppendLine("                if (!validation.IsSuccess) return validation.ToIResult();");
                 builder.AppendLine();
             }

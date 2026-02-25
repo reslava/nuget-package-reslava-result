@@ -12,7 +12,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-3313%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests-3339%20passing-brightgreen)
 
 </div>
 
@@ -77,8 +77,8 @@ Includes API reference, advanced patterns, and interactive examples.
 - [🎯 Quick Examples](#-quick-examples) — Real-world code samples
 
 **🧪 Testing & Quality**
-- [🧪 Testing & Quality Assurance](#-testing--quality-assurance) — 3,313 tests, CI/CD pipeline
-- [🛡️ Safety Analyzers](#️-safety-analyzers) — RESL1001–RESL1005 + RESL2001, 6 diagnostics + 3 code fixes
+- [🧪 Testing & Quality Assurance](#-testing--quality-assurance) — 3,339 tests, CI/CD pipeline
+- [🛡️ Safety Analyzers](#️-safety-analyzers) — RESL1001–RESL1006 + RESL2001, 7 diagnostics + 3 code fixes
 - [📈 Production Benefits](#-production-benefits) — Enterprise-ready advantages
 - [🌍 Real-World Impact](#-real-world-impact) — Success stories and use cases
 - [🏆 Why Choose REslava.Result?](#-why-choose-reslavaresult) — Unique advantages
@@ -105,15 +105,27 @@ Includes API reference, advanced patterns, and interactive examples.
 dotnet add package REslava.Result                      # Core library — Result<T>, errors, functional composition
 dotnet add package REslava.Result.SourceGenerators     # Source generators — SmartEndpoints, [Validate], OneOfToIResult
 dotnet add package REslava.Result.Analyzers            # Roslyn analyzers — catch unsafe .Value access at compile time
+
+# ⚠️ OPTIONAL — migration bridge only. NOT needed for new projects.
+# REslava.Result already includes full validation via [Validate] + Validation DSL.
+# Only install if your team already uses FluentValidation and wants to keep existing validators.
+dotnet add package REslava.Result.FluentValidation
 ```
 
 ### PackageReference (csproj)
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="REslava.Result" Version="1.25.0" />
-  <PackageReference Include="REslava.Result.SourceGenerators" Version="1.25.0" />
-  <PackageReference Include="REslava.Result.Analyzers" Version="1.25.0" />
+  <PackageReference Include="REslava.Result" Version="1.28.0" />
+  <PackageReference Include="REslava.Result.SourceGenerators" Version="1.28.0" />
+  <PackageReference Include="REslava.Result.Analyzers" Version="1.28.0" />
+
+  <!--
+    OPTIONAL — migration bridge. NOT needed for new projects.
+    REslava.Result already includes equivalent validation via [Validate] + Validation DSL.
+    Only add this if your team has existing FluentValidation validators you want to keep.
+  -->
+  <PackageReference Include="REslava.Result.FluentValidation" Version="1.28.0" />
 </ItemGroup>
 ```
 
@@ -124,6 +136,7 @@ dotnet add package REslava.Result.Analyzers            # Roslyn analyzers — ca
 | `REslava.Result` | .NET 8, .NET 9, .NET 10 |
 | `REslava.Result.SourceGenerators` | .NET Standard 2.0 (generates code for any TFM) |
 | `REslava.Result.Analyzers` | .NET Standard 2.0 |
+| `REslava.Result.FluentValidation` ⚠️ **Optional** | .NET Standard 2.0 (generator-only, no runtime) — migration bridge only |
 
 ### Prerequisites
 
@@ -1414,6 +1427,59 @@ userGroup.MapGet("", async (UserController service) =>
 });
 ```
 
+### FluentValidation Bridge
+
+> ⚠️ **Optional — migration bridge only. Not needed for new projects.**
+>
+> REslava.Result already includes full native validation via `[Validate]` (DataAnnotations → `Result<T>`) and the Validation DSL (19 fluent rules). This package exists **only** for teams that already have FluentValidation validators and want to adopt REslava.Result without rewriting them. New projects should use `[Validate]` or the Validation DSL instead.
+
+**v1.28.0** — For teams migrating from FluentValidation, the `REslava.Result.FluentValidation` package emits `.Validate(IValidator<T>)` extensions and integrates with SmartEndpoints — existing validators require zero changes:
+
+```bash
+dotnet add package REslava.Result.FluentValidation
+dotnet add package FluentValidation   # your existing validators
+```
+
+```csharp
+using REslava.Result.FluentValidation;
+
+[FluentValidate]   // ← swap [Validate] for [FluentValidate] on existing FV types
+public record CreateOrderRequest(string CustomerId, decimal Amount);
+
+// Your AbstractValidator<T> stays unchanged
+public class CreateOrderRequestValidator : AbstractValidator<CreateOrderRequest>
+{
+    public CreateOrderRequestValidator()
+    {
+        RuleFor(x => x.CustomerId).NotEmpty();
+        RuleFor(x => x.Amount).GreaterThan(0);
+    }
+}
+```
+
+Generated lambda (v1.28.0+):
+```csharp
+ordersGroup.MapPost("", async (
+    CreateOrderRequest req,
+    IValidator<CreateOrderRequest> reqValidator,   // ← auto-injected from DI
+    IOrderService svc,
+    CancellationToken cancellationToken) =>
+{
+    var validation = req.Validate(reqValidator);   // ← uses FluentValidation internally
+    if (!validation.IsSuccess) return validation.ToIResult();
+
+    var result = await svc.CreateOrder(req, cancellationToken);
+    return result.ToIResult();
+});
+```
+
+Register in DI once — SmartEndpoints handles the rest:
+```csharp
+builder.Services.AddScoped<IValidator<CreateOrderRequest>, CreateOrderRequestValidator>();
+```
+
+> **Note:** `[FluentValidate]` and `[Validate]` cannot be applied to the same type (RESL1006 compile error). Choose the bridge for existing FV validators; use `[Validate]` for new types with DataAnnotations.
+
 ---
 
 ## 🔀 OneOf to IResult
@@ -1816,13 +1882,14 @@ Each generator (`ResultToIResultGenerator`, `SmartEndpointsGenerator`, `Validate
 
 ## 📦 Package Structure
 
-**Three NuGet packages for a complete development experience:**
+**Four NuGet packages for a complete development experience:**
 
 | Package | Purpose |
 |---------|---------|
 | `REslava.Result` | Core library — Result&lt;T&gt;, Maybe&lt;T&gt;, OneOf, domain errors (NotFound/Validation/Conflict/Unauthorized/Forbidden), LINQ, validation, JSON serialization, async patterns |
 | `REslava.Result.SourceGenerators` | ASP.NET source generators — SmartEndpoints, ToIResult (Minimal API), ToActionResult (MVC), OneOf extensions |
-| `REslava.Result.Analyzers` | Roslyn safety analyzers — RESL1001–RESL1005 + RESL2001 (6 diagnostics + 3 code fixes) |
+| `REslava.Result.Analyzers` | Roslyn safety analyzers — RESL1001–RESL1006 + RESL2001 (7 diagnostics + 3 code fixes) |
+| `REslava.Result.FluentValidation` ⚠️ **Optional** | FluentValidation bridge — `[FluentValidate]` generator + SmartEndpoints auto-injection. **Migration aid only** — not needed for new projects; REslava.Result includes equivalent validation natively |
 
 ### 🚀 NuGet Package Contents
 ```
@@ -2005,10 +2072,11 @@ return GetUser(id).ToIResult(); // 🆕 Automatic HTTP mapping!
 ## 🧪 Testing & Quality Assurance
 
 ### 📊 Comprehensive Test Suite
-**2,862 Tests Passing** 🎉
-- **Core Library Tests**: 896 tests per TFM (net8.0, net9.0, net10.0) = 2,688 tests
-- **Source Generator Tests**: 106 tests for all generators
-- **Analyzer Tests**: 68 tests for RESL1001–RESL1005 + RESL2001
+**3,339 Tests Passing** 🎉
+- **Core Library Tests**: 1,038 tests per TFM (net8.0, net9.0, net10.0) = 3,114 tests
+- **Source Generator Tests**: 131 tests for all generators
+- **Analyzer Tests**: 68 tests for RESL1001–RESL1006 + RESL2001
+- **FluentValidation Bridge Tests**: 26 tests for [FluentValidate] generator + SmartEndpoints integration
 - **Multi-TFM**: All core tests run on 3 target frameworks
 
 ### 📐 Source Generator Test Architecture
@@ -2237,6 +2305,21 @@ Triggers when the message string implies a known HTTP error category:
 | `forbidden`, `access denied` | `ForbiddenError` |
 | `invalid`, `validation` | `ValidationError` |
 
+### RESL1006 — Conflicting `[Validate]` + `[FluentValidate]` `[Error]`
+
+```csharp
+// ❌ RESL1006: 'CreateOrderRequest' has both [Validate] and [FluentValidate] applied.
+// These generate conflicting .Validate() extension methods. Remove one.
+[Validate]
+[FluentValidate]
+public record CreateOrderRequest(string CustomerId, decimal Amount);
+
+// ✅ Use only one:
+[FluentValidate]   // for teams with existing FluentValidation validators
+public record CreateOrderRequest(string CustomerId, decimal Amount);
+```
+
+
 ---
 
 ## 📈 Production Benefits
@@ -2307,7 +2390,12 @@ Triggers when the message string implies a known HTTP error category:
 
 ## 🎯 Roadmap
 
-### v1.27.0 (Current) ✅
+### v1.28.0 (Current) ✅
+- **FluentValidation Bridge** ⚠️ *optional migration bridge* — new `REslava.Result.FluentValidation` package (4th NuGet); `[FluentValidate]` attribute generates `.Validate(IValidator<T>)` + `.ValidateAsync()` extensions; SmartEndpoints auto-injects `IValidator<T>` as a lambda parameter; for teams with existing FV validators only — **new projects do not need this package**
+- **RESL1006 analyzer** — compile error when both `[Validate]` and `[FluentValidate]` appear on the same type (conflicting `.Validate()` signatures)
+- 3,339 tests
+
+### v1.27.0 ✅
 - **CancellationToken Support in SmartEndpoints** — generated lambdas detect `CancellationToken` in service method signatures and inject it as an endpoint parameter; backward-compatible
 - **OneOf5 / OneOf6** — `OneOf<T1..T5>` and `OneOf<T1..T6>` structs with full `Match`, `Switch`, `MapT*`, `BindT*`, equality, and implicit conversions; OneOf4 bug fixes
 - **OneOf chain extensions** — `ToFourWay`, `ToFiveWay`, `ToSixWay` and corresponding down-conversions across the full 2↔3↔4↔5↔6 arity chain
@@ -2384,6 +2472,7 @@ Triggers when the message string implies a known HTTP error category:
 
 ## 📈 Version History
 
+- **v1.28.0** - FluentValidation Bridge (`REslava.Result.FluentValidation` — *optional migration bridge, new projects don't need it*), `[FluentValidate]` generator, SmartEndpoints `IValidator<T>` auto-injection, RESL1006 dual-attribute analyzer, 26 new tests, 3,339 tests
 - **v1.27.0** - CancellationToken Support in SmartEndpoints, OneOf5/OneOf6 + OneOf4 fixes + chain extensions (ToFourWay↔ToSixWay), Native Validation DSL (19 methods on ValidatorRuleBuilder<T>), DocFX full XML docs, 451 new tests, 3,313 tests
 - **v1.26.0** - RESL1005 domain error suggestion analyzer, SmartEndpoints auto-validation ([Validate] on body param type injects .Validate() into lambda), 19 new tests, 2,862 tests
 - **v1.25.0** - Documentation Site & API Reference: MkDocs Material website, DocFX Bootstrap landing page, CI path filtering, pipeline fixes, 2,843 tests
