@@ -1,6 +1,9 @@
 ---
 hide:
   - navigation
+title: Architecture
+description: "Understand the internals: incremental Roslyn generators, analyzer pipelines, and the three-package architecture. Extend with confidence."
+tagline: Peek inside. No magic. Just smart code.
 ---
 
 # Architecture & Design

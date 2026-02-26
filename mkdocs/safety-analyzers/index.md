@@ -1,6 +1,9 @@
 ---
 hide:
   - navigation
+title: Code Safety
+description: 6 Roslyn analyzers catch unsafe .Value access, missing await, and conflicting attributes. 3 code-fix providers. Ship safer code.
+tagline: Your bugs don't survive the build.
 ---
 
 # Safety Analyzers

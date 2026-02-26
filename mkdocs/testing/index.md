@@ -1,6 +1,9 @@
 ---
 hide:
   - navigation
+title: Test Suite
+description: 3,339 tests across net8.0, net9.0, net10.0. Core library, source generators, analyzers, and FluentValidation bridge — all covered.
+tagline: The test suite your code deserves.
 ---
 
 # Testing & Quality

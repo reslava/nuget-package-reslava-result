@@ -1,0 +1,57 @@
+size: { width: 1248, height: 832 }
+
+layers:
+  # Background image
+  - background:
+      image: layouts/social-card-bg.png
+
+  # Logo
+  - background:
+      image: layouts/logo.png
+    size: { width: 200, height: 200 }
+    offset: { x: 970, y: 64 }
+    origin: start top
+
+  # Title (Inter 38pt, dark slate)
+  - typography:
+      content: "{{ page.meta.title or page.title}}"     
+      font:
+        family: Roboto
+        style: Bold
+      align: start top      
+      color: "#1F2937"      
+      line: 
+        height: 1
+        amount: 1
+    size: { width: 900, height: 140 }
+    offset: { x: 60, y: 138 }
+
+  # Description (Inter 14pt, gray)
+  - typography:
+      content: "{{ page.meta.description or config.site_description }}"
+      font:
+        family: Inter
+        style: Regular
+      line: 
+        height: 1.2
+        amount: 4
+      color: "#4B5563"
+      align: start top
+    size: { width: 1120, height: 280 }
+    offset: { x: 64, y: 420 }
+
+# Required tags for social media
+tags:
+  og:type: website
+  og:title: "{{ page.title }} - {{ config.site_name }}"
+  og:description: "{{ page.meta.description or config.site_description }}"
+  og:image: "{{ image.url }}"
+  og:image:type: "{{ image.type }}"
+  og:image:width: "{{ image.width }}"
+  og:image:height: "{{ image.height }}"
+  og:url: "{{ page.canonical_url }}"
+
+  twitter:card: summary_large_image
+  twitter:title: "{{ page.title }} - {{ config.site_name }}"
+  twitter:description: "{{ page.meta.description or config.site_description }}"
+  twitter:image: "{{ image.url }}"

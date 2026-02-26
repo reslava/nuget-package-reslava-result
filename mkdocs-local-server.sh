@@ -37,9 +37,13 @@ python .github/scripts/generate_nav.py
 echo "🏗️ Building MkDocs site..."
 mkdocs build
 
-echo "🏗️ Build DocFX API documentation"
-cd docfx
-docfx metadata docfx.json
-docfx build docfx.json
+#echo "🏗️ Build DocFX API documentation"
+#cd docfx
+#docfx metadata docfx.json
+#docfx build docfx.json
+
+echo "▶️ Launch web serve"
+cd site
+python -m http.server
 
 echo "✅ Done!"

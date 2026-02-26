@@ -1,6 +1,9 @@
 ---
 hide:
   - navigation
+title: Code Examples
+description: "16 runnable C# examples: Result<T>, OneOf, Maybe, async patterns, LINQ, validation, SmartEndpoints. Basics to advanced, all in one place."
+tagline: Copy. Paste. Ship. That's it.
 ---
 
 # Code Examples

@@ -1,5 +1,9 @@
 ---
-title: REslava.Result API Overview
+hide:
+  - navigation
+title: API Docs
+description: "Complete API reference: factories, extensions, LINQ operators, async patterns, validation, and OneOf — organized by feature category."
+tagline: Every method. Every signature.
 ---
 
 This document provides a comprehensive overview of all available API methods in the REslava.Result library, organized by functional categories.

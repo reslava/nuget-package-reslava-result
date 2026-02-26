@@ -1,6 +1,9 @@
 ---
 hide:
   - navigation
+title: Reference
+description: Quick access to every API method, 109-feature catalog, version history, and public roadmap. Start here.
+tagline: Docs that don't make you guess.
 ---
 
 # Reference

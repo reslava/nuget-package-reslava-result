@@ -1,6 +1,9 @@
 ---
 hide:
   - navigation
+title: ASP.NET
+description: Auto-generate Minimal API + MVC endpoints. SmartEndpoints handles routing, DI, validation, and IResult mapping. Zero wiring code.
+tagline: Write the logic. We generate the API.
 ---
 
 # ASP.NET Integration

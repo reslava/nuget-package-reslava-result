@@ -1,5 +1,9 @@
 ---
-title: Advanced Patterns - Complete Guide
+hide:
+  - navigation
+title: Deep Patterns
+description: Go beyond Result.Ok(). Master Maybe<T>, OneOf discriminated unions, async pipelines, LINQ comprehension, and rich error context.
+tagline: Compose. Chain. Transform. Repeat.
 ---
 
 REslava.Result goes beyond basic Result handling with advanced functional programming patterns that enable type-safe, expressive code. These patterns help you eliminate null reference exceptions, handle complex state machines, and create maintainable, predictable code.

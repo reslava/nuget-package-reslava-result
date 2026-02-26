@@ -1,6 +1,9 @@
 ---
 hide:
   - navigation
+title: Community
+description: Join an open-source .NET project that ships fast. Browse issues, submit PRs, and help shape what comes next.
+tagline: Built together. Shipped together.
 ---
 
 # Community

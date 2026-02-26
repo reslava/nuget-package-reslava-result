@@ -131,6 +131,25 @@ ENV/
 # MkDocs
 site/
 .cache/
+# Ignore everything under mkdocs/
+mkdocs/**
+# But keep all subdirectories (so the folder structure remains)
+!mkdocs/**/
+# And keep any index.md files anywhere under mkdocs/
+!mkdocs/**/index.md
+# Also keep stylesheets and javascript folders and all their contents
+!mkdocs/stylesheets/
+!mkdocs/stylesheets/**
+!mkdocs/javascripts/
+!mkdocs/javascripts/**
+!mkdocs/layouts/
+!mkdocs/layouts/**
+!mkdocs/assets/
+!mkdocs/assets/**
+
+# DocFX
+docfx/.manifest
+docfx/*.yml
 
 # Benchmarks (raw BDN output — commit only processed results to mkdocs/)
 benchmarks/BenchmarkDotNet.Artifacts/

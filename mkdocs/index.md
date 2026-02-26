@@ -1,6 +1,9 @@
 ---
 hide:
   - navigation
+title: REslava.Result
+description: Result<T> + OneOf + Maybe<T> + SmartEndpoints. Handle errors, auto-generate APIs, compose async pipelines. One package.
+tagline: Railway-oriented .NET made simple.
 ---
 
 # REslava.Result .NET Functional Error Handling & Zero‑Boilerplate APIs

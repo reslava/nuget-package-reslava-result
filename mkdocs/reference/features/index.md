@@ -1,7 +1,9 @@
 ---
-title: Features reference by category
 hide:
   - navigation
+title: All Features
+description: The definitive feature checklist. Know what's in the box before you write a line of code.
+tagline: Know exactly what you're getting.
 ---
 
 # Features reference by category

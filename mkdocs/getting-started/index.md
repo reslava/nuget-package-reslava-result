@@ -1,8 +1,9 @@
 ---
 hide:
   - navigation
-title: REslava.Result - Getting Started
-description: Choose your path and start building with REslava.Result in minutes.
+title: Quick Start
+description: From zero to your first SmartEndpoint in minutes. No prior functional programming experience needed.
+tagline: Install, return results, ship features.
 ---
 
 # Getting Started
