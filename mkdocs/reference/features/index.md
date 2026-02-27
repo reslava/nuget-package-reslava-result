@@ -28,6 +28,7 @@ tagline: Know exactly what you're getting.
 | `Result.Try()` / `TryAsync()` | Exception-safe factory (wraps try-catch) | v1.20.0 | `## 📐 REslava.Result Core Library` — `### Exception Wrapping` |
 | `Result.Catch<TException>()` / `CatchAsync<TException>()` | Inline typed exception handling in pipelines — converts `ExceptionError` wrapping `TException` to a different `IError`; Task extension also catches direct throws | v1.29.0 | `## 📐 REslava.Result Core Library` |
 | `Result.WithActivity(Activity?)` | Enriches an existing OTel Activity span with outcome tags (`result.outcome`, `result.error.type`, etc.) and status — side-effect (Tap-style), null-safe | v1.30.0 | `## 📐 REslava.Result Core Library` |
+| `Result.WithLogger(ILogger, string)` / `LogOnFailure(ILogger, string)` | Tap-style ILogger integration — Debug on success, Warning on domain failure, Error on ExceptionError; structured log properties; Task extensions with CancellationToken | v1.31.0 | `## 📐 REslava.Result Core Library` |
 | `Result.Combine()` / `Merge()` | Aggregate multiple results | v1.20.0 | `## 📐 REslava.Result Core Library` — `### Complete Method Catalog` |
 | `Result.WhenAll()` | Run concurrent async Results, aggregate errors | v1.18.0 | `## REslava.Result Core Library` — `### Async Patterns` |
 | `Result.Retry()` | Retry with delay + exponential backoff | v1.18.0 | `## REslava.Result Core Library` — `### Async Patterns` |
@@ -179,12 +180,12 @@ tagline: Know exactly what you're getting.
 
 ## Summary
 
-!!! new "**v1.30.0** — 111 features across 11 categories."
+!!! new "**v1.31.0** — 112 features across 11 categories."
 
 
 | Category | Total Features |
 |----------|---------------|
-| Core Library | 28 |
+| Core Library | 29 |
 | Error Types | 12 |
 | SmartEndpoints | 18 |
 | Result/OneOf → IResult | 14 |
@@ -195,7 +196,7 @@ tagline: Know exactly what you're getting.
 | OneOf (incl. OneOf5/6 + chains) | 8 |
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
-| **Total** | **111** |
+| **Total** | **112** |
 
 ---
 
