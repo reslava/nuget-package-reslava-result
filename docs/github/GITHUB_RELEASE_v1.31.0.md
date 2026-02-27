@@ -106,4 +106,4 @@ Three sync overloads: factory / static `IError` / string. Predicate exceptions w
 ## 📊 Stats
 
 - **114 features** across 11 categories
-- **3,591 tests** passing across net8.0, net9.0, net10.0 (1,122×3) + generator (131) + analyzer (68) + FluentValidation bridge (26)
+- 3,591 tests passing across net8.0, net9.0, net10.0 (1,122×3) + generator (131) + analyzer (68) + FluentValidation bridge (26)
