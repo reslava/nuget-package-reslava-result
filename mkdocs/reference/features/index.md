@@ -42,6 +42,7 @@ tagline: Know exactly what you're getting.
 | CRTP fluent chaining | `WithTag()`, `WithMessage()` type-safe on all Reason types | v1.9.4 | `## REslava.Result Core Library` — `### CRTP Pattern` |
 | Functional composition | `Compose()`, higher-order functions | v1.12.0 | `## REslava.Result Core Library` — `### Advanced Extensions` |
 | `Maybe<T>` | Null-safe optional type | v1.12.0 | `## Advanced Patterns` — `### Maybe<T>` |
+| `Maybe<T>` ↔ `Result<T>` interop | `maybe.ToResult(errorFactory/error/string)` + `result.ToMaybe()` — bidirectional bridge; `ToMaybe` discards errors | v1.32.0 | — |
 | `OneOf<T1,T2>` | 2-type discriminated union | v1.12.0 | `## Advanced Patterns` — `### OneOf` |
 | `OneOf<T1,T2,T3>` | 3-type discriminated union | v1.12.0 | `## Advanced Patterns` — `### OneOf` |
 | `OneOf<T1,T2,T3,T4>` | 4-type discriminated union | v1.12.0 | `## Advanced Patterns` — `### OneOf` |
@@ -184,12 +185,12 @@ tagline: Know exactly what you're getting.
 
 ## Summary
 
-!!! new "**v1.32.0** — 116 features across 11 categories."
+!!! new "**v1.32.0** — 117 features across 11 categories."
 
 
 | Category | Total Features |
 |----------|---------------|
-| Core Library | 33 |
+| Core Library | 34 |
 | Error Types | 12 |
 | SmartEndpoints | 18 |
 | Result/OneOf → IResult | 14 |
@@ -200,7 +201,7 @@ tagline: Know exactly what you're getting.
 | OneOf (incl. OneOf5/6 + chains) | 8 |
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
-| **Total** | **116** |
+| **Total** | **117** |
 
 ---
 
