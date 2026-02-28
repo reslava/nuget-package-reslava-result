@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <RootNamespace>REslava.Result.Http</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+
+    <!-- Code Analysis -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- NuGet Metadata -->
+    <PackageId>REslava.Result.Http</PackageId>
+    <Title>REslava.Result.Http - HttpClient extensions for Result pattern</Title>
+    <Authors>Rafael Eslava</Authors>
+    <Company>REslava</Company>
+    <Product>REslava.Result.Http</Product>
+    <Description>HttpClient extension methods that return Result&lt;T&gt; instead of throwing. Maps HTTP 4xx/5xx status codes to typed domain errors (NotFoundError, UnauthorizedError, ForbiddenError, ConflictError, ValidationError) and wraps network exceptions in ExceptionError. Configurable via HttpResultOptions.</Description>
+    <Copyright>Copyright (c) 2025 Rafa Eslava</Copyright>
+    <PackageProjectUrl>https://reslava.github.io/nuget-package-reslava-result</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>httpclient;result;http;error-handling;functional;railway;aspnetcore;typed-errors</PackageTags>
+    <PackageReleaseNotes>https://github.com/reslava/nuget-package-reslava-result/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <PackageReadmeFile>README.REslava.Result.Http.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+
+    <!-- Source Link -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\docs\nuget\README.REslava.Result.Http.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Runtime dependency on core library — ships in the package -->
+    <PackageReference Include="REslava.Result" Version="$(Version)" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

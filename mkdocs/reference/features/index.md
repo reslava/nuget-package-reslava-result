@@ -183,9 +183,22 @@ tagline: Know exactly what you're getting.
 
 ---
 
+## 9. Http Extensions — `REslava.Result.Http`
+
+| Feature | Short Description | Version | Docs |
+|---------|------------------|---------|------|
+| `GetResult<T>(string)` / `GetResult<T>(Uri)` | GET → `Result<T>`; auto-deserializes on 2xx, maps 4xx/5xx to typed errors | v1.33.0 | — |
+| `PostResult<TBody, TResponse>` | POST with JSON body → `Result<TResponse>` | v1.33.0 | — |
+| `PutResult<TBody, TResponse>` | PUT with JSON body → `Result<TResponse>` | v1.33.0 | — |
+| `DeleteResult(string)` | DELETE → `Result` (non-generic); 2xx = `Result.Ok()` | v1.33.0 | — |
+| `DeleteResult<T>(string)` | DELETE → `Result<T>` with deserialized body | v1.33.0 | — |
+| `HttpResultOptions` | Configurable JSON options + complete status-code-to-error override | v1.33.0 | — |
+
+---
+
 ## Summary
 
-!!! new "**v1.32.0** — 117 features across 11 categories."
+!!! new "**v1.33.0** — 123 features across 12 categories."
 
 
 | Category | Total Features |
@@ -201,7 +214,8 @@ tagline: Know exactly what you're getting.
 | OneOf (incl. OneOf5/6 + chains) | 8 |
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
-| **Total** | **117** |
+| Http Extensions | 6 |
+| **Total** | **123** |
 
 ---
 
