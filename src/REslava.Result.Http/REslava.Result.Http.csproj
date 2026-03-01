@@ -46,8 +46,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Runtime dependency on core library — ships in the package -->
-    <PackageReference Include="REslava.Result" Version="$(Version)" />
+    <!-- Runtime dependency on core library — ships in the package.
+         ProjectReference so local builds resolve without a published NuGet.
+         dotnet pack converts this to a PackageDependency automatically. -->
+    <ProjectReference Include="..\REslava.Result\REslava.Result.csproj" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
 

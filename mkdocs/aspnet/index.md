@@ -14,43 +14,35 @@ Plug REslava.Result into your web stack – Minimal API, MVC, and everything in 
 
 -   :material-lightbulb-on: __SmartEndpoints__
     Zero‑boilerplate Minimal API generation — routes, HTTP verbs, OpenAPI, auth, filters, caching.
-    [](smartendpoints)
+    [](smartendpoints/)
     {: .is-featured }
 
 -   :material-swap-horizontal: __OneOf to IResult__
     Convert `OneOf<T1,...>` to HTTP responses in one call — status codes from error types.
-    [](oneof-to-iresult)
+    [](smartendpoints/oneof-to-iresult)
 
 -   :material-code-json: __Minimal API__
     `Result.ToIResult()`, HTTP method variants (`ToPostResult`, `ToPutResult`, `ToDeleteResult`).
-    [](asp.net-integration/#resulttoiresult-extensions)
+    [](resulttoiresult-extensions)
 
--   :material-view-dashboard: __MVC__
-    `Result.ToActionResult()`, `OneOf.ToActionResult()` – convention‑based MVC controllers.
-    [](asp.net-integration/#resulttoactionresult-extensions-mvc-support-v1210)
+-   :material-view-dashboard: __MVC — Result__
+    `Result.ToActionResult()` – convention‑based MVC controllers.
+    [](resulttoactionresult-extensions-mvc-support--v1.21.0)
 
--   :material-shield-lock: __Authorization__
-    `RequiresAuth`, `Policies`, `Roles` at class level; `[SmartAllowAnonymous]` per method.
-    [](smartendpoints/#authorization)
+-   :material-view-dashboard-variant: __MVC — OneOf__
+    `OneOf.ToActionResult()` – multi-case MVC responses.
+    [](oneoftoactionresult-extensions-mvc-oneof-support--v1.22.0)
 
--   :material-filter: __Endpoint Filters__
-    `[SmartFilter(typeof(T))]` — stack `IEndpointFilter` implementations on any method.
-    [](smartendpoints/#endpoint-filters-smartfilter)
-
--   :material-timer: __Output Caching & Rate Limiting__
-    `CacheSeconds` and `RateLimitPolicy` at class and method level.
-    [](smartendpoints/#output-caching-rate-limiting)
-
--   :material-timer-sand: __CancellationToken__
-    Service methods that declare `CancellationToken` get it automatically threaded through the generated lambda.
-    [](smartendpoints/#cancellationtoken-support)
+-   :material-map-marker-path: __Smart HTTP Mapping__
+    Automatic HTTP status code selection from error types.
+    [](smart-http-mapping)
 
 -   :material-alert-box: __Problem Details__
     RFC 7807 compliant error responses via `[MapToProblemDetails]`.
-    [](asp.net-integration/#problem-details-integration)
+    [](problem-details-integration)
 
--   :material-filter-check: __FluentValidation Bridge__
-    `[FluentValidate]` — migration aid for teams with existing FV validators. SmartEndpoints auto-injects `IValidator<T>`.
-    [](smartendpoints/#fluentvalidation-bridge)
+-   :material-cloud-download: __HTTP Client__
+    Wrap `HttpClient` calls so every response and network failure becomes a typed `Result<T>`.
+    [](http-client--reslava.result.http)
 
 </div>

@@ -30,16 +30,22 @@ def is_table_row(line):
 
 def mark_code_block_lines(lines):
     """
-    Return a list of booleans indicating whether each line is inside a fenced code block.
-    Assumes triple backticks (```) delimit code blocks.
+    Return a list of booleans indicating whether each line is inside a fenced code block
+    or an HTML <div> block (e.g. MkDocs grid cards).  Lines in either are protected from
+    admonition insertion.
     """
-    in_block = False
+    in_fence = False
+    in_div = False
     flags = [False] * len(lines)
     for i, line in enumerate(lines):
         stripped = line.strip()
-        if stripped.startswith('```'):
-            in_block = not in_block
-        flags[i] = in_block
+        if stripped.startswith('```') or stripped.startswith('~~~'):
+            in_fence = not in_fence
+        if '<div' in stripped:
+            in_div = True
+        flags[i] = in_fence or in_div
+        if '</div>' in stripped:
+            in_div = False
     return flags
 
 def wrap_comparison_table(lines, start_idx, in_code_block):

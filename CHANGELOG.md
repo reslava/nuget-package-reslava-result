@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.33.0] - 2026-03-01
+
+### ✨ Added
+- **`REslava.Result.Http`** — new 5th NuGet package; wraps `HttpClient` calls so every HTTP response and network failure becomes a typed `Result<T>`; public API: `GetResult<T>(string/Uri)`, `PostResult<TBody, TResponse>`, `PutResult<TBody, TResponse>`, `DeleteResult`, `DeleteResult<T>`; configurable via `HttpResultOptions` (custom `JsonSerializerOptions`, custom `StatusCodeMapper`); default mapper: `NotFoundError`, `UnauthorizedError`, `ForbiddenError`, `ConflictError`, `ValidationError`, generic `Error` for all other 4xx/5xx; network failures (`HttpRequestException`) and timeouts (`OperationCanceledException`) wrapped in `ExceptionError`; user-initiated cancellation re-thrown; no extra NuGet dependencies on net8+
+
+### 📚 Documentation
+- README/TOC full restructure — 26 sections with improved logical hierarchy and sub-section grouping
+- MkDocs site restructure — sub-folder grid-card navigation, `architecture/source-generators/` sub-folder, orphan detection script (`scripts/find_orphans.py`), pipeline script fixes
+
+### Stats
+- 3,756 tests passing across net8.0, net9.0, net10.0 (1,157×3) + generator (131) + analyzer (68) + FluentValidation bridge (26) + Http (20×3)
+- 123 features across 12 categories
+
+---
+
 ## [1.32.0] - 2026-02-28
 
 ### ✨ Added

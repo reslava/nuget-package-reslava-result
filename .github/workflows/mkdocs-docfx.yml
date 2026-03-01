@@ -65,7 +65,7 @@ jobs:
         run: python .github/scripts/clean_docs.py --no-dry-run --yes
 
       - name: Split README into sections
-        run: mdsplit ./README.md -l 2 -o mkdocs/ -f -e utf-8
+        run: mdsplit ./README.md -l 3 -o mkdocs/ -f -e utf-8
 
       - name: Remove leading emojis from level 2 headings
         run: python .github/scripts/remove_emoji_headings.py --no-dry-run 

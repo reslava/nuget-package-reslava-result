@@ -5,7 +5,7 @@ echo "🧹 Cleaning docs folder (except index.md)..."
 python .github/scripts/clean_docs.py --no-dry-run --yes
 
 echo "📄 Splitting README into sections..."
-mdsplit ./README.md -l 2 -o mkdocs/ -f -e utf-8
+mdsplit ./README.md -l 3 -o mkdocs/ -f -e utf-8
 
 echo "🔤 Removing leading emojis from level 2 headings..."
 python .github/scripts/remove_emoji_headings.py --no-dry-run

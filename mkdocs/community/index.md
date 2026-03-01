@@ -12,11 +12,11 @@ Join the project, contribute, and see who made it possible.
 
 <div class="grid cards" markdown>
 
--   :material-hand-heart: __Contributing__  
+-   :material-hand-heart: __Contributing__
     Guidelines, code of conduct, and how to get involved.
     [](https://github.com/reslava/nuget-package-reslava-result/blob/main/CONTRIBUTING.md)
 
--   :material-scale-balance: __License__  
+-   :material-scale-balance: __License__
     MIT License – use freely in commercial projects.
     [](https://github.com/reslava/nuget-package-reslava-result/blob/main/LICENSE.txt)
 

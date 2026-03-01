@@ -14,7 +14,15 @@ Practical C# examples showing REslava.Result in action – Result pattern, funct
 
 -   :material-language-csharp: __Quick Examples__
     Result pattern, composition, async, LINQ, Maybe, OneOf, validation, and HTTP integration — all in one place.
-    [](quick-examples)
+    [](core-library---type-safe-error-handling)
+
+-   :material-rocket-launch: __Source Generator — Zero Boilerplate__
+    Auto-generated SmartEndpoints, IResult, and ActionResult — see what the generators produce.
+    [](source-generator---zero-boilerplate)
+
+-   :material-brain: __Advanced Patterns — Functional Programming__
+    Maybe, railway composition, `Bind`, `Map`, `Match`, and pipeline chaining in practice.
+    [](advanced-patterns---functional-programming)
 
 -   :material-language-csharp: __Sample Applications__
     FastMinimalAPI, FastMvcAPI and Console Demos — full working projects.

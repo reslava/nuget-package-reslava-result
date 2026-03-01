@@ -14,7 +14,7 @@ Choose your path and start building with REslava.Result in minutes.
 
 -   :material-package-down: __Installation__
     NuGet setup, supported frameworks, and prerequisites.
-    [](installation)
+    [](installation/)
 
 -   :material-clock-fast: __Quick Start__
     Installation and a complete generator showcase.
@@ -22,7 +22,7 @@ Choose your path and start building with REslava.Result in minutes.
 
 -   :material-theater: __Quick Start Scenarios__
     Functional Programming, ASP.NET Integration, OneOf Extensions.
-    [](quick-start-scenarios)
+    [](quick-start-scenarios/)
 
 -   :material-compass: __Choose Your Path__
     Find exactly what you need based on your goals (Web API, library, testing…).
@@ -30,6 +30,6 @@ Choose your path and start building with REslava.Result in minutes.
 
 -   :material-chart-line: __The Transformation__
     See how REslava.Result eliminates 70–90% of boilerplate in real .NET 10 apps.
-    [](the-transformation-70-90-less-code)
+    [](the-transformation/)
 
 </div>

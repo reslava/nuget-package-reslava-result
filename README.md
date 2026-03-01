@@ -1,4 +1,4 @@
-# REslava.Result - Railway-Oriented Programming for .NET
+REslava.Result - Railway-Oriented Programming for .NET
 
 <div align="center">
                   
@@ -12,7 +12,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-3696%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests-3756%20passing-brightgreen)
 
 </div>
 
@@ -21,7 +21,7 @@
 **📖 Comprehensive documentation is available at [reslava.github.io/nuget-package-reslava-result](https://reslava.github.io/nuget-package-reslava-result/)**
 Includes API reference, advanced patterns, and interactive examples.
 
-### Why REslava.Result?
+**Why REslava.Result?**
 
 > **The only .NET library that combines functional error handling with compile-time ASP.NET API generation.**
 
@@ -45,66 +45,202 @@ Includes API reference, advanced patterns, and interactive examples.
 
 ---
 
-## 📚 Table of Contents
+## 1. 📚 Table of Contents
 
-**🚀 Getting Started**
-- [📦 Installation](#-installation) — NuGet setup, supported TFMs, prerequisites
-- [🚀 Quick Start](#-quick-start) — Zero-boilerplate generator showcase
-- [🧪 Quick Start Scenarios](#-quick-start-scenarios) — Hands-on tutorials
-- [📚 Choose Your Path](#-choose-your-path) — Find exactly what you need
-- [🎯 The Transformation](#-the-transformation-70-90-less-code) — 70-90% less boilerplate
+- [1. 📚 Table of Contents](#1--table-of-contents)
+- [2. 📦 Installation](#2--installation)
+  - [2.1. NuGet CLI](#21-nuget-cli)
+  - [2.2. PackageReference (csproj)](#22-packagereference-csproj)
+  - [2.3. Supported Frameworks](#23-supported-frameworks)
+  - [2.4. Prerequisites](#24-prerequisites)
+- [3. 🚀 Quick Start](#3--quick-start)
+- [4. 🧪 Quick Start Scenarios](#4--quick-start-scenarios)
+  - [4.1. Scenario 1: Functional Programming Foundation](#41-scenario-1-functional-programming-foundation)
+  - [4.2. Scenario 2: ASP.NET Integration](#42-scenario-2-aspnet-integration)
+  - [4.3. Scenario 3: OneOf Extensions (NEW!)](#43-scenario-3-oneof-extensions-new)
+- [5. 📚 Choose Your Path](#5--choose-your-path)
+- [6. 🎯 The Transformation: 70-90% Less Code](#6--the-transformation-70-90-less-code)
+  - [6.1. ❌ BEFORE: Traditional Minimal API](#61--before-traditional-minimal-api)
+  - [6.2. ✅ AFTER: REslava.Result Magic](#62--after-reslavaresult-magic)
+- [7. 📐 REslava.Result Core Library](#7--reslavaresult-core-library)
+  - [7.1. Core Operations](#71-core-operations)
+    - [7.1.1. 💡 Why Result Instead of Exceptions?](#711--why-result-instead-of-exceptions)
+    - [7.1.2. 🧠 Functional Programming Foundation](#712--functional-programming-foundation)
+    - [7.1.3. 🔧 Complete Method Catalog](#713--complete-method-catalog)
+      - [7.1.3.1. **Core Operations**](#7131-core-operations)
+      - [7.1.3.2. **Functional Composition**](#7132-functional-composition)
+      - [7.1.3.3. **Async Operations**](#7133-async-operations)
+      - [7.1.3.4. **Async Patterns (WhenAll, Retry, Timeout)**](#7134-async-patterns-whenall-retry-timeout)
+    - [7.1.4. 📊 LINQ Integration](#714--linq-integration)
+    - [7.1.5. 🎯 Advanced Patterns](#715--advanced-patterns)
+      - [7.1.5.1. **Maybe - Null-Safe Optionals**](#7151-maybe---null-safe-optionals)
+      - [7.1.5.2. **OneOf - Discriminated Unions**](#7152-oneof---discriminated-unions)
+      - [7.1.5.3. **Validation Rules Framework**](#7153-validation-rules-framework)
+      - [7.1.5.4. **JSON Serialization (System.Text.Json)**](#7154-json-serialization-systemtextjson)
+    - [7.1.6. 🔧 CRTP Pattern \& Method Chaining](#716--crtp-pattern--method-chaining)
+    - [7.1.7. 🔄 Advanced Extensions](#717--advanced-extensions)
+    - [7.1.8. 🚫 Tap on Failure — `TapOnFailure`](#718--tap-on-failure--taponfailure)
+    - [7.1.9. 🔀 Conditional Factories — `OkIf` / `FailIf`](#719--conditional-factories--okif--failif)
+  - [7.2. Async Patterns](#72-async-patterns)
+    - [7.2.1. 🛡️ Exception Wrapping — `Try` / `TryAsync`](#721-️-exception-wrapping--try--tryasync)
+    - [7.2.2. ⏳ CancellationToken Support](#722--cancellationtoken-support)
+    - [7.2.3. 🪤 Inline Exception Handling — `Catch<TException>` / `CatchAsync<TException>`](#723--inline-exception-handling--catchtexception--catchasynctexception)
+  - [7.3. Extensions](#73-extensions)
+    - [7.3.1. 📡 OpenTelemetry Integration — `WithActivity`](#731--opentelemetry-integration--withactivity)
+    - [7.3.2. 📝 Structured Logging — `WithLogger` / `LogOnFailure`](#732--structured-logging--withlogger--logonfailure)
+    - [7.3.3. 🔄 Railway Recovery — `Recover` / `RecoverAsync`](#733--railway-recovery--recover--recoverasync)
+    - [7.3.4. 🔍 Predicate Filtering — `Filter` / `FilterAsync`](#734--predicate-filtering--filter--filterasync)
+  - [7.4. Advanced](#74-advanced)
+    - [7.4.1. ✅ Applicative Validation — `Result.Validate`](#741--applicative-validation--resultvalidate)
+    - [7.4.2. 🔓 Tuple Unpacking — `Result<T>.Deconstruct`](#742--tuple-unpacking--resulttdeconstruct)
+    - [7.4.3. 🔁 `Maybe<T>` ↔ `Result<T>` Interop](#743--maybet--resultt-interop)
+    - [7.4.4. ✅ Best Practices](#744--best-practices)
+    - [7.4.5. 🎯 When to Use Each Pattern](#745--when-to-use-each-pattern)
+    - [7.4.6. 🔄 Functional Composition](#746--functional-composition)
+    - [7.4.7. 🚀 Performance Patterns](#747--performance-patterns)
+- [8. ⚠️ Error Types](#8-️-error-types)
+  - [8.1. Error Hierarchy](#81-error-hierarchy)
+  - [8.2. Domain Errors](#82-domain-errors)
+  - [8.3. Generic Errors](#83-generic-errors)
+  - [8.4. Custom Error Types](#84-custom-error-types)
+  - [8.5. Rich Error Context — Tags \& Fluent Chaining](#85-rich-error-context--tags--fluent-chaining)
+  - [8.6. `Success` — Success Reasons](#86-success--success-reasons)
+- [9. ✅ Validation Rules](#9--validation-rules)
+  - [9.1. Basic Usage](#91-basic-usage)
+  - [9.2. All Failures Collected](#92-all-failures-collected)
+  - [9.3. Pipeline Composition](#93-pipeline-composition)
+  - [9.4. Custom Validators](#94-custom-validators)
+  - [9.5. Native Validation DSL](#95-native-validation-dsl)
+  - [9.6. 🏷️ Validation Attributes](#96-️-validation-attributes)
+    - [9.6.1. Quick Setup](#961-quick-setup)
+    - [9.6.2. Generated Extension Method](#962-generated-extension-method)
+    - [9.6.3. Pipeline Integration](#963-pipeline-integration)
+    - [9.6.4. Supported Annotations](#964-supported-annotations)
+    - [9.6.5. Error Details](#965-error-details)
+- [10. 🎲 Maybe](#10--maybe)
+  - [10.1. Operations](#101-operations)
+  - [10.2. When to Use `Maybe<T>`](#102-when-to-use-maybet)
+- [11. 🔀 OneOf Unions](#11--oneof-unions)
+  - [11.1. Arities: 2, 3, 4, 5, 6](#111-arities-2-3-4-5-6)
+  - [11.2. Convert to `Result<T>` or `IResult`](#112-convert-to-resultt-or-iresult)
+  - [11.3. When to Use `OneOf<...>` vs `Result<T>`](#113-when-to-use-oneof-vs-resultt)
+- [12. 🚀 SmartEndpoints](#12--smartendpoints)
+  - [12.1. Setup](#121-setup)
+    - [12.1.1. `[AutoGenerateEndpoints]` — Class-Level Attribute](#1211-autogenerateendpoints--class-level-attribute)
+    - [12.1.2. `[AutoMapEndpoint]` — Method-Level Override](#1212-automapendpoint--method-level-override)
+    - [12.1.3. HTTP Verb Convention](#1213-http-verb-convention)
+    - [12.1.4. Mapping Strategy](#1214-mapping-strategy)
+  - [12.2. Features](#122-features)
+    - [12.2.1. OpenAPI Auto-Generation](#1221-openapi-auto-generation)
+    - [12.2.2. Authorization](#1222-authorization)
+    - [12.2.3. Endpoint Filters — `[SmartFilter]`](#1223-endpoint-filters--smartfilter)
+    - [12.2.4. Output Caching \& Rate Limiting](#1224-output-caching--rate-limiting)
+    - [12.2.5. Attribute Precedence Cheat Sheet](#1225-attribute-precedence-cheat-sheet)
+    - [12.2.6. Auto-Validation](#1226-auto-validation)
+  - [12.3. Advanced Usage](#123-advanced-usage)
+    - [12.3.1. CancellationToken Support](#1231-cancellationtoken-support)
+    - [12.3.2. FluentValidation Bridge](#1232-fluentvalidation-bridge)
+  - [12.4. 🔀 OneOf to IResult](#124--oneof-to-iresult)
+    - [12.4.1. `OneOf<T1,T2>.ToIResult()`](#1241-oneoft1t2toiresult)
+    - [12.4.2. `OneOf<T1,T2,T3>.ToIResult()`](#1242-oneoft1t2t3toiresult)
+    - [12.4.3. `OneOf<T1,T2,T3,T4>.ToIResult()`](#1243-oneoft1t2t3t4toiresult)
+    - [12.4.4. HTTP Method Variants](#1244-http-method-variants)
+    - [12.4.5. Error → HTTP Status Mapping](#1245-error--http-status-mapping)
+- [13. 🚀 ASP.NET Integration](#13--aspnet-integration)
+  - [13.1. 🌐 ResultToIResult Extensions](#131--resulttoiresult-extensions)
+  - [13.2. 🧠 Smart HTTP Mapping](#132--smart-http-mapping)
+  - [13.3. 🎯 ResultToActionResult Extensions (MVC Support — v1.21.0)](#133--resulttoactionresult-extensions-mvc-support--v1210)
+  - [13.4. 🎯 OneOfToActionResult Extensions (MVC OneOf Support — v1.22.0)](#134--oneoftoactionresult-extensions-mvc-oneof-support--v1220)
+  - [13.5. 📝 Problem Details Integration](#135--problem-details-integration)
+  - [13.6. 🌐 Http Client — REslava.Result.Http](#136--http-client--reslavaresulthttp)
+- [14. 📐 Complete Architecture](#14--complete-architecture)
+  - [14.1. 📦 Base Library: REslava.Result](#141--base-library-reslavaresult)
+  - [14.2. 🚀 Source Generators: REslava.Result.SourceGenerators](#142--source-generators-reslavaresultsourcegenerators)
+  - [14.3. 🎯 SOLID Principles in Action](#143--solid-principles-in-action)
+  - [14.4. 🔄 How Components Work Together](#144--how-components-work-together)
+  - [14.5. 🚀 Smart Auto-Detection (v1.10.0)](#145--smart-auto-detection-v1100)
+  - [14.6. 🗺️ Error → HTTP Status Code Convention](#146-️-error--http-status-code-convention)
+  - [14.7. 🔧 Source Generator Core Library Components](#147--source-generator-core-library-components)
+- [15. 📦 Package Structure](#15--package-structure)
+  - [15.1. 🚀 NuGet Package Contents](#151--nuget-package-contents)
+  - [15.2. 🎯 Generated Output Structure](#152--generated-output-structure)
+  - [15.3. 🔄 Build Integration](#153--build-integration)
+- [16. 🔧 How Generators Work](#16--how-generators-work)
+  - [16.1. Two-Phase Pipeline](#161-two-phase-pipeline)
+  - [16.2. SOLID Design (v1.9.4+)](#162-solid-design-v194)
+  - [16.3. Incremental Rebuilds](#163-incremental-rebuilds)
+- [17. 🎯 Quick Examples](#17--quick-examples)
+  - [17.1. 📦 **Core Library - Type-Safe Error Handling**](#171--core-library---type-safe-error-handling)
+  - [17.2. 🚀 **Source Generator - Zero Boilerplate**](#172--source-generator---zero-boilerplate)
+  - [17.3. 🧠 **Advanced Patterns - Functional Programming**](#173--advanced-patterns---functional-programming)
+- [18. 🧪 Testing \& Quality Assurance](#18--testing--quality-assurance)
+  - [18.1. 📊 Comprehensive Test Suite](#181--comprehensive-test-suite)
+  - [18.2. 📐 Source Generator Test Architecture](#182--source-generator-test-architecture)
+  - [18.3. 🎯 Generator Test Coverage](#183--generator-test-coverage)
+  - [18.4. 🚀 CI/CD Pipeline](#184--cicd-pipeline)
+  - [18.5. 🧪 Test Categories](#185--test-categories)
+  - [18.6. 📁 Sample Projects \& Integration Tests](#186--sample-projects--integration-tests)
+  - [18.7. 🔍 Test Quality Metrics](#187--test-quality-metrics)
+  - [18.8. 🏃‍♂️ Running Tests Locally](#188-️-running-tests-locally)
+- [19. 🛡️ Safety Analyzers](#19-️-safety-analyzers)
+  - [19.1. RESL1001 — Unsafe `.Value` Access `[Warning + Code Fix]`](#191-resl1001--unsafe-value-access-warning--code-fix)
+  - [19.2. RESL1002 — Discarded `Result<T>` Return Value `[Warning]`](#192-resl1002--discarded-resultt-return-value-warning)
+  - [19.3. RESL1003 — Prefer `Match()` Over If-Check `[Info]`](#193-resl1003--prefer-match-over-if-check-info)
+  - [19.4. RESL1004 — `Task<Result<T>>` Not Awaited `[Warning + Code Fix]`](#194-resl1004--taskresultt-not-awaited-warning--code-fix)
+  - [19.5. RESL2001 — Unsafe `OneOf.AsT*` Access `[Warning + Code Fix]`](#195-resl2001--unsafe-oneofast-access-warning--code-fix)
+  - [19.6. RESL1005 — Consider Domain Error `[Info]`](#196-resl1005--consider-domain-error-info)
+  - [19.7. RESL1006 — Conflicting `[Validate]` + `[FluentValidate]` `[Error]`](#197-resl1006--conflicting-validate--fluentvalidate-error)
+- [20. 📈 Production Benefits](#20--production-benefits)
+  - [20.1. 🌍 Real-World Impact](#201--real-world-impact)
+    - [20.1.1. 🏢 **For Enterprise Teams**](#2011--for-enterprise-teams)
+    - [20.1.2. 🧪 **For Test-Driven Development**](#2012--for-test-driven-development)
+    - [20.1.3. 👥 **For Team Collaboration**](#2013--for-team-collaboration)
+    - [20.1.4. 🚀 **For Performance \& Scalability**](#2014--for-performance--scalability)
+  - [20.2. 🏆 Why Choose REslava.Result?](#202--why-choose-reslavaresult)
+    - [20.2.1. ✅ **Zero Dependencies**](#2021--zero-dependencies)
+    - [20.2.2. ✅ **Production-Ready**](#2022--production-ready)
+    - [20.2.3. ✅ **Developer Experience**](#2023--developer-experience)
+- [21. 🎯 Roadmap](#21--roadmap)
+  - [21.1. v1.32.0 (Current) ✅](#211-v1320-current-)
+  - [21.2. v1.31.0 ✅](#212-v1310-)
+  - [21.3. v1.30.0 ✅](#213-v1300-)
+  - [21.4. v1.29.0 ✅](#214-v1290-)
+  - [21.5. v1.28.0 ✅](#215-v1280-)
+  - [21.6. v1.27.0 ✅](#216-v1270-)
+  - [21.7. v1.26.0 ✅](#217-v1260-)
+  - [21.8. v1.25.0 ✅](#218-v1250-)
+  - [21.9. v1.24.0 ✅](#219-v1240-)
+  - [21.10. v1.23.0 ✅](#2110-v1230-)
+  - [21.11. v1.22.0 ✅](#2111-v1220-)
+  - [21.12. v1.21.0 ✅](#2112-v1210-)
+  - [21.13. v1.20.0 ✅](#2113-v1200-)
+  - [21.14. v1.19.0 ✅](#2114-v1190-)
+  - [21.15. v1.18.0 ✅](#2115-v1180-)
+  - [21.16. v1.17.0 ✅](#2116-v1170-)
+  - [21.17. v1.16.0 ✅](#2117-v1160-)
+  - [21.18. v1.15.0 ✅](#2118-v1150-)
+  - [21.19. v1.14.x ✅](#2119-v114x-)
+  - [21.20. v1.13.0 ✅](#2120-v1130-)
+- [22. 📈 Version History](#22--version-history)
+- [23. 🤝 Contributing](#23--contributing)
+- [24. 📄 License](#24--license)
+- [25. 🙏 Acknowledgments](#25--acknowledgments)
+- [26. Contributors](#26-contributors)
 
-**📘 Core Concepts**
-- [📐 REslava.Result Core Library](#-reslavaresult-core-library) — Result<T>, composition, async, LINQ, OkIf/FailIf, Try/TryAsync
-- [⚠️ Error Types](#️-error-types) — Domain errors, custom CRTP errors, rich tag context
-- [✅ Validation Rules](#-validation-rules) — Declarative rule-based validation
-- [🏷️ Validation Attributes](#️-validation-attributes) — `[Validate]` source generator
-- [🎲 Maybe\<T>](#-maybe) — Safe null handling with optionals
-- [🔀 OneOf Unions](#-oneof-unions) — Discriminated unions with exhaustive matching
-- [🧠 Advanced Patterns](#-advanced-patterns) — Functional composition, performance
-
-**🌐 ASP.NET Integration**
-- [🚀 SmartEndpoints](#-smartendpoints) — Zero-boilerplate Minimal APIs with auth, filters, caching
-- [🔀 OneOf to IResult](#-oneof-to-iresult) — HTTP mapping for discriminated unions
-- [🚀 ASP.NET Integration](#-aspnet-integration) — ToIResult, ToActionResult, Problem Details, MVC
-
-**🏛️ Architecture & Design**
-- [📐 Complete Architecture](#-complete-architecture) — How generators work internally
-- [📦 Package Structure](#-package-structure) — What you get with each package
-- [🔧 How Generators Work](#-how-generators-work) — Two-phase source generator pipeline
-
-**💻 Code Examples**
-- [🎯 Quick Examples](#-quick-examples) — Real-world code samples
-
-**🧪 Testing & Quality**
-- [🧪 Testing & Quality Assurance](#-testing--quality-assurance) — 3,339 tests, CI/CD pipeline
-- [🛡️ Safety Analyzers](#️-safety-analyzers) — RESL1001–RESL1006 + RESL2001, 7 diagnostics + 3 code fixes
-- [📈 Production Benefits](#-production-benefits) — Enterprise-ready advantages
-- [🌍 Real-World Impact](#-real-world-impact) — Success stories and use cases
-- [🏆 Why Choose REslava.Result?](#-why-choose-reslavaresult) — Unique advantages
-
-**📖 Reference**
-- [📖 API Documentation](docs/api/Overview.md) — Namespace overview and type reference
-- [📚 API Reference](https://reslava.github.io/nuget-package-reslava-result/reference/api/index.html) — Complete DocFX API reference — all public types, members, and XML docs
-- [🎯 Roadmap](#-roadmap) — Future development plans
-- [📈 Version History](#-version-history) — Release notes and changes
-
-**🤝 Community**
-- [🤝 Contributing](#-contributing) — How to contribute
-- [📄 License](#-license) — MIT License details
-- [🙏 Acknowledgments](#-acknowledgments) — Community credits
-- [Contributors](#contributors) — Project contributors
 
 ---
 
-## 📦 Installation
+## 2. 📦 Installation
 
-### NuGet CLI
+### 2.1. NuGet CLI
 
 ```bash
 dotnet add package REslava.Result                      # Core library — Result<T>, errors, functional composition
 dotnet add package REslava.Result.SourceGenerators     # Source generators — SmartEndpoints, [Validate], OneOfToIResult
 dotnet add package REslava.Result.Analyzers            # Roslyn analyzers — catch unsafe .Value access at compile time
+
+# ⚠️ OPTIONAL — HTTP client extensions. Only if you need typed Result<T> from HttpClient calls.
+dotnet add package REslava.Result.Http
 
 # ⚠️ OPTIONAL — migration bridge only. NOT needed for new projects.
 # REslava.Result already includes full validation via [Validate] + Validation DSL.
@@ -112,24 +248,27 @@ dotnet add package REslava.Result.Analyzers            # Roslyn analyzers — ca
 dotnet add package REslava.Result.FluentValidation
 ```
 
-### PackageReference (csproj)
+### 2.2. PackageReference (csproj)
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="REslava.Result" Version="1.32.0" />
-  <PackageReference Include="REslava.Result.SourceGenerators" Version="1.32.0" />
-  <PackageReference Include="REslava.Result.Analyzers" Version="1.32.0" />
+  <PackageReference Include="REslava.Result" Version="1.33.0" />
+  <PackageReference Include="REslava.Result.SourceGenerators" Version="1.33.0" />
+  <PackageReference Include="REslava.Result.Analyzers" Version="1.33.0" />
+
+  <!-- OPTIONAL — HTTP client extensions: wrap HttpClient calls as typed Result<T> -->
+  <PackageReference Include="REslava.Result.Http" Version="1.33.0" />
 
   <!--
     OPTIONAL — migration bridge. NOT needed for new projects.
     REslava.Result already includes equivalent validation via [Validate] + Validation DSL.
     Only add this if your team has existing FluentValidation validators you want to keep.
   -->
-  <PackageReference Include="REslava.Result.FluentValidation" Version="1.32.0" />
+  <PackageReference Include="REslava.Result.FluentValidation" Version="1.33.0" />
 </ItemGroup>
 ```
 
-### Supported Frameworks
+### 2.3. Supported Frameworks
 
 | Package | Target Frameworks |
 |---------|------------------|
@@ -138,7 +277,7 @@ dotnet add package REslava.Result.FluentValidation
 | `REslava.Result.Analyzers` | .NET Standard 2.0 |
 | `REslava.Result.FluentValidation` ⚠️ **Optional** | .NET Standard 2.0 (generator-only, no runtime) — migration bridge only |
 
-### Prerequisites
+### 2.4. Prerequisites
 
 - **.NET 8 SDK or later** — required for the core library
 - **C# 12 or later** — recommended (required for some generator patterns)
@@ -146,7 +285,7 @@ dotnet add package REslava.Result.FluentValidation
 
 ---
 
-## 🚀 Quick Start
+## 3. 🚀 Quick Start
 
 See [📦 Installation](#-installation) for NuGet setup.
 
@@ -179,11 +318,11 @@ For complete feature documentation see [🚀 SmartEndpoints](#-smartendpoints), 
 
 ---
 
-## 🧪 Quick Start Scenarios
+## 4. 🧪 Quick Start Scenarios
 
 See [📦 Installation](#-installation) for NuGet setup.
 
-### Scenario 1: Functional Programming Foundation
+### 4.1. Scenario 1: Functional Programming Foundation
 ```csharp
 using REslava.Result;
 using static REslava.Result.Functions;
@@ -213,7 +352,7 @@ public Result<UserDto> GetUserDtoLinq(int id) =>
     select dto;
 ```
 
-### Scenario 2: ASP.NET Integration
+### 4.2. Scenario 2: ASP.NET Integration
 ```csharp
 [ApiController]
 public class UsersController : ControllerBase
@@ -230,7 +369,7 @@ public class UsersController : ControllerBase
 }
 ```
 
-### Scenario 3: OneOf Extensions (NEW!)
+### 4.3. Scenario 3: OneOf Extensions (NEW!)
 ```csharp
 using REslava.Result.AdvancedPatterns.OneOf;
 using Generated.OneOfExtensions;
@@ -252,7 +391,7 @@ public IResult GetUser(int id) =>
 
 ---
 
-## 📚 Choose Your Path
+## 5. 📚 Choose Your Path
 
 **Find exactly what you need based on your goals:**
 
@@ -267,11 +406,11 @@ public IResult GetUser(int id) =>
 
 ---
 
-## 🎯 The Transformation: 70-90% Less Code
+## 6. 🎯 The Transformation: 70-90% Less Code
 
 **See how REslava.Result eliminates boilerplate in real .NET 10 applications:**
 
-### ❌ BEFORE: Traditional Minimal API
+### 6.1. ❌ BEFORE: Traditional Minimal API
 ```csharp
 // Manual error handling, validation, and HTTP responses
 app.MapPost("/users", async (CreateUserRequest request, IUserService service) =>
@@ -303,7 +442,7 @@ app.MapPost("/users", async (CreateUserRequest request, IUserService service) =>
 });
 ```
 
-### ✅ AFTER: REslava.Result Magic
+### 6.2. ✅ AFTER: REslava.Result Magic
 ```csharp
 // Clean, declarative, type-safe - 3 lines instead of 25+
 app.MapPost("/users", async (CreateUserRequest request) => 
@@ -323,9 +462,11 @@ public async Task<Result<User>> CreateUser(CreateUserRequest request) =>
 
 ---
 
-## 📐 REslava.Result Core Library
+## 7. 📐 REslava.Result Core Library
 
-### 💡 Why Result Instead of Exceptions?
+### 7.1. Core Operations
+
+#### 7.1.1. 💡 Why Result Instead of Exceptions?
 
 | | ❌ Exceptions | ✅ Result Pattern |
 |--|---|---|
@@ -335,16 +476,16 @@ public async Task<Result<User>> CreateUser(CreateUserRequest request) =>
 | **Testing** | Hard to test error paths | Easy to test both paths |
 | **Composition** | Break the call chain | Chain operations cleanly |
 
-### 🧠 Functional Programming Foundation
+#### 7.1.2. 🧠 Functional Programming Foundation
 **Railway-Oriented Programming (ROP)**
 - **Immutable Results**: Thread-safe functional data structures
 - **Error Composition**: Chain operations without exception handling
 - **Success/Failure Pipelines**: Clean separation of happy and error paths
 - **Type Safety**: Compile-time guarantees for error handling
 
-### 🔧 Complete Method Catalog
+#### 7.1.3. 🔧 Complete Method Catalog
 
-#### **Core Operations**
+##### 7.1.3.1. **Core Operations**
 ```csharp
 // Factory Methods
 Result<T>.Ok(value)                    // Success result
@@ -362,7 +503,7 @@ result.Value                            // Throws if failed
 result.GetValueOrDefault(defaultValue)  // Safe access
 ```
 
-#### **Functional Composition**
+##### 7.1.3.2. **Functional Composition**
 ```csharp
 // Bind (Chain operations)
 var result = Result<int>.Ok(5)
@@ -385,7 +526,7 @@ var result = Result<string>.Ok(email)
     .EnsureAsync(async e => !await EmailExistsAsync(e), "Email already registered");
 ```
 
-#### **Async Operations**
+##### 7.1.3.3. **Async Operations**
 ```csharp
 // All methods have async variants
 var result = await Result<int>.Ok(id)
@@ -395,7 +536,7 @@ var result = await Result<int>.Ok(id)
     .EnsureAsync(async dto => await ValidateDtoAsync(dto), "Invalid DTO");
 ```
 
-#### **Async Patterns (WhenAll, Retry, Timeout)**
+##### 7.1.3.4. **Async Patterns (WhenAll, Retry, Timeout)**
 ```csharp
 // Run multiple async results concurrently — typed tuples!
 var result = await Result.WhenAll(GetUser(id), GetAccount(id));
@@ -412,7 +553,7 @@ var result = await Result.Retry(
 var result = await GetSlowData().Timeout(TimeSpan.FromSeconds(5));
 ```
 
-### 📊 LINQ Integration
+#### 7.1.4. 📊 LINQ Integration
 **Functional Query Comprehensions**
 ```csharp
 // LINQ-like syntax for Result operations
@@ -435,9 +576,9 @@ var result = GetUser(id)
     .Bind(SendNotification);
 ```
 
-### 🎯 Advanced Patterns
+#### 7.1.5. 🎯 Advanced Patterns
 
-#### **Maybe<T> - Null-Safe Optionals**
+##### 7.1.5.1. **Maybe<T> - Null-Safe Optionals**
 ```csharp
 // Instead of null references
 Maybe<User> user = GetUserFromCache(id);
@@ -453,7 +594,7 @@ var result = user
     .ToResult(() => new UserNotFoundError(id));
 ```
 
-#### **OneOf - Discriminated Unions**
+##### 7.1.5.2. **OneOf - Discriminated Unions**
 ```csharp
 // Internal OneOf implementation
 OneOf<ValidationError, User> result = ValidateAndCreateUser(request);
@@ -469,7 +610,7 @@ OneOf<ValidationError, NotFoundError, User> GetUser(int id) { /* logic */ }
 var result = oneOf.ToResult(); // Convert OneOf to Result
 ```
 
-#### **Validation Rules Framework**
+##### 7.1.5.3. **Validation Rules Framework**
 ```csharp
 // Built-in validation
 var validator = Validator.Create<User>()
@@ -480,7 +621,7 @@ var validator = Validator.Create<User>()
 var result = validator.Validate(user);
 ```
 
-#### **JSON Serialization (System.Text.Json)**
+##### 7.1.5.4. **JSON Serialization (System.Text.Json)**
 ```csharp
 using REslava.Result.Serialization;
 
@@ -506,7 +647,7 @@ var json3 = JsonSerializer.Serialize(maybe, options);
 // {"hasValue":true,"value":"hello"}
 ```
 
-### 🔧 CRTP Pattern & Method Chaining
+#### 7.1.6. 🔧 CRTP Pattern & Method Chaining
 **Curiously Recurring Template Pattern**
 ```csharp
 // Fluent method chaining with CRTP
@@ -519,7 +660,7 @@ var result = Result<User>.Ok(user)
     .WithTag("UserId", user.Id);
 ```
 
-### 🔄 Advanced Extensions
+#### 7.1.7. 🔄 Advanced Extensions
 **Functional Composition**
 ```csharp
 // Function composition
@@ -541,7 +682,7 @@ var results = userIds
     .Traverse(id => GetUserAsync(id)); // Async version of Sequence
 ```
 
-### 🚫 Tap on Failure — `TapOnFailure`
+#### 7.1.8. 🚫 Tap on Failure — `TapOnFailure`
 
 Execute a side-effect **only when the result has failed** — logging, metrics, alerting. The result passes through unchanged:
 
@@ -566,7 +707,7 @@ Result<Order> order = await CreateOrderAsync(request)
     .TapOnFailure(e => _logger.LogError("Order creation failed: {Msg}", e.Message));
 ```
 
-### 🔀 Conditional Factories — `OkIf` / `FailIf`
+#### 7.1.9. 🔀 Conditional Factories — `OkIf` / `FailIf`
 
 Create results directly from boolean conditions — no if/else boilerplate:
 
@@ -593,7 +734,9 @@ Result<User> result = await Result<User>.OkIfAsync(
     "User not found");
 ```
 
-### 🛡️ Exception Wrapping — `Try` / `TryAsync`
+### 7.2. Async Patterns
+
+#### 7.2.1. 🛡️ Exception Wrapping — `Try` / `TryAsync`
 
 Safely execute code that may throw — exceptions become `ExceptionError` in a failed `Result<T>`:
 
@@ -617,7 +760,7 @@ Result<User> result = await Result<User>.TryAsync(
     ex => new NotFoundError($"User {id} not found"));
 ```
 
-### ⏳ CancellationToken Support
+#### 7.2.2. ⏳ CancellationToken Support
 
 All `*Async` methods accept `CancellationToken cancellationToken = default`:
 
@@ -633,7 +776,7 @@ Result<UserDto> dto = await result
     .TapAsync(d => _cache.SetAsync(d, ct));
 ```
 
-### 🪤 Inline Exception Handling — `Catch<TException>` / `CatchAsync<TException>`
+#### 7.2.3. 🪤 Inline Exception Handling — `Catch<TException>` / `CatchAsync<TException>`
 
 When a pipeline step may throw a specific exception type, `Catch` converts the `ExceptionError` wrapping that exception into a domain error — without breaking the pipeline:
 
@@ -659,7 +802,9 @@ The `ExceptionError` is replaced **in-place** — preserving its position in the
 
 ---
 
-### 📡 OpenTelemetry Integration — `WithActivity`
+### 7.3. Extensions
+
+#### 7.3.1. 📡 OpenTelemetry Integration — `WithActivity`
 
 Enriches an existing `Activity` span with result outcome metadata — Tap-style, returns the result unchanged:
 
@@ -683,7 +828,7 @@ Activity status is set to `ActivityStatusCode.Ok` on success, `ActivityStatusCod
 
 ---
 
-### 📝 Structured Logging — `WithLogger` / `LogOnFailure`
+#### 7.3.2. 📝 Structured Logging — `WithLogger` / `LogOnFailure`
 
 Tap-style ILogger integration — log result outcomes without breaking the pipeline:
 
@@ -714,7 +859,7 @@ Structured log properties on every failure entry: `{OperationName}`, `{ErrorType
 
 ---
 
-### 🔄 Railway Recovery — `Recover` / `RecoverAsync`
+#### 7.3.3. 🔄 Railway Recovery — `Recover` / `RecoverAsync`
 
 The counterpart to `Bind`: where `Bind` chains on the success path, `Recover` chains on the failure path. Transform any failure into a new `Result` — which can itself succeed or fail:
 
@@ -742,7 +887,7 @@ The recovery func receives the full `ImmutableList<IError>` — enabling context
 
 ---
 
-### 🔍 Predicate Filtering — `Filter` / `FilterAsync`
+#### 7.3.4. 🔍 Predicate Filtering — `Filter` / `FilterAsync`
 
 Convert a successful result to a failure when a predicate on the value is not met. The error factory receives the value — enabling contextual error messages that embed actual data:
 
@@ -769,7 +914,9 @@ Distinct from `Ensure`: `Ensure` takes a static `Error` fixed at the call site. 
 
 ---
 
-### ✅ Applicative Validation — `Result.Validate`
+### 7.4. Advanced
+
+#### 7.4.1. ✅ Applicative Validation — `Result.Validate`
 
 Run multiple independent validations and accumulate **all** errors at once. Distinct from `Bind` (which short-circuits on first failure) and `Combine` (same-type collection, no mapper):
 
@@ -789,7 +936,7 @@ Result<CreateOrderDto> dto = Result.Validate(
 
 ---
 
-### 🔓 Tuple Unpacking — `Result<T>.Deconstruct`
+#### 7.4.2. 🔓 Tuple Unpacking — `Result<T>.Deconstruct`
 
 C# 8+ deconstruction support for concise result handling:
 
@@ -808,7 +955,7 @@ var (isSuccess, errors) = DoSomething();
 
 ---
 
-### 🔁 `Maybe<T>` ↔ `Result<T>` Interop
+#### 7.4.3. 🔁 `Maybe<T>` ↔ `Result<T>` Interop
 
 Bridge between the two optional-value types in the library:
 
@@ -825,7 +972,7 @@ Maybe<User> maybe = result.ToMaybe(); // Some(user) on success, None on failure
 
 ---
 
-### ✅ Best Practices
+#### 7.4.4. ✅ Best Practices
 
 **Do:**
 - Use `Result<T>` for expected business failures (validation, not found, conflict)
@@ -840,13 +987,84 @@ Maybe<User> maybe = result.ToMaybe(); // Some(user) on success, None on failure
 - Deep nesting — break complex pipelines into small named methods
 - Ignoring errors — always handle the failure case in `Match`
 
+#### 7.4.5. 🎯 When to Use Each Pattern
+
+| Pattern | Best For | When to Avoid |
+|---------|----------|---------------|
+| **Maybe\<T>** | Optional values, cache lookups | When you need error details |
+| **OneOf\<T1,...>** | Typed multi-outcome returns, API responses | When you have >6 outcomes |
+| **Result + LINQ** | Complex data pipelines with query syntax | Simple single-step operations |
+| **Compose / Sequence** | Multi-step pipelines, fan-out/fan-in | Single-step operations |
+
+#### 7.4.6. 🔄 Functional Composition
+**Build complex operations from simple functions:**
+```csharp
+// Function composition
+Func<CreateUserRequest, Result<User>> createUserPipeline = Compose(
+    ValidateRequest,
+    MapToUser,
+    ValidateUser,
+    SaveUser,
+    SendWelcomeEmail
+);
+
+// Use the composed function
+var result = createUserPipeline(request);
+
+// Higher-order functions with Result
+var results = users
+    .Where(u => u.IsActive)
+    .Select(u => ProcessUser(u))
+    .Sequence(); // Turns IEnumerable<Result<T>> into Result<IEnumerable<T>>
+
+// Async traverse operations
+var results = await userIds
+    .Traverse(id => GetUserAsync(id)); // Async version of Sequence
+
+// Error aggregation
+var aggregatedResult = results
+    .Map(users => users.ToList())
+    .Tap(users => LogInfo($"Processed {users.Count} users"));
+```
+
+#### 7.4.7. 🚀 Performance Patterns
+**Optimize for high-performance scenarios:**
+```csharp
+// Value objects for reduced allocations
+public readonly record struct UserEmail(string Value)
+{
+    public static Result<UserEmail> Create(string email) =>
+        string.IsNullOrWhiteSpace(email)
+            ? Result<UserEmail>.Fail("Email required")
+            : email.Contains("@")
+                ? Result<UserEmail>.Ok(new UserEmail(email))
+                : Result<UserEmail>.Fail("Invalid email format");
+}
+
+// Array pooling for high-throughput scenarios
+using System.Buffers;
+
+var result = Result<string[]>.Ok(ArrayPool<string>.Shared.Rent(1000))
+    .Ensure(arr => arr.Length >= 1000, "Array too small")
+    .Tap(arr => ArrayPool<string>.Shared.Return(arr));
+
+// Memory-efficient validation
+public ref struct ValidationSpan(ReadOnlySpan<char> input)
+{
+    public bool IsValid => !input.IsEmpty && input.Contains('@');
+    public Result<ReadOnlySpan<char>> AsResult() =>
+        IsValid ? Result<ReadOnlySpan<char>>.Ok(input)
+                : Result<ReadOnlySpan<char>>.Fail("Invalid email");
+}
+```
+
 ---
 
-## ⚠️ Error Types
+## 8. ⚠️ Error Types
 
 All errors inherit from `Reason<TReason>` (CRTP base) and implement `IError`. Domain errors automatically set an `HttpStatusCode` tag that drives HTTP mapping in `ToIResult()` and `ToActionResult()`.
 
-### Error Hierarchy
+### 8.1. Error Hierarchy
 
 ```
 Reason<TReason> (abstract, immutable, CRTP)
@@ -861,7 +1079,7 @@ Reason<TReason> (abstract, immutable, CRTP)
 Success                      — used with .WithSuccess()
 ```
 
-### Domain Errors
+### 8.2. Domain Errors
 
 Built-in errors for the most common HTTP scenarios (v1.20.0+):
 
@@ -893,7 +1111,7 @@ new ForbiddenError()                            // "Access denied"
 new ForbiddenError("Delete", "Order")           // "Access denied: insufficient permissions to Delete Order"
 ```
 
-### Generic Errors
+### 8.3. Generic Errors
 
 | Type | Constructor | Use case |
 |---|---|---|
@@ -907,7 +1125,7 @@ new ExceptionError(ex)                     // message from ex.Message, tags: Exc
 new ExceptionError("Custom message", ex)   // custom message, same tags
 ```
 
-### Custom Error Types
+### 8.4. Custom Error Types
 
 Extend `Reason<TYourError>` with the CRTP pattern:
 
@@ -948,7 +1166,7 @@ public class InsufficientStockError : Reason<InsufficientStockError>, IError
 Result<Order>.Fail(new InsufficientStockError(productId: 42, requested: 10, available: 3));
 ```
 
-### Rich Error Context — Tags & Fluent Chaining
+### 8.5. Rich Error Context — Tags & Fluent Chaining
 
 Every error type supports immutable tag chaining via `WithTag()`:
 
@@ -965,7 +1183,7 @@ var statusCode = (int)error.Tags["HttpStatusCode"];  // 422
 var field = error.Tags["FieldName"];                  // "email"
 ```
 
-### `Success` — Success Reasons
+### 8.6. `Success` — Success Reasons
 
 Used with `.WithSuccess()` to attach informational messages to successful results:
 
@@ -980,11 +1198,11 @@ result.Successes.First().Message // "User created successfully"
 
 ---
 
-## ✅ Validation Rules
+## 9. ✅ Validation Rules
 
 The built-in validation framework lets you compose declarative rules that accumulate all failures and return `Result<T>`.
 
-### Basic Usage
+### 9.1. Basic Usage
 
 ```csharp
 var validator = Validator.Create<User>()
@@ -995,7 +1213,7 @@ var validator = Validator.Create<User>()
 Result<User> result = validator.Validate(user);
 ```
 
-### All Failures Collected
+### 9.2. All Failures Collected
 
 Unlike `if`/`throw` validation, every rule is always evaluated — all failures surface together:
 
@@ -1008,7 +1226,7 @@ if (!result.IsSuccess)
 }
 ```
 
-### Pipeline Composition
+### 9.3. Pipeline Composition
 
 ```csharp
 // Validate → bind business logic → transform output
@@ -1020,7 +1238,7 @@ Result<OrderDto> dto = await validator.Validate(request)
 return validator.Validate(request).ToIResult();
 ```
 
-### Custom Validators
+### 9.4. Custom Validators
 
 ```csharp
 public class PasswordValidator : IValidationRule<string>
@@ -1035,7 +1253,7 @@ var validator = Validator.Create<RegisterRequest>()
     .Rule(r => r.Password, new PasswordValidator());
 ```
 
-### Native Validation DSL
+### 9.5. Native Validation DSL
 
 **v1.27.0** — `ValidatorRuleBuilderExtensions` adds 19 named, fluent methods on `ValidatorRuleBuilder<T>`. Property names are inferred automatically from `Expression<Func<T, TProperty>>` for clear default error messages — no raw predicates needed:
 
@@ -1068,11 +1286,12 @@ All numeric rules are generic — work with `int`, `long`, `double`, `decimal`, 
 
 ---
 
-## 🏷️ Validation Attributes
+<!-- anchor: §10 Validation Attributes merged into §9 Validation Rules -->
+### 9.6. 🏷️ Validation Attributes
 
 **v1.24.0** — The `[Validate]` source generator creates a `.Validate()` extension method for any record or class decorated with `System.ComponentModel.DataAnnotations` attributes, returning `Result<T>` — fully composable with the rest of the pipeline.
 
-### Quick Setup
+#### 9.6.1. Quick Setup
 
 ```csharp
 using REslava.Result.SourceGenerators;
@@ -1085,7 +1304,7 @@ public record CreateProductRequest(
 );
 ```
 
-### Generated Extension Method
+#### 9.6.2. Generated Extension Method
 
 The generator emits this code at compile time — no runtime reflection overhead:
 
@@ -1107,7 +1326,7 @@ public static Result<CreateProductRequest> Validate(this CreateProductRequest in
 }
 ```
 
-### Pipeline Integration
+#### 9.6.3. Pipeline Integration
 
 ```csharp
 // Minimal API — validate and respond in one line
@@ -1125,13 +1344,13 @@ Result<ProductDto> result = await request.Validate()
     .Map(p => p.ToDto());
 ```
 
-### Supported Annotations
+#### 9.6.4. Supported Annotations
 
 All 20+ `System.ComponentModel.DataAnnotations` types work automatically because the generator delegates to `Validator.TryValidateObject`:
 
 `[Required]`, `[Range]`, `[StringLength]`, `[MinLength]`, `[MaxLength]`, `[RegularExpression]`, `[EmailAddress]`, `[Phone]`, `[Url]`, `[Compare]`, `[CreditCard]`, `[DataType]`, and any custom class inheriting from `ValidationAttribute`.
 
-### Error Details
+#### 9.6.5. Error Details
 
 Each `ValidationError` carries the field name and message:
 
@@ -1144,7 +1363,7 @@ result.Errors.OfType<ValidationError>().ToList().ForEach(e =>
 
 ---
 
-## 🎲 Maybe
+## 10. 🎲 Maybe
 
 Null-safe optional values — eliminate null reference exceptions with a composable type:
 
@@ -1163,7 +1382,7 @@ string email = maybeUser
     .ValueOrDefault("no-reply@example.com");
 ```
 
-### Operations
+### 10.1. Operations
 
 ```csharp
 Maybe<User> maybe = GetUserFromCache(id);
@@ -1190,7 +1409,7 @@ bool has = maybe.HasValue;                      // true/false
 Result<User> result = maybe.ToResult(new NotFoundError("User", id));
 ```
 
-### When to Use `Maybe<T>`
+### 10.2. When to Use `Maybe<T>`
 
 - Cache lookups that may miss
 - Optional configuration values
@@ -1199,7 +1418,7 @@ Result<User> result = maybe.ToResult(new NotFoundError("User", id));
 
 ---
 
-## 🔀 OneOf Unions
+## 11. 🔀 OneOf Unions
 
 Express multiple possible return types with exhaustive pattern matching — no inheritance, no casting:
 
@@ -1214,7 +1433,7 @@ return GetUser(id).Match(
     user            => Results.Ok(user));
 ```
 
-### Arities: 2, 3, 4, 5, 6
+### 11.1. Arities: 2, 3, 4, 5, 6
 
 ```csharp
 // OneOf<T1, T2> — binary outcome
@@ -1245,7 +1464,7 @@ OneOf<ValidationError, NotFoundError, User, ConflictError, ForbiddenError> five 
 OneOf<ValidationError, NotFoundError, User>? narrowed = four.ToThreeWay();
 ```
 
-### Convert to `Result<T>` or `IResult`
+### 11.2. Convert to `Result<T>` or `IResult`
 
 ```csharp
 // ToResult — joins all failure cases into Result.Errors
@@ -1255,7 +1474,7 @@ Result<User> r = GetUser(id).ToResult();
 return GetUser(id).ToIResult();     // 422 / 404 / 200
 ```
 
-### When to Use `OneOf<...>` vs `Result<T>`
+### 11.3. When to Use `OneOf<...>` vs `Result<T>`
 
 | | `Result<T>` | `OneOf<T1,...,T4>` |
 |---|---|---|
@@ -1267,84 +1486,7 @@ return GetUser(id).ToIResult();     // 422 / 404 / 200
 
 ---
 
-## 🧠 Advanced Patterns
-
-**Functional composition patterns for complex pipelines:**
-
-### 🎯 When to Use Each Pattern
-
-| Pattern | Best For | When to Avoid |
-|---------|----------|---------------|
-| **Maybe\<T>** | Optional values, cache lookups | When you need error details |
-| **OneOf\<T1,...>** | Typed multi-outcome returns, API responses | When you have >6 outcomes |
-| **Result + LINQ** | Complex data pipelines with query syntax | Simple single-step operations |
-| **Compose / Sequence** | Multi-step pipelines, fan-out/fan-in | Single-step operations |
-
-### 🔄 Functional Composition
-**Build complex operations from simple functions:**
-```csharp
-// Function composition
-Func<CreateUserRequest, Result<User>> createUserPipeline = Compose(
-    ValidateRequest,
-    MapToUser,
-    ValidateUser,
-    SaveUser,
-    SendWelcomeEmail
-);
-
-// Use the composed function
-var result = createUserPipeline(request);
-
-// Higher-order functions with Result
-var results = users
-    .Where(u => u.IsActive)
-    .Select(u => ProcessUser(u))
-    .Sequence(); // Turns IEnumerable<Result<T>> into Result<IEnumerable<T>>
-
-// Async traverse operations
-var results = await userIds
-    .Traverse(id => GetUserAsync(id)); // Async version of Sequence
-
-// Error aggregation
-var aggregatedResult = results
-    .Map(users => users.ToList())
-    .Tap(users => LogInfo($"Processed {users.Count} users"));
-```
-
-### 🚀 Performance Patterns
-**Optimize for high-performance scenarios:**
-```csharp
-// Value objects for reduced allocations
-public readonly record struct UserEmail(string Value)
-{
-    public static Result<UserEmail> Create(string email) =>
-        string.IsNullOrWhiteSpace(email)
-            ? Result<UserEmail>.Fail("Email required")
-            : email.Contains("@")
-                ? Result<UserEmail>.Ok(new UserEmail(email))
-                : Result<UserEmail>.Fail("Invalid email format");
-}
-
-// Array pooling for high-throughput scenarios
-using System.Buffers;
-
-var result = Result<string[]>.Ok(ArrayPool<string>.Shared.Rent(1000))
-    .Ensure(arr => arr.Length >= 1000, "Array too small")
-    .Tap(arr => ArrayPool<string>.Shared.Return(arr));
-
-// Memory-efficient validation
-public ref struct ValidationSpan(ReadOnlySpan<char> input)
-{
-    public bool IsValid => !input.IsEmpty && input.Contains('@');
-    public Result<ReadOnlySpan<char>> AsResult() =>
-        IsValid ? Result<ReadOnlySpan<char>>.Ok(input) 
-                : Result<ReadOnlySpan<char>>.Fail("Invalid email");
-}
-```
-
----
-
-## 🚀 SmartEndpoints
+## 12. 🚀 SmartEndpoints
 
 Decorate a plain C# class with `[AutoGenerateEndpoints]` — the source generator produces complete Minimal API endpoints with HTTP mapping, route inference, OpenAPI metadata, authorization, filters, caching, and rate limiting. Zero boilerplate.
 
@@ -1369,7 +1511,9 @@ public class UserController
 }
 ```
 
-### `[AutoGenerateEndpoints]` — Class-Level Attribute
+### 12.1. Setup
+
+#### 12.1.1. `[AutoGenerateEndpoints]` — Class-Level Attribute
 
 Applied to any plain class (no base class required). Controls route prefix, tags, auth, strategy, caching, and rate limiting for all methods in the class.
 
@@ -1397,7 +1541,7 @@ Applied to any plain class (no base class required). Controls route prefix, tags
 public class ProductController { /* ... */ }
 ```
 
-### `[AutoMapEndpoint]` — Method-Level Override
+#### 12.1.2. `[AutoMapEndpoint]` — Method-Level Override
 
 Override or supplement class-level settings per method. Enables explicit routes, custom HTTP methods, method-level auth, and per-method caching/rate limiting. Required when `Strategy = Explicit`.
 
@@ -1433,7 +1577,7 @@ public class OrderController
 }
 ```
 
-### HTTP Verb Convention
+#### 12.1.3. HTTP Verb Convention
 
 When `Strategy = Convention` (default), method names determine HTTP verb and route:
 
@@ -1452,7 +1596,7 @@ public Task<Result<Product>> UpdateProduct(int id, ...)   // PUT /api/products/{
 public Task<Result> DeleteProduct(int id)                 // DELETE /api/products/{id}
 ```
 
-### Mapping Strategy
+#### 12.1.4. Mapping Strategy
 
 `EndpointMappingStrategy` controls which methods the generator maps:
 
@@ -1473,7 +1617,9 @@ public Task<Result> DeleteProduct(int id)                 // DELETE /api/product
 [AutoGenerateEndpoints(RoutePrefix = "/api/internal", Strategy = EndpointMappingStrategy.All)]
 ```
 
-### OpenAPI Auto-Generation
+### 12.2. Features
+
+#### 12.2.1. OpenAPI Auto-Generation
 
 Every generated endpoint gets full OpenAPI metadata at compile time — nothing to configure:
 
@@ -1486,7 +1632,7 @@ Every generated endpoint gets full OpenAPI metadata at compile time — nothing 
 | `int id` parameter | `/{id}` route segment |
 | Request body parameter | JSON body binding |
 
-### Authorization
+#### 12.2.2. Authorization
 
 Class-level auth applies to all convention-mapped methods. Use `[SmartAllowAnonymous]` or `[AutoMapEndpoint(AllowAnonymous = true)]` to exempt individual methods:
 
@@ -1509,7 +1655,7 @@ public class OrderController
 }
 ```
 
-### Endpoint Filters — `[SmartFilter]`
+#### 12.2.3. Endpoint Filters — `[SmartFilter]`
 
 Apply `IEndpointFilter` implementations to individual methods. Stack multiple filters — applied in declaration order:
 
@@ -1528,7 +1674,7 @@ public class ProductController
 }
 ```
 
-### Output Caching & Rate Limiting
+#### 12.2.4. Output Caching & Rate Limiting
 
 Set response cache duration and rate limiting at class level (as defaults) and override per method:
 
@@ -1553,7 +1699,7 @@ public class CatalogController
 }
 ```
 
-### Attribute Precedence Cheat Sheet
+#### 12.2.5. Attribute Precedence Cheat Sheet
 
 When class-level and method-level attributes overlap, the rule is always **method wins over class**. The table below shows the full resolution order for each configurable feature.
 
@@ -1572,7 +1718,7 @@ When class-level and method-level attributes overlap, the rule is always **metho
 - `-1` and `"none"` are explicit opt-outs, not zero values. `CacheSeconds = 0` means "use class default"; `CacheSeconds = -1` means "disable cache for this method."
 - Filters never inherit from the class — every method that needs a filter must declare it explicitly.
 
-### Auto-Validation
+#### 12.2.6. Auto-Validation
 
 Decorate a request type with `[Validate]` (from `REslava.Result.SourceGenerators`) and SmartEndpoints injects the validation call automatically — no extra code in the controller method needed:
 
@@ -1602,7 +1748,9 @@ catalogGroup.MapPost("", async (CreateProductRequest request, CatalogController 
 
 Before v1.26.0 this required a manual `.Validate().ToIResult()` in the endpoint body. Now placing `[Validate]` on the request type is the only signal required. Only POST/PUT body parameters are auto-validated; GET query parameters are not affected.
 
-### CancellationToken Support
+### 12.3. Advanced Usage
+
+#### 12.3.1. CancellationToken Support
 
 **v1.27.0** — When a service method declares `CancellationToken cancellationToken = default`, SmartEndpoints detects it and injects the cancellation token through the generated lambda automatically. Methods without this parameter are unaffected — fully backward-compatible.
 
@@ -1638,7 +1786,7 @@ userGroup.MapGet("", async (UserController service) =>
 });
 ```
 
-### FluentValidation Bridge
+#### 12.3.2. FluentValidation Bridge
 
 > ⚠️ **Optional — migration bridge only. Not needed for new projects.**
 >
@@ -1693,7 +1841,8 @@ builder.Services.AddScoped<IValidator<CreateOrderRequest>, CreateOrderRequestVal
 
 ---
 
-## 🔀 OneOf to IResult
+<!-- anchor: §15 OneOf to IResult — folded into ASP.NET Integration as ### subsection -->
+### 12.4. 🔀 OneOf to IResult
 
 Convert `OneOf<T1,T2,...>` discriminated unions to `IResult` in a single call — HTTP status codes are inferred from error type names and `HttpStatusCode` tags.
 
@@ -1706,21 +1855,21 @@ app.MapPost("/users", async (CreateUserRequest req) =>
     (await _service.CreateAsync(req)).ToPostResult());   // 201 Created on success
 ```
 
-### `OneOf<T1,T2>.ToIResult()`
+#### 12.4.1. `OneOf<T1,T2>.ToIResult()`
 
 ```csharp
 OneOf<NotFoundError, User> result = await _service.GetAsync(id);
 return result.ToIResult();  // 404 or 200
 ```
 
-### `OneOf<T1,T2,T3>.ToIResult()`
+#### 12.4.2. `OneOf<T1,T2,T3>.ToIResult()`
 
 ```csharp
 OneOf<ValidationError, ConflictError, User> result = await _service.CreateAsync(request);
 return result.ToIResult();  // 422 or 409 or 200
 ```
 
-### `OneOf<T1,T2,T3,T4>.ToIResult()`
+#### 12.4.3. `OneOf<T1,T2,T3,T4>.ToIResult()`
 
 ```csharp
 OneOf<ValidationError, UnauthorizedError, NotFoundError, Order> result =
@@ -1728,7 +1877,7 @@ OneOf<ValidationError, UnauthorizedError, NotFoundError, Order> result =
 return result.ToIResult();  // 422 or 401 or 404 or 200
 ```
 
-### HTTP Method Variants
+#### 12.4.4. HTTP Method Variants
 
 Use typed variants for non-GET endpoints to get the correct success status:
 
@@ -1745,7 +1894,7 @@ app.MapPut("/orders/{id}", async (id, req) => (await _svc.UpdateAsync(id, req)).
 app.MapDelete("/orders/{id}", async (id) => (await _svc.DeleteAsync(id)).ToDeleteResult());
 ```
 
-### Error → HTTP Status Mapping
+#### 12.4.5. Error → HTTP Status Mapping
 
 Status codes are resolved in order of precedence:
 
@@ -1770,9 +1919,9 @@ public class PaymentRequiredError : Error
 
 ---
 
-## 🚀 ASP.NET Integration
+## 13. 🚀 ASP.NET Integration
 
-### 🌐 ResultToIResult Extensions
+### 13.1. 🌐 ResultToIResult Extensions
 **Complete HTTP Method Support**
 ```csharp
 // GET requests
@@ -1791,7 +1940,7 @@ return DeleteUser(id).ToDeleteResult(); // 204 No Content or 404
 return PatchUser(id, request).ToPatchResult(); // 200 OK or 404
 ```
 
-### 🧠 Smart HTTP Mapping
+### 13.2. 🧠 Smart HTTP Mapping
 **Domain Error-Aware Status Code Detection (v1.20.0)**
 
 The `ToIResult()` family reads the `HttpStatusCode` tag from domain errors for accurate HTTP mapping:
@@ -1811,7 +1960,7 @@ var result = Result<User>.Fail(new NotFoundError("User", 42));
 return result.ToIResult(); // → 404 Not Found (reads HttpStatusCode tag)
 ```
 
-### 🎯 ResultToActionResult Extensions (MVC Support — v1.21.0)
+### 13.3. 🎯 ResultToActionResult Extensions (MVC Support — v1.21.0)
 **Convention-based HTTP mapping for ASP.NET MVC Controllers**
 ```csharp
 // Convention-based — domain errors auto-map to correct HTTP status codes
@@ -1859,7 +2008,7 @@ public async Task<IActionResult> GetById(int id)
 | `ValidationError` | 422 | `ObjectResult { StatusCode = 422 }` |
 | No tag / other | 400 | `ObjectResult { StatusCode = 400 }` |
 
-### 🎯 OneOfToActionResult Extensions (MVC OneOf Support — v1.22.0)
+### 13.4. 🎯 OneOfToActionResult Extensions (MVC OneOf Support — v1.22.0)
 **One-liner MVC controllers for discriminated union returns**
 ```csharp
 // BEFORE — manual .Match() for every OneOf return
@@ -1885,7 +2034,7 @@ Uses the same two-phase error mapping as OneOfToIResult:
 1. **Phase 1**: Checks `IError.Tags["HttpStatusCode"]` for tag-based mapping
 2. **Phase 2**: Falls back to type-name heuristic (NotFound → 404, Conflict → 409, etc.)
 
-### 📝 Problem Details Integration
+### 13.5. 📝 Problem Details Integration
 **RFC 7807 Compliance**
 
 | Property | Type | Description |
@@ -1942,13 +2091,31 @@ public class UserNotFoundError : Error
 }
 ```
 
+### 13.6. 🌐 Http Client — REslava.Result.Http
+
+> **REslava.Result.Http** wraps `HttpClient` calls so every HTTP response and network failure becomes a typed `Result<T>`. The client-side complement to `ToIResult()` — completes the full round-trip.
+
+```csharp
+using REslava.Result.Http;
+
+var client = httpClientFactory.CreateClient();
+
+// GET — 200 → Result.Ok(user), 404 → NotFoundError, 401 → UnauthorizedError
+Result<User> user = await client.GetResult<User>("/api/users/42");
+
+// POST — 201 → Result.Ok(created), network error → ExceptionError
+Result<User> created = await client.PostResult<CreateUserRequest, User>("/api/users", request);
+```
+
+See [REslava.Result.Http README](https://github.com/reslava/nuget-package-reslava-result/blob/main/docs/nuget/README.REslava.Result.Http.md) for the full API reference.
+
 ---
 
-## 📐 Complete Architecture
+## 14. 📐 Complete Architecture
 
 **REslava.Result is a comprehensive ecosystem with two main components that work together seamlessly:**
 
-### 📦 Base Library: REslava.Result
+### 14.1. 📦 Base Library: REslava.Result
 **Core Functional Programming Foundation**
 ```
 src/
@@ -1971,7 +2138,7 @@ src/
     └── Error.cs                   # ❌ Error base classes
 ```
 
-### 🚀 Source Generators: REslava.Result.SourceGenerators
+### 14.2. 🚀 Source Generators: REslava.Result.SourceGenerators
 **Zero-Boilerplate Code Generation**
 ```
 SourceGenerator/
@@ -2020,7 +2187,7 @@ SourceGenerator/
 
 > 📐 **Visual Architecture**: See [Core Type Hierarchy](docs/uml/UML-v1.12.1-core.md) and [Source Generator Pipeline](docs/uml/UML-v1.12.1-generators.md) for detailed Mermaid diagrams.
 
-### 🎯 SOLID Principles in Action
+### 14.3. 🎯 SOLID Principles in Action
 
 | **Principle** | **Implementation** | **Benefit** |
 |---------------|-------------------|-------------|
@@ -2030,7 +2197,7 @@ SourceGenerator/
 | **Interface Segregation** | Focused interfaces for specific responsibilities | Minimal contracts, easier testing |
 | **Dependency Inversion** | Constructor injection with abstractions | Testable, maintainable, loosely coupled |
 
-### 🔄 How Components Work Together
+### 14.4. 🔄 How Components Work Together
 
 ```mermaid
 graph TB
@@ -2051,14 +2218,14 @@ graph TB
     L --> F
 ```
 
-### 🚀 Smart Auto-Detection (v1.10.0)
+### 14.5. 🚀 Smart Auto-Detection (v1.10.0)
 **Zero Configuration Required**
 - **Setup Detection**: Automatically detects your REslava.Result OneOf setup
 - **Conflict Prevention**: Generators only run when appropriate types are found
 - **Perfect Coexistence**: OneOf generators work seamlessly together
 - **Zero Compilation Errors**: Clean developer experience guaranteed
 
-### 🗺️ Error → HTTP Status Code Convention
+### 14.6. 🗺️ Error → HTTP Status Code Convention
 
 The source generators use convention-based name matching to determine HTTP status codes automatically. No configuration needed for the common cases:
 
@@ -2075,7 +2242,7 @@ The source generators use convention-based name matching to determine HTTP statu
 
 For non-convention errors use `IError.Tags["HttpStatusCode"]` or `SmartEndpoints`' `[SmartFilter]` for explicit mapping.
 
-### 🔧 Source Generator Core Library Components
+### 14.7. 🔧 Source Generator Core Library Components
 
 The `REslava.Result.SourceGenerators` project uses a shared Core Library infrastructure that each generator delegates to:
 
@@ -2091,7 +2258,7 @@ Each generator (`ResultToIResultGenerator`, `SmartEndpointsGenerator`, `Validate
 
 ---
 
-## 📦 Package Structure
+## 15. 📦 Package Structure
 
 **Four NuGet packages for a complete development experience:**
 
@@ -2102,7 +2269,7 @@ Each generator (`ResultToIResultGenerator`, `SmartEndpointsGenerator`, `Validate
 | `REslava.Result.Analyzers` | Roslyn safety analyzers — RESL1001–RESL1006 + RESL2001 (7 diagnostics + 3 code fixes) |
 | `REslava.Result.FluentValidation` ⚠️ **Optional** | FluentValidation bridge — `[FluentValidate]` generator + SmartEndpoints auto-injection. **Migration aid only** — not needed for new projects; REslava.Result includes equivalent validation natively |
 
-### 🚀 NuGet Package Contents
+### 15.1. 🚀 NuGet Package Contents
 ```
 REslava.Result.SourceGenerators.1.10.0.nupkg/
 ├── analyzers/dotnet/cs/
@@ -2118,7 +2285,7 @@ REslava.Result.SourceGenerators.1.10.0.nupkg/
 └── README.md                                          # Package documentation
 ```
 
-### 🎯 Generated Output Structure
+### 15.2. 🎯 Generated Output Structure
 **When your project builds:**
 ```
 YourProject/
@@ -2151,7 +2318,7 @@ YourProject/
     └── Your compiled application with auto-generated extensions
 ```
 
-### 🔄 Build Integration
+### 15.3. 🔄 Build Integration
 **Automatic MSBuild Integration:**
 ```xml
 <!-- Automatically added to your project -->
@@ -2166,11 +2333,11 @@ YourProject/
 
 ---
 
-## 🔧 How Generators Work
+## 16. 🔧 How Generators Work
 
 REslava.Result.SourceGenerators uses Roslyn's **incremental generator API** (`IIncrementalGenerator`) for zero-overhead, fast-rebuild code generation.
 
-### Two-Phase Pipeline
+### 16.1. Two-Phase Pipeline
 
 Every generator follows the same pattern: **Phase 1** emits the attribute definition (available immediately, in the same compilation). **Phase 2** reads the compilation to find code using that attribute and emits the extension methods.
 
@@ -2190,7 +2357,7 @@ Orchestrator
             (Phase 2 — runs only when matching types found)
 ```
 
-### SOLID Design (v1.9.4+)
+### 16.2. SOLID Design (v1.9.4+)
 
 Each generator is split into three focused classes following SRP:
 
@@ -2203,15 +2370,15 @@ Each generator is split into three focused classes following SRP:
 
 This eliminates duplicate generation (CS0101/CS0579 errors) and makes each piece independently testable.
 
-### Incremental Rebuilds
+### 16.3. Incremental Rebuilds
 
 Using `RegisterSourceOutput` with `SyntaxValueProvider`, generators only re-run when relevant syntax changes. On a clean build, all generators run; on subsequent builds, only the generators whose inputs changed run — keeping build times fast even in large solutions.
 
 ---
 
-## 🎯 Quick Examples
+## 17. 🎯 Quick Examples
 
-### 📦 **Core Library - Type-Safe Error Handling**
+### 17.1. 📦 **Core Library - Type-Safe Error Handling**
 
 ```csharp
 // Fluent, chainable operations
@@ -2228,7 +2395,7 @@ return result.Match(
 );
 ```
 
-### 🚀 **Source Generator - Zero Boilerplate**
+### 17.2. 🚀 **Source Generator - Zero Boilerplate**
 
 ```csharp
 // Your service returns Result<T>
@@ -2256,7 +2423,7 @@ app.MapGet("/users/oneof/{id}", async (int id) =>
 // 400 Bad Request with validation errors
 ```
 
-### 🧠 **Advanced Patterns - Functional Programming**
+### 17.3. 🧠 **Advanced Patterns - Functional Programming**
 
 ```csharp
 // Maybe<T> for safe null handling
@@ -2280,9 +2447,9 @@ return GetUser(id).ToIResult(); // 🆕 Automatic HTTP mapping!
 
 ---
 
-## 🧪 Testing & Quality Assurance
+## 18. 🧪 Testing & Quality Assurance
 
-### 📊 Comprehensive Test Suite
+### 18.1. 📊 Comprehensive Test Suite
 **3,339 Tests Passing** 🎉
 - **Core Library Tests**: 1,038 tests per TFM (net8.0, net9.0, net10.0) = 3,114 tests
 - **Source Generator Tests**: 131 tests for all generators
@@ -2290,7 +2457,7 @@ return GetUser(id).ToIResult(); // 🆕 Automatic HTTP mapping!
 - **FluentValidation Bridge Tests**: 26 tests for [FluentValidate] generator + SmartEndpoints integration
 - **Multi-TFM**: All core tests run on 3 target frameworks
 
-### 📐 Source Generator Test Architecture
+### 18.2. 📐 Source Generator Test Architecture
 **Complete Test Coverage for v1.22.0**
 ```
 tests/REslava.Result.SourceGenerators.Tests/
@@ -2306,7 +2473,7 @@ tests/REslava.Result.SourceGenerators.Tests/
 └── Legacy/                    # Historical tests (disabled)
 ```
 
-### 🎯 Generator Test Coverage
+### 18.3. 🎯 Generator Test Coverage
 **OneOf4ToIResult Generator (NEW v1.12.0)**
 - ✅ Extension method generation for OneOf<T1,T2,T3,T4>
 - ✅ Intelligent HTTP status mapping
@@ -2347,7 +2514,7 @@ tests/REslava.Result.SourceGenerators.Tests/
 - ✅ Correct namespace (Generated.OneOfActionResultExtensions)
 - ✅ Conditional generation (zero false positives)
 
-### 🚀 CI/CD Pipeline
+### 18.4. 🚀 CI/CD Pipeline
 **Automated Testing**
 ```yaml
 # .github/workflows/ci.yml
@@ -2357,7 +2524,7 @@ tests/REslava.Result.SourceGenerators.Tests/
 - Coverage: 95%+ code coverage
 ```
 
-### 🧪 Test Categories
+### 18.5. 🧪 Test Categories
 **Source Generator Tests**
 - **Unit Tests**: Individual generator behavior
 - **Integration Tests**: Generator compilation scenarios
@@ -2370,14 +2537,14 @@ tests/REslava.Result.SourceGenerators.Tests/
 - **Validation Tests**: Error handling scenarios
 - **Extension Tests**: Method chaining and composition
 
-### 📁 Sample Projects & Integration Tests
+### 18.6. 📁 Sample Projects & Integration Tests
 **Real-World Validation**
 - **OneOfTest.Api**: Live API testing with OneOf2ToIResult & OneOf3ToIResult
 - **Integration Tests**: End-to-end HTTP mapping validation
 - **Performance Benchmarks**: Memory allocation and speed tests
 - **Production Samples**: Enterprise-grade implementations
 
-### 🔍 Test Quality Metrics
+### 18.7. 🔍 Test Quality Metrics
 **High Standards**
 - ✅ **2,862/2,862 tests passing** (100% success rate)
 - ✅ **95%+ code coverage** (comprehensive coverage)
@@ -2385,7 +2552,7 @@ tests/REslava.Result.SourceGenerators.Tests/
 - ✅ **Fast execution** (complete suite < 15 seconds)
 - ✅ **Clean architecture** (SOLID test organization)
 
-### 🏃‍♂️ Running Tests Locally
+### 18.8. 🏃‍♂️ Running Tests Locally
 **Quick Test Commands**
 ```bash
 # Run all tests (2,862 tests across 3 TFMs)
@@ -2412,7 +2579,7 @@ Passed!  - Failed: 0, Passed:  54 - REslava.Result.Analyzers.Tests.dll (net10.0)
 
 ---
 
-## 🛡️ Safety Analyzers
+## 19. 🛡️ Safety Analyzers
 
 Catch common `Result<T>` and `OneOf` mistakes **at compile time** — 5 diagnostics and 3 code fixes included in `REslava.Result.Analyzers`.
 
@@ -2420,7 +2587,7 @@ Catch common `Result<T>` and `OneOf` mistakes **at compile time** — 5 diagnost
 dotnet add package REslava.Result.Analyzers
 ```
 
-### RESL1001 — Unsafe `.Value` Access `[Warning + Code Fix]`
+### 19.1. RESL1001 — Unsafe `.Value` Access `[Warning + Code Fix]`
 
 ```csharp
 var result = GetUser(id);
@@ -2437,7 +2604,7 @@ var name = result.Match(        // No warning — pattern matching
     onFailure: _ => "Unknown");
 ```
 
-### RESL1002 — Discarded `Result<T>` Return Value `[Warning]`
+### 19.2. RESL1002 — Discarded `Result<T>` Return Value `[Warning]`
 
 ```csharp
 Save();                         // ⚠️ RESL1002: Return value of type 'Result<T>' is discarded
@@ -2448,7 +2615,7 @@ var result = Save();            // No warning — assigned
 return Save();                  // No warning — returned
 ```
 
-### RESL1003 — Prefer `Match()` Over If-Check `[Info]`
+### 19.3. RESL1003 — Prefer `Match()` Over If-Check `[Info]`
 
 ```csharp
 if (result.IsSuccess)           // ℹ️ RESL1003: Consider using Match() instead
@@ -2464,7 +2631,7 @@ else
 var x = result.Match(v => v, e => HandleErrors(e));
 ```
 
-### RESL1004 — `Task<Result<T>>` Not Awaited `[Warning + Code Fix]`
+### 19.4. RESL1004 — `Task<Result<T>>` Not Awaited `[Warning + Code Fix]`
 
 ```csharp
 async Task M()
@@ -2478,7 +2645,7 @@ var result = await GetFromDb(id);                    // No warning — properly 
 Task<Result<User>> task = GetFromDb(id);             // No warning — explicit Task type (intentional)
 ```
 
-### RESL2001 — Unsafe `OneOf.AsT*` Access `[Warning + Code Fix]`
+### 19.5. RESL2001 — Unsafe `OneOf.AsT*` Access `[Warning + Code Fix]`
 
 ```csharp
 var oneOf = GetResult();        // OneOf<User, NotFound, ValidationError>
@@ -2495,7 +2662,7 @@ var user = oneOf.Match(         // No warning — exhaustive pattern match
     error => throw new ValidationException());
 ```
 
-### RESL1005 — Consider Domain Error `[Info]`
+### 19.6. RESL1005 — Consider Domain Error `[Info]`
 
 ```csharp
 // ⚠️ RESL1005: Consider using 'NotFoundError' instead of 'Error' — it carries HTTP status context
@@ -2516,7 +2683,7 @@ Triggers when the message string implies a known HTTP error category:
 | `forbidden`, `access denied` | `ForbiddenError` |
 | `invalid`, `validation` | `ValidationError` |
 
-### RESL1006 — Conflicting `[Validate]` + `[FluentValidate]` `[Error]`
+### 19.7. RESL1006 — Conflicting `[Validate]` + `[FluentValidate]` `[Error]`
 
 ```csharp
 // ❌ RESL1006: 'CreateOrderRequest' has both [Validate] and [FluentValidate] applied.
@@ -2533,7 +2700,7 @@ public record CreateOrderRequest(string CustomerId, decimal Amount);
 
 ---
 
-## 📈 Production Benefits
+## 20. 📈 Production Benefits
 
 | 🎯 **Challenge** | 🚀 **REslava.Result Solution** |
 |------------------|------------------------------|
@@ -2547,30 +2714,31 @@ public record CreateOrderRequest(string CustomerId, decimal Amount);
 
 ---
 
-## 🌍 Real-World Impact
+<!-- anchor: §24 Real-World Impact merged into §23 Production Benefits -->
+### 20.1. 🌍 Real-World Impact
 
-### 🏢 **For Enterprise Teams**
+#### 20.1.1. 🏢 **For Enterprise Teams**
 **Explicit failure tracking replaces hidden exception flows**
 - **Rich error context** with tags for debugging and monitoring
 - **Better observability** with structured error information  
 - **Consistent error handling** across all services and APIs
 - **Audit trails** with detailed error metadata for compliance
 
-### 🧪 **For Test-Driven Development**
+#### 20.1.2. 🧪 **For Test-Driven Development**
 **Predictable patterns make unit tests simple and reliable**
 - **No complex exception setups** - just assert on Result values
 - **Faster test writing** with deterministic results
 - **Clear test scenarios** - success, failure, and edge cases are explicit
 - **Better test coverage** - error paths are first-class citizens
 
-### 👥 **For Team Collaboration**
+#### 20.1.3. 👥 **For Team Collaboration**
 **Clear contracts between services and components**
 - **Consistent patterns** across the entire codebase
 - **Improved onboarding** for new team members
 - **Self-documenting code** with explicit error types
 - **Reduced cognitive load** - one way to handle errors everywhere
 
-### 🚀 **For Performance & Scalability**
+#### 20.1.4. 🚀 **For Performance & Scalability**
 **Optimized for modern applications**
 - **Zero allocation failures** - immutable design prevents memory leaks
 - **Compile-time guarantees** - no runtime reflection or magic
@@ -2579,19 +2747,20 @@ public record CreateOrderRequest(string CustomerId, decimal Amount);
 
 ---
 
-## 🏆 Why Choose REslava.Result?
+<!-- anchor: §25 Why Choose merged into §23 Production Benefits -->
+### 20.2. 🏆 Why Choose REslava.Result?
 
-### ✅ **Zero Dependencies**
+#### 20.2.1. ✅ **Zero Dependencies**
 - **No external packages** - Reduces security vulnerabilities
 - **Small footprint** - Only ~50KB compiled
 - **Fast compilation** - No complex dependency chains
 
-### ✅ **Production-Ready**
+#### 20.2.2. ✅ **Production-Ready**
 - **95%+ code coverage** - Reliable in production
 - **Comprehensive testing** - Unit, integration, and performance tests
 - **Memory efficient** - Immutable design, predictable allocations
 
-### ✅ **Developer Experience**
+#### 20.2.3. ✅ **Developer Experience**
 - **Rich IntelliSense** - Extensive XML documentation
 - **Modern C#** - Supports .NET 8, 9, and 10
 - **AOT compatible** - Works with NativeAOT and trimming
@@ -2599,29 +2768,36 @@ public record CreateOrderRequest(string CustomerId, decimal Amount);
 
 ---
 
-## 🎯 Roadmap
+## 21. 🎯 Roadmap
 
-### v1.32.0 (Current) ✅
+### 21.1. v1.33.0 (Current) ✅
+- **`REslava.Result.Http`** — new 5th NuGet package; `GetResult<T>`, `PostResult<TBody, TResponse>`, `PutResult<TBody, TResponse>`, `DeleteResult`, `DeleteResult<T>` extension methods on `HttpClient`; every HTTP error and network failure becomes a typed `Result<T>`; configurable via `HttpResultOptions` (custom JSON options, custom status code mapper)
+- **README/TOC restructure** — full logical reorganization of all 26 sections; improved hierarchy and navigation
+- **MkDocs restructure** — sub-folder grid-card navigation across all sections; `architecture/source-generators/` sub-folder split; orphan detection tooling
+- 123 features across 12 categories
+- 3,756 tests
+
+### 21.2. v1.32.0 ✅
 - **`Result.Validate(r1, r2, ..., mapper)`** — applicative validation; runs 2/3/4 independent `Result<T>` validations simultaneously, accumulates ALL errors (no short-circuit), maps heterogeneous success values via typed mapper func to `Result<TResult>`
 - **`Result<T>.Deconstruct()`** — C# 8+ tuple syntax; `var (value, errors) = result` and `var (isSuccess, value, errors) = result` for `Result<T>`; `var (isSuccess, errors) = result` for non-generic `Result`
 - **`Maybe<T>` ↔ `Result<T>` interop** — `maybe.ToResult(errorFactory/error/string)` bridges `None` to typed failure; `result.ToMaybe()` discards errors and returns `Some(value)` or `None`
 - 117 features across 11 categories
 - 3,696 tests
 
-### v1.31.0 ✅
+### 21.3. v1.31.0 ✅
 - **`Result.WithLogger(ILogger, string)`** / **`LogOnFailure(ILogger, string)`** — Tap-style ILogger integration; Debug on success, Warning on domain failure, Error on ExceptionError; structured log properties (`result.outcome`, `result.error.type`, `result.error.message`); Task extensions with CancellationToken
 - **`Result.Recover()`** / **`RecoverAsync()`** — railway recovery; transforms any failure into a new `Result<T>` (success or failure) via a fallback func; error list passed to recovery func for context-aware branching; both `Result` and `Result<T>`; Task extensions
 - **`Result.Filter()`** / **`FilterAsync()`** — convert success to failure when a predicate fails; `Func<T, IError>` error factory enables value-dependent contextual messages; 3 sync overloads (factory / static IError / string); async predicate variant; Task extensions
 - 114 features across 11 categories
 - 3,591 tests
 
-### v1.30.0 ✅
+### 21.3. v1.30.0 ✅
 - **`Result.Catch<TException>()`** / **`CatchAsync<TException>()`** — inline typed exception handler in the railway; converts an `ExceptionError` wrapping `TException` to any `IError`; `Task<Result<T>>` extension also catches direct throws from the source task
 - **`Result.WithActivity(Activity?)`** — enriches an existing OTel `Activity` span with outcome tags (`result.outcome`, `result.error.type`, `result.error.message`); Tap-style (returns result unchanged), null-safe, no new NuGet dependency
 - 111 features across 11 categories
 - 3,432 tests
 
-### v1.29.0 ✅
+### 21.4. v1.29.0 ✅
 - **`IsFailed` → `IsFailure`** ⚠️ *breaking rename* — `IsSuccess` / `IsFailure` is the correct symmetric pair; find-and-replace across call sites
 - **Console samples** — 3 new examples: `14_ValidationDSL`, `15_OneOf5_OneOf6`, `16_AsyncPatterns_Advanced` (covers all v1.27–v1.28 features)
 - **FastMinimalAPI validation showcase** — side-by-side `/api/smart/validation` (DSL vs DataAnnotations) and `/api/smart/fluent-validation` (bridge demo)
@@ -2629,12 +2805,12 @@ public record CreateOrderRequest(string CustomerId, decimal Amount);
 - **Feature Reference page** — 109 features across 11 categories in docs
 - 3,339 tests
 
-### v1.28.0 ✅
+### 21.5. v1.28.0 ✅
 - **FluentValidation Bridge** ⚠️ *optional migration bridge* — new `REslava.Result.FluentValidation` package (4th NuGet); `[FluentValidate]` attribute generates `.Validate(IValidator<T>)` + `.ValidateAsync()` extensions; SmartEndpoints auto-injects `IValidator<T>` as a lambda parameter; for teams with existing FV validators only — **new projects do not need this package**
 - **RESL1006 analyzer** — compile error when both `[Validate]` and `[FluentValidate]` appear on the same type (conflicting `.Validate()` signatures)
 - 3,339 tests
 
-### v1.27.0 ✅
+### 21.6. v1.27.0 ✅
 - **CancellationToken Support in SmartEndpoints** — generated lambdas detect `CancellationToken` in service method signatures and inject it as an endpoint parameter; backward-compatible
 - **OneOf5 / OneOf6** — `OneOf<T1..T5>` and `OneOf<T1..T6>` structs with full `Match`, `Switch`, `MapT*`, `BindT*`, equality, and implicit conversions; OneOf4 bug fixes
 - **OneOf chain extensions** — `ToFourWay`, `ToFiveWay`, `ToSixWay` and corresponding down-conversions across the full 2↔3↔4↔5↔6 arity chain
@@ -2642,75 +2818,76 @@ public record CreateOrderRequest(string CustomerId, decimal Amount);
 - **DocFX API Reference** — all public types, members, and XML docs fully surfaced at `/reference/api/`
 - 3,313 tests
 
-### v1.26.0 ✅
+### 21.7. v1.26.0 ✅
 - **RESL1005 analyzer** — Info-level diagnostic suggests domain error types (`NotFoundError`, `ConflictError`, etc.) when `new Error("...")` message implies an HTTP error category; 14 new tests
 - **SmartEndpoints Auto-Validation** — `[Validate]` on a body parameter type auto-injects `.Validate()` into the generated lambda; returns 422 early on failure; 5 new tests
 - 2,862 tests
 
-### v1.25.0 ✅
+### 21.8. v1.25.0 ✅
 - **Documentation Website** — MkDocs Material site auto-generated from README.md; 8 nav sections, dark/light, search, social cards
 - **DocFX API Reference landing page** — Bootstrap namespace cards, Core Types grid, quick-links to docs/GitHub/NuGet
 - **CI optimization** — path allowlist (src/tests only); docs commits no longer trigger test suite
 - 2,843 tests (unchanged)
 
-### v1.24.0 ✅
+### 21.9. v1.24.0 ✅
 - **`[Validate]` Source Generator** — decorate any record/class to get `.Validate()` returning `Result<T>`; delegates to `Validator.TryValidateObject` (all 20+ `DataAnnotations` types supported); field errors surface as `ValidationError` with `FieldName`; composable with `.Bind()` / `.ToIResult()` / `.ToActionResult()`
 - 7 new generator tests, 2,843 total tests
 
-### v1.23.0 ✅
+### 21.10. v1.23.0 ✅
 - **SmartEndpoints: Endpoint Filters** — `[SmartFilter(typeof(T))]` attribute generates `.AddEndpointFilter<T>()`, stackable (AllowMultiple = true)
 - **SmartEndpoints: Output Caching** — `CacheSeconds` property on `[AutoGenerateEndpoints]` and `[AutoMapEndpoint]`; class-level default, method-level override, `-1` to opt out; only applied to GET
 - **SmartEndpoints: Rate Limiting** — `RateLimitPolicy` property on both attribute levels; `"none"` to opt out; inherits class default
 - **FastMinimalAPI Demo: SmartCatalogController** — showcases all three features with `LoggingEndpointFilter`
 - 11 new source generator tests, 2,836 total tests
 
-### v1.22.0 ✅
+### 21.11. v1.22.0 ✅
 - **OneOf<>.ToActionResult() — MVC One-Liners** — source-generated `IActionResult` extension methods for `OneOf<T1,...,T4>` in MVC controllers, domain errors auto-map via `IError.Tags["HttpStatusCode"]`
 - **OneOfToIResult: Tag-Based Error Mapping Fix** — `MapErrorToHttpResult` checks `IError.Tags["HttpStatusCode"]` first before falling back to type-name heuristics
 - **SmartEndpoints: Accurate OpenAPI Error Docs** — `ValidationError` → 422 (was 400), `Result<T>` endpoints declare 400/404/409/422
 - 12 new source generator tests, 2,825 total tests
 
-### v1.21.0 ✅
+### 21.12. v1.21.0 ✅
 - **Result<T>.ToActionResult() — ASP.NET MVC Support** — source-generated `IActionResult` extension methods for MVC controllers, convention-based HTTP mapping with explicit overload escape hatch
 - **FastMvcAPI Demo App** — MVC equivalent of FastMinimalAPI demo (Users, Products, Orders) on port 5001
 - 9 new source generator tests
 
-### v1.20.0 ✅
+### 21.13. v1.20.0 ✅
 - **Structured Error Hierarchy** — 5 built-in domain errors (`NotFoundError`, `ValidationError`, `ConflictError`, `UnauthorizedError`, `ForbiddenError`) with HTTP status code tags and CRTP fluent chaining
 - **ResultToIResult: Domain Error-Aware HTTP Mapping** — reads `HttpStatusCode` tag for accurate status codes (was always 400)
 - **Test Coverage Hardening** — 150 new tests covering OkIf/FailIf, Try, Combine, Tap, LINQ Task extensions
 - **Internal Quality** — cached computed properties, ExceptionError namespace fix, Result\<T\> constructor encapsulation, ToString() override, dead code cleanup, convention-based SmartEndpoints route prefix
 
-### v1.19.0 ✅
+### 21.14. v1.19.0 ✅
 - **RESL1004 — Async Result Not Awaited** — detects `Task<Result<T>>` assigned without `await` + code fix
 - **CancellationToken Support Throughout** — `CancellationToken cancellationToken = default` on all async methods (source-compatible)
 - 5 diagnostics + 3 code fixes
 
-### v1.18.0 ✅
+### 21.15. v1.18.0 ✅
 - **Task-Based Async Patterns** — `Result.WhenAll()` (typed tuples), `Result.Retry()` (exponential backoff), `.Timeout()` extension
 
-### v1.17.0 ✅
+### 21.16. v1.17.0 ✅
 - **JSON Serialization Support (System.Text.Json)** — `JsonConverter` for `Result<T>`, `OneOf<T1..T4>`, `Maybe<T>`
 
-### v1.16.0 ✅
+### 21.17. v1.16.0 ✅
 - Tailored NuGet README for each of the 3 packages
 
-### v1.15.0 ✅
+### 21.18. v1.15.0 ✅
 - Repository cleanup: removed unused Node.js toolchain, stale samples, incomplete templates
 
-### v1.14.x ✅
+### 21.19. v1.14.x ✅
 - **REslava.Result.Analyzers** — RESL1001, RESL1002, RESL1003, RESL2001 + 3 code fixes
 - OneOf generator consolidation (15 files → 7)
 
-### v1.13.0 ✅
+### 21.20. v1.13.0 ✅
 - **SmartEndpoints: Authorization & Policy Support** — `RequiresAuth`, `Roles`, `Policies`, `[SmartAllowAnonymous]`
 - **LINQ query comprehension syntax for Result<T>**
 - SmartEndpoints: OpenAPI Metadata Auto-Generation
 
 ---
 
-## 📈 Version History
+## 22. 📈 Version History
 
+- **v1.33.0** - `REslava.Result.Http` 5th NuGet package (HttpClient → typed `Result<T>`), README/TOC/MkDocs restructure, 123 features, 3,756 tests
 - **v1.32.0** - `Result.Validate` applicative validation (2/3/4-way), `Result<T>.Deconstruct()` tuple unpacking, `Maybe<T>`↔`Result<T>` interop, 117 features, 3,696 tests
 - **v1.31.0** - `Result.WithLogger`/`LogOnFailure` ILogger integration, `Result.Recover`/`RecoverAsync` railway recovery, `Result.Filter`/`FilterAsync` predicate-based success filtering, 114 features, 3,591 tests
 - **v1.30.0** - `Result.Catch<TException>` inline exception handling in pipelines, `Result.WithActivity` OTel Activity enrichment, 111 features, 3,432 tests
@@ -2741,26 +2918,26 @@ public record CreateOrderRequest(string CustomerId, decimal Amount);
 - **v1.10.2** - Initial ResultToIResult generator
 - **v1.10.1** - Core Result types and error handling
 - **v1.10.0** - Framework foundation with ROP patterns
-## 🤝 Contributing
+## 23. 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ---
 
-## 📄 License
+## 24. 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
+## 25. 🙏 Acknowledgments
 
 - **Functional Programming Community** - For the ROP methodology and patterns
 - **Roslyn** team - Powerful source generator framework
 
 ---
 
-## Contributors
+## 26. Contributors
 
 - [reslava](https://github.com/reslava)
 

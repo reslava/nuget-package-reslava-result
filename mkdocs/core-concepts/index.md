@@ -13,59 +13,19 @@ The functional programming foundation of REslava.Result. Learn each piece step b
 <div class="grid cards" markdown>
 
 -   :material-checkbox-marked-circle: __Result Pattern__
-    `Result<T>`, factory methods, pattern matching, and safe value access.
-    [](reslava.result-core-library/#core-operations)
-
--   :material-link: __Functional Composition__
-    Chain operations with `Bind`, `Map`, `Tap`, `Compose`.
-    [](reslava.result-core-library/#functional-composition)
-
--   :material-cancel: __Tap on Failure__
-    `TapOnFailure` — side-effects on failure only: logging, metrics, alerting without changing the result.
-    [](reslava.result-core-library/#tap-on-failure-taponFailure)
-
--   :material-timer-sand: __Async Patterns__
-    Async variants, `WhenAll`, `Retry`, `Timeout`.
-    [](reslava.result-core-library/#async-patterns-whenall-retry-timeout)
-
--   :material-code-braces: __LINQ Integration__
-    Use query comprehension syntax with `Result<T>`.
-    [](reslava.result-core-library/#linq-integration)
-
--   :material-swap-horizontal: __Conditional Factories__
-    `OkIf` / `FailIf` — create results directly from boolean conditions.
-    [](reslava.result-core-library/#conditional-factories-okif-failif)
-
--   :material-shield-bug: __Exception Wrapping__
-    `Try` / `TryAsync` — catch exceptions and convert to `Result<T>`.
-    [](reslava.result-core-library/#exception-wrapping-try-tryasync)
+    `Result<T>`, factory methods, functional composition, async, LINQ, and advanced patterns.
+    [](result/)
 
 -   :material-alert: __Error Types__
     Built‑in domain errors (`NotFoundError`, `ValidationError`, `ConflictError`, etc.), custom CRTP errors, and rich tag context.
     [](error-types/)
 
--   :material-null: __Maybe&lt;T&gt;__
-    Safe null handling with optionals — no null reference exceptions.
-    [](maybe/)
+-   :material-check-all: __Validation__
+    Declarative rules, `[Validate]` source generator, and FluentValidation bridge.
+    [](validation/)
 
--   :simple-oneplus: __OneOf Unions__
-    Discriminated unions for 2–6 typed outcomes with exhaustive matching and arity chain conversions.
-    [](oneof-unions/)
-
--   :material-check-all: __Validation Rules__
-    Declarative rule-based validation — raw predicates or the native DSL (`NotEmpty`, `MaxLength`, `EmailAddress`, `Range`, ...).
-    [](validation-rules/)
-
--   :material-tag-check: __Validation Attributes__
-    `[Validate]` source generator — DataAnnotations → `Result<T>` automatically.
-    [](validation-attributes/)
-
--   ![FluentValidation](https://avatars.githubusercontent.com/u/61082709?s=16&v=4) __FluentValidation Bridge__
-    `[FluentValidation]` — keep existing FluentValidation validators, get `Result<T>` + SmartEndpoints auto-injection.
-    [](../aspnet/smartendpoints/#fluentvalidation-bridge)
-
--   :material-speedometer: __Performance__
-    Optimized patterns for high‑throughput scenarios.
-    [](advanced-patterns/#performance-patterns)
+-   :material-null: __Advanced Types__
+    `Maybe<T>` for null safety and `OneOf` discriminated unions for multi-outcome returns.
+    [](advanced-types/)
 
 </div>

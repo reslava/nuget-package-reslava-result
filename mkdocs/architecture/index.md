@@ -12,19 +12,27 @@ Peek under the hood – how REslava.Result is built and how its source generator
 
 <div class="grid cards" markdown>
 
--   :material-sitemap: __Complete Architecture__  
+-   :material-sitemap: __Base Library__
     Visual diagrams, component breakdown, and SOLID principles in action.
-    [](complete-architecture)
+    [](base-library-reslava.result)
 
--   :material-package: __Package Structure__  
+-   :material-check-all: __SOLID Principles in Action__
+    How each SOLID principle is applied across the core library and generators.
+    [](solid-principles-in-action)
+
+-   :material-connection: __How Components Work Together__
+    End-to-end flow: attribute → generator → compiled output → runtime.
+    [](how-components-work-together)
+
+-   :material-package: __Package Structure__
     What each NuGet package contains and how they integrate.
-    [](package-structure)
+    [](nuget-package-contents)
 
--   :material-cog: __How Generators Work__
-    Two-phase generation pipeline, SOLID design, and incremental Roslyn rebuilds.
-    [](how-generators-work)
+-   :material-cog: __Source Generator Architecture__
+    Two-phase pipeline, SOLID design, auto-detection, generated output, and incremental rebuilds.
+    [](source-generators/)    
 
--   :simple-solid: __SOLID Architecture__  
+-   :simple-solid: __SOLID Architecture__
     SOLID Principles Implementation.
     [](solid/solid-architecture)
 

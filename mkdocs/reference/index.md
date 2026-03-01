@@ -30,6 +30,6 @@ Quick access to API documentation, version history, roadmap, and deep-dive guide
 
 -   :material-road-variant: __Roadmap__
     Upcoming features and improvements.
-    [](roadmap)
+    [](version-history)
 
 </div>

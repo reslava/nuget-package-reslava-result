@@ -29,14 +29,24 @@ def process_file(filepath):
     heading_line_idx = None
     heading_text = None
 
+    in_code_block = False
     for i, line in enumerate(lines):
         stripped = line.strip()
+        if stripped.startswith('```') or stripped.startswith('~~~'):
+            in_code_block = not in_code_block
+            continue
+        if in_code_block:
+            continue
         if stripped.startswith('# '):
             heading_text = stripped[2:].strip()
             heading_line_idx = i
             break
         elif stripped.startswith('## '):
             heading_text = stripped[3:].strip()
+            heading_line_idx = i
+            break
+        elif stripped.startswith('### '):
+            heading_text = stripped[4:].strip()
             heading_line_idx = i
             break
 
