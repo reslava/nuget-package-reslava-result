@@ -153,6 +153,13 @@ Includes API reference, advanced patterns, and interactive examples.
   - [13.4. 🎯 OneOfToActionResult Extensions (MVC OneOf Support — v1.22.0)](#134--oneoftoactionresult-extensions-mvc-oneof-support--v1220)
   - [13.5. 📝 Problem Details Integration](#135--problem-details-integration)
   - [13.6. 🌐 Http Client — REslava.Result.Http](#136--http-client--reslavaresulthttp)
+    - [13.6.1. `GetResult<T>` — Type-safe GET](#1361-getresultt--type-safe-get)
+    - [13.6.2. `PostResult<TBody, TResponse>` — Type-safe POST](#1362-postresulttbody-tresponse--type-safe-post)
+    - [13.6.3. `PutResult<TBody, TResponse>` — Type-safe PUT](#1363-putresulttbody-tresponse--type-safe-put)
+    - [13.6.4. `DeleteResult` — Type-safe DELETE (no body)](#1364-deleteresult--type-safe-delete-no-body)
+    - [13.6.5. `DeleteResult<T>` — Type-safe DELETE (with response body)](#1365-deleteresultt--type-safe-delete-with-response-body)
+    - [13.6.6. `HttpResultOptions` — Custom JSON \& Error Mapping](#1366-httpresultoptions--custom-json--error-mapping)
+    - [13.6.7. Status Code → Error Mapping (defaults)](#1367-status-code--error-mapping-defaults)
 - [14. 📐 Complete Architecture](#14--complete-architecture)
   - [14.1. 📦 Base Library: REslava.Result](#141--base-library-reslavaresult)
   - [14.2. 🚀 Source Generators: REslava.Result.SourceGenerators](#142--source-generators-reslavaresultsourcegenerators)
@@ -1124,6 +1131,11 @@ new ForbiddenError("Delete", "Order")           // "Access denied: insufficient 
 new Error("Something went wrong")
 new ExceptionError(ex)                     // message from ex.Message, tags: ExceptionType, StackTrace
 new ExceptionError("Custom message", ex)   // custom message, same tags
+
+// ConversionError is created automatically when an implicit Result<T> → T conversion fails.
+// Severity tag is set to Warning (not Error) — rarely constructed manually.
+new ConversionError("Cannot convert 'abc' to int")
+// result.Errors[0].Tags["Severity"] == "Warning"
 ```
 
 ### 8.4. Custom Error Types
@@ -1856,6 +1868,14 @@ app.MapPost("/users", async (CreateUserRequest req) =>
     (await _service.CreateAsync(req)).ToPostResult());   // 201 Created on success
 ```
 
+> **Setup — add only the arities you use:**
+> ```csharp
+> [assembly: GenerateOneOf2ExtensionsAttribute]  // OneOf<T1,T2>.ToIResult()
+> [assembly: GenerateOneOf3ExtensionsAttribute]  // OneOf<T1,T2,T3>.ToIResult()
+> [assembly: GenerateOneOf4ExtensionsAttribute]  // OneOf<T1,T2,T3,T4>.ToIResult()
+> ```
+> Without the corresponding attribute that arity's `.ToIResult()` extension is not generated.
+
 #### 12.4.1. `OneOf<T1,T2>.ToIResult()`
 
 ```csharp
@@ -1923,6 +1943,14 @@ public class PaymentRequiredError : Error
 ## 13. 🚀 ASP.NET Integration
 
 ### 13.1. 🌐 ResultToIResult Extensions
+
+> **Setup — required once per assembly:**
+> ```csharp
+> // Any .cs file — typically Program.cs or AssemblyInfo.cs
+> [assembly: GenerateResultExtensions]
+> ```
+> Without this attribute the source generator does not emit `ToIResult()` / `ToPostResult()` / etc. for this assembly.
+
 **Complete HTTP Method Support**
 ```csharp
 // GET requests
@@ -1962,6 +1990,14 @@ return result.ToIResult(); // → 404 Not Found (reads HttpStatusCode tag)
 ```
 
 ### 13.3. 🎯 ResultToActionResult Extensions (MVC Support — v1.21.0)
+
+> **Setup — required once per assembly:**
+> ```csharp
+> // Any .cs file — typically Program.cs or AssemblyInfo.cs
+> [assembly: GenerateActionResultExtensions]
+> ```
+> Without this attribute the source generator does not emit `ToActionResult()` / `ToPostActionResult()` / etc. for this assembly.
+
 **Convention-based HTTP mapping for ASP.NET MVC Controllers**
 ```csharp
 // Convention-based — domain errors auto-map to correct HTTP status codes
@@ -2096,17 +2132,113 @@ public class UserNotFoundError : Error
 
 > **REslava.Result.Http** wraps `HttpClient` calls so every HTTP response and network failure becomes a typed `Result<T>`. The client-side complement to `ToIResult()` — completes the full round-trip.
 
+Install: `dotnet add package REslava.Result.Http`
+
+#### 13.6.1. `GetResult<T>` — Type-safe GET
+
+Sends a GET request and deserializes the body on 2xx; maps 4xx/5xx to typed domain errors automatically. Accepts both `string` and `Uri` overloads.
+
 ```csharp
 using REslava.Result.Http;
 
-var client = httpClientFactory.CreateClient();
+// string overload
+Result<User> user = await httpClient.GetResult<User>("/api/users/42");
 
-// GET — 200 → Result.Ok(user), 404 → NotFoundError, 401 → UnauthorizedError
-Result<User> user = await client.GetResult<User>("/api/users/42");
+user.Match(
+    onSuccess: u  => Console.WriteLine($"Got {u.Name}"),
+    onFailure: errors => Console.WriteLine(errors[0].Message));
+    // 404 → NotFoundError, 401 → UnauthorizedError, network failure → ExceptionError
 
-// POST — 201 → Result.Ok(created), network error → ExceptionError
-Result<User> created = await client.PostResult<CreateUserRequest, User>("/api/users", request);
+// Uri overload
+Result<User> user2 = await httpClient.GetResult<User>(new Uri("https://api.example.com/users/42"));
 ```
+
+#### 13.6.2. `PostResult<TBody, TResponse>` — Type-safe POST
+
+Sends a POST request with a JSON-serialized body and returns `Result<TResponse>`.
+
+```csharp
+Result<User> created = await httpClient.PostResult<CreateUserRequest, User>(
+    "/api/users",
+    new CreateUserRequest("Alice", "alice@example.com"));
+
+if (created.IsSuccess)
+    Console.WriteLine($"Created user {created.Value.Id}");
+```
+
+#### 13.6.3. `PutResult<TBody, TResponse>` — Type-safe PUT
+
+Sends a PUT request with a JSON-serialized body and returns `Result<TResponse>`.
+
+```csharp
+Result<User> updated = await httpClient.PutResult<UpdateUserRequest, User>(
+    "/api/users/42",
+    new UpdateUserRequest("Alice Updated"));
+
+updated.Match(
+    onSuccess: u    => Console.WriteLine($"Updated: {u.Name}"),
+    onFailure: errors => Console.WriteLine(errors[0].Message));
+```
+
+#### 13.6.4. `DeleteResult` — Type-safe DELETE (no body)
+
+Sends a DELETE request and returns a non-generic `Result` — use when the API returns no body on success (204 No Content pattern).
+
+```csharp
+Result deleted = await httpClient.DeleteResult("/api/users/42");
+
+if (deleted.IsSuccess)
+    Console.WriteLine("Resource deleted");
+```
+
+#### 13.6.5. `DeleteResult<T>` — Type-safe DELETE (with response body)
+
+Sends a DELETE request and deserializes the response body into `Result<T>` — use when the API returns the deleted resource or a confirmation object.
+
+```csharp
+Result<DeletedUserDto> result = await httpClient.DeleteResult<DeletedUserDto>("/api/users/42");
+
+if (result.IsSuccess)
+    Console.WriteLine($"Archived at: {result.Value.ArchivedAt}");
+```
+
+#### 13.6.6. `HttpResultOptions` — Custom JSON & Error Mapping
+
+Configures JSON deserialization options and/or replaces the entire status-code-to-error mapping with a custom delegate. Pass as the last parameter to any extension method.
+
+```csharp
+var options = new HttpResultOptions
+{
+    // Custom JSON serialization (default: JsonSerializerDefaults.Web)
+    JsonOptions = new JsonSerializerOptions
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+    },
+
+    // Complete override of the status-code → IError mapping
+    StatusCodeMapper = (statusCode, reasonPhrase) => statusCode switch
+    {
+        (HttpStatusCode)429 => new RateLimitError("Too many requests — back off and retry"),
+        _                   => new Error($"HTTP {(int)statusCode}: {reasonPhrase}")
+    }
+};
+
+Result<User> user = await httpClient.GetResult<User>("/api/users/42", options);
+```
+
+#### 13.6.7. Status Code → Error Mapping (defaults)
+
+| HTTP Status | Domain Error | Default Message |
+|------------|-------------|-----------------|
+| 404 Not Found | `NotFoundError` | "Resource not found" |
+| 401 Unauthorized | `UnauthorizedError` | "Authentication required" |
+| 403 Forbidden | `ForbiddenError` | "Access denied" |
+| 409 Conflict | `ConflictError` | "A conflict occurred" |
+| 422 Unprocessable Entity | `ValidationError` | "Validation failed" |
+| Other 4xx / 5xx | `Error` | "HTTP {code}: {reasonPhrase}" |
+| Network / timeout | `ExceptionError` | ex.Message |
+
+Override any or all mappings via `HttpResultOptions.StatusCodeMapper`.
 
 See [REslava.Result.Http README](https://github.com/reslava/nuget-package-reslava-result/blob/main/docs/nuget/README.REslava.Result.Http.md) for the full API reference.
 
