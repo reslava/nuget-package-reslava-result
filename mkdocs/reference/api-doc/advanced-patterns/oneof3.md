@@ -102,7 +102,6 @@ OneOf<Success, FriendlyError, ServerError> mapped = result.MapT2(error => error.
 
 ---
 
-### MapT3<TResult>(Func<T3, TResult> mapper)
 Transforms the T3 value while preserving T1 and T2 values unchanged.
 
 ```csharp
@@ -119,7 +118,6 @@ OneOf<Success, ClientError, RetryableError> mapped = result.MapT3(error => error
 
 ---
 
-### BindT2<TResult>(Func<T2, OneOf<T1, T2, TResult>> binder)
 Chains OneOf operations, flattening nested OneOf types for T2.
 
 ```csharp

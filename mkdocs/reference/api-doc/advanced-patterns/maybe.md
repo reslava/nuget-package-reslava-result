@@ -97,7 +97,6 @@ string message = user.Match(
 
 ---
 
-### Switch(Action<T> some, Action none)
 Executes side effects based on Maybe state.
 
 ```csharp
@@ -116,7 +115,6 @@ user.Switch(
 ---
 
 
-### ValueOrDefault()
 Gets the value if present, default(T) otherwise.
 
 ```csharp

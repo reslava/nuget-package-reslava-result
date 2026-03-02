@@ -147,7 +147,6 @@ SourceGenerator/Generators/ResultToIResult/
 | `IOrchestrator` | Orchestration contract | ISP |
 
 
-### Step-by-Step Process
 ```mermaid
 graph TD
     A[ResultToIResultRefactoredGenerator] --> B[ResultToIResultOrchestrator]
@@ -160,7 +159,6 @@ graph TD
     E --> H[ResultToIResultExtensions.g.cs]
 ```
 
-### Pipeline Flow
 1. **Attribute Generation**: Attributes generated immediately for use in user code
 2. **Code Generation**: Extension methods generated based on compilation analysis
 3. **Single Execution**: Each file generated once per compilation

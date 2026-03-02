@@ -361,7 +361,6 @@ public class MigrationExample
 }
 ```
 
-### Configuration and Settings
 ```csharp
 public class ConfigurationManager
 {
@@ -404,7 +403,6 @@ public class ConfigurationManager
 ---
 
 
-### Method Selection Guidelines
 
 | Scenario | Recommended Method | Reason |
 |----------|-------------------|---------|

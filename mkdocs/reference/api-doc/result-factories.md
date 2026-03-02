@@ -64,7 +64,6 @@ Factory methods for non-generic Result class.
 
 Methods for combining multiple Results.
 
-### Non-Generic Result
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
@@ -74,7 +73,6 @@ Methods for combining multiple Results.
 | **Combine** | `Result Combine(params Result[] results)` | Combines results with params syntax |
 | **CombineParallelAsync** | `Task<Result> CombineParallelAsync(IEnumerable<Task<Result>> resultTasks)` | Combines results from parallel async operations |
 
-### Generic Result<TValue>
 
 | Method | Signature | Description |
 |--------|-----------|-------------|

@@ -172,7 +172,6 @@ public static class ValidationExtensions
 }
 ```
 
-### Ensure Extensions
 
 ```csharp
 public static class ResultValidationExtensions
@@ -191,7 +190,6 @@ public static class ResultValidationExtensions
 ```
 
 
-### Basic Usage
 
 ```csharp
 using REslava.Result;

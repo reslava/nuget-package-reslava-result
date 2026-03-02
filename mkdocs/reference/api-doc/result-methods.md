@@ -65,7 +65,6 @@ Side-effect methods that don't modify the result.
 | **Tap** | `Result Tap(Action action)` | Executes a side effect without modifying the result |
 | **TapAsync** | `Task<Result> TapAsync(Func<Task> action)` | Executes an async side effect without modifying the result |
 
-### Generic Result<TValue>
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
@@ -75,7 +74,6 @@ Side-effect methods that don't modify the result.
 
 Pattern matching methods for Result types.
 
-### Non-Generic Result
 
 | Method | Signature | Description |
 |--------|-----------|-------------|

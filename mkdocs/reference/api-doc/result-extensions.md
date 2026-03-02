@@ -74,7 +74,6 @@ LINQ query syntax support for Result types. Enables functional composition using
 | **WhereAsync** | `Task<Result<S>> WhereAsync<S>(this Result<S> source, Func<S, Task<bool>> predicate)` | Asynchronously filters a Result based on a predicate |
 | **WhereAsync** | `Task<Result<S>> WhereAsync<S>(this Result<S> source, Func<S, Task<bool>> predicate, string errorMessage)` | Asynchronously filters a Result based on a predicate with custom error message |
 
-### Task<Result<T>> Extensions for LINQ
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
@@ -92,7 +91,6 @@ LINQ query syntax support for Result types. Enables functional composition using
 
 Extension methods for validation operations on Result types.
 
-### Ensure - Sync with Error
 
 | Method | Signature | Description |
 |--------|-----------|-------------|

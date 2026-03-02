@@ -16,7 +16,7 @@ tagline: Railway-oriented .NET made simple.
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-3339%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests-3768%20passing-brightgreen)
 </div>
 
 **:material-api: The only .NET library that blends functional error handling with compile‑time API generation.**

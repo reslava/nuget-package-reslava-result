@@ -102,7 +102,6 @@ OneOf<Error, ValidatedUser> validated = result.BindT2(user => ValidateUser(user)
 ---
 
 
-### IsT1
 Gets whether the OneOf contains a T1 value.
 
 ```csharp
@@ -117,7 +116,6 @@ if (result.IsT1)
 
 ---
 
-### IsT2
 Gets whether the OneOf contains a T2 value.
 
 ```csharp
