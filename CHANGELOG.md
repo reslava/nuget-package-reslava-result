@@ -4,6 +4,36 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.35.0] - 2026-03-02
+
+### ✨ Added
+- **`[ResultFlow]` source generator** — decorate any fluent `Result<T>` pipeline method with `[ResultFlow]`; a Mermaid `flowchart LR` diagram is emitted as a `public const string` in `Generated.ResultFlow.{ClassName}_Flows` at compile time — zero runtime overhead, zero manual maintenance. Supports 9 operation semantics: `Ensure`/`EnsureAsync` (gatekeeper with `|fail|` edge), `Bind`/`BindAsync` (transform with risk), `Map`/`MapAsync` (pure transform), `Tap`/`TapAsync` (side effect — success), `TapOnFailure`/`TapOnFailureAsync` (side effect — failure), `TapBoth` (side effect — both), `Match` (terminal, no outbound edges), `WithSuccess`/`WithError` (invisible — traversed, not rendered). REF001 info diagnostic emitted when method body cannot be parsed as a fluent chain.
+
+### 📚 Documentation
+- README: `### 🗺️ Pipeline Visualization — [ResultFlow]` section with Mermaid diagram, color legend, and generated output example
+- `mkdocs/index.md`: comparison table row + teaser admonition
+- `mkdocs/reference/features/index.md`: section 10 — ResultFlow (5 features, total 128 across 13 categories)
+
+### Stats
+- 3,768 tests passing across net8.0, net9.0, net10.0 (1,157×3) + generator (143) + analyzer (68) + FluentValidation bridge (26) + Http (20×3)
+- 128 features across 13 categories
+
+---
+
+## [1.34.0] - 2026-03-02
+
+### ⚠️ Breaking Changes
+- **`IResultResponse<T>` renamed to `IResultBase<T>`** — `IResultResponse` carried an unintended HTTP connotation; `IResultBase` is the semantically correct name — it is the base contract for all `Result` types, not an HTTP response. If you reference `IResultResponse<T>` directly in your code, update to `IResultBase<T>`.
+
+### 📚 Documentation
+- Fill documentation gaps: Http extensions usage, generator setup guide, `ConversionError` documented in error type table
+
+### Stats
+- 3,756 tests passing (unchanged from v1.33.0)
+- 123 features across 12 categories (unchanged)
+
+---
+
 ## [1.33.0] - 2026-03-01
 
 ### ✨ Added
