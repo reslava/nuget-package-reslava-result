@@ -143,6 +143,11 @@ MAPPING = {
     "roadmap": "reference",
     "overview": "reference/api-doc",
 
+    # ResultFlow
+    "resultflow": "resultflow",
+    "pipeline-visualization": "resultflow",
+    "result-flow": "resultflow",
+
     # Community
     "contributing": "community",
     "contributors": "community",

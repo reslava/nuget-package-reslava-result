@@ -205,12 +205,17 @@ tagline: Know exactly what you're getting.
 | Mermaid `flowchart LR` rendering | Converts `NodeKind` semantics to Mermaid nodes; pastel classDef colors, `\|fail\|` edges for Gatekeeper/TransformWithRisk, no outbound edge for Terminal | v1.35.0 | `## 🗺️ Pipeline Visualization` — `### Diagram Example` |
 | `Generated.ResultFlow.{Class}_Flows` | One `public const string {MethodName}` per `[ResultFlow]` method — zero runtime overhead | v1.35.0 | `## 🗺️ Pipeline Visualization` — `### Generated Output` |
 | REF001 diagnostic | Info diagnostic when `[ResultFlow]` method body cannot be parsed as a fluent chain | v1.35.0 | `## 🗺️ Pipeline Visualization` — `### REF001` |
+| REF002 diagnostic + Code Action | Warning when diagram comment is missing; one-click code fix inserts the Mermaid diagram above the method body | v1.36.0 | `## 🗺️ Pipeline Visualization` — `### REF002 & Code Action` |
+| Multi-library convention dictionary | Built-in support for ErrorOr (`Then`/`Switch`) and LanguageExt (`Filter`/`Do`/`DoLeft`) alongside REslava.Result | v1.36.0 | `## 🗺️ Pipeline Visualization` — `### Supported Libraries` |
+| `resultflow.json` custom classification | AdditionalFile escape hatch — override or extend the built-in dictionary for any library | v1.36.0 | `## 🗺️ Pipeline Visualization` — `### resultflow.json` |
+| REF003 diagnostic | Warning when `resultflow.json` is malformed — falls back to built-in convention | v1.36.0 | `## 🗺️ Pipeline Visualization` — `### REF003` |
+| `REslava.ResultFlow` standalone package | Independent NuGet package — works with any Result library | v1.36.0 | `## 🗺️ Pipeline Visualization` — `### Installation` |
 
 ---
 
 ## Summary
 
-!!! new "**v1.35.0** — 128 features across 13 categories."
+!!! new "**v1.36.0** — 133 features across 13 categories."
 
 
 | Category | Total Features |
@@ -227,8 +232,8 @@ tagline: Know exactly what you're getting.
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
-| ResultFlow | 5 |
-| **Total** | **128** |
+| ResultFlow | 10 |
+| **Total** | **133** |
 
 ---
 

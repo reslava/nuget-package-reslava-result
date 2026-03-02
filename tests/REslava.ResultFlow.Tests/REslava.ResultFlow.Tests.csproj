@@ -8,7 +8,7 @@
     <IsTestProject>true</IsTestProject>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 
-    <!-- Show generated files for debugging -->
+    <!-- Enable generated file output for debugging -->
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>$(ProjectDir)GeneratedFiles</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
@@ -17,6 +17,7 @@
     <PackageReference Include="MSTest" Version="4.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -24,9 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\REslava.Result.FluentValidation\REslava.Result.FluentValidation.csproj" />
-    <ProjectReference Include="..\..\src\REslava.Result.AspNetCore\REslava.Result.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\src\REslava.Result\REslava.Result.csproj" />
+    <ProjectReference Include="..\..\src\REslava.ResultFlow\REslava.ResultFlow.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,8 +36,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="FluentValidate\FluentValidateGeneratorTests.cs" />
-    <Compile Include="SmartEndpoints\FluentValidateSmartEndpointsTests.cs" />
+    <Compile Include="ResultFlowGeneratorTests.cs" />
+    <Compile Include="ResultFlowAnalyzerTests.cs" />
   </ItemGroup>
 
   <!-- Prevent double compilation of generated files -->

@@ -3125,6 +3125,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Functional Programming Community** - For the ROP methodology and patterns
 - **Roslyn** team - Powerful source generator framework
+- **[ErrorOr](https://github.com/amantinband/error-or)** by Amanti Band - Convention methods `Then` / `Switch` are recognized in the `[ResultFlow]` built-in dictionary
+- **[LanguageExt](https://github.com/louthy/language-ext)** by Paul Louth - Convention methods `Filter` / `Do` / `DoLeft` are recognized in the `[ResultFlow]` built-in dictionary
 
 ---
 

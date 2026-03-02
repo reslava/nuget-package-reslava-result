@@ -18,6 +18,7 @@ SECTION_ORDER = [
     "getting-started",
     "core-concepts",
     "aspnet",
+    "resultflow",
     "safety-analyzers",
     "architecture",
     "code-examples",

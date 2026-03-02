@@ -26,7 +26,7 @@
 
   <ItemGroup>
     <!-- Local Source Generator Reference -->
-    <ProjectReference Include="..\..\src\REslava.Result.SourceGenerator\REslava.Result.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\src\REslava.Result.AspNetCore\REslava.Result.AspNetCore.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

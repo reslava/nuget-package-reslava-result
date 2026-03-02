@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [Unreleased]
+
+### ✨ Added
+- **`REslava.ResultFlow` package** — standalone library-agnostic pipeline visualizer extracted from `REslava.Result.SourceGenerators`. Contains `[ResultFlow]` source generator, `REF002` analyzer, and "Insert diagram as comment" code action. Target: `using REslava.ResultFlow;`.
+- **`REF002` analyzer** — Info diagnostic on every `[ResultFlow]` method with a detectable chain. Enables "Insert [ResultFlow] diagram as comment" code action without requiring a build.
+- **`ResultFlowInsertCommentFix`** — Code Action that inserts the Mermaid pipeline diagram as a `/* ... */` block comment directly above the method, respecting existing indentation.
+
+### ⚠️ Breaking Changes
+- **`[ResultFlow]` attribute namespace changed**: `REslava.Result.SourceGenerators` → `REslava.ResultFlow`. Update `using REslava.Result.SourceGenerators;` to `using REslava.ResultFlow;` and replace the `REslava.Result.SourceGenerators` package reference with `REslava.ResultFlow`.
+- **`REslava.Result.SourceGenerators` package renamed** to `REslava.Result.AspNetCore`. No stub package — update your reference directly.
+
+---
+
 ## [1.35.0] - 2026-03-02
 
 ### ✨ Added

@@ -24,13 +24,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{839C7B35-3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REslava.Result.Samples.Console", "samples\REslava.Result.Samples.Console\REslava.Result.Samples.Console.csproj", "{01FCC96C-D3F5-43FE-94EF-939F80E2AE0F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REslava.Result.SourceGenerators.Tests", "tests\REslava.Result.SourceGenerators.Tests\REslava.Result.SourceGenerators.Tests.csproj", "{0C6CE800-D744-44B7-B716-C80004B5D9C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REslava.Result.AspNetCore.Tests", "tests\REslava.Result.AspNetCore.Tests\REslava.Result.AspNetCore.Tests.csproj", "{0C6CE800-D744-44B7-B716-C80004B5D9C9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REslava.Result", "src\REslava.Result\REslava.Result.csproj", "{DAD9ED6F-4B29-E788-56AD-F78953942822}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REslava.Result.SourceGenerators", "src\REslava.Result.SourceGenerator\REslava.Result.SourceGenerators.csproj", "{9E1292C1-0624-CAAC-B0AD-0D445707D623}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REslava.Result.AspNetCore", "src\REslava.Result.AspNetCore\REslava.Result.AspNetCore.csproj", "{9E1292C1-0624-CAAC-B0AD-0D445707D623}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B6205A5F-D3C4-4E33-8109-9A4F25650EB3}"
 EndProject
@@ -40,8 +40,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REslava.Result.Analyzers.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastMvcAPI.REslava.Result.Demo", "samples\FastMvcAPI.REslava.Result.Demo\FastMvcAPI.REslava.Result.Demo.csproj", "{3C5B5F41-8CA5-46AF-8194-86E49B0DFD68}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "REslava.Result.SourceGenerator", "REslava.Result.SourceGenerator", "{0F5B316C-3F32-A40D-0879-1C47E41D494F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REslava.Result.FluentValidation", "src\REslava.Result.FluentValidation\REslava.Result.FluentValidation.csproj", "{D794E23C-DFC5-4D7C-9D52-077FEB580D08}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REslava.Result.FluentValidation.Tests", "tests\REslava.Result.FluentValidation.Tests\REslava.Result.FluentValidation.Tests.csproj", "{42DAB400-27C8-437E-BC04-8E3A979CF6E2}"
@@ -49,6 +47,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REslava.Result.Http", "src\REslava.Result.Http\REslava.Result.Http.csproj", "{C5E4F3A2-B1D0-4E6F-9A8B-7C0D1E2F3A4B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REslava.Result.Http.Tests", "tests\REslava.Result.Http.Tests\REslava.Result.Http.Tests.csproj", "{D6F5A4B3-C2E1-5F70-AB9C-8D1E2F3A4B5C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REslava.ResultFlow", "src\REslava.ResultFlow\REslava.ResultFlow.csproj", "{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REslava.ResultFlow.Tests", "tests\REslava.ResultFlow.Tests\REslava.ResultFlow.Tests.csproj", "{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -204,6 +206,30 @@ Global
 		{D6F5A4B3-C2E1-5F70-AB9C-8D1E2F3A4B5C}.Release|x64.Build.0 = Release|Any CPU
 		{D6F5A4B3-C2E1-5F70-AB9C-8D1E2F3A4B5C}.Release|x86.ActiveCfg = Release|Any CPU
 		{D6F5A4B3-C2E1-5F70-AB9C-8D1E2F3A4B5C}.Release|x86.Build.0 = Release|Any CPU
+		{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6}.Debug|x64.Build.0 = Debug|Any CPU
+		{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6}.Debug|x86.Build.0 = Debug|Any CPU
+		{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6}.Release|x64.ActiveCfg = Release|Any CPU
+		{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6}.Release|x64.Build.0 = Release|Any CPU
+		{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6}.Release|x86.ActiveCfg = Release|Any CPU
+		{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6}.Release|x86.Build.0 = Release|Any CPU
+		{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7}.Debug|x64.Build.0 = Debug|Any CPU
+		{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7}.Debug|x86.Build.0 = Debug|Any CPU
+		{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7}.Release|x64.ActiveCfg = Release|Any CPU
+		{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7}.Release|x64.Build.0 = Release|Any CPU
+		{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7}.Release|x86.ActiveCfg = Release|Any CPU
+		{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -217,11 +243,12 @@ Global
 		{3CE84FFF-35A2-44FD-B173-A72A9A03C672} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{FDE49F90-4FA0-4C77-B97B-52B8372EE6A5} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{3C5B5F41-8CA5-46AF-8194-86E49B0DFD68} = {2985B926-AB16-47F8-85F9-3B33CE2DEC35}
-		{0F5B316C-3F32-A40D-0879-1C47E41D494F} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{D794E23C-DFC5-4D7C-9D52-077FEB580D08} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{42DAB400-27C8-437E-BC04-8E3A979CF6E2} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{C5E4F3A2-B1D0-4E6F-9A8B-7C0D1E2F3A4B} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{D6F5A4B3-C2E1-5F70-AB9C-8D1E2F3A4B5C} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{E1A2B3C4-D5E6-F7A8-B9C0-D1E2F3A4B5C6} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{F2B3C4D5-E6F7-A8B9-C0D1-E2F3A4B5C6D7} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4792301C-8894-47EF-B01A-714CAD3CFFA9}

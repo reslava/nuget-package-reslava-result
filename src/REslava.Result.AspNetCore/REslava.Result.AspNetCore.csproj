@@ -1,0 +1,143 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <!-- Enable Roslyn Component debugging only in Debug configuration -->
+    <IsRoslynComponent Condition="'$(Configuration)' == 'Debug'">true</IsRoslynComponent>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    
+    <!-- NuGet Package Configuration -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>REslava.Result.AspNetCore</PackageId>
+    <Authors>REslava</Authors>
+    <Company>REslava</Company>
+    <Product>REslava.Result.AspNetCore</Product>
+    <Description>Source generators for REslava.Result library. Automatically generates extension methods to convert Result types to ASP.NET Core IResult with proper HTTP status codes and ProblemDetails.</Description>
+    <Copyright>Copyright © REslava 2025</Copyright>
+    <PackageProjectUrl>https://reslava.github.io/nuget-package-reslava-result</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>source-generator;result;minimal-api;aspnetcore;iresult;code-generation</PackageTags>
+    <PackageReadmeFile>README.REslava.Result.AspNetCore.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    
+    <!-- Source Link -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <!-- Documentation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    
+    <!-- CRITICAL: Source Generator Configuration -->
+    <!-- This tells NuGet this is a development-only dependency -->
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <!-- Suppress dependency on .NET Standard 2.0 -->
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+  </PropertyGroup>
+
+  <!-- Include README and icon in package -->
+  <ItemGroup>
+    <None Include="..\..\docs\nuget\README.REslava.Result.AspNetCore.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
+    <!-- Add content files to avoid NU5017 -->
+    <Content Include="MapToProblemDetailsAttribute.cs" Pack="true" PackagePath="content" />
+  </ItemGroup>
+
+  <!-- Package Dependencies -->
+  <!-- CRITICAL: Core package is needed at compile time for the generator -->
+  <ItemGroup>
+    <PackageReference Include="REslava.Result.SourceGenerators.Core" Version="1.9.0" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.12.0-beta1.25218.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+  </ItemGroup>
+
+  <!-- CRITICAL: Package this as a Source Generator -->
+  <!-- This puts the DLL in the analyzers folder so Roslyn can load it -->
+  <ItemGroup>
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+
+  <!-- Optional: Create build props file for better IDE experience -->
+  <ItemGroup>
+    <None Include="build\REslava.Result.AspNetCore.props" Pack="true" PackagePath="build" />
+    <None Include="buildTransitive\REslava.Result.AspNetCore.props" Pack="true" PackagePath="buildTransitive" />
+  </ItemGroup>
+
+  <!-- Explicit compile items - use refactored structure only -->
+  <ItemGroup>
+    <Compile Include="MapToProblemDetailsAttribute.cs" />
+    
+    <!-- Core Shared Interfaces -->
+    <Compile Include="Core\Interfaces\IAttributeGenerator.cs" />
+    <Compile Include="Core\Interfaces\ICodeGenerator.cs" />
+    <Compile Include="Core\Interfaces\IGeneratorOrchestrator.cs" />
+
+    <!-- SmartEndpoints Generator - Automatic Minimal API Generation -->
+    <Compile Include="Generators\SmartEndpoints\SmartEndpointsGenerator.cs" />
+    <!--Compile Include="Generators\SmartEndpoints\SimpleTestGenerator.cs" /-->
+    <!--Compile Include="Generators\SmartEndpoints\MinimalSmartEndpointsGenerator.cs" /-->
+    <Compile Include="Generators\SmartEndpoints\Models\*.cs" />
+    <Compile Include="Generators\SmartEndpoints\Orchestration\SmartEndpointsOrchestrator.cs" />
+    <Compile Include="Generators\SmartEndpoints\Attributes\AutoGenerateEndpointsAttributeGenerator.cs" />
+    <Compile Include="Generators\SmartEndpoints\Attributes\AutoMapEndpointAttributeGenerator.cs" />
+    <Compile Include="Generators\SmartEndpoints\Attributes\SmartAllowAnonymousAttributeGenerator.cs" />
+    <Compile Include="Generators\SmartEndpoints\Attributes\SmartFilterAttributeGenerator.cs" />
+    <Compile Include="Generators\SmartEndpoints\CodeGeneration\SmartEndpointExtensionGenerator.cs" />
+    
+    <!-- ResultToIResult Generator - Refactored version -->
+    <Compile Include="Generators\ResultToIResult\ResultToIResultRefactoredGenerator.cs" />
+    <Compile Include="Generators\ResultToIResult\Orchestration\ResultToIResultOrchestrator.cs" />
+    <Compile Include="Generators\ResultToIResult\Attributes\GenerateResultExtensionsAttributeGenerator.cs" />
+    <Compile Include="Generators\ResultToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
+    <Compile Include="Generators\ResultToIResult\CodeGeneration\ResultToIResultExtensionGenerator.cs" />
+
+    <!-- ResultToActionResult Generator - MVC IActionResult Support -->
+    <Compile Include="Generators\ResultToActionResult\ResultToActionResultGenerator.cs" />
+    <Compile Include="Generators\ResultToActionResult\Orchestration\ResultToActionResultOrchestrator.cs" />
+    <Compile Include="Generators\ResultToActionResult\Attributes\GenerateActionResultExtensionsAttributeGenerator.cs" />
+    <Compile Include="Generators\ResultToActionResult\CodeGeneration\ResultToActionResultExtensionGenerator.cs" />
+
+    <!-- OneOfToActionResult Generators - MVC IActionResult (OneOf2, OneOf3, OneOf4, OneOf5, OneOf6) -->
+    <Compile Include="Generators\OneOfToActionResult\OneOf2ToActionResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToActionResult\OneOf3ToActionResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToActionResult\OneOf4ToActionResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToActionResult\OneOf5ToActionResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToActionResult\OneOf6ToActionResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToActionResult\Orchestration\OneOfToActionResultOrchestrator.cs" />
+    <Compile Include="Generators\OneOfToActionResult\Attributes\OneOfActionResultExtensionsAttributeGenerator.cs" />
+    <Compile Include="Generators\OneOfToActionResult\CodeGeneration\OneOfToActionResultExtensionGenerator.cs" />
+
+    <!-- OneOfToIResult Generators - Consolidated (OneOf2, OneOf3, OneOf4, OneOf5, OneOf6) -->
+    <Compile Include="Generators\OneOfToIResult\OneOf2ToIResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\OneOf3ToIResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\OneOf4ToIResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\OneOf5ToIResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\OneOf6ToIResultGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\Orchestration\OneOfToIResultOrchestrator.cs" />
+    <Compile Include="Generators\OneOfToIResult\Attributes\OneOfExtensionsAttributeGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\Attributes\MapToProblemDetailsAttributeGenerator.cs" />
+    <Compile Include="Generators\OneOfToIResult\CodeGeneration\OneOfToIResultExtensionGenerator.cs" />
+
+    <!-- Validate Generator - Data Annotation Validation → Result<T> -->
+    <Compile Include="Generators\Validate\ValidateGenerator.cs" />
+    <Compile Include="Generators\Validate\Orchestration\ValidateOrchestrator.cs" />
+    <Compile Include="Generators\Validate\Attributes\ValidateAttributeGenerator.cs" />
+    <Compile Include="Generators\Validate\CodeGeneration\ValidateExtensionGenerator.cs" />
+
+  </ItemGroup>
+
+</Project>
