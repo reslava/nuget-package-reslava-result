@@ -8,9 +8,9 @@ tagline: Your pipeline diagram, written by the compiler.
 
 # ResultFlow
 
-Auto-generate **Mermaid pipeline diagrams** for any fluent Result pipeline — at compile time.
+Auto-generate **Mermaid pipeline diagrams** for any fluent Result pipeline.
 
-Add `[ResultFlow]` to a method. Build. The diagram is a `const string` in the generated code — paste it into any Mermaid renderer to instantly visualize the data flow.
+Add `[ResultFlow]` to a method. The diagram will be inserted as a comment with a click, paste it into any Mermaid renderer to instantly visualize the data flow.
 
 ```bash
 dotnet add package REslava.ResultFlow
