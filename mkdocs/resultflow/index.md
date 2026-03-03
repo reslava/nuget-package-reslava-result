@@ -24,22 +24,28 @@ dotnet add package REslava.ResultFlow
 
     [](pipeline-visualization--resultflow)
 
+-   :material-package-variant-closed-check: __Standalone Package__    
+  
+    [ResultFlow] is provided by the REslava.ResultFlow package — completely independent of REslava.Result. It works with any fluent Result library.
+
+    [](standalone-package)    
+
 -   :material-book-open-variant: __Convention Dictionary__
 
     Built-in support for **REslava.Result**, **ErrorOr**, and **LanguageExt** — classify Ensure, Bind, Map, Tap, Match, Filter, Then, and more out of the box.
 
-    [](pipeline-visualization--resultflow)
+    [](supported-libraries)
 
 -   :material-file-cog: __`resultflow.json` Configuration__
 
     Escape hatch for custom or third-party libraries. Add a single JSON file and override any built-in classification with your own method names.
 
-    [](pipeline-visualization--resultflow)
+    [](resultflow.json--custom-classification)
 
 -   :material-wrench: __Code Action — Insert Diagram__
 
     The companion analyzer detects missing diagram comments on `[ResultFlow]` methods. One click inserts the generated Mermaid diagram directly above the method body.
 
-    [](pipeline-visualization--resultflow)
+    [](code-action--insert-diagram-as-comment)
 
 </div>
