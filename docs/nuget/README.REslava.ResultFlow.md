@@ -1,10 +1,10 @@
 # REslava.ResultFlow
 
-Source generator that auto-generates **Mermaid pipeline diagrams** at compile time for any fluent Result library.
+Source generator that auto-generates **Mermaid pipeline diagrams** for any fluent Result library — completely independent of any specific library.
 
-Add `[ResultFlow]` to any fluent method → get a generated `const string` diagram. Zero runtime overhead. Zero manual maintenance.
+Add `[ResultFlow]` to any fluent method → the diagram is **injected as a comment** by the IDE code action (no build needed), or accessed as a `const string` after build. Zero runtime overhead. Zero manual maintenance.
 
-Works with **REslava.Result**, ErrorOr, LanguageExt, and any library with `Bind` / `Map` / `Match` style methods.
+Ships with a **built-in convention dictionary** pre-configured for **REslava.Result**, **ErrorOr**, and **LanguageExt**. Any other library can be supported by adding a `resultflow.json` file to your project.
 
 ## Installation
 
@@ -26,7 +26,19 @@ public async Task<Result<UserDto>> RegisterAsync(RegisterCommand cmd) =>
         .MapAsync(ToDto);
 ```
 
-After build, access the diagram:
+Use the **IDE code action** to inject the diagram as a comment directly above the method — no build required:
+
+```csharp
+/*
+flowchart LR
+    N0_EnsureAsync["EnsureAsync"]:::gatekeeper
+    ...
+*/
+[ResultFlow]
+public async Task<Result<UserDto>> RegisterAsync(RegisterCommand cmd) => ...
+```
+
+Or access the generated constant after build and paste it into any Mermaid renderer:
 
 ```csharp
 string diagram = Generated.ResultFlow.UserService_Flows.RegisterAsync;

@@ -4,16 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
-## [Unreleased]
+## [1.36.0] - 2026-03-02
 
 ### ✨ Added
-- **`REslava.ResultFlow` package** — standalone library-agnostic pipeline visualizer extracted from `REslava.Result.SourceGenerators`. Contains `[ResultFlow]` source generator, `REF002` analyzer, and "Insert diagram as comment" code action. Target: `using REslava.ResultFlow;`.
-- **`REF002` analyzer** — Info diagnostic on every `[ResultFlow]` method with a detectable chain. Enables "Insert [ResultFlow] diagram as comment" code action without requiring a build.
-- **`ResultFlowInsertCommentFix`** — Code Action that inserts the Mermaid pipeline diagram as a `/* ... */` block comment directly above the method, respecting existing indentation.
+- **`REslava.ResultFlow` package** — standalone library-agnostic pipeline visualizer, independent of `REslava.Result`. Contains `[ResultFlow]` source generator, `REF002` analyzer, and "Insert diagram as comment" code action. Works with any fluent Result library. Target: `using REslava.ResultFlow;`.
+- **`REF002` analyzer + Code Action** — Info diagnostic on every `[ResultFlow]` method with a detectable chain. Single-click code action inserts the Mermaid pipeline diagram as a `/* ... */` block comment directly above the method, respecting existing indentation. No build required.
+- **Convention dictionary expansion** — built-in support for **ErrorOr** (`Then`/`ThenAsync`, `Switch`/`SwitchAsync`) and **LanguageExt** (`Filter`, `Do`/`DoAsync`, `DoLeft`/`DoLeftAsync`) alongside REslava.Result — zero configuration.
+- **`resultflow.json` AdditionalFile config** — escape hatch for custom or third-party libraries. Config entries **override** the built-in dictionary. Supported keys: `bind`, `map`, `tap`, `tapOnFailure`, `gatekeeper`, `terminal`. REF003 Warning emitted on malformed JSON (fallback to convention).
 
 ### ⚠️ Breaking Changes
 - **`[ResultFlow]` attribute namespace changed**: `REslava.Result.SourceGenerators` → `REslava.ResultFlow`. Update `using REslava.Result.SourceGenerators;` to `using REslava.ResultFlow;` and replace the `REslava.Result.SourceGenerators` package reference with `REslava.ResultFlow`.
 - **`REslava.Result.SourceGenerators` package renamed** to `REslava.Result.AspNetCore`. No stub package — update your reference directly.
+
+### 📚 Documentation
+- NuGet README for `REslava.ResultFlow` expanded with Installation, Supported Libraries table, `resultflow.json` config, Code Action description, Diagnostics
+- `mkdocs/resultflow/` new top-level section with `index.md`
+- `mkdocs/reference/features/index.md`: ResultFlow section expanded to 10 features (total 133 across 13 categories)
+- README: section 16.4 expanded with Standalone Package, Code Action, Supported Libraries, `resultflow.json` subsections
+- Acknowledgments: ErrorOr (Amanti Band) and LanguageExt (Paul Louth) added
+
+### Stats
+- 3,795 tests passing across net8.0, net9.0, net10.0 (1,157×3) + generator (143) + ResultFlow (27) + analyzer (68) + FluentValidation bridge (26) + Http (20×3)
+- 133 features across 13 categories
 
 ---
 
