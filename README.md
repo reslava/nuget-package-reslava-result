@@ -2525,23 +2525,10 @@ Using `RegisterSourceOutput` with `SyntaxValueProvider`, generators only re-run 
 
 ### 16.4. 🗺️ Pipeline Visualization — `[ResultFlow]`
 
-Annotate any fluent pipeline with `[ResultFlow]` and the source generator automatically produces a **Mermaid diagram constant** — zero runtime overhead, zero maintenance.
+Annotate any fluent pipeline with `[ResultFlow]` and with **single-click code action** ResultFlow will insert a **Mermaid diagram comment** so you can visualize every success path, failure branch, and side effect in your pipeline — zero runtime overhead, zero maintenance.
 
 ```csharp
-[ResultFlow]
-public async Task<Result<UserDto>> RegisterAsync(RegisterCommand cmd)
-{
-    return await CreateUser(cmd)
-        .EnsureAsync(IsEmailValid, new InvalidEmailError())
-        .BindAsync(SaveUser)
-        .TapAsync(SendWelcomeEmail)
-        .MapAsync(ToDto);
-}
-```
-
-After build, `Generated.ResultFlow.UserService_Flows.RegisterAsync` holds the diagram string. Paste it into any [Mermaid renderer](https://mermaid.live) to instantly see the data flow:
-
-```mermaid
+/*
 flowchart LR
     N0_EnsureAsync["EnsureAsync"]:::gatekeeper
     N0_EnsureAsync -->|pass| N1_BindAsync
@@ -2556,7 +2543,19 @@ flowchart LR
     classDef failure fill:#f8e3e3,color:#b13e3e
     classDef transform fill:#e3f0e8,color:#2f7a5c
     classDef sideeffect fill:#fff4d9,color:#b8882c
+*/
+[ResultFlow]
+public async Task<Result<UserDto>> RegisterAsync(RegisterCommand cmd)
+{
+    return await CreateUser(cmd)
+        .EnsureAsync(IsEmailValid, new InvalidEmailError())
+        .BindAsync(SaveUser)
+        .TapAsync(SendWelcomeEmail)
+        .MapAsync(ToDto);
+}
 ```
+
+Paste the comment into any [Mermaid renderer](https://mermaid.live) to instantly see the data flow.
 
 Each operation is color-coded by semantic role: **lavender** = gatekeepers (Ensure), **mint** = transforms (Bind/Map), **vanilla** = side effects (Tap), **soft pink** = failure paths.
 
@@ -2572,7 +2571,7 @@ No extra `using` needed — the `[ResultFlow]` attribute is injected automatical
 
 ### 16.6. . 🛠️ Code Action — Insert Diagram as Comment
 
-The companion analyzer (REF002) fires on every `[ResultFlow]` method with a detectable chain. A **single-click code action** inserts the Mermaid diagram as a `/* ... */` block comment directly above the method — no build required:
+ On every `[ResultFlow]` method with a detectable chain a **single-click code action** inserts the Mermaid diagram as a `/* ... */` block comment directly above the method — no build required:
 
 ```csharp
 /*
@@ -2584,6 +2583,7 @@ flowchart LR
 [ResultFlow]
 public async Task<Result<UserDto>> RegisterAsync(RegisterCommand cmd) => ...
 ```
+NOTE: this is done by the companion analyzer (REF002)
 
 ### 16.7. . 🌐 Supported Libraries
 
