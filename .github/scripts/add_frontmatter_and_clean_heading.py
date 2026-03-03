@@ -10,6 +10,24 @@ import frontmatter
 
 DOCS_DIR = Path("mkdocs")
 
+# These folders contain hand-crafted static content — never touch them.
+SKIP_DIRS = {
+    DOCS_DIR / "architecture" / "solid",
+    DOCS_DIR / "code-examples" / "samples",
+    DOCS_DIR / "reference" / "api-doc",
+}
+
+def should_skip(filepath):
+    if filepath.name == "index.md":
+        return True
+    for skip_dir in SKIP_DIRS:
+        try:
+            filepath.relative_to(skip_dir)
+            return True
+        except ValueError:
+            pass
+    return False
+
 def process_file(filepath):
     """Extract first heading, set as frontmatter title, and remove heading line."""
     with open(filepath, 'r', encoding='utf-8') as f:
@@ -73,8 +91,8 @@ def main():
         return
 
     for md_file in DOCS_DIR.rglob("*.md"):
-        if md_file.name == "index.md":
-            continue   # skip manual index pages
+        if should_skip(md_file):
+            continue
         process_file(md_file)
 
 if __name__ == "__main__":
