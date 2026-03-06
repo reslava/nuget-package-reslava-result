@@ -32,6 +32,9 @@ tagline: Know exactly what you're getting.
 | `Result.Recover()` / `RecoverAsync()` | Recovery from any failure — transforms failure into a new `Result<T>` (success or failure); error list passed to recovery func; both `Result` and `Result<T>`; Task extensions with CancellationToken | v1.31.0 | `## 📐 REslava.Result Core Library` — `### 🔄 Railway Recovery` |
 | `Result.Filter()` / `FilterAsync()` | Converts success to failure when predicate fails; `Func<T, IError>` error factory enables value-dependent contextual messages; 3 sync overloads (factory / static IError / string); async predicate variant; Task extensions | v1.31.0 | `## 📐 REslava.Result Core Library` — `### 🔍 Predicate Filtering` |
 | `Result.Validate()` | Applicative validation — runs 2/3/4 independent `Result<T>` validations simultaneously, accumulates ALL errors, maps heterogeneous success values to `Result<TResult>` via mapper func | v1.32.0 | — |
+| `Switch()` / `SwitchAsync()` | Void side-effect dispatch — routes success/failure to two actions; Task extensions enable end-of-chain dispatch after async pipelines | v1.37.0 | — |
+| `MapError()` / `MapErrorAsync()` | Transforms errors in the failure path — symmetric counterpart to `Map`; success passes through unchanged; Task extensions | v1.37.0 | — |
+| `Or()` / `OrElse()` / `OrElseAsync()` | Fallback result on failure — simpler API than `Recover`; `Or(fallback)` eager, `OrElse(factory)` lazy with errors; Task extensions | v1.37.0 | — |
 | `Result<T>.Deconstruct()` | C# 8+ tuple unpacking — `(value, errors)` 2-way and `(isSuccess, value, errors)` 3-way for `Result<T>`; `(isSuccess, errors)` for non-generic `Result` | v1.32.0 | — |
 | `Result.Combine()` / `Merge()` | Aggregate multiple results | v1.20.0 | `## 📐 REslava.Result Core Library` — `### Complete Method Catalog` |
 | `Result.WhenAll()` | Run concurrent async Results, aggregate errors | v1.18.0 | `## REslava.Result Core Library` — `### Async Patterns` |
