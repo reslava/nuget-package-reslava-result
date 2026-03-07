@@ -17,7 +17,7 @@ Practical C# examples showing REslava.Result in action – Result pattern, funct
     [](core-library---type-safe-error-handling)
 
 -   :material-language-csharp: __Sample Applications__
-    Lesson tutorials, ResultFlow demo, FastMinimalAPI, FastMvcAPI and Console Demos — full working projects.
+    Tutorial Lessons, ResultFlow Sample, FastMinimalAPI, FastMvcAPI and Console Demos — full working projects.
     [](sample-projects)
 
 -   :material-rocket-launch: __Source Generator — Zero Boilerplate__

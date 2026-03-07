@@ -70,10 +70,15 @@ def process_file(filepath):
 
     if heading_text and not metadata.get('title'):
         # Strip leading section-number prefix, e.g. "7.1. ", "21.3. ", "16.4.1. "
-        metadata['title'] = re.sub(r'^[\d]+(?:\.[\d]+)*\.\s*', '', heading_text)
+        title = re.sub(r'^[\d]+(?:\.[\d]+)*\.\s*', '', heading_text)
+        metadata['title'] = title
 
-    if heading_line_idx is not None:
-        # Remove the heading line
+    # Always strip bold markers from title — covers both newly set and pre-existing values
+    if metadata.get('title'):
+        metadata['title'] = re.sub(r'\*\*(.*?)\*\*', r'\1', metadata['title'])
+
+    if heading_line_idx is not None and not re.search(r'\*\*', heading_text):
+        # Remove plain heading lines only — bold headings (**text**) are kept in the body
         del lines[heading_line_idx]
         # Also remove any blank lines immediately after? (optional)
         # while heading_line_idx < len(lines) and lines[heading_line_idx].strip() == '':

@@ -57,7 +57,7 @@ MAPPING = {
     "12.3.": "architecture/source-generators",
     "12.":  "architecture",
     "13.":  "architecture/source-generators",
-    "14.":  "code-examples/sample-projects",
+    "14.":  "code-examples",
     "15.":  "code-examples",
     "16.":  "testing",
     "17.":  "safety-analyzers",
