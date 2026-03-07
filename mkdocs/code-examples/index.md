@@ -26,6 +26,6 @@ Practical C# examples showing REslava.Result in action – Result pattern, funct
 
 -   :material-language-csharp: __Sample Applications__
     FastMinimalAPI, FastMvcAPI and Console Demos — full working projects.
-    [](samples/examples)
+    [](samples/sample-projects/)
 
 </div>
