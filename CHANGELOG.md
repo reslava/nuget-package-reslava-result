@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.37.0] - 2026-03-07
+
+### ✨ Added
+- **`Switch()` / `SwitchAsync()`** — void side-effect dispatch on `Result` and `Result<T>`; routes success/failure to two actions without returning a value; explicit intent signal for void branching (standard name in LanguageExt/OneOf); `Task<Result>` / `Task<Result<T>>` extensions enable clean end-of-chain dispatch after async pipelines — filling a gap that `void Match` extensions do not cover.
+- **`MapError()` / `MapErrorAsync()`** — transforms errors in the failure path; symmetric counterpart to `Map`; success passes through unchanged; result state (IsSuccess/IsFailure) never changes; async overload accepts `Func<ImmutableList<IError>, Task<ImmutableList<IError>>>`;  `Task<Result>` / `Task<Result<T>>` extensions with sync and async mapper overloads.
+- **`Or()` / `OrElse()` / `OrElseAsync()`** — fallback result on failure; simpler API than `Recover`; `Or(fallback)` is eager, `OrElse(factory)` is lazy and receives the full error list; fallback can itself be a failure; `Task<Result>` / `Task<Result<T>>` extensions for all three variants.
+- **`ResultFlowChainExtractor` updated** — `MapError`/`MapErrorAsync` → `SideEffectFailure`; `Or`/`OrElse`/`OrElseAsync` → `TransformWithRisk`.
+
+### Stats
+- 3,960 tests passing across net8.0, net9.0, net10.0 (1,216×3) + generator (131) + ResultFlow (27) + analyzer (68) + FluentValidation bridge (26) + Http (20×3)
+- 136 features across 13 categories
+
+---
+
 ## [1.36.0] - 2026-03-02
 
 ### ✨ Added
