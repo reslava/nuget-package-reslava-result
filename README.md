@@ -12,7 +12,7 @@ REslava.Result - Railway-Oriented Programming for .NET
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-3783%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests-3960%20passing-brightgreen)
 
 </div>
 
