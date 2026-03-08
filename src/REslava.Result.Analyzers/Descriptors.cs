@@ -60,6 +60,17 @@ namespace REslava.Result.Analyzers
             isEnabledByDefault: true,
             description: "[Validate] generates a .Validate() extension using DataAnnotations, while [FluentValidate] generates one using FluentValidation.IValidator<T>. Both cannot coexist on the same type because they produce a compile-time naming conflict.");
 
+        public static readonly DiagnosticDescriptor RESL1009_TryCatchToResultTry = new(
+            id: "RESL1009",
+            title: "Replace try/catch with Result<T>.Try()",
+            messageFormat: "This try/catch pattern can be replaced with 'Result<{0}>.Try(() => ...)'.",
+            category: "REslava.Result.Migration",
+            defaultSeverity: DiagnosticSeverity.Info,
+            isEnabledByDefault: true,
+            description: "Inside a method returning Result<T>, a try { return T } catch { return Fail(...) } " +
+                         "block is equivalent to Result<T>.Try(() => ...). The factory removes boilerplate " +
+                         "and makes the intent explicit.");
+
         public static readonly DiagnosticDescriptor RESL1005_SuggestDomainError = new(
             id: "RESL1005",
             title: "Consider using a domain-specific error type",

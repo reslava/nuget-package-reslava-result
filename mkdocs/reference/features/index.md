@@ -175,11 +175,15 @@ tagline: Know exactly what you're getting.
 
 !!! warning "| RESL1006 | Both `[Validate]` and `[FluentValidate]` on same type — Error | v1.28.0 | `## 🛡️ Safety Analyzers` — `### RESL1006` |"
 
+!!! warning "| RESL1009 | Replace `try/catch` with `Result<T>.Try()` — Info + Code Fix | v1.38.0 | `## 🛡️ Safety Analyzers` — `### RESL1009` |"
+
 !!! warning "| RESL2001 | Unsafe `OneOf.AsT*` without `IsT*` guard — Warning + Code Fix | v1.14.2 | `## 🛡️ Safety Analyzers` — `### RESL2001` |"
 
 !!! warning "| Code Fix: RESL1001 | Wrap in `if (IsSuccess)` guard or replace with `.Match()` | v1.14.2 | `## 🛡️ Safety Analyzers` — `### RESL1001` |"
 
 !!! warning "| Code Fix: RESL1004 | Add `await` keyword | v1.19.0 | `## 🛡️ Safety Analyzers` — `### RESL1004` |"
+
+!!! warning "| Code Fix: RESL1009 | Replace try/catch with `Result<T>.Try(() => ...)` or `Result<T>.Try(() => ..., ex => ...)` | v1.38.0 | `## 🛡️ Safety Analyzers` — `### RESL1009` |"
 
 !!! warning "| Code Fix: RESL2001 | Replace `.AsT*` with exhaustive `.Match()` | v1.14.2 | `## 🛡️ Safety Analyzers` — `### RESL2001` |"
 
@@ -219,7 +223,7 @@ tagline: Know exactly what you're getting.
 
 ## Summary
 
-!!! new "**v1.38.0** — 134 features across 13 categories."
+!!! new "**v1.38.0** — 136 features across 13 categories."
 
 
 | Category | Total Features |
@@ -231,13 +235,13 @@ tagline: Know exactly what you're getting.
 | Result/OneOf → ActionResult | 8 |
 | Validate | 5 |
 | Problem Details | 5 |
-| Analyzers | 10 |
+| Analyzers | 12 |
 | OneOf (incl. OneOf5/6 + chains) | 8 |
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
 | ResultFlow | 11 |
-| **Total** | **134** |
+| **Total** | **136** |
 
 ---
 
