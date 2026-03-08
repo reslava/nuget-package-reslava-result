@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.38.0] - 2026-03-08
+
+### ✨ Added
+- **`RESL1009` analyzer + code fix** — detects `try/catch` blocks that produce a `Result<T>` and offers a one-click migration to `Result<T>.Try(...)` / `Result<T>.TryAsync(...)`. Reduces boilerplate and enforces the railway-oriented pattern.
+- **RF-1 — Async step annotation (⚡)** — `REslava.ResultFlow` source generator now appends ⚡ to any pipeline step resolved via `await`. Annotation appears inline in the Mermaid node label (e.g. `"EnsureAsync ⚡<br/>User"`) — zero configuration required.
+- **RF-2 — Success type travel** — `REslava.ResultFlow` source generator now infers the success type `T` of each pipeline step using generic Roslyn type extraction (no `IResultBase`, no `IError` — works with any Result library). Type-preserving steps show `"MethodName<br/>T"`; type-changing steps show `"MethodName<br/>T → U"`. Falls back to method-name-only when the return type is non-generic or unresolvable.
+- **RF-3 — `REslava.Result.Flow` native companion package** — new `REslava.Result.Flow` package extends pipeline visualisation with REslava.Result-specific semantics: uses `IResultBase` and `IError` as Roslyn anchors to infer both success types and error surfaces, and annotates typed failure edges in the Mermaid diagram.
+
+### Stats
+- 3,994 tests passing across net8.0, net9.0, net10.0 (1,216×3) + generator (131) + ResultFlow (39) + analyzer (79) + FluentValidation bridge (26) + Http (20×3) + Result.Flow (11)
+- 140 features across 13 categories
+
+---
+
 ## [1.37.0] - 2026-03-07
 
 ### ✨ Added
