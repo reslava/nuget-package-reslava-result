@@ -175,23 +175,12 @@ else
     HTTP_PER_TFM=${HTTP_PER_TFM:-0}
     HTTP_TOTAL=$(( HTTP_PER_TFM * HTTP_TFM_COUNT ))
 
-    if [[ -n "$CORE_PER_TFM" && -n "$GENERATOR" && -n "$ANALYZER" && "$TFM_COUNT" -gt 0 ]]; then
-      CORE_TOTAL=$(( CORE_PER_TFM * TFM_COUNT ))
-      ACTUAL_TOTAL=$(( CORE_TOTAL + GENERATOR + RESULTFLOW + ANALYZER + FLUENT + HTTP_TOTAL ))
-      cat > "$CACHE_FILE" <<EOF
-CORE_PER_TFM=$CORE_PER_TFM
-TFM_COUNT=$TFM_COUNT
-CORE_TOTAL=$CORE_TOTAL
-GENERATOR=$GENERATOR
-RESULTFLOW=$RESULTFLOW
-ANALYZER=$ANALYZER
-FLUENT=$FLUENT
-HTTP_PER_TFM=$HTTP_PER_TFM
-HTTP_TFM_COUNT=$HTTP_TFM_COUNT
-HTTP_TOTAL=$HTTP_TOTAL
-TOTAL=$ACTUAL_TOTAL
+    # Save the authoritative PASSED_COUNT as TOTAL — covers all test projects
+    # including REslava.Result.Flow.Tests and any future suites without needing
+    # per-suite extraction logic.
+    cat > "$CACHE_FILE" <<EOF
+TOTAL=$PASSED_COUNT
 EOF
-    fi
   fi
   rm -f "$TMPFILE"
 fi
@@ -235,48 +224,46 @@ else
 fi
 echo ""
 
-# ─── Check 9: Test counts in docs match actual ───────────────────────────────
+# ─── Check 9: Test count floor ────────────────────────────────────────────────
+#
+# We use a FLOOR threshold (not an exact count) to avoid updating docs after
+# every release. Only update TEST_FLOOR and the README.md badge together when
+# the suite crosses the next hundred mark (e.g. 3900 → 4000).
+# See CLAUDE.md §6 "Test Count Convention" for the full rule.
 
-echo -e "${BOLD}9. Test counts in documentation${RESET}"
+echo -e "${BOLD}9. Test count floor${RESET}"
+
+# ── Memorized floor — update when test count crosses the next hundred ──────────
+TEST_FLOOR=3900
+# ─────────────────────────────────────────────────────────────────────────────
 
 if [[ -f "$CACHE_FILE" ]]; then
   # shellcheck disable=SC1090
   source "$CACHE_FILE"
-  ACTUAL_TOTAL_FMT=$(fmt "$TOTAL")
 
-  # README.md badge
-  README_BADGE=$(grep -oE 'tests-[0-9]+%20passing' "$REPO_ROOT/README.md" | head -1 | sed 's/tests-//;s/%20passing//' || true)
-  if [[ "$README_BADGE" == "$TOTAL" ]]; then
-    pass "README.md badge: tests-${TOTAL}%20passing ✓"
+  # 9a. Actual count must be at or above the floor
+  if [[ "$TOTAL" -lt "$TEST_FLOOR" ]]; then
+    fail "Test count ${TOTAL} is below the floor ${TEST_FLOOR} — possible regression or floor not yet updated"
   else
-    fail "README.md badge shows 'tests-${README_BADGE}%20passing', expected '${TOTAL}'"
+    pass "Test count ${TOTAL} ≥ floor ${TEST_FLOOR} ✓"
   fi
 
-  # CHANGELOG.md latest Stats line
-  CHANGELOG_LINE=$(grep -m1 'tests passing across net' "$REPO_ROOT/CHANGELOG.md" || true)
-  if echo "$CHANGELOG_LINE" | grep -q "$ACTUAL_TOTAL_FMT"; then
-    pass "CHANGELOG.md latest Stats: ${ACTUAL_TOTAL_FMT} tests ✓"
+  # 9b. README badge must use the ">FLOOR" format (not an exact number)
+  README_BADGE_RAW=$(grep -oE 'tests->[0-9]+%20passing' "$REPO_ROOT/README.md" | head -1 || true)
+  BADGE_FLOOR=$(echo "$README_BADGE_RAW" | sed 's/tests->//;s/%20passing//' || true)
+  if [[ -z "$README_BADGE_RAW" ]]; then
+    fail "README.md badge does not use the '>N' format — expected 'tests->${TEST_FLOOR}%20passing'"
+    warn "Update badge to: ![Test Suite](https://img.shields.io/badge/tests->%20${TEST_FLOOR}%20passing-brightgreen)"
+  elif [[ "$BADGE_FLOOR" -ne "$TEST_FLOOR" ]]; then
+    fail "README.md badge floor is ${BADGE_FLOOR}, script floor is ${TEST_FLOOR} — update both together when crossing a hundred"
   else
-    CHANGELOG_COUNT=$(echo "$CHANGELOG_LINE" | grep -oE '[0-9,]+ tests passing' | head -1 | sed 's/ tests passing//' || true)
-    fail "CHANGELOG.md Stats shows '${CHANGELOG_COUNT}' tests, expected '${ACTUAL_TOTAL_FMT}'"
-    warn "Run ./scripts/sync-test-counts.sh to fix"
-  fi
-
-  # GITHUB_RELEASE release notes count
-  if [[ -f "$RELEASE_FILE" ]]; then
-    RELEASE_COUNT=$(grep -oE '[0-9,]+ tests passing' "$RELEASE_FILE" | head -1 | sed 's/ tests passing//' || true)
-    if [[ "$RELEASE_COUNT" == "$ACTUAL_TOTAL_FMT" ]]; then
-      pass "GITHUB_RELEASE_v${VERSION}.md: ${ACTUAL_TOTAL_FMT} tests ✓"
-    else
-      fail "GITHUB_RELEASE_v${VERSION}.md shows '${RELEASE_COUNT}' tests, expected '${ACTUAL_TOTAL_FMT}'"
-      warn "Run ./scripts/sync-test-counts.sh to fix"
-    fi
+    pass "README.md badge: >$TEST_FLOOR format matches script floor ✓"
   fi
 else
   if [[ "$SKIP_TESTS" == true ]]; then
-    warn "No cached test counts. Run without --skip-tests to enable count verification."
+    warn "No cached test counts (--skip-tests). Run without flag to enable floor check."
   else
-    warn "Test counts cache not populated (check 6 may have failed). Skipping count checks."
+    warn "Test counts cache not populated (check 6 may have failed). Skipping floor check."
   fi
 fi
 echo ""

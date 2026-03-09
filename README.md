@@ -12,7 +12,7 @@ REslava.Result - Railway-Oriented Programming for .NET
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests-3986%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests->3900%20passing-brightgreen)
 
 </div>
 
@@ -3357,7 +3357,7 @@ Measured with [BenchmarkDotNet](https://benchmarkdotnet.org/) on .NET 9 / AMD Ry
 - **`samples/resultflow-fluentresults`** — new standalone sample: REslava.ResultFlow + FluentResults; 3 pipelines, zero REslava.Result dependency, type travel.
 - **3 regression tests** for chain walk completeness (Ensure×3, Ok-root, 4-step mixed chain)
 - 142 features across 13 categories
-- 3,986 tests
+- >3,900 tests
 
 ### 20.2. v1.38.0 ✅
 - **RESL1009 analyzer + code fix** — detects `try/catch` patterns that can be replaced by `Result<T>.Try`; two code actions: Fix A (basic `Try`) and Fix B (preserves custom error handler); handles sync and async methods; `TryAsync` rewrite removes `async/await`
@@ -3513,7 +3513,7 @@ Measured with [BenchmarkDotNet](https://benchmarkdotnet.org/) on .NET 9 / AMD Ry
 
 ## 21. 📈 Version History
 
-- **v1.38.1** - Chain walker bug fix (static roots + async extension methods); `REslava.Result.Flow` REF002 + Code Action (type travel + typed error edges, mermaid fence); `REslava.ResultFlow` mermaid fence format; `samples/result-flow` + `samples/resultflow-fluentresults` new samples; 142 features, 3,986 tests
+- **v1.38.1** - Chain walker bug fix (static roots + async extension methods); `REslava.Result.Flow` REF002 + Code Action (type travel + typed error edges, mermaid fence); `REslava.ResultFlow` mermaid fence format; `samples/result-flow` + `samples/resultflow-fluentresults` new samples; 142 features, >3,900 tests
 - **v1.38.0** - RESL1009 try/catch→Try analyzer + code fix; ⚡ async annotation + success type travel in `REslava.ResultFlow`; `REslava.Result.Flow` native companion package (typed error edges, IResultBase type travel, IOperation chain walk); 140 features, 3,983 tests
 - **v1.37.0** - `Switch`/`SwitchAsync` void dispatch, `MapError`/`MapErrorAsync` error-path transform, `Or`/`OrElse`/`OrElseAsync` fallback on failure; Task extensions for all three; 136 features, 3,960 tests
 - **v1.36.0** - `REslava.ResultFlow` standalone package (library-agnostic), REF002 + Code Action (insert diagram as comment), convention dictionary for ErrorOr + LanguageExt, `resultflow.json` config, `REslava.Result.AspNetCore` rename, 133 features, 3,783 tests
