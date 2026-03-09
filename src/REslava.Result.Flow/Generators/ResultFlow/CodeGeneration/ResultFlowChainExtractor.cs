@@ -46,7 +46,11 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
 
         /// <summary>
         /// Extracts an ordered list of pipeline nodes from the method body.
-        /// Uses IOperation chain walking (IInvocationOperation.Instance) for semantic richness.
+        /// Uses syntax-walk to discover the full chain, then calls
+        /// <c>semanticModel.GetOperation()</c> per node for type/error info.
+        /// This avoids fragile <c>IInvocationOperation.Instance</c> traversal
+        /// which breaks for extension methods on <c>Task&lt;Result&lt;T&gt;&gt;</c>
+        /// and chains starting with static calls like <c>Result&lt;T&gt;.Ok()</c>.
         /// Returns null if the body cannot be parsed as a fluent chain.
         /// </summary>
         public static IReadOnlyList<PipelineNode>? Extract(
@@ -62,31 +66,48 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
 
             rootExpr = UnwrapSyntax(rootExpr);
 
-            if (!(rootExpr is InvocationExpressionSyntax)) return null;
+            if (!(rootExpr is InvocationExpressionSyntax rootInv)) return null;
 
-            // Get outermost IInvocationOperation via semantic model
-            var outermostOp = semanticModel.GetOperation(rootExpr) as IInvocationOperation;
+            // Walk the syntax chain (outermost → root), collecting each member-access invocation.
+            // This reliably finds all steps regardless of whether they are instance methods,
+            // extension methods on Result<T>, or extension methods on Task<Result<T>>.
+            var syntaxChain = new List<InvocationExpressionSyntax>();
+            ExpressionSyntax? cur = rootInv;
 
-            if (outermostOp == null)
-                return ExtractSyntaxOnly(rootExpr as InvocationExpressionSyntax, customMappings);
-
-            // Walk the chain via IInvocationOperation.Instance (plan §6)
-            var ops = new List<IInvocationOperation>();
-            var current = outermostOp;
-            while (current != null)
+            while (cur is InvocationExpressionSyntax inv)
             {
-                ops.Add(current);
-                current = current.Instance as IInvocationOperation;
+                if (inv.Expression is MemberAccessExpressionSyntax)
+                {
+                    syntaxChain.Add(inv);
+                    cur = UnwrapSyntax(((MemberAccessExpressionSyntax)inv.Expression).Expression);
+                }
+                else
+                    break;
             }
-            ops.Reverse(); // root-first order
 
-            var nodes = new List<PipelineNode>(ops.Count);
+            if (syntaxChain.Count == 0) return null;
+            syntaxChain.Reverse(); // root-first order
+
+            var nodes = new List<PipelineNode>(syntaxChain.Count);
+
+            // Seed the initial input type from the chain root (the receiver of the first step).
+            // e.g. for FindUser(userId).Bind(f), the root is FindUser(userId) → Result<User> → "User".
+            // This preserves "User → Product" labels on the first transform node.
             string? previousOutputType = null;
-
-            for (int i = 0; i < ops.Count; i++)
+            if (resultBaseSymbol != null)
             {
-                var step = ops[i];
-                var methodName = step.TargetMethod?.Name ?? step.Syntax.ToString();
+                var firstStepReceiver = UnwrapSyntax(
+                    ((MemberAccessExpressionSyntax)syntaxChain[0].Expression).Expression);
+                var rootOp = semanticModel.GetOperation(firstStepReceiver) as IInvocationOperation;
+                if (rootOp != null)
+                    previousOutputType = ResultTypeExtractor.GetSuccessType(rootOp, resultBaseSymbol);
+            }
+
+            for (int i = 0; i < syntaxChain.Count; i++)
+            {
+                var invSyntax = syntaxChain[i];
+                var memberAccess = (MemberAccessExpressionSyntax)invSyntax.Expression;
+                var methodName = memberAccess.Name.Identifier.ValueText;
 
                 // Resolve NodeKind: custom mappings override built-ins
                 NodeKind kind;
@@ -97,15 +118,18 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 else
                     kind = NodeKind.Unknown;
 
+                // Per-node semantic operation — works for each step independently
+                var op = semanticModel.GetOperation(invSyntax) as IInvocationOperation;
+
                 // Success type via IResultBase anchor
                 string? outputType = null;
-                if (resultBaseSymbol != null)
-                    outputType = ResultTypeExtractor.GetSuccessType(step, resultBaseSymbol);
+                if (op != null && resultBaseSymbol != null)
+                    outputType = ResultTypeExtractor.GetSuccessType(op, resultBaseSymbol);
 
                 // Error types via IError body scanning (skip PureTransform and Invisible — they cannot fail)
                 IReadOnlyCollection<string> possibleErrors = EmptyErrors;
-                if (kind != NodeKind.PureTransform && kind != NodeKind.Invisible && iErrorSymbol != null)
-                    possibleErrors = ResultTypeExtractor.GetPossibleErrors(step, compilation, iErrorSymbol);
+                if (op != null && kind != NodeKind.PureTransform && kind != NodeKind.Invisible && iErrorSymbol != null)
+                    possibleErrors = ResultTypeExtractor.GetPossibleErrors(op, compilation, iErrorSymbol);
 
                 nodes.Add(new PipelineNode(methodName, kind)
                 {
@@ -118,6 +142,20 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             }
 
             return nodes.Count == 0 ? null : nodes;
+        }
+
+        // ── Syntax-only public overload (used by the live Roslyn analyzer) ─────
+
+        /// <summary>
+        /// Syntax-only extraction — no semantic model required.
+        /// Used by <c>ResultFlowDiagramAnalyzer</c> to check chain detectability at design time.
+        /// </summary>
+        public static IReadOnlyList<PipelineNode>? ExtractSyntaxOnly(MethodDeclarationSyntax method)
+        {
+            var rootExpr = GetRootExpression(method);
+            if (rootExpr == null) return null;
+            rootExpr = UnwrapSyntax(rootExpr);
+            return ExtractSyntaxOnly(rootExpr as InvocationExpressionSyntax, null);
         }
 
         // ── Syntax-only fallback (no type info, no error info) ───────────────

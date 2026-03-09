@@ -32,7 +32,22 @@ public async Task<Result<UserDto>> RegisterAsync(RegisterCommand cmd) =>
         .MapAsync(ToDto);
 ```
 
-Use the **IDE code action** to inject the diagram directly above the method — no build required.
+Use the **IDE code action** (REF002 — "Insert diagram as comment") to inject the diagram directly above the method — no build required:
+
+```csharp
+/*
+```mermaid
+flowchart LR
+    N0_EnsureAsync["EnsureAsync ⚡<br/>User"]:::gatekeeper
+    N0_EnsureAsync -->|pass| N1_BindAsync
+    N0_EnsureAsync -->|fail| FAIL
+    ...
+```*/
+[ResultFlow]
+public async Task<Result<UserDto>> RegisterAsync(RegisterCommand cmd) => ...
+```
+
+The `` ```mermaid `` fence makes the diagram render inline in VS Code, GitHub, Rider, and other Markdown-aware IDEs.
 
 ## Generated Diagram Example
 
@@ -55,6 +70,7 @@ Compared to `REslava.ResultFlow`, this package adds:
 | ID | Severity | Description |
 |---|---|---|
 | `REF001` | Info | `[ResultFlow]` could not detect a fluent chain — diagram not generated. |
+| `REF002` | Info | Fluent chain detected — use the "Insert diagram as comment" code action to embed the Mermaid diagram above the method. |
 | `REF003` | Warning | `resultflow.json` could not be parsed — falling back to built-in conventions. |
 
 ## Documentation

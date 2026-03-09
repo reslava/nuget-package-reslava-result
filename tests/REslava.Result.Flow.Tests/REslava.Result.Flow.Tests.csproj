@@ -38,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="ResultFlowAnalyzerTests.cs" />
     <Compile Include="ResultFlowGeneratorTests.cs" />
   </ItemGroup>
 

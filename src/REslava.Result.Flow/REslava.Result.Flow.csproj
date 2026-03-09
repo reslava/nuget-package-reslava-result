@@ -53,6 +53,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
 
@@ -63,6 +64,8 @@
 
   <!-- Explicit compile items -->
   <ItemGroup>
+    <Compile Include="Analyzers\ResultFlowDiagramAnalyzer.cs" />
+    <Compile Include="Analyzers\ResultFlowInsertCommentFix.cs" />
     <Compile Include="Core\Interfaces\IGeneratorOrchestrator.cs" />
     <Compile Include="Generators\ResultFlow\ResultFlowGenerator.cs" />
     <Compile Include="Generators\ResultFlow\Orchestration\ResultFlowOrchestrator.cs" />

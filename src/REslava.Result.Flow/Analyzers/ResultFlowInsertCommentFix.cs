@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using REslava.ResultFlow.Generators.ResultFlow.CodeGeneration;
+using REslava.Result.Flow.Generators.ResultFlow.CodeGeneration;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
@@ -11,12 +11,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace REslava.ResultFlow.Analyzers
+namespace REslava.Result.Flow.Analyzers
 {
     /// <summary>
-    /// Code Action for REF002: inserts the Mermaid pipeline diagram as a <c>/* ... */</c>
-    /// block comment directly above the <c>[ResultFlow]</c>-annotated method.
-    /// The diagram is generated from syntax alone — no build required.
+    /// Code Action for REF002: inserts the Mermaid pipeline diagram (with full type travel and
+    /// typed error edges) as a <c>/* ... */</c> block comment directly above the
+    /// <c>[ResultFlow]</c>-annotated method. Uses semantic model for rich diagrams when
+    /// available; falls back to syntax-only extraction otherwise.
     /// </summary>
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ResultFlowInsertCommentFix))]
     [Shared]
@@ -53,11 +54,17 @@ namespace REslava.ResultFlow.Analyzers
             MethodDeclarationSyntax methodDecl,
             CancellationToken cancellationToken)
         {
-            var chain = ResultFlowChainExtractor.Extract(methodDecl);
+            // Attempt full semantic extraction (type travel + typed error edges)
+            var chain = await TryExtractWithSemanticModelAsync(document, methodDecl, cancellationToken)
+                .ConfigureAwait(false);
+
+            // Fall back to syntax-only if semantic model is unavailable
+            if (chain == null)
+                chain = ResultFlowChainExtractor.ExtractSyntaxOnly(methodDecl);
+
             if (chain == null) return document;
 
             var mermaid = ResultFlowMermaidRenderer.Render(chain);
-            var methodName = methodDecl.Identifier.ValueText;
 
             // Detect indentation: find the last WhitespaceTrivia in the method's leading trivia
             var leadingTrivia = methodDecl.GetLeadingTrivia();
@@ -110,6 +117,28 @@ namespace REslava.ResultFlow.Analyzers
 
             var newRoot = root.ReplaceNode(methodDecl, newMethodDecl);
             return document.WithSyntaxRoot(newRoot);
+        }
+
+        private static async Task<System.Collections.Generic.IReadOnlyList<Generators.ResultFlow.Models.PipelineNode>?> TryExtractWithSemanticModelAsync(
+            Document document,
+            MethodDeclarationSyntax methodDecl,
+            CancellationToken cancellationToken)
+        {
+            var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+            if (semanticModel == null) return null;
+
+            var compilation = await document.Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
+            if (compilation == null) return null;
+
+            var resultBaseSymbol = compilation.GetTypeByMetadataName("REslava.Result.IResultBase");
+            var iErrorSymbol = compilation.GetTypeByMetadataName("REslava.Result.IError");
+
+            return ResultFlowChainExtractor.Extract(
+                methodDecl,
+                semanticModel,
+                compilation,
+                resultBaseSymbol,
+                iErrorSymbol);
         }
     }
 }

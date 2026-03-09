@@ -221,13 +221,15 @@ tagline: Know exactly what you're getting.
 | `REslava.ResultFlow` — success type travel | Library-agnostic type travel: first generic type arg of each step's return type rendered as `"Bind<br/>User"` or `"Map<br/>User → UserDto"` labels; falls back to method name for non-generic types | v1.38.0 | `## 🗺️ Pipeline Visualization` — `### Type Travel` |
 | `REslava.Result.Flow` — success type travel | New native package: `[ResultFlow]` infers `T` in `Result<T>` at each step via IResultBase; renders `"Bind<br/>User"` or `"Map<br/>User → UserDto"` labels | v1.38.0 | `## 🗺️ Pipeline Visualization` — `### Type Travel` |
 | `REslava.Result.Flow` — error type surface | Scans step method bodies for `new XxxError(...)` where `XxxError implements IError`; renders typed `-->|DatabaseError| FAIL` edges with shared FAIL terminal | v1.38.0 | `## 🗺️ Pipeline Visualization` — `### Error Surface` |
-| `IInvocationOperation` chain walker | IOperation-based chain extraction replaces syntax walking; `IsPipelineRoot` prevents duplicate processing | v1.38.0 | — |
+| `IInvocationOperation` chain walker | Syntax-walk + per-node `GetOperation()` chain extraction (fixed in v1.38.1 to handle static roots + async extension methods); `IsPipelineRoot` prevents duplicate processing | v1.38.0 | — |
+| `REslava.Result.Flow` — REF002 + Code Action | REslava.Result-native counterpart: REF002 info diagnostic on every `[ResultFlow]` method; one-click code fix inserts full-fidelity diagram (type travel + typed error edges) as a `mermaid` fence comment | v1.38.1 | `## 🗺️ Pipeline Visualization` — `### REF002 & Code Action` |
+| `mermaid` fence comment format | Both `REslava.ResultFlow` and `REslava.Result.Flow` code actions now wrap the inserted diagram in a `\`\`\`mermaid … \`\`\`` fence — renders inline in VS Code, GitHub, Rider | v1.38.1 | — |
 
 ---
 
 ## Summary
 
-!!! new "**v1.38.0** — 140 features across 13 categories."
+!!! new "**v1.38.1** — 142 features across 13 categories."
 
 
 | Category | Total Features |
@@ -244,8 +246,8 @@ tagline: Know exactly what you're getting.
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
-| ResultFlow | 15 |
-| **Total** | **140** |
+| ResultFlow | 17 |
+| **Total** | **142** |
 
 ---
 

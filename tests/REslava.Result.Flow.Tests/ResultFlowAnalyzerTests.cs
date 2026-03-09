@@ -1,9 +1,9 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using REslava.ResultFlow.Analyzers;
+using REslava.Result.Flow.Analyzers;
 using System.Collections.Immutable;
 
-namespace REslava.ResultFlow.Tests;
+namespace REslava.Result.Flow.Tests;
 
 [TestClass]
 public class ResultFlowAnalyzerTests
@@ -133,7 +133,7 @@ namespace TestNamespace
         //   /*\n```mermaid\n{mermaid}\n```*/
         // We build the same string with a representative mermaid body and
         // assert structure — this mirrors the exact code in InsertDiagramCommentAsync.
-        const string mermaid = "flowchart LR\n    N0_Bind[\"Bind\"]:::transform\n    N0_Bind -->|fail| F0[\"Failure\"]:::failure";
+        const string mermaid = "flowchart LR\n    N0_Bind[\"Bind\"]:::transform\n    N0_Bind -->|fail| FAIL([fail])";
 
         var sb = new System.Text.StringBuilder();
         sb.Append("/*\n");
@@ -150,7 +150,7 @@ namespace TestNamespace
     }
 
     // ───────────────────────────────────────────────────────────────────────
-    // 7. Two [ResultFlow] methods → two REF002 diagnostics
+    // 8. Two [ResultFlow] methods → two REF002 diagnostics
     // ───────────────────────────────────────────────────────────────────────
     [TestMethod]
     public async Task Analyzer_Should_Emit_One_REF002_Per_Method()

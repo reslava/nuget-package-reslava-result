@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Emit generated files to obj/Generated so you can inspect them -->
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- REslava.Result — required; Result.Flow uses IResultBase + IError as Roslyn anchors -->
+    <ProjectReference Include="..\..\src\REslava.Result\REslava.Result.csproj" />
+    <!-- REslava.Result.Flow — REslava.Result-native generator with type travel + typed error edges -->
+    <ProjectReference Include="..\..\src\REslava.Result.Flow\REslava.Result.Flow.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+</Project>

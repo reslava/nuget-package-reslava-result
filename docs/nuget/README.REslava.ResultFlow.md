@@ -30,10 +30,11 @@ Use the **IDE code action** to inject the diagram as a comment directly above th
 
 ```csharp
 /*
+```mermaid
 flowchart LR
     N0_EnsureAsync["EnsureAsync"]:::gatekeeper
     ...
-*/
+```*/
 [ResultFlow]
 public async Task<Result<UserDto>> RegisterAsync(RegisterCommand cmd) => ...
 ```

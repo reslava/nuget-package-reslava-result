@@ -184,6 +184,99 @@ namespace TestNS
         Assert.IsFalse(output.Contains("DatabaseError"), "No typed error when method has no error constructions");
     }
 
+    // ── Regression: chain walk completeness ──────────────────────────────────
+
+    // 12. Ensure × 3 chain starting with helper method — must produce all 3 nodes
+    //     (regression guard: old IInvocationOperation.Instance walk missed Ensure×3 starting from Ok)
+    [TestMethod]
+    public void ChainWalk_EnsureTriple_AllNodesPresent()
+    {
+        var source = CreateSource("OrderService", "Validate",
+            "CreateOrder().Ensure(p1, e).Ensure(p2, e).Ensure(p3, e)",
+            extraMethods: @"
+        static Result<UserDto> CreateOrder() => Result<UserDto>.Ok(new UserDto());
+        static bool p1(UserDto u) => true;
+        static bool p2(UserDto u) => true;
+        static bool p3(UserDto u) => true;
+        static IError e(UserDto u) => new ValidationError(""invalid"");");
+
+        var output = RunGenerator(source);
+
+        // All three Ensure nodes must appear (N0, N1, N2 — no Ok node since CreateOrder is a plain call)
+        Assert.IsTrue(output.Contains("N0_Ensure"), "N0_Ensure must be present");
+        Assert.IsTrue(output.Contains("N1_Ensure"), "N1_Ensure must be present");
+        Assert.IsTrue(output.Contains("N2_Ensure"), "N2_Ensure must be present");
+    }
+
+    // 13. Result<T>.Ok(value).Ensure chain — Ok becomes N0, Ensure nodes follow
+    //     (regression guard: old code stopped after 1 node for Ok-root chains)
+    [TestMethod]
+    public void ChainWalk_OkRootEnsureChain_OkPlusEnsureNodes()
+    {
+        var source = @"
+using System;
+using System.Collections.Immutable;
+
+namespace REslava.Result
+{
+    public interface IError { string Message { get; } }
+    public interface IResultBase<out T> { bool IsSuccess { get; } bool IsFailure { get; } }
+    public class Result<T> : IResultBase<T>
+    {
+        public bool IsSuccess { get; }
+        public bool IsFailure { get; }
+        public T? Value { get; }
+        public static Result<T> Ok(T value) => new Result<T>();
+        public static Result<T> Fail(IError error) => new Result<T>();
+        public Result<T> Ensure(Func<T, bool> p, string msg) => new Result<T>();
+    }
+}
+
+namespace TestNS
+{
+    using REslava.Result;
+    public record Order(int Id);
+
+    public class OrderService
+    {
+        [REslava.Result.Flow.ResultFlow]
+        public Result<Order> Validate(Order order) =>
+            Result<Order>.Ok(order)
+                .Ensure(o => o.Id > 0, ""Id must be positive"")
+                .Ensure(o => o.Id < 9999, ""Id exceeds limit"");
+    }
+}";
+        var output = RunGenerator(source);
+
+        // Ok node (N0) + 2 Ensure nodes (N1, N2)
+        Assert.IsTrue(output.Contains("N0_Ok"), "N0_Ok must be present — Ok is the chain root");
+        Assert.IsTrue(output.Contains("N1_Ensure"), "N1_Ensure must be present");
+        Assert.IsTrue(output.Contains("N2_Ensure"), "N2_Ensure must be present");
+    }
+
+    // 14. 4-step mixed chain (Bind×2 + Ensure + Map) — all nodes present in correct order
+    [TestMethod]
+    public void ChainWalk_FourStep_AllNodesInOrder()
+    {
+        var source = CreateSource("OrderService", "Process",
+            "CreateUser().Bind(FindOrder).Ensure(IsValid, e).Bind(SaveOrder).Map(ToDto)",
+            extraMethods: @"
+        static Result<User> CreateUser() => Result<User>.Ok(new User());
+        static Result<User> FindOrder(User u) => Result<User>.Ok(u);
+        static bool IsValid(User u) => true;
+        static IError e(User u) => new ValidationError(""x"");
+        static Result<User> SaveOrder(User u) => Result<User>.Ok(u);
+        static UserDto ToDto(User u) => new UserDto();");
+
+        var output = RunGenerator(source);
+
+        // Verify all 5 chain steps appear as nodes
+        Assert.IsTrue(output.Contains("N0_Bind"),   "N0_Bind must be present");
+        Assert.IsTrue(output.Contains("N1_Ensure"), "N1_Ensure must be present");
+        Assert.IsTrue(output.Contains("N2_Bind"),   "N2_Bind must be present");
+        Assert.IsTrue(output.Contains("N3_Map"),    "N3_Map must be present");
+    }
+
     // 11. Map (PureTransform) → never has error edge
     [TestMethod]
     public void ErrorTravel_PureTransform_NoErrorEdge()
