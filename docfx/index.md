@@ -201,8 +201,8 @@ _layout: landing
 
   <div class="col">
     <div class="card h-100 bg-body-secondary border-0">
-      <div class="card-body">
-        <h6 class="card-title fw-semibold"><a href="REslava.Result.Results.ResultTError-2.html" class="text-decoration-none">Result&lt;TValue, TError&gt;</a></h6>
+      <div class="card-body">      
+        <h6 class="card-title fw-semibold"><a href="REslava.Result.Result-2.html" class="text-decoration-none">Result&lt;TValue, TError&gt;</a></h6>
         <p class="card-text small text-muted">
           Typed result with a concrete compile-time error type.
           Each <code>Bind</code> step grows the error union by one slot.
