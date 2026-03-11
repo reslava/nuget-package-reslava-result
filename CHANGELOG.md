@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.39.1] - 2026-03-11
+
+Minor update: Fixed and updated NuGet package `REslava.Result` README 
+
 ## [1.39.0] - 2026-03-10
 
 ### ⚠️ Breaking Changes

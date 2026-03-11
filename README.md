@@ -248,7 +248,8 @@ Includes API reference, advanced patterns, and interactive examples.
     - [19.2.3. ✅ **Developer Experience**](#1923--developer-experience)
 - [20. ⚡ Performance](#20--performance)
 - [21. 🎯 Roadmap](#21--roadmap)
-  - [21.1. v1.39.0 (Current) ✅](#211-v1390-current-)
+  - [21.1. v1.39.1 (Current) ✅](#211-v1391-current-)
+  - [21.1. v1.39.0 ✅](#211-v1390-)
   - [21.2. v1.38.1 ✅](#212-v1381-)
   - [21.3. v1.38.0 ✅](#213-v1380-)
   - [21.4. v1.37.0 ✅](#214-v1370-)
@@ -3531,7 +3532,11 @@ Measured with [BenchmarkDotNet](https://benchmarkdotnet.org/) on .NET 9 / AMD Ry
 
 ## 21. 🎯 Roadmap
 
-### 21.1. v1.39.0 (Current) ✅
+### 21.1. v1.39.1 (Current) ✅
+
+- Minor update: Fixed and updated NuGet package `REslava.Result` README 
+
+### 21.1. v1.39.0 ✅
 - **`OneOf<T1..T8>` sealed class** — all `OneOf` types converted from `readonly struct` to `sealed class`; `OneOf<T1..T7>` and `OneOf<T1..T8>` added for full arity symmetry ⚠️ *breaking: copy→reference semantics*
 - **`OneOfBase<T1..T8>`** — unconstrained abstract class holding all shared dispatch (`IsT1..T8`, `AsT1..T8`, `Match`, `Switch`, `Equals`, `GetHashCode`, `ToString`); `OneOf` and `ErrorsOf` both inherit it
 - **`IOneOf<T1..T8>`** — shared interface implemented by both `OneOf<>` and `ErrorsOf<>`; enables generic programming over any discriminated union
@@ -3709,6 +3714,7 @@ Measured with [BenchmarkDotNet](https://benchmarkdotnet.org/) on .NET 9 / AMD Ry
 
 ## 22. 📈 Version History
 
+- **v1.39.1** -  Minor update: Fixed and updated NuGet package `REslava.Result` README 
 - **v1.39.0** - `OneOf` sealed class (struct→class) + T7/T8 arities; `OneOfBase<T1..T8>` shared dispatch; `IOneOf<T1..T8>`; `ErrorsOf<T1..T8>` error union; `Result<TValue,TError>` typed pipeline with `Bind`×7/`Map`/`Tap`/`Ensure`×7+Async/`MapError`; `Result.Flow` type-read mode; 153 features, >4,000 tests
 - **v1.38.1** - Chain walker bug fix (static roots + async extension methods); `REslava.Result.Flow` REF002 + Code Action (type travel + typed error edges, mermaid fence); `REslava.ResultFlow` mermaid fence format; `samples/result-flow` + `samples/resultflow-fluentresults` new samples; 142 features, >3,900 tests
 - **v1.38.0** - RESL1009 try/catch→Try analyzer + code fix; ⚡ async annotation + success type travel in `REslava.ResultFlow`; `REslava.Result.Flow` native companion package (typed error edges, IResultBase type travel, IOperation chain walk); 140 features, 3,983 tests
