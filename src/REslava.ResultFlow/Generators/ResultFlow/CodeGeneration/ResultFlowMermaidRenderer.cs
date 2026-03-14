@@ -116,17 +116,28 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
         }
 
         /// <summary>
-        /// Returns the failure edge label. When the node carries a typed error (type-read mode),
-        /// the error type is appended and angle brackets are HTML-escaped for Mermaid compatibility.
+        /// Returns the failure edge label.
+        /// <list type="bullet">
+        ///   <item><description>Type-read mode: <c>ErrorType</c> is set — use it (HTML-escaped).</description></item>
+        ///   <item><description>Body-scan mode: <c>ErrorHint</c> was syntactically extracted from a step
+        ///         argument (e.g. <c>new NotFoundError(…)</c> or <c>ValidationError.Field(…)</c>) — use it.</description></item>
+        ///   <item><description>Neither: plain <c>"fail"</c>.</description></item>
+        /// </list>
         /// </summary>
         private static string FailLabel(PipelineNode node)
         {
-            if (node.ErrorType == null)
-                return "fail";
+            // Type-read mode wins: semantic type from the generic return type
+            if (node.ErrorType != null)
+            {
+                var escaped = node.ErrorType.Replace("<", "&lt;").Replace(">", "&gt;");
+                return "fail: " + escaped;
+            }
 
-            // Escape < and > so Mermaid renders them as text inside a quoted edge label
-            var escaped = node.ErrorType.Replace("<", "&lt;").Replace(">", "&gt;");
-            return "fail: " + escaped;
+            // Body-scan fallback: syntactically extracted from the step's error argument
+            if (node.ErrorHint != null)
+                return "fail: " + node.ErrorHint;
+
+            return "fail";
         }
 
         private static void TryAddClass(HashSet<string> declared, List<string> classDefs, string name, string style)

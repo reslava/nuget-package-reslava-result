@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace REslava.Result;
 
@@ -24,10 +25,15 @@ public class ConversionError : Reason<ConversionError>, IError
     /// Creates a new ConversionError with the specified reason.
     /// Automatically tags the error as a conversion error with Warning severity.
     /// </summary>
-    public ConversionError(string reason)
+    public ConversionError(
+        string reason,
+        [CallerMemberName] string? callerMember = null,
+        [CallerFilePath]   string? callerFile   = null,
+        [CallerLineNumber] int     callerLine   = 0)
         : base(
             $"Conversion failed: {reason}",
-            CreateDefaultTags())
+            CreateDefaultTags(),
+            ReasonMetadata.FromCaller(callerMember, callerFile, callerLine))
     {
     }
 

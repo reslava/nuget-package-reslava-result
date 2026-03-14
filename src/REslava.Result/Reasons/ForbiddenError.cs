@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace REslava.Result;
 
@@ -10,21 +11,28 @@ namespace REslava.Result;
 /// <code>
 /// Result&lt;User&gt;.Fail(new ForbiddenError());
 /// Result&lt;User&gt;.Fail(new ForbiddenError("Admin role required"));
-/// Result&lt;User&gt;.Fail(new ForbiddenError("Delete", "Order"));
+/// Result&lt;User&gt;.Fail(ForbiddenError.For("Delete", "Order"));
 /// </code>
 /// </example>
 public class ForbiddenError : Reason<ForbiddenError>, IError
 {
+    /// <summary>Creates a generic access-denied error. <see cref="ReasonMetadata.CallerMember"/> is not captured.</summary>
     public ForbiddenError()
         : base("Access denied", CreateDefaultTags())
     {
     }
 
-    public ForbiddenError(string message)
-        : base(message, CreateDefaultTags())
+    public ForbiddenError(
+        string message,
+        [CallerMemberName] string? callerMember = null,
+        [CallerFilePath]   string? callerFile   = null,
+        [CallerLineNumber] int     callerLine   = 0)
+        : base(message, CreateDefaultTags(),
+               ReasonMetadata.FromCaller(callerMember, callerFile, callerLine))
     {
     }
 
+    [Obsolete("Use ForbiddenError.For(action, resource) for access control errors. This constructor will be removed in a future version.")]
     public ForbiddenError(string action, string resource)
         : base(
             $"Access denied: insufficient permissions to {action} {resource}",
@@ -34,8 +42,30 @@ public class ForbiddenError : Reason<ForbiddenError>, IError
     {
     }
 
+    /// <summary>Creates an access-denied error for a specific action/resource pair, capturing the calling method name automatically.</summary>
+    public static ForbiddenError For(
+        string action,
+        string resource,
+        [CallerMemberName] string? callerMember = null,
+        [CallerFilePath]   string? callerFile   = null,
+        [CallerLineNumber] int     callerLine   = 0)
+    {
+        var tags = CreateDefaultTags()
+            .Add("Action", action)
+            .Add("Resource", resource);
+        return new ForbiddenError(
+            $"Access denied: insufficient permissions to {action} {resource}",
+            tags,
+            ReasonMetadata.FromCaller(callerMember, callerFile, callerLine));
+    }
+
     private ForbiddenError(string message, ImmutableDictionary<string, object> tags)
         : base(message, tags)
+    {
+    }
+
+    private ForbiddenError(string message, ImmutableDictionary<string, object> tags, ReasonMetadata metadata)
+        : base(message, tags, metadata)
     {
     }
 

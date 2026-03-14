@@ -11,7 +11,8 @@ internal static class ReasonJsonConverter
 {
     /// <summary>
     /// Writes an IReason (IError or ISuccess) to JSON.
-    /// Format: { "type": "Error", "message": "...", "tags": { ... } }
+    /// Format: { "type": "Error", "message": "...", "tags": { ... }, "metadata": { ... } }
+    /// The "metadata" key is omitted when Metadata is empty.
     /// </summary>
     internal static void WriteReason(Utf8JsonWriter writer, IReason reason, JsonSerializerOptions options)
     {
@@ -23,6 +24,12 @@ internal static class ReasonJsonConverter
         writer.WritePropertyName("tags");
         WriteTags(writer, reason.Tags, options);
 
+        if (reason is IReasonMetadata m && m.Metadata != ReasonMetadata.Empty)
+        {
+            writer.WritePropertyName("metadata");
+            WriteMetadata(writer, m.Metadata);
+        }
+
         writer.WriteEndObject();
     }
 
@@ -32,9 +39,12 @@ internal static class ReasonJsonConverter
     /// </summary>
     internal static IError ReadError(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
-        var (message, tags) = ReadReasonProperties(ref reader);
-        var error = new Error(message);
-        return tags.Count > 0 ? error.WithTagsFrom(tags) : error;
+        var (message, tags, metadata) = ReadReasonProperties(ref reader);
+        Error error = new Error(message);
+        if (tags.Count > 0)
+            error = error.WithTagsFrom(tags);
+        // WithMetadata overrides the [CallerMemberName] auto-captured during new Error(message)
+        return error.WithMetadata(metadata);
     }
 
     /// <summary>
@@ -42,18 +52,21 @@ internal static class ReasonJsonConverter
     /// </summary>
     internal static ISuccess ReadSuccess(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
-        var (message, tags) = ReadReasonProperties(ref reader);
-        var success = new Success(message);
-        return tags.Count > 0 ? success.WithTagsFrom(tags) : success;
+        var (message, tags, metadata) = ReadReasonProperties(ref reader);
+        Success success = new Success(message);
+        if (tags.Count > 0)
+            success = success.WithTagsFrom(tags);
+        return success.WithMetadata(metadata);
     }
 
-    private static (string message, ImmutableDictionary<string, object> tags) ReadReasonProperties(ref Utf8JsonReader reader)
+    private static (string message, ImmutableDictionary<string, object> tags, ReasonMetadata metadata) ReadReasonProperties(ref Utf8JsonReader reader)
     {
         if (reader.TokenType != JsonTokenType.StartObject)
             throw new JsonException("Expected StartObject for reason.");
 
         string? message = null;
         var tags = ImmutableDictionary<string, object>.Empty;
+        var metadata = ReasonMetadata.Empty;
 
         while (reader.Read())
         {
@@ -78,13 +91,16 @@ internal static class ReasonJsonConverter
                 case "tags":
                     tags = ReadTags(ref reader);
                     break;
+                case "metadata":
+                    metadata = ReadMetadata(ref reader);
+                    break;
                 default:
                     reader.Skip();
                     break;
             }
         }
 
-        return (message ?? "Unknown error", tags);
+        return (message ?? "Unknown error", tags, metadata);
     }
 
     private static void WriteTags(Utf8JsonWriter writer, ImmutableDictionary<string, object> tags, JsonSerializerOptions options)
@@ -98,6 +114,52 @@ internal static class ReasonJsonConverter
         }
 
         writer.WriteEndObject();
+    }
+
+    private static void WriteMetadata(Utf8JsonWriter writer, ReasonMetadata metadata)
+    {
+        writer.WriteStartObject();
+
+        if (metadata.CallerMember is not null)
+            writer.WriteString("CallerMember", metadata.CallerMember);
+        if (metadata.CallerFile is not null)
+            writer.WriteString("CallerFile", metadata.CallerFile);
+        if (metadata.CallerLine is not null)
+            writer.WriteNumber("CallerLine", metadata.CallerLine.Value);
+
+        writer.WriteEndObject();
+    }
+
+    private static ReasonMetadata ReadMetadata(ref Utf8JsonReader reader)
+    {
+        if (reader.TokenType != JsonTokenType.StartObject)
+            throw new JsonException("Expected StartObject for metadata.");
+
+        string? callerMember = null;
+        string? callerFile = null;
+        int callerLine = 0;
+
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonTokenType.EndObject)
+                break;
+
+            if (reader.TokenType != JsonTokenType.PropertyName)
+                throw new JsonException("Expected PropertyName in metadata object.");
+
+            var propertyName = reader.GetString()!;
+            reader.Read();
+
+            switch (propertyName)
+            {
+                case "CallerMember": callerMember = reader.GetString(); break;
+                case "CallerFile":   callerFile   = reader.GetString(); break;
+                case "CallerLine":   callerLine   = reader.GetInt32();  break;
+                default:             reader.Skip();                     break;
+            }
+        }
+
+        return ReasonMetadata.FromCaller(callerMember, callerFile, callerLine);
     }
 
     private static ImmutableDictionary<string, object> ReadTags(ref Utf8JsonReader reader)

@@ -13,31 +13,39 @@ public abstract class Reason<TReason> : Reason
     protected Reason(string message, ImmutableDictionary<string, object> tags)
         : base(message, tags) { }
 
+    protected Reason(string message, ImmutableDictionary<string, object> tags, ReasonMetadata metadata)
+        : base(message, tags, metadata) { }
+
     /// <summary>
     /// Creates a new instance with updated message (immutable).
+    /// Preserves existing <see cref="Reason.Metadata"/>.
     /// </summary>
     public TReason WithMessage(string message)
     {
         message = message.EnsureNotNullOrWhiteSpace(nameof(message));
-        return CreateNew(message, Tags);
+        var copy = CreateNew(message, Tags);
+        copy.Metadata = Metadata;
+        return copy;
     }
 
     /// <summary>
     /// Creates a new instance with an additional tag (immutable).
-    /// Throws if key already exists.
+    /// Throws if key already exists. Preserves existing <see cref="Reason.Metadata"/>.
     /// </summary>
     public TReason WithTag(string key, object value)
     {
-        key = key.EnsureValidDictionaryKey(Tags, nameof(key));        
-        return CreateNew(Message, Tags.Add(key, value));
+        key = key.EnsureValidDictionaryKey(Tags, nameof(key));
+        var copy = CreateNew(Message, Tags.Add(key, value));
+        copy.Metadata = Metadata;
+        return copy;
     }
 
     /// <summary>
     /// Creates a new instance with multiple additional tags (immutable).
-    /// Throws if any key already exists.
+    /// Throws if any key already exists. Preserves existing <see cref="Reason.Metadata"/>.
     /// </summary>
     public TReason WithTags(params (string key, object value)[] tags)
-    {        
+    {
         if (tags is null || tags.Length == 0)
         {
             return (TReason)this; // No changes needed
@@ -51,12 +59,14 @@ public abstract class Reason<TReason> : Reason
             builder.Add(validKey, value);
         }
 
-        return CreateNew(Message, builder.ToImmutable());
+        var copy = CreateNew(Message, builder.ToImmutable());
+        copy.Metadata = Metadata;
+        return copy;
     }
 
     /// <summary>
     /// Creates a new instance with additional tags from a dictionary (immutable).
-    /// Throws if any key already exists.
+    /// Throws if any key already exists. Preserves existing <see cref="Reason.Metadata"/>.
     /// </summary>
     /// <param name="tags">Dictionary containing tags to add.</param>
     /// <returns>A new instance with the added tags.</returns>
@@ -75,14 +85,28 @@ public abstract class Reason<TReason> : Reason
         if (tags is null || tags.Count == 0)
         {
             return (TReason)this; // No changes needed
-        }        
+        }
 
-        return CreateNew(Message, Tags.AddRange(tags));        
+        var copy = CreateNew(Message, Tags.AddRange(tags));
+        copy.Metadata = Metadata;
+        return copy;
+    }
+
+    /// <summary>
+    /// Creates a new instance with the specified metadata (immutable).
+    /// Use this to attach or replace diagnostic/caller information.
+    /// </summary>
+    /// <param name="metadata">The metadata to attach. Null is treated as <see cref="ReasonMetadata.Empty"/>.</param>
+    public TReason WithMetadata(ReasonMetadata metadata)
+    {
+        var copy = CreateNew(Message, Tags);
+        copy.Metadata = metadata ?? ReasonMetadata.Empty;
+        return copy;
     }
 
     /// <summary>
     /// Factory method for creating new instances (maintains immutability).
     /// Must be implemented by derived classes.
     /// </summary>
-    protected abstract TReason CreateNew(string message, ImmutableDictionary<string, object> tags);    
+    protected abstract TReason CreateNew(string message, ImmutableDictionary<string, object> tags);
 }

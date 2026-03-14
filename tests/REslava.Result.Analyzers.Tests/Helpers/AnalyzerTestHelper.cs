@@ -79,6 +79,81 @@ namespace REslava.Result.AdvancedPatterns
 ";
 
     /// <summary>
+    /// Minimal stubs for ErrorsOf types (arities 2–4) so RESL2002 can resolve them.
+    /// Each arity exposes under-count Match overloads so test code with missing handlers still compiles.
+    /// </summary>
+    internal const string ErrorsOfStubSource = @"
+namespace REslava.Result
+{
+    public interface IError { string Message { get; } }
+}
+namespace REslava.Result.AdvancedPatterns
+{
+    public sealed class ErrorsOf<T1, T2>
+        where T1 : REslava.Result.IError
+        where T2 : REslava.Result.IError
+    {
+        public static ErrorsOf<T1, T2> FromT1(T1 value) => null!;
+        public static ErrorsOf<T1, T2> FromT2(T2 value) => null!;
+        public TResult Match<TResult>(System.Func<T1, TResult> f1) => default!;
+        public TResult Match<TResult>(System.Func<T1, TResult> f1, System.Func<T2, TResult> f2) => default!;
+    }
+    public sealed class ErrorsOf<T1, T2, T3>
+        where T1 : REslava.Result.IError
+        where T2 : REslava.Result.IError
+        where T3 : REslava.Result.IError
+    {
+        public static ErrorsOf<T1, T2, T3> FromT1(T1 value) => null!;
+        public TResult Match<TResult>(System.Func<T1, TResult> f1) => default!;
+        public TResult Match<TResult>(System.Func<T1, TResult> f1, System.Func<T2, TResult> f2) => default!;
+        public TResult Match<TResult>(System.Func<T1, TResult> f1, System.Func<T2, TResult> f2, System.Func<T3, TResult> f3) => default!;
+    }
+    public sealed class ErrorsOf<T1, T2, T3, T4>
+        where T1 : REslava.Result.IError
+        where T2 : REslava.Result.IError
+        where T3 : REslava.Result.IError
+        where T4 : REslava.Result.IError
+    {
+        public static ErrorsOf<T1, T2, T3, T4> FromT1(T1 value) => null!;
+        public TResult Match<TResult>(System.Func<T1, TResult> f1) => default!;
+        public TResult Match<TResult>(System.Func<T1, TResult> f1, System.Func<T2, TResult> f2) => default!;
+        public TResult Match<TResult>(System.Func<T1, TResult> f1, System.Func<T2, TResult> f2, System.Func<T3, TResult> f3) => default!;
+        public TResult Match<TResult>(System.Func<T1, TResult> f1, System.Func<T2, TResult> f2, System.Func<T3, TResult> f3, System.Func<T4, TResult> f4) => default!;
+    }
+}
+";
+
+    /// <summary>
+    /// Extension methods stub for Result&lt;T&gt; so RESL1010 tests can reference
+    /// TapOnFailure, Bind, Map, Ensure, GetValueOr, etc. without depending on the real assembly.
+    /// Must be added alongside <see cref="ResultStubSource"/> in tests that need it.
+    /// </summary>
+    internal const string ResultFluentStubSource = @"
+namespace REslava.Result
+{
+    public static class ResultFluentExtensions
+    {
+        public static Result<TValue> TapOnFailure<TValue>(
+            this Result<TValue> result,
+            System.Action<object> action) => result;
+
+        public static Result<TOut> Bind<TValue, TOut>(
+            this Result<TValue> result,
+            System.Func<TValue, Result<TOut>> binder) => new Result<TOut>();
+
+        public static Result<TOut> Map<TValue, TOut>(
+            this Result<TValue> result,
+            System.Func<TValue, TOut> mapper) => new Result<TOut>();
+
+        public static Result<TValue> Ensure<TValue>(
+            this Result<TValue> result,
+            System.Func<TValue, bool> predicate,
+            string errorMessage) => result;
+    }
+}
+";
+
+    /// <summary>
     /// Minimal stubs for Error and domain-specific error types so RESL1005 can resolve them.
     /// </summary>
     internal const string ErrorStubSource = @"

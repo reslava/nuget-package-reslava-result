@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace REslava.Result;
 
@@ -14,17 +15,28 @@ namespace REslava.Result;
 /// </example>
 public class NotFoundError : Reason<NotFoundError>, IError
 {
-    public NotFoundError(string message)
-        : base(message, CreateDefaultTags())
+    public NotFoundError(
+        string message,
+        [CallerMemberName] string? callerMember = null,
+        [CallerFilePath]   string? callerFile   = null,
+        [CallerLineNumber] int     callerLine   = 0)
+        : base(message, CreateDefaultTags(),
+               ReasonMetadata.FromCaller(callerMember, callerFile, callerLine))
     {
     }
 
-    public NotFoundError(string entityName, object id)
+    public NotFoundError(
+        string entityName,
+        object id,
+        [CallerMemberName] string? callerMember = null,
+        [CallerFilePath]   string? callerFile   = null,
+        [CallerLineNumber] int     callerLine   = 0)
         : base(
             $"{entityName} with id '{id}' was not found",
             CreateDefaultTags()
                 .Add("EntityName", entityName)
-                .Add("EntityId", id?.ToString() ?? "null"))
+                .Add("EntityId", id?.ToString() ?? "null"),
+            ReasonMetadata.FromCaller(callerMember, callerFile, callerLine))
     {
     }
 

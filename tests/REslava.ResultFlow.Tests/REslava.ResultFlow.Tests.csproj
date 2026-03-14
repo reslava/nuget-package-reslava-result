@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="ResultFlowGeneratorTests.cs" />
     <Compile Include="ResultFlowAnalyzerTests.cs" />
+    <Compile Include="ResultFlowChainExtractorGapTests.cs" />
   </ItemGroup>
 
   <!-- Prevent double compilation of generated files -->

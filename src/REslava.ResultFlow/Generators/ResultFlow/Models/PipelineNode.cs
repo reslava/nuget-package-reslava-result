@@ -25,6 +25,15 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Models
         /// </summary>
         public string? ErrorType { get; set; }
 
+        /// <summary>
+        /// Syntactically extracted error type name for body-scan pipelines.
+        /// Set when a step argument is a direct error constructor (<c>new NotFoundError(...)</c>)
+        /// or a static factory on a type whose name ends with "Error" or "Reason"
+        /// (<c>NotFoundError.For(...)</c>, <c>ValidationError.Field(...)</c>).
+        /// Used as a fallback by the Mermaid renderer when <see cref="ErrorType"/> is null.
+        /// </summary>
+        public string? ErrorHint { get; set; }
+
         public PipelineNode(string methodName, NodeKind kind)
         {
             MethodName = methodName;

@@ -12,7 +12,7 @@ namespace REslava.Result;
 /// Prefer inheriting <see cref="Reason{TSelf}"/> to get fluent CRTP builders
 /// (<c>WithMessage</c>, <c>WithTag</c>, <c>WithTags</c>).
 /// </remarks>
-public abstract class Reason : IReason
+public abstract class Reason : IReason, IReasonMetadata
 {
     /// <inheritdoc/>
     [Required]
@@ -20,6 +20,12 @@ public abstract class Reason : IReason
 
     /// <inheritdoc/>
     public ImmutableDictionary<string, object> Tags { get; init; }
+
+    /// <summary>
+    /// System/diagnostic metadata captured automatically at the creation site.
+    /// Separate from <see cref="Tags"/>, which holds user/business metadata.
+    /// </summary>
+    public ReasonMetadata Metadata { get; internal set; } = ReasonMetadata.Empty;
 
     /// <summary>Initializes a new reason with the given message and empty tags.</summary>
     /// <param name="message">Human-readable description. Must not be null or whitespace.</param>
@@ -36,6 +42,18 @@ public abstract class Reason : IReason
     {
         Message = message.EnsureNotNullOrWhiteSpace(nameof(message));
         Tags = tags ?? ImmutableDictionary<string, object>.Empty;
+    }
+
+    /// <summary>
+    /// Initializes a new reason with pre-populated tags and caller metadata.
+    /// Used by concrete error/success constructors that capture caller info
+    /// via <c>[CallerMemberName]</c>, <c>[CallerFilePath]</c>, and <c>[CallerLineNumber]</c>.
+    /// </summary>
+    protected Reason(string message, ImmutableDictionary<string, object> tags, ReasonMetadata metadata)
+    {
+        Message = message.EnsureNotNullOrWhiteSpace(nameof(message));
+        Tags = tags ?? ImmutableDictionary<string, object>.Empty;
+        Metadata = metadata ?? ReasonMetadata.Empty;
     }
 
     public override string ToString()

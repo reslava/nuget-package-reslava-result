@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace REslava.Result;
 
@@ -19,8 +20,13 @@ public class UnauthorizedError : Reason<UnauthorizedError>, IError
     {
     }
 
-    public UnauthorizedError(string message)
-        : base(message, CreateDefaultTags())
+    public UnauthorizedError(
+        string message,
+        [CallerMemberName] string? callerMember = null,
+        [CallerFilePath]   string? callerFile   = null,
+        [CallerLineNumber] int     callerLine   = 0)
+        : base(message, CreateDefaultTags(),
+               ReasonMetadata.FromCaller(callerMember, callerFile, callerLine))
     {
     }
 

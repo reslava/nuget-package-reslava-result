@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 namespace REslava.Result;
 
 // ============================================================================
@@ -8,12 +9,14 @@ public class Error : Reason<Error>, IError
 {        
     // NO parameterless constructor
     
-    /// <summary>
-    /// Creates an error reason with a specific message.
-    /// </summary>
-    /// <param name="message">Description of the error.</param>
-    
-    public Error(string message) : base(message) { }
+    /// <summary>Creates an error reason with a specific message.</summary>
+    public Error(
+        string message,
+        [CallerMemberName] string? callerMember = null,
+        [CallerFilePath]   string? callerFile   = null,
+        [CallerLineNumber] int     callerLine   = 0)
+        : base(message, ImmutableDictionary<string, object>.Empty,
+               ReasonMetadata.FromCaller(callerMember, callerFile, callerLine)) { }
 
     protected Error(string message, ImmutableDictionary<string, object> tags)
         : base(message, tags) { }

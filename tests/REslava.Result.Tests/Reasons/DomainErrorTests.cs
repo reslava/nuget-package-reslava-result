@@ -121,7 +121,7 @@ public sealed class DomainErrorTests
     [TestMethod]
     public void ConflictError_WithEntityFieldValue_ShouldCreateDescriptiveMessage()
     {
-        var error = new ConflictError("User", "email", "test@test.com");
+        var error = ConflictError.Duplicate("User", "email", "test@test.com");
 
         Assert.AreEqual("User with email 'test@test.com' already exists", error.Message);
         Assert.AreEqual("User", error.Tags["EntityName"]);

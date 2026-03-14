@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace REslava.Result;
 
@@ -14,12 +15,21 @@ namespace REslava.Result;
 /// </example>
 public class ConflictError : Reason<ConflictError>, IError
 {
-    public ConflictError(string message)
-        : base(message, CreateDefaultTags())
+    public ConflictError(
+        string message,
+        [CallerMemberName] string? callerMember = null,
+        [CallerFilePath]   string? callerFile   = null,
+        [CallerLineNumber] int     callerLine   = 0)
+        : base(message, CreateDefaultTags(),
+               ReasonMetadata.FromCaller(callerMember, callerFile, callerLine))
     {
     }
 
-    public ConflictError(string entityName, string conflictField, object conflictValue)
+    [Obsolete("Use ConflictError.Duplicate(entity, field, value) instead — it also captures the calling step name.")]
+    public ConflictError(
+        string entityName,
+        string conflictField,
+        object conflictValue)
         : base(
             $"{entityName} with {conflictField} '{conflictValue}' already exists",
             CreateDefaultTags()
@@ -28,6 +38,35 @@ public class ConflictError : Reason<ConflictError>, IError
                 .Add("ConflictValue", conflictValue?.ToString() ?? "null"))
     {
     }
+
+    /// <summary>Creates a conflict error for a duplicate field value, capturing the calling step name.</summary>
+    public static ConflictError Duplicate(
+        string entityName,
+        string conflictField,
+        object conflictValue,
+        [CallerMemberName] string? callerMember = null,
+        [CallerFilePath]   string? callerFile   = null,
+        [CallerLineNumber] int     callerLine   = 0)
+    {
+        var tags = CreateDefaultTags()
+            .Add("EntityName", entityName)
+            .Add("ConflictField", conflictField)
+            .Add("ConflictValue", conflictValue?.ToString() ?? "null");
+        return new ConflictError(
+            $"{entityName} with {conflictField} '{conflictValue}' already exists", tags)
+        {
+            Metadata = ReasonMetadata.FromCaller(callerMember, callerFile, callerLine)
+        };
+    }
+
+    /// <summary>Creates a conflict error for a duplicate field value, inferring entity name from <typeparamref name="T"/>.</summary>
+    public static ConflictError Duplicate<T>(
+        string conflictField,
+        object conflictValue,
+        [CallerMemberName] string? callerMember = null,
+        [CallerFilePath]   string? callerFile   = null,
+        [CallerLineNumber] int     callerLine   = 0)
+        => Duplicate(typeof(T).Name, conflictField, conflictValue, callerMember, callerFile, callerLine);
 
     private ConflictError(string message, ImmutableDictionary<string, object> tags)
         : base(message, tags)

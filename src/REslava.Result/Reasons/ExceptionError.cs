@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace REslava.Result;
 
@@ -23,27 +24,31 @@ public class ExceptionError : Reason<ExceptionError>, IError
     /// <summary>Gets the original .NET exception that caused this error.</summary>
     public Exception Exception { get; init; }
 
-    /// <summary>
-    /// Creates an error from an exception, using the exception's own message.
-    /// </summary>
-    /// <param name="exception">The exception to wrap. Must not be null.</param>
-    public ExceptionError(Exception exception)
+    /// <summary>Creates an error from an exception, using the exception's own message.</summary>
+    public ExceptionError(
+        Exception exception,
+        [CallerMemberName] string? callerMember = null,
+        [CallerFilePath]   string? callerFile   = null,
+        [CallerLineNumber] int     callerLine   = 0)
         : base(
             exception?.Message ?? "An exception occurred",
-            CreateExceptionTags(exception))
+            CreateExceptionTags(exception),
+            ReasonMetadata.FromCaller(callerMember, callerFile, callerLine))
     {
         Exception = exception ?? throw new ArgumentNullException(nameof(exception));
     }
 
-    /// <summary>
-    /// Creates an error with a custom message, preserving the original exception for diagnostics.
-    /// </summary>
-    /// <param name="message">Custom human-readable error message.</param>
-    /// <param name="exception">The exception to wrap. Must not be null.</param>
-    public ExceptionError(string message, Exception exception)
+    /// <summary>Creates an error with a custom message, preserving the original exception for diagnostics.</summary>
+    public ExceptionError(
+        string message,
+        Exception exception,
+        [CallerMemberName] string? callerMember = null,
+        [CallerFilePath]   string? callerFile   = null,
+        [CallerLineNumber] int     callerLine   = 0)
         : base(
             message,
-            CreateExceptionTags(exception))
+            CreateExceptionTags(exception),
+            ReasonMetadata.FromCaller(callerMember, callerFile, callerLine))
     {
         Exception = exception ?? throw new ArgumentNullException(nameof(exception));
     }
