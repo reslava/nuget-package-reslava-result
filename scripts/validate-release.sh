@@ -274,7 +274,7 @@ echo "────────────────────────�
 if [[ "$FAIL" -eq 0 ]]; then
   echo -e "${GREEN}${BOLD}✓ All checks passed — v${VERSION} is ready to tag!${RESET}"
   echo ""
-  echo "  Next step:  git tag v${VERSION} && git push origin v${VERSION}"
+  echo "  Next step:  ./scripts/tag-release.sh ${VERSION}"
   exit 0
 else
   echo -e "${RED}${BOLD}✗ ${FAIL} check(s) failed — fix the issues above before tagging.${RESET}"
