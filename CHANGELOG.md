@@ -4,6 +4,38 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.40.0] - 2026-03-14
+
+### ✨ Added
+
+- **`ReasonMetadata` sealed record** — structured system/diagnostic metadata separate from `Tags`; captures `CallerMember`, `CallerFile`, `CallerLine` via compiler-injected `[CallerMemberName/FilePath/LineNumber]` on factory methods; `Empty` singleton for zero-allocation default; `FromCaller()` internal factory
+- **`IReasonMetadata` capability interface** — secondary interface (same opt-in pattern as `IAsyncDisposable`); allows reading `Metadata` from an `IReason`-typed reference without breaking existing external implementations; `Reason` base class implements it automatically
+- **`ReasonMetadataExtensions`** — `TryGetMetadata(this IReason)` → `ReasonMetadata?` (null-safe, no cast exception for external stubs); `HasCallerInfo(this IReason)` → `bool` using C# 9 property pattern
+- **`Reason.Metadata`** property (`internal set`) — all CRTP operations (`WithMessage`, `WithTag`, `WithTags`, `WithTagsFrom`) preserve `Metadata` on copies; `WithMetadata(ReasonMetadata)` fluent override
+- **Static error factories with `[CallerMemberName]` capture**:
+  - `ValidationError.Field(fieldName, message)` — replaces old `[Obsolete]` `(string fieldName, string message)` constructor
+  - `ForbiddenError.For(action, resource)` — replaces old `[Obsolete]` `(string action, string resource)` constructor
+  - `ConflictError.Duplicate(entity, field, value)` — replaces old `[Obsolete]` `(string entityName, string conflictField, object conflictValue)` constructor
+  - `ConflictError.Duplicate<T>(field, value)` — entity name inferred from `typeof(T).Name`
+  - Single-string constructors on all types capture `CallerMember` directly via `[CallerMemberName]` optional parameters
+- **JSON serialization** — `ReasonJsonConverter` writes `"metadata"` key when `Metadata != Empty`; reads it back on deserialization; backward-compatible (missing key → `Empty`); `WithMetadata()` call after `new Error(message)` in `ReadError()` correctly overrides the auto-captured `"ReadError"` value
+- **`RESL1010` — Unhandled Failure Path** — warns when a `Result<T>` local variable has no failure-aware usage in the enclosing block and is not returned; suppressed by any of `IsSuccess/IsFailure`, `Match`, `Switch`, `TapOnFailure`, `Bind`, `Map`, `Ensure`, `GetValueOr`, `TryGetValue`, `Or`, `OrElse`, `MapError` (or return of the variable)
+- **`RESL2002` — Non-Exhaustive `ErrorsOf.Match()`** — warns when `Match()` is called with fewer handler lambdas than the `ErrorsOf<T1..Tn>` union has type arguments; runtime `InvalidOperationException` is prevented at compile time
+- **`RESL1021` — Multi-Argument `IError`/`IReason` Constructor** — warns when an implementation has a public constructor with 2+ required non-optional parameters; allowed shapes: `()`, `(string)`, `(string, Exception)`, `[Obsolete]`-marked, non-public; encourages static factory pattern for correct `[CallerMemberName]` capture
+- **ResultFlow `PipelineNode.ErrorHint`** — syntactically extracted error type name for body-scan (`Result<T>`) pipelines; set when a step argument is `new SomeError(...)` or `SomeError.Factory(...)` (receiver name ends with `"Error"` or `"Reason"`); used as fallback in `FailLabel()` when `ErrorType` is null (type-read mode still takes precedence)
+
+### 🔧 Changed (non-breaking)
+
+- Old multi-parameter constructors on `ValidationError`, `ForbiddenError`, `ConflictError`, `UnauthorizedError`, `ConversionError` marked `[Obsolete]` — no runtime behavior change, callers see a deprecation warning
+- `Reason.cs` — abstract base class now declares `public abstract class Reason : IReason, IReasonMetadata`
+- `ResultFlowMermaidRenderer.FailLabel()` — now uses `ErrorHint` as body-scan fallback; `ErrorType` from type-read mode unchanged and still takes precedence
+
+### Stats
+- 4,328 tests passing across net8.0, net9.0, net10.0 (1,306×3) + AspNetCore (131) + ResultFlow (58) + analyzer (114) + FluentValidation (26) + Http (20×3)
+- 145 features across 13 categories
+
+---
+
 ## [1.39.1] - 2026-03-11
 
 Minor update: Fixed and updated NuGet package `REslava.Result` README 
