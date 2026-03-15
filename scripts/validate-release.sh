@@ -228,12 +228,12 @@ echo ""
 #
 # We use a FLOOR threshold (not an exact count) to avoid updating docs after
 # every release. Only update TEST_FLOOR and the README.md badge together when
-# the suite crosses the next hundred mark (e.g. 3900 → 4000).
+# the suite crosses the next five-hundred mark (e.g. 4500 → 5000).
 # See CLAUDE.md §6 "Test Count Convention" for the full rule.
 
 echo -e "${BOLD}9. Test count floor${RESET}"
 
-# ── Memorized floor — update when test count crosses the next hundred ──────────
+# ── Memorized floor — update when test count crosses the next 500 mark ─────────
 TEST_FLOOR=4500
 # ─────────────────────────────────────────────────────────────────────────────
 
