@@ -260,7 +260,7 @@ public partial class Result<TValue> : Result, IResultBase<TValue>
     /// </example>
     public new Result<TValue> WithSuccess(string message) 
     { 
-        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        Throw.IfNullOrEmpty(message, nameof(message));
         return new Result<TValue>(_value, Reasons.Add(new Success(message))); 
     }
 
@@ -323,7 +323,7 @@ public partial class Result<TValue> : Result, IResultBase<TValue>
     /// </example>
     public new Result<TValue> WithError(string message) 
     { 
-        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        Throw.IfNullOrEmpty(message, nameof(message));
         return new Result<TValue>(_value, Reasons.Add(new Error(message))); 
     }
 

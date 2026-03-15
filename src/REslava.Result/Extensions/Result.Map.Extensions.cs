@@ -101,7 +101,7 @@ public static class ResultTaskExtensions
         CancellationToken cancellationToken = default)
     {
         resultTask = resultTask.EnsureNotNull(nameof(resultTask));
-        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        Throw.IfNullOrEmpty(message, nameof(message));
         cancellationToken.ThrowIfCancellationRequested();
 
         var result = await resultTask;

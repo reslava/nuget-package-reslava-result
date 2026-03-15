@@ -13,7 +13,11 @@ namespace REslava.Result;
 /// Result&lt;User&gt;.Fail(new UnauthorizedError("Token has expired"));
 /// </code>
 /// </example>
+#if NET7_0_OR_GREATER
 public class UnauthorizedError : Reason<UnauthorizedError>, IError, IErrorFactory<UnauthorizedError>
+#else
+public class UnauthorizedError : Reason<UnauthorizedError>, IError
+#endif
 {
     /// <inheritdoc/>
     public static UnauthorizedError Create(string message) => new(message);

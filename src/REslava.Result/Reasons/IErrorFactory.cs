@@ -1,5 +1,6 @@
 namespace REslava.Result;
 
+#if NET7_0_OR_GREATER
 /// <summary>
 /// Opt-in interface that enables generic error construction via a static factory method.
 /// Implement on custom error types to participate in <c>Result.Fail&lt;TError&gt;(string)</c>.
@@ -21,3 +22,4 @@ public interface IErrorFactory<TSelf> where TSelf : IErrorFactory<TSelf>
     /// <summary>Creates an instance of <typeparamref name="TSelf"/> with the given message.</summary>
     static abstract TSelf Create(string message);
 }
+#endif

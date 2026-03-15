@@ -5,7 +5,11 @@ namespace REslava.Result;
 // ============================================================================
 // Error
 // ============================================================================
+#if NET7_0_OR_GREATER
 public class Error : Reason<Error>, IError, IErrorFactory<Error>
+#else
+public class Error : Reason<Error>, IError
+#endif
 {
     // NO parameterless constructor
 

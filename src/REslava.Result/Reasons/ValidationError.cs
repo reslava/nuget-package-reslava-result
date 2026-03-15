@@ -13,7 +13,11 @@ namespace REslava.Result;
 /// Result&lt;User&gt;.Fail(new ValidationError("Name is required"));
 /// </code>
 /// </example>
+#if NET7_0_OR_GREATER
 public class ValidationError : Reason<ValidationError>, IError, IErrorFactory<ValidationError>
+#else
+public class ValidationError : Reason<ValidationError>, IError
+#endif
 {
     /// <inheritdoc/>
     public static ValidationError Create(string message) => new(message);

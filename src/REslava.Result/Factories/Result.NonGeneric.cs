@@ -34,7 +34,7 @@ public partial class Result
     /// </example>
     public static Result Ok(string message)
     {
-        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        Throw.IfNullOrEmpty(message, nameof(message));
         return new Result(new Success(message));
     }
 
@@ -113,7 +113,7 @@ public partial class Result
     /// </example>
     public static Result Fail(string message)
     {
-        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        Throw.IfNullOrEmpty(message, nameof(message));
         return new Result(new Error(message));
     }
 
@@ -134,6 +134,7 @@ public partial class Result
         return new Result(error);
     }
 
+#if NET7_0_OR_GREATER
     /// <summary>
     /// Creates a failed result using a typed error factory.
     /// </summary>
@@ -148,9 +149,10 @@ public partial class Result
     /// </example>
     public static Result Fail<TError>(string message) where TError : IError, IErrorFactory<TError>
     {
-        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        Throw.IfNullOrEmpty(message, nameof(message));
         return Fail(TError.Create(message));
     }
+#endif
 
     /// <summary>
     /// Creates a failed result with multiple error messages.
@@ -212,7 +214,7 @@ public partial class Result
     /// </example>
     public Result WithSuccess(string message)
     {
-        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        Throw.IfNullOrEmpty(message, nameof(message));
         return new Result(Reasons.Add(new Success(message)));
     }
 
@@ -311,7 +313,7 @@ public partial class Result
     /// </example>
     public Result WithError(string message)
     {
-        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        Throw.IfNullOrEmpty(message, nameof(message));
         return new Result(Reasons.Add(new Error(message)));
     }
 

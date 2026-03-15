@@ -14,7 +14,11 @@ namespace REslava.Result;
 /// Result&lt;User&gt;.Fail(ForbiddenError.For("Delete", "Order"));
 /// </code>
 /// </example>
+#if NET7_0_OR_GREATER
 public class ForbiddenError : Reason<ForbiddenError>, IError, IErrorFactory<ForbiddenError>
+#else
+public class ForbiddenError : Reason<ForbiddenError>, IError
+#endif
 {
     /// <inheritdoc/>
     public static ForbiddenError Create(string message) => new(message);

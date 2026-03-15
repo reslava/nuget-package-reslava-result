@@ -13,7 +13,11 @@ namespace REslava.Result;
 /// Result&lt;User&gt;.Fail(new ConflictError("A user with this email already exists"));
 /// </code>
 /// </example>
+#if NET7_0_OR_GREATER
 public class ConflictError : Reason<ConflictError>, IError, IErrorFactory<ConflictError>
+#else
+public class ConflictError : Reason<ConflictError>, IError
+#endif
 {
     /// <inheritdoc/>
     public static ConflictError Create(string message) => new(message);

@@ -37,7 +37,11 @@ public static class ResultTimeoutExtensions
 
             if (completedTask == resultTask)
             {
+#if NET8_0_OR_GREATER
                 await cts.CancelAsync();
+#else
+                cts.Cancel();
+#endif
 
                 if (resultTask.IsFaulted)
                     return Result<T>.Fail(
@@ -84,7 +88,11 @@ public static class ResultTimeoutExtensions
 
             if (completedTask == resultTask)
             {
+#if NET8_0_OR_GREATER
                 await cts.CancelAsync();
+#else
+                cts.Cancel();
+#endif
 
                 if (resultTask.IsFaulted)
                     return Result.Fail(

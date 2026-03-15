@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
     <RootNamespace>REslava.Result</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -19,7 +19,7 @@
     <!-- Documentation -->
     <!-- Package Metadata -->
     <PackageId>REslava.Result</PackageId>
-    <Title>REslava.Result - Railway-Oriented Programming for .NET</Title>
+    <Title>REslava.Result – Result Pattern for .NET | Railway-Oriented Programming</Title>
     <Authors>Rafael Eslava</Authors>
     <Company>REslava</Company>
     <Product>REslava.Result</Product>
@@ -30,12 +30,14 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>result;monad;railway;functional;error-handling;validation;either;option;maybe;fp;minimal-api;aspnetcore;iresult</PackageTags>
+    <PackageTags>reslava;result;result-pattern;railway-oriented-programming;functional-programming;monad;railway;functional;error-handling;validation;either;option;maybe;fp;minimal-api;aspnetcore;iresult</PackageTags>
     <PackageReleaseNotes>https://github.com/reslava/nuget-package-reslava-result/blob/main/CHANGELOG.md</PackageReleaseNotes>
     <PackageReadmeFile>README.REslava.Result.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>    
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 <NoWarn>$(NoWarn);1591;8764;CS8764</NoWarn> <!-- Optional: Suppress missing XML docs warnings and nullability override warning -->
+    <!-- netstandard2.0: BCL lacks nullable annotations — suppress false-positive nullability warnings -->
+    <NoWarn Condition="'$(TargetFramework)' == 'netstandard2.0'">$(NoWarn);CS8604;CS8602;CS8601;CS8603</NoWarn>
 
 
     <!-- Source Link -->
@@ -56,6 +58,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.1" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 
 </Project>

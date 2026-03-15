@@ -38,7 +38,7 @@ public partial class Result<TValue>
     /// </example>
     public static Result<TValue> Ok(TValue value, string message)
     {
-        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        Throw.IfNullOrEmpty(message, nameof(message));
         return new Result<TValue>(value, new Success(message))
         {
             Context = new ResultContext { Entity = typeof(TValue).Name }
@@ -226,6 +226,7 @@ public partial class Result<TValue>
         return result;
     }
 
+#if NET7_0_OR_GREATER
     /// <summary>
     /// Creates a failed result using a typed error factory.
     /// </summary>
@@ -244,9 +245,10 @@ public partial class Result<TValue>
     /// </example>
     public static new Result<TValue> Fail<TError>(string message) where TError : IError, IErrorFactory<TError>
     {
-        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        Throw.IfNullOrEmpty(message, nameof(message));
         var result = FromResult(Result.Fail<TError>(message));
         result.Context = new ResultContext { Entity = typeof(TValue).Name };
         return result;
     }
+#endif
 }

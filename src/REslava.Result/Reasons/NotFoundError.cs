@@ -13,7 +13,11 @@ namespace REslava.Result;
 /// Result&lt;Order&gt;.Fail(new NotFoundError("Order not found"));
 /// </code>
 /// </example>
+#if NET7_0_OR_GREATER
 public class NotFoundError : Reason<NotFoundError>, IError, IErrorFactory<NotFoundError>
+#else
+public class NotFoundError : Reason<NotFoundError>, IError
+#endif
 {
     /// <inheritdoc/>
     public static NotFoundError Create(string message) => new(message);

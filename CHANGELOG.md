@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.44.0] - 2026-03-15
+
+### ✨ Added
+
+- **`netstandard2.0` target** — `REslava.Result` now targets `netstandard2.0;net8.0;net9.0;net10.0`; broadens compatibility to .NET Framework 4.6.1+, Unity, Xamarin, and older .NET Core; fixes invisibility in the default NuGet search (framework filter mode = "all")
+  - Polyfills added: `IsExternalInit`, `HashCode.Combine` (2–8 args), cross-TFM `Throw.IfNullOrEmpty`/`Throw.IfNull` helper
+  - `IErrorFactory<TSelf>`, `Result.Fail<TError>`, `Result<TValue>.Fail<TError>` guarded with `#if NET7_0_OR_GREATER` — `static abstract` interface members require .NET 7+ runtime
+  - `CancelAsync()` in timeout extensions guarded with `#if NET8_0_OR_GREATER`
+
+### 🔧 Changed (non-breaking)
+
+- **`REslava.Result` title** updated to `REslava.Result – Result Pattern for .NET | Railway-Oriented Programming` — improves NuGet search ranking (title words weighted heavily)
+- **`REslava.Result` tags** extended with `reslava`, `result-pattern`, `railway-oriented-programming`, `functional-programming`
+
+### Stats
+- Tests: >4,500 passing
+- 187 features across 15 categories
+
+---
+
 ## [1.43.0] - 2026-03-15
 
 ### ✨ Added
