@@ -87,6 +87,14 @@ tagline: Know exactly what you're getting.
 | `IError.Tags` dict | Rich metadata: HttpStatusCode, ErrorType, custom | v1.9.4 | `## Advanced Patterns` — `### Rich Error Context` |
 | `WithTag(key, value)` | Fluent tag builder on any Reason | v1.9.4 | `## Advanced Patterns` — `### Rich Error Context` |
 | HttpStatusCode convention | Domain errors carry tag; read by ToIResult/ToActionResult | v1.20.0 | `## Complete Architecture` — `### Error → HTTP Status Code Convention` |
+| `TagKey<T>` | `abstract record TagKey(string Name)` + `sealed record TagKey<T>(string Name) : TagKey(Name)` — typed accessor into `ImmutableDictionary<string, object>` Tags | v1.41.0 | `## Error Types` — `### Typed Tags` |
+| `DomainTags` | Predefined typed domain tag keys: `Entity`, `EntityId`, `Field`, `Value`, `Operation` | v1.41.0 | `## Error Types` — `### Typed Tags` |
+| `SystemTags` | Predefined typed integration tag keys: `HttpStatus`, `ErrorCode`, `RetryAfter`, `Service` | v1.41.0 | `## Error Types` — `### Typed Tags` |
+| `WithTag<T>(TagKey<T>, T)` typed overload | Typed fluent tag builder on all `Reason<T>` subclasses | v1.41.0 | `## Error Types` — `### Typed Tags` |
+| `ReasonTagExtensions` | `TryGet<T>` + `Has<T>` — typed tag reads on any `IReason` | v1.41.0 | `## Error Types` — `### Typed Tags` |
+| `IErrorFactory<TSelf>` | C# 11 static abstract interface — `static abstract TSelf Create(string message)` | v1.41.0 | `## Error Types` — `### Typed Tags` |
+| Built-in errors implement `IErrorFactory<TSelf>` | `Error`, `NotFoundError`, `ConflictError`, `ValidationError`, `ForbiddenError`, `UnauthorizedError` | v1.41.0 | `## Error Types` — `### Typed Tags` |
+| `Result.Fail<TError>(string)` | Typed factory overload; `where TError : IError, IErrorFactory<TError>` | v1.41.0 | `## Error Types` — `### Typed Tags` |
 
 ---
 
@@ -238,18 +246,22 @@ tagline: Know exactly what you're getting.
 | `REslava.Result.Flow` — REF002 + Code Action | REslava.Result-native counterpart: REF002 info diagnostic on every `[ResultFlow]` method; one-click code fix inserts full-fidelity diagram (type travel + typed error edges) as a `mermaid` fence comment | v1.38.1 | `## 🗺️ Pipeline Visualization` — `### REF002 & Code Action` |
 | `mermaid` fence comment format | Both `REslava.ResultFlow` and `REslava.Result.Flow` code actions now wrap the inserted diagram in a `\`\`\`mermaid … \`\`\`` fence — renders inline in VS Code, GitHub, Rider | v1.38.1 | — |
 | `Result.Flow` — type-read mode | When method returns `Result<T, TError>`, failure edges show exact error type (reads `TypeArguments[1]`); e.g. `fail: ErrorsOf<ValidationError, InventoryError>`; zero body scanning; HTML-escaped angle brackets for Mermaid | v1.39.0 | `## 🗺️ Pipeline Visualization` — `### Type-Read Mode` |
+| Gap 1: lambda body method name | `.Bind(x => SaveUser(x))` → step label `"SaveUser"` | v1.41.0 | — |
+| Gap 3: variable initializer resolution | `var r = FindUser(); return r.Bind(...)` correctly seeds chain root | v1.41.0 | — |
+| `PipelineNode.NodeId` | Stable node identifier (`"N{i}_{MethodName}"`) for runtime→diagram correlation via `ReasonMetadata.NodeId` | v1.41.0 | — |
+| Mermaid node correlation block | `%% --- Node correlation ---` block at end of every diagram | v1.41.0 | — |
 
 ---
 
 ## Summary
 
-!!! new "**v1.39.0** — 153 features across 13 categories."
+!!! new "**v1.41.0** — 169 features across 13 categories."
 
 
 | Category | Total Features |
 |----------|---------------|
 | Core Library | 42 |
-| Error Types | 12 |
+| Error Types | 20 |
 | SmartEndpoints | 18 |
 | Result/OneOf → IResult | 14 |
 | Result/OneOf → ActionResult | 8 |
@@ -260,8 +272,8 @@ tagline: Know exactly what you're getting.
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
-| ResultFlow | 18 |
-| **Total** | **153** |
+| ResultFlow | 26 |
+| **Total** | **169** |
 
 ---
 
