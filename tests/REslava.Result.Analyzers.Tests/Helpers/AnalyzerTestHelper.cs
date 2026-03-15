@@ -190,6 +190,38 @@ namespace REslava.Result
 ";
 
     /// <summary>
+    /// Minimal stubs for <c>Result&lt;T, TError&gt;</c> (2-arg) and <c>[DomainBoundary]</c>
+    /// so RESL1030 tests can resolve the types without depending on the real assembly.
+    /// Must be added alongside <see cref="ResultStubSource"/> in RESL1030 tests.
+    /// </summary>
+    internal const string DomainBoundaryStubSource = @"
+namespace REslava.Result
+{
+    public class Result<TValue, TError>
+    {
+        public bool IsSuccess => true;
+        public bool IsFailure => false;
+        public TValue Value => default!;
+        public TError Error => default!;
+
+        public static Result<TValue, TError> Ok(TValue value) => new Result<TValue, TError>();
+        public static Result<TValue, TError> Fail(TError error) => new Result<TValue, TError>();
+
+        public Result<TValue, TError2> MapError<TError2>(System.Func<TError, TError2> mapper)
+            => new Result<TValue, TError2>();
+    }
+
+    [System.AttributeUsage(System.AttributeTargets.Method | System.AttributeTargets.Constructor, Inherited = false)]
+    public sealed class DomainBoundaryAttribute : System.Attribute
+    {
+        public string? Layer { get; }
+        public DomainBoundaryAttribute() { }
+        public DomainBoundaryAttribute(string layer) { Layer = layer; }
+    }
+}
+";
+
+    /// <summary>
     /// Creates a test for UnsafeValueAccessAnalyzer (backward compat for existing tests).
     /// </summary>
     public static CSharpAnalyzerTest<UnsafeValueAccessAnalyzer, DefaultVerifier> CreateTest(string testCode)

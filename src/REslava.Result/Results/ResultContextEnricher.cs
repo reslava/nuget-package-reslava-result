@@ -19,17 +19,12 @@ internal static class ResultContextEnricher
         var tagsToAdd = BuildContextTags(error.Tags, context);
         if (tagsToAdd.Count == 0) return error;
 
-        try
-        {
-            // All concrete errors extend Reason<TSelf> which has a public WithTagsFrom method.
-            // dynamic dispatch resolves the correct CRTP override and preserves the concrete type.
-            return (IError)((dynamic)error).WithTagsFrom(tagsToAdd);
-        }
-        catch
-        {
-            // Enrichment is best-effort — never break the pipeline over a tag injection failure.
-            return error;
-        }
+        // ITagEnrichable is implemented by Reason<TReason> — all concrete error types.
+        // Zero allocations, no dynamic binder, no try/catch needed.
+        if (error is ITagEnrichable enrichable)
+            return enrichable.WithTagsFrom(tagsToAdd);
+
+        return error; // custom IError not extending Reason<T> — pass through unchanged
     }
 
     /// <summary>

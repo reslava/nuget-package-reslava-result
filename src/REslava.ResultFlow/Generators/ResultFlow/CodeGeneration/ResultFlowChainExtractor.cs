@@ -172,12 +172,24 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     if (errorHint != null) break;
                 }
 
+                // Source location for clickable Mermaid nodes
+                string? sourceFile = null;
+                int? sourceLine = null;
+                var loc = invocationNode.GetLocation().GetLineSpan();
+                if (loc.IsValid && !string.IsNullOrEmpty(loc.Path))
+                {
+                    sourceFile = loc.Path;
+                    sourceLine = loc.StartLinePosition.Line + 1; // 1-indexed
+                }
+
                 var node = new PipelineNode(effectiveName, kind)
                 {
-                    InputType = prevOutputType,
+                    InputType  = prevOutputType,
                     OutputType = outputType,
                     ErrorType  = errorType,
-                    ErrorHint  = errorHint
+                    ErrorHint  = errorHint,
+                    SourceFile = sourceFile,
+                    SourceLine = sourceLine,
                 };
 
                 nodes.Add(node);

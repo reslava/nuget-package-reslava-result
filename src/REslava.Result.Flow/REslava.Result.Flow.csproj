@@ -62,6 +62,13 @@
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
 
+  <!-- Test access to internal types -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>REslava.Result.Flow.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
   <!-- Explicit compile items -->
   <ItemGroup>
     <Compile Include="Analyzers\ResultFlowDiagramAnalyzer.cs" />

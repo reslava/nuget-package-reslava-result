@@ -10,7 +10,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
         /// Converts an ordered list of <see cref="PipelineNode"/> into a Mermaid <c>flowchart LR</c> string.
         /// Invisible nodes are filtered out before rendering.
         /// </summary>
-        public static string Render(IReadOnlyList<PipelineNode> nodes)
+        public static string Render(IReadOnlyList<PipelineNode> nodes, string? linkMode = null)
         {
             // Filter out invisible nodes (WithSuccess, WithSuccessAsync, etc.)
             var visible = new List<PipelineNode>();
@@ -23,6 +23,11 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             if (visible.Count == 0)
                 return "flowchart LR";
 
+            // Pre-compute node IDs so click directives can reference them after classDefs
+            var nodeIds = new List<string>(visible.Count);
+            for (int i = 0; i < visible.Count; i++)
+                nodeIds.Add($"N{i}_{visible[i].MethodName}");
+
             var lines = new List<string>();
             var classDefs = new List<string>();
             var declaredClasses = new HashSet<string>();
@@ -30,10 +35,10 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             for (int i = 0; i < visible.Count; i++)
             {
                 var node = visible[i];
-                var nodeId = $"N{i}_{node.MethodName}";
+                var nodeId = nodeIds[i];
                 var label = BuildLabel(node);
                 bool hasNext = i < visible.Count - 1;
-                string nextId = hasNext ? $"N{i + 1}_{visible[i + 1].MethodName}" : string.Empty;
+                string nextId = hasNext ? nodeIds[i + 1] : string.Empty;
 
                 switch (node.Kind)
                 {
@@ -87,6 +92,18 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                 sb.AppendLine(line);
             foreach (var classDef in classDefs)
                 sb.AppendLine(classDef);
+
+            // Click directives — emitted when linkMode is "vscode" and source location is available
+            if (!string.IsNullOrEmpty(linkMode) && linkMode != "none")
+            {
+                for (int i = 0; i < visible.Count; i++)
+                {
+                    var n = visible[i];
+                    var url = BuildClickUrl(n.SourceFile, n.SourceLine, linkMode);
+                    if (url != null)
+                        sb.AppendLine($"    click {nodeIds[i]} \"{url}\" \"Go to {n.MethodName}\"");
+                }
+            }
 
             return sb.ToString().TrimEnd();
         }
@@ -144,6 +161,15 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
         {
             if (declared.Add(name))
                 classDefs.Add($"    classDef {name} {style}");
+        }
+
+        private static string? BuildClickUrl(string? sourceFile, int? sourceLine, string? linkMode)
+        {
+            if (sourceFile == null || sourceLine == null) return null;
+            var path = sourceFile.Replace('\\', '/');
+            if (linkMode == "vscode")
+                return $"vscode://file/{path}:{sourceLine}";
+            return null;
         }
     }
 }

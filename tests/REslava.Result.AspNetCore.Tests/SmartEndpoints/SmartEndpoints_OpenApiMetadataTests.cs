@@ -696,5 +696,105 @@ namespace TestApp
             }
             return count;
         }
+
+        // ─── Result<T, ErrorsOf<T1..Tn>> typed error surface (#10) ───
+
+        [TestMethod]
+        public void Should_Generate_Typed_Produces_For_Result_With_ErrorsOf2()
+        {
+            var source = @"
+using REslava.Result;
+using REslava.Result.AdvancedPatterns;
+
+namespace TestApp
+{
+    public class OrderNotFoundError : REslava.Result.NotFoundError { public OrderNotFoundError() : base(""not found"") {} }
+    public class OrderForbiddenError : REslava.Result.ForbiddenError { public OrderForbiddenError() : base(""forbidden"") {} }
+    public class OrderDto { public int Id { get; set; } }
+
+    [REslava.Result.SourceGenerators.SmartEndpoints.AutoGenerateEndpoints(RoutePrefix = ""/api/orders"")]
+    public class OrderController
+    {
+        public Result<OrderDto, ErrorsOf<OrderNotFoundError, OrderForbiddenError>> GetOrder(int id)
+            => Result<OrderDto, ErrorsOf<OrderNotFoundError, OrderForbiddenError>>.Ok(new OrderDto());
+    }
+}";
+            var code = RunGeneratorAndGetExtensions(source);
+
+            Assert.IsTrue(code.Contains("Produces<") && code.Contains("OrderDto"),
+                "OrderDto should be emitted as the typed success .Produces<T>(200)");
+            Assert.IsTrue(code.Contains(".Produces(404)") || code.Contains("Produces<") && code.Contains("404"),
+                "OrderNotFoundError should produce a 404 entry");
+            Assert.IsTrue(code.Contains(".Produces(403)") || code.Contains("Produces<") && code.Contains("403"),
+                "OrderForbiddenError should produce a 403 entry");
+
+            // Must NOT fall back to the plain Result<T> catch-all codes (400, 409, 422)
+            // when a typed ErrorsOf surface is present
+            Assert.IsFalse(code.Contains(".Produces(409)"),
+                "Typed ErrorsOf should not emit the generic 409 catch-all");
+            Assert.IsFalse(code.Contains(".Produces(422)"),
+                "Typed ErrorsOf should not emit the generic 422 catch-all");
+        }
+
+        [TestMethod]
+        public void Should_Generate_Typed_Produces_For_Result_With_ErrorsOf3()
+        {
+            var source = @"
+using REslava.Result;
+using REslava.Result.AdvancedPatterns;
+
+namespace TestApp
+{
+    public class UserValidationError : REslava.Result.ValidationError { public UserValidationError() : base(""invalid"") {} }
+    public class UserNotFoundError : REslava.Result.NotFoundError { public UserNotFoundError() : base(""not found"") {} }
+    public class UserForbiddenError : REslava.Result.ForbiddenError { public UserForbiddenError() : base(""forbidden"") {} }
+    public class UserDto { public string Name { get; set; } }
+
+    [REslava.Result.SourceGenerators.SmartEndpoints.AutoGenerateEndpoints(RoutePrefix = ""/api/users"")]
+    public class UserController
+    {
+        public Result<UserDto, ErrorsOf<UserValidationError, UserNotFoundError, UserForbiddenError>> GetUser(int id)
+            => Result<UserDto, ErrorsOf<UserValidationError, UserNotFoundError, UserForbiddenError>>.Ok(new UserDto());
+    }
+}";
+            var code = RunGeneratorAndGetExtensions(source);
+
+            Assert.IsTrue(code.Contains("Produces<") && code.Contains("UserDto"),
+                "UserDto should be emitted as the typed success .Produces<T>(200)");
+            Assert.IsTrue(code.Contains("422"),
+                "UserValidationError should produce a 422 entry");
+            Assert.IsTrue(code.Contains("404"),
+                "UserNotFoundError should produce a 404 entry");
+            Assert.IsTrue(code.Contains("403"),
+                "UserForbiddenError should produce a 403 entry");
+        }
+
+        [TestMethod]
+        public void Should_Fall_Back_To_Generic_Codes_For_Plain_ResultT()
+        {
+            var source = @"
+using REslava.Result;
+
+namespace TestApp
+{
+    public class ProductDto { public string Name { get; set; } }
+
+    [REslava.Result.SourceGenerators.SmartEndpoints.AutoGenerateEndpoints(RoutePrefix = ""/api/products"")]
+    public class ProductController
+    {
+        public Result<ProductDto> GetProduct(int id)
+            => Result<ProductDto>.Ok(new ProductDto());
+    }
+}";
+            var code = RunGeneratorAndGetExtensions(source);
+
+            Assert.IsTrue(code.Contains("Produces<") && code.Contains("ProductDto"),
+                "ProductDto should be emitted as .Produces<T>(200)");
+            // Plain Result<T> uses generic catch-all codes
+            Assert.IsTrue(code.Contains(".Produces(400)"),
+                "Plain Result<T> should emit generic 400 catch-all");
+            Assert.IsTrue(code.Contains(".Produces(404)"),
+                "Plain Result<T> should emit generic 404 catch-all");
+        }
     }
 }

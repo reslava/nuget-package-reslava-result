@@ -40,6 +40,7 @@
   <ItemGroup>
     <Compile Include="ResultFlowAnalyzerTests.cs" />
     <Compile Include="ResultFlowGeneratorTests.cs" />
+    <Compile Include="ResultFlowDiagramDeliveryTests.cs" />
   </ItemGroup>
 
   <ItemGroup>

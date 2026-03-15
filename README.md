@@ -833,6 +833,67 @@ flowchart LR
 
 For `Result<T, TError>` typed pipelines, the error type comes from the generic return type (semantic, exact) and always takes precedence over the syntactic extraction.
 
+### 3.10. 🔗 Clickable Mermaid Nodes — VS Code Navigation (v1.43.0)
+
+When `ResultFlowLinkMode` is set to `vscode`, each node in the generated diagram becomes a hyperlink that opens the exact source line in VS Code.
+
+**Enable in your `.csproj`:**
+
+```xml
+<PropertyGroup>
+  <ResultFlowLinkMode>vscode</ResultFlowLinkMode>
+</PropertyGroup>
+```
+
+The generator embeds a `click` directive per node:
+
+```
+click N0_FindUser "vscode://file/C:/src/OrderService.cs:42" "Go to FindUser"
+```
+
+Clicking the node in the VS Code Mermaid preview (`Ctrl+Shift+V`) jumps directly to the method call in the source file.
+
+**Supported modes:**
+
+| `ResultFlowLinkMode` | Behaviour |
+|---|---|
+| _(unset / `none`)_ | No click directives — default, diagram unchanged |
+| `vscode` | `vscode://file/{path}:{line}` URI — opens in VS Code |
+
+> Nodes without a known source location (e.g. stubs created in-memory during tests) are silently skipped — no click directive is emitted for them.
+
+Works in both `REslava.Result.Flow` (via MSBuild `build_property.ResultFlowLinkMode`) and `REslava.ResultFlow` (via `resultflow.json` `"linkMode"` key).
+
+---
+
+### 3.11. 📄 Sidecar Markdown Constant — Pipeline Docs Alongside Code (v1.43.0)
+
+For every `[ResultFlow]`-decorated method, the generator now emits a second constant, `{MethodName}_Sidecar`, alongside the existing diagram constant. The sidecar wraps the Mermaid diagram in a fenced code block ready for GitHub rendering or VS Code preview.
+
+```csharp
+// Auto-generated alongside the diagram constant:
+public const string RegisterAsync_Sidecar = @"
+# Pipeline — RegisterAsync
+
+```mermaid
+flowchart LR
+    N0_CreateUser[""CreateUser""]:::operation
+    ...
+```
+";
+```
+
+**Write it to disk as a standalone `.md` file:**
+
+```csharp
+// One-liner in tests, tooling, or a post-build script:
+File.WriteAllText("RegisterAsync.ResultFlow.md", OrderService_Flows.RegisterAsync_Sidecar);
+```
+
+The `.md` file renders immediately in VS Code (`Ctrl+Shift+V`) or on GitHub — no copy-paste into a Mermaid renderer required.
+
+> The sidecar constant is always generated regardless of `ResultFlowLinkMode`. It contains the same diagram as the primary constant, wrapped in markdown.
+
 ---
 
 ## 4. 📐 REslava.Result Core Library
@@ -2351,6 +2412,7 @@ Every generated endpoint gets full OpenAPI metadata at compile time — nothing 
 | Class name (`OrderController`) | `.WithTags("Order")` + `MapGroup("/api/orders")` |
 | Success return type (`Order`) | `.Produces<Order>(200)` or `.Produces<Order>(201)` for POST |
 | `OneOf` error types | `.Produces(statusCode)` per error (e.g. `NotFoundError` → `404`) |
+| `Result<T, ErrorsOf<T1..Tn>>` | `.Produces<Ti>(status)` **per error type** — `ValidationError`→422, `NotFoundError`→404, `ForbiddenError`→403, `ConflictError`→409, default→400 |
 | `int id` parameter | `/{id}` route segment |
 | Request body parameter | JSON body binding |
 
@@ -3694,6 +3756,30 @@ public class MyError : IError
         [CallerMemberName] string? callerMember = null, ...) => ...;  // ← CallerMember captured here
 }
 ```
+
+### 18.12. RESL1030 — Domain Boundary Typed Error Crossing `[Warning]`
+
+Warns when a `Result<T, TError>` with a domain-specific typed error is passed **directly** to a method marked `[DomainBoundary]` without calling `.MapError()` first. Prevents domain-specific error surfaces from leaking across architectural layers.
+
+Mark a method as a boundary with `[DomainBoundary]` (optional layer label for documentation):
+
+```csharp
+// ⚠️ RESL1030: 'ApplicationEntry' receives Result<T, DomainError> directly.
+// Call .MapError() before crossing the [DomainBoundary].
+
+[DomainBoundary("Application")]
+void ApplicationEntry(Result<Order, AppError> result) { }
+
+// Caller — domain layer passes typed result directly:
+var domainResult = orderService.FindOrder(id);
+ApplicationEntry(domainResult);   // ← RESL1030 fires here
+
+// ✅ Map before crossing:
+ApplicationEntry(domainResult.MapError(e => new AppError(e.Message)));
+```
+
+**Attribute:** `[DomainBoundary]` / `[DomainBoundary("Application")]` — in `REslava.Result` namespace.
+**Note:** Phase 2 implementation — fires on any `Result<T, TError>` argument passed to a boundary method. Data-flow suppression (MapError chain detection) is a future refinement.
 
 ---
 

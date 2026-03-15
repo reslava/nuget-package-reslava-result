@@ -66,20 +66,22 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                 var methods = source.Left.Right;
                 if (!methods.Any()) return;
 
-                // Load custom mappings from resultflow.json (if present)
+                // Load custom mappings and linkMode from resultflow.json (if present)
                 IReadOnlyDictionary<string, NodeKind>? customMappings = null;
+                string linkMode = string.Empty;
                 var configAdditionalText = source.Right.FirstOrDefault();
                 if (configAdditionalText != null)
                 {
                     var configText = configAdditionalText.GetText()?.ToString();
                     if (configText != null)
                     {
-                        customMappings = ResultFlowConfigLoader.TryLoad(configText, out var loadError);
+                        customMappings = ResultFlowConfigLoader.TryLoad(configText, out var loadError, out var configLinkMode);
                         if (loadError != null)
                         {
                             spc.ReportDiagnostic(Diagnostic.Create(REF003, Location.None, loadError));
                             // customMappings is null here — fallback to convention dictionary
                         }
+                        linkMode = configLinkMode ?? string.Empty;
                     }
                 }
 
@@ -106,7 +108,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                             continue;
                         }
 
-                        var mermaid = ResultFlowMermaidRenderer.Render(chain);
+                        var mermaid = ResultFlowMermaidRenderer.Render(chain, linkMode);
                         diagrams.Add((methodDecl.Identifier.ValueText, mermaid));
                     }
 

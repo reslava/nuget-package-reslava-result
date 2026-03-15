@@ -36,9 +36,14 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Config
         /// Namespace fields in the config are stored for future semantic-model resolution but are
         /// not yet used for filtering — all entries are registered globally (pure-syntax mode).
         /// </remarks>
-        public static Dictionary<string, NodeKind>? TryLoad(string json, out string? error)
+        public static Dictionary<string, NodeKind>? TryLoad(string json, out string? error, out string? linkMode)
         {
             error = null;
+
+            // Extract optional "linkMode" string field ("vscode" | "github" | "none")
+            var linkModeMatch = Regex.Match(json, @"""linkMode""\s*:\s*""([^""]*)""");
+            linkMode = linkModeMatch.Success ? linkModeMatch.Groups[1].Value.Trim().ToLowerInvariant() : null;
+
             try
             {
                 var result = new Dictionary<string, NodeKind>(StringComparer.Ordinal);

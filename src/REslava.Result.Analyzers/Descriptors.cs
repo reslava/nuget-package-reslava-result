@@ -106,5 +106,14 @@ namespace REslava.Result.Analyzers
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: "IError/IReason implementations should only expose (), (string), or (string, Exception) constructors. Multi-parameter constructors prevent CallerMemberName capture, which is needed for diagnostic metadata. Add a static factory method instead and mark this constructor [Obsolete].");
+
+        public static readonly DiagnosticDescriptor RESL1030_DomainBoundaryTypedErrorCrossing = new(
+            id: "RESL1030",
+            title: "Typed error crosses domain boundary without mapping",
+            messageFormat: "'{0}' receives Result<T, {1}> directly. Call .MapError() before crossing the [DomainBoundary] to avoid leaking domain-specific error types across layers.",
+            category: "REslava.Result.Architecture",
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: "A method marked [DomainBoundary] received a Result<T, TError> with a domain-specific typed error. Translate the error surface with .MapError() before passing the result across architectural layers.");
     }
 }

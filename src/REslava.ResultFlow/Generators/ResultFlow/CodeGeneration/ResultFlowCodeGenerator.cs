@@ -35,12 +35,37 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                 sb.AppendLine(escapedMermaid);
                 sb.AppendLine($"\";");
                 sb.AppendLine();
+
+                // Sidecar markdown — wraps the Mermaid diagram in a .md-ready code block.
+                // Write to disk with: File.WriteAllText("Pipeline.md", {className}_Flows.{methodName}_Sidecar)
+                var sidecar = BuildSidecarMarkdown(methodName, mermaid);
+                var escapedSidecar = sidecar.Replace("\"", "\"\"");
+                sb.AppendLine($"        /// <summary>");
+                sb.AppendLine($"        /// Markdown sidecar for {methodName} — Mermaid diagram wrapped in a code block.");
+                sb.AppendLine($"        /// Previewable in VS Code (Ctrl+Shift+V) or rendered on GitHub.");
+                sb.AppendLine($"        /// Write to disk: File.WriteAllText(\"{methodName}.ResultFlow.md\", {methodName}_Sidecar)");
+                sb.AppendLine($"        /// </summary>");
+                sb.AppendLine($"        public const string {methodName}_Sidecar = @\"");
+                sb.AppendLine(escapedSidecar);
+                sb.AppendLine($"\";");
+                sb.AppendLine();
             }
 
             sb.AppendLine("    }");
             sb.AppendLine("}");
 
             return SourceText.From(sb.ToString(), Encoding.UTF8);
+        }
+
+        private static string BuildSidecarMarkdown(string methodName, string mermaid)
+        {
+            var md = new StringBuilder();
+            md.AppendLine($"# Pipeline — {methodName}");
+            md.AppendLine();
+            md.AppendLine("```mermaid");
+            md.AppendLine(mermaid);
+            md.AppendLine("```");
+            return md.ToString().TrimEnd();
         }
     }
 }

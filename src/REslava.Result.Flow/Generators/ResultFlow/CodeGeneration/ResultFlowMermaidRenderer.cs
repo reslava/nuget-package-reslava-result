@@ -16,7 +16,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
         public static string Render(
             IReadOnlyList<PipelineNode> nodes,
             string? operationName = null,
-            string? correlationId = null)
+            string? correlationId = null,
+            string? linkMode = null)
         {
             // Filter invisible nodes
             var visible = new List<PipelineNode>();
@@ -125,6 +126,17 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                     sb.AppendLine($"%%   CorrelationId: \"{correlationId}\"");
             }
 
+            // Click directives — emitted when linkMode is "vscode" or "github" and source location is available
+            if (!string.IsNullOrEmpty(linkMode) && linkMode != "none")
+            {
+                foreach (var n in visible)
+                {
+                    var url = BuildClickUrl(n.SourceFile, n.SourceLine, linkMode);
+                    if (url != null)
+                        sb.AppendLine($"    click {n.NodeId} \"{url}\" \"Go to {n.MethodName}\"");
+                }
+            }
+
             return sb.ToString().TrimEnd();
         }
 
@@ -171,6 +183,22 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
         {
             if (declared.Add(name))
                 classDefs.Add($"    classDef {name} {style}");
+        }
+
+        /// <summary>
+        /// Builds the URL for a Mermaid <c>click</c> directive based on <paramref name="linkMode"/>.
+        /// Returns null when source location is unavailable or the mode is unrecognised.
+        /// </summary>
+        private static string? BuildClickUrl(string? sourceFile, int? sourceLine, string? linkMode)
+        {
+            if (sourceFile == null || sourceLine == null) return null;
+            var path = sourceFile.Replace('\\', '/');
+
+            if (linkMode == "vscode")
+                return $"vscode://file/{path}:{sourceLine}";
+
+            // "github" mode: requires RepositoryUrl + branch from MSBuild — not yet implemented.
+            return null;
         }
     }
 }

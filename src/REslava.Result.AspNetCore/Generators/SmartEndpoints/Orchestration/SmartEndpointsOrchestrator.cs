@@ -213,11 +213,21 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
 
             // Extract generic type arguments via Roslyn symbols
             var genericArgs = new List<string>();
+            var errorsOfTypeArgs = new List<string>();
             if (actualReturnType is INamedTypeSymbol namedReturnType && namedReturnType.IsGenericType)
             {
                 foreach (var typeArg in namedReturnType.TypeArguments)
                 {
                     genericArgs.Add(typeArg.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                }
+
+                // Detect Result<T, ErrorsOf<T1..Tn>> — extract the typed error surface
+                if (isResult && namedReturnType.TypeArguments.Length == 2 &&
+                    namedReturnType.TypeArguments[1] is INamedTypeSymbol errorsOfType &&
+                    errorsOfType.Name.StartsWith("ErrorsOf") && errorsOfType.IsGenericType)
+                {
+                    foreach (var errTypeArg in errorsOfType.TypeArguments)
+                        errorsOfTypeArgs.Add(errTypeArg.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
                 }
             }
 
@@ -238,6 +248,7 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
                 RoutePrefix = routePrefix,
                 HttpMethod = httpMethod,
                 GenericTypeArguments = genericArgs,
+                ErrorsOfTypeArguments = errorsOfTypeArgs,
                 Parameters = methodSymbol.Parameters.Select(p => new ParameterMetadata
                 {
                     Name = p.Name,
@@ -447,7 +458,7 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
 
             if (endpoint.IsResult)
             {
-                // Result<T>: T is success type
+                // Success type (T in Result<T> or Result<T,TError>)
                 if (endpoint.GenericTypeArguments.Count > 0)
                 {
                     produces.Add(new ProducesMetadata
@@ -457,12 +468,27 @@ namespace REslava.Result.SourceGenerators.SmartEndpoints.Orchestration
                     });
                     seenStatusCodes.Add(200);
                 }
-                // Result<T> can carry any domain error at runtime — declare common status codes
-                // that MapErrorToIResult dispatches (400 as catch-all, plus domain error codes)
-                foreach (var code in new[] { 400, 404, 409, 422 })
+
+                if (endpoint.ErrorsOfTypeArguments.Count > 0)
                 {
-                    if (seenStatusCodes.Add(code))
-                        produces.Add(new ProducesMetadata { StatusCode = code });
+                    // Result<T, ErrorsOf<T1..Tn>> — emit typed .Produces<Ti>(status) per error type
+                    foreach (var errorType in endpoint.ErrorsOfTypeArguments)
+                    {
+                        var simpleName = GetSimpleTypeName(errorType);
+                        var statusCode = DetermineOpenApiStatusCode(simpleName);
+                        if (seenStatusCodes.Add(statusCode))
+                            produces.Add(new ProducesMetadata { StatusCode = statusCode, ResponseType = errorType });
+                    }
+                }
+                else
+                {
+                    // Plain Result<T> — declare common status codes as catch-all
+                    // (error surface unknown at compile time)
+                    foreach (var code in new[] { 400, 404, 409, 422 })
+                    {
+                        if (seenStatusCodes.Add(code))
+                            produces.Add(new ProducesMetadata { StatusCode = code });
+                    }
                 }
             }
             else if (endpoint.IsOneOf)

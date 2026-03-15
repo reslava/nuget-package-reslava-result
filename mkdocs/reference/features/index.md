@@ -121,6 +121,7 @@ tagline: Know exactly what you're getting.
 | SmartEndpoints + `[Validate]` auto-validation | Inject `.Validate()` for body params with `[Validate]` type | v1.26.0 | `## 🚀 SmartEndpoints` — `### Auto-Validation` |
 | CancellationToken in SmartEndpoints | Service methods with `CancellationToken` param → auto-injected in generated lambda | v1.27.0 | `## 🚀 SmartEndpoints` — `### CancellationToken` |
 | SmartEndpoints + `[FluentValidate]` auto-injection | Body param with `[FluentValidate]` → `IValidator<T>` injected + guard emitted | v1.28.0 | `## 🚀 SmartEndpoints` — `### FluentValidation Bridge` |
+| SmartEndpoints — `ProducesResponseType` for `ErrorsOf<T1..Tn>` | When method returns `Result<T, ErrorsOf<T1..Tn>>`, generator emits `.Produces<Ti>(status)` per error type in OpenAPI metadata | v1.43.0 | `## 🚀 SmartEndpoints` — `### OpenAPI Auto-Generation` table |
 
 ---
 
@@ -211,6 +212,8 @@ tagline: Know exactly what you're getting.
 
 !!! warning "| Code Fix: RESL2001 | Replace `.AsT*` with exhaustive `.Match()` | v1.14.2 | `## 🛡️ Safety Analyzers` — `### RESL2001` |"
 
+| `[DomainBoundary]` attribute | In `REslava.Result` core; marks methods/constructors as domain boundary entry points — companion to RESL1030 | v1.43.0 | `### 18.12. RESL1030` |
+| RESL1030 | Typed error `Result<T, TError>` passed directly to a `[DomainBoundary]` method without `.MapError()` — Warning | v1.43.0 | `### 18.12. RESL1030` |
 
 ---
 
@@ -255,6 +258,9 @@ tagline: Know exactly what you're getting.
 | Mermaid node correlation block | `%% --- Node correlation ---` block at end of every diagram | v1.41.0 | — |
 | `WithContext` — Invisible node | `.WithContext(...)` classified as `NodeKind.Invisible` in both extractors — not rendered as a pipeline step | v1.42.0 | — |
 | `TryExtractContextHints` + diagram footer | `REslava.Result.Flow`: extracts `operationName`/`correlationId` literal args; emits `%%` footer comment block in Mermaid output | v1.42.0 | — |
+| `PipelineNode.SourceFile` / `SourceLine` | Source location per pipeline step from `SyntaxNode.GetLocation()`; null for in-memory compilations | v1.43.0 | `### 3.10. Clickable Mermaid Nodes` |
+| `ResultFlowLinkMode` — clickable nodes | MSBuild property / `resultflow.json` key; `vscode` mode emits `click` directives with `vscode://file/` URI per node | v1.43.0 | `### 3.10. Clickable Mermaid Nodes` |
+| `{MethodName}_Sidecar` constant | Always-generated companion constant — Mermaid diagram wrapped in fenced `# Pipeline — {name}` markdown block | v1.43.0 | `### 3.11. Sidecar Markdown Constant` |
 
 ---
 
@@ -283,27 +289,27 @@ tagline: Know exactly what you're getting.
 
 ## Summary
 
-!!! new "**v1.42.0** — 182 features across 15 categories."
+!!! new "**v1.43.0** — 187 features across 15 categories."
 
 
 | Category | Total Features |
 |----------|---------------|
 | Core Library | 42 |
 | Error Types | 23 |
-| SmartEndpoints | 18 |
+| SmartEndpoints | 19 |
 | Result/OneOf → IResult | 14 |
 | Result/OneOf → ActionResult | 8 |
 | Validate | 5 |
 | Problem Details | 5 |
-| Analyzers | 12 |
+| Analyzers | 14 |
 | OneOf (incl. OneOf5/6/7/8 + chains + ErrorsOf) | 10 |
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
-| ResultFlow | 28 |
+| ResultFlow | 31 |
 | OpenTelemetry | 3 |
 | ResultContext | 6 |
-| **Total** | **182** |
+| **Total** | **187** |
 
 ---
 

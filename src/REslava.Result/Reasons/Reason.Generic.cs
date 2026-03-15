@@ -2,12 +2,31 @@ using System.Collections.Immutable;
 
 namespace REslava.Result;
 
+/// <summary>
+/// Internal contract for enriching an error with additional tags while preserving its concrete type.
+/// Implemented explicitly by <see cref="Reason{TReason}"/> — replaces <c>dynamic</c> dispatch
+/// in <c>ResultContextEnricher</c> with a zero-allocation interface call.
+/// </summary>
+internal interface ITagEnrichable
+{
+    /// <summary>
+    /// Returns a new error instance with the given tags merged in.
+    /// Non-overwriting — existing tags are preserved.
+    /// </summary>
+    IError WithTagsFrom(ImmutableDictionary<string, object> tags);
+}
+
 //============================================================================
 // Generic Reason with CRTP (Fluent API)
 // ============================================================================
-public abstract class Reason<TReason> : Reason
+public abstract class Reason<TReason> : Reason, ITagEnrichable
     where TReason : Reason<TReason>
-{    
+{
+    // Explicit implementation — safe because enricher only calls this on IError instances,
+    // and all concrete error types are Reason<TError> where TError : IError.
+    IError ITagEnrichable.WithTagsFrom(ImmutableDictionary<string, object> tags) =>
+        (IError)(object)WithTagsFrom(tags);
+
     protected Reason(string message) : base(message) { }
 
     protected Reason(string message, ImmutableDictionary<string, object> tags)

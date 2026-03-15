@@ -34,6 +34,19 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Models
         /// </summary>
         public string? ErrorHint { get; set; }
 
+        /// <summary>
+        /// Absolute path of the source file containing this pipeline step's invocation.
+        /// Null when source location is unavailable.
+        /// Used for emitting Mermaid <c>click</c> directives.
+        /// </summary>
+        public string? SourceFile { get; set; }
+
+        /// <summary>
+        /// 1-indexed source line of this pipeline step's invocation within <see cref="SourceFile"/>.
+        /// Null when <see cref="SourceFile"/> is null.
+        /// </summary>
+        public int? SourceLine { get; set; }
+
         public PipelineNode(string methodName, NodeKind kind)
         {
             MethodName = methodName;

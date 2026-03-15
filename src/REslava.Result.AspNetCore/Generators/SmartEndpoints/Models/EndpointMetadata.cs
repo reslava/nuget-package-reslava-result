@@ -37,6 +37,14 @@ namespace REslava.Result.SourceGenerators.Generators.SmartEndpoints.Models
         public List<string> GenericTypeArguments { get; set; } = new();
 
         /// <summary>
+        /// For <c>Result&lt;T, ErrorsOf&lt;T1..Tn&gt;&gt;</c> — the individual error type names
+        /// extracted from the ErrorsOf union. Empty for plain <c>Result&lt;T&gt;</c>.
+        /// When non-empty, <c>BuildProducesList</c> emits typed .Produces&lt;Ti&gt;(status)
+        /// per error type instead of the generic catch-all status codes.
+        /// </summary>
+        public List<string> ErrorsOfTypeArguments { get; set; } = new();
+
+        /// <summary>
         /// Tags for OpenAPI/Swagger grouping.
         /// </summary>
         public List<string> Tags { get; set; } = new();

@@ -46,13 +46,20 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                 return (Compilation: compilation, ResultBase: resultBase, IError: iError);
             });
 
+            // Stage 3b: read ResultFlowLinkMode build property ("vscode" | "github" | "none" | "")
+            var linkModeProvider = context.AnalyzerConfigOptionsProvider.Select((options, _) =>
+            {
+                options.GlobalOptions.TryGetValue("build_property.ResultFlowLinkMode", out var mode);
+                return (mode ?? string.Empty).Trim().ToLowerInvariant();
+            });
+
             // Stage 4: combine
-            var combined = compilationWithSymbols.Combine(annotatedMethods.Collect());
+            var combined = compilationWithSymbols.Combine(annotatedMethods.Collect()).Combine(linkModeProvider);
 
             // Stage 5: generate
             context.RegisterSourceOutput(combined, (spc, source) =>
             {
-                var (compWithSymbols, methods) = source;
+                var ((compWithSymbols, methods), linkMode) = source;
                 if (!methods.Any()) return;
 
                 var compilation = compWithSymbols.Compilation;
@@ -87,7 +94,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                         }
 
                         var (opName, corrId) = ResultFlowChainExtractor.TryExtractContextHints(methodDecl);
-                        var mermaid = ResultFlowMermaidRenderer.Render(chain, operationName: opName, correlationId: corrId);
+                        var mermaid = ResultFlowMermaidRenderer.Render(chain, operationName: opName, correlationId: corrId, linkMode: linkMode);
                         diagrams.Add((methodDecl.Identifier.ValueText, mermaid));
                     }
 

@@ -70,6 +70,13 @@
     <None Include="buildTransitive\REslava.ResultFlow.props" Pack="true" PackagePath="buildTransitive" />
   </ItemGroup>
 
+  <!-- Test access to internal types -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>REslava.ResultFlow.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
   <!-- Explicit compile items -->
   <ItemGroup>
     <!-- Core Shared Interfaces -->

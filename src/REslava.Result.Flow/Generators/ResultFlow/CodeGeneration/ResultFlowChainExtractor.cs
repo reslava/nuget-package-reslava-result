@@ -154,11 +154,23 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 if (op != null && kind != NodeKind.PureTransform && kind != NodeKind.Invisible && iErrorSymbol != null)
                     possibleErrors = ResultTypeExtractor.GetPossibleErrors(op, compilation, iErrorSymbol);
 
+                // Source location for clickable Mermaid nodes
+                string? sourceFile = null;
+                int? sourceLine = null;
+                var loc = invSyntax.GetLocation().GetLineSpan();
+                if (loc.IsValid && !string.IsNullOrEmpty(loc.Path))
+                {
+                    sourceFile = loc.Path;
+                    sourceLine = loc.StartLinePosition.Line + 1; // 1-indexed
+                }
+
                 nodes.Add(new PipelineNode(effectiveName, kind)
                 {
                     InputType = previousOutputType,
                     OutputType = outputType,
                     PossibleErrors = possibleErrors,
+                    SourceFile = sourceFile,
+                    SourceLine = sourceLine,
                 });
 
                 previousOutputType = outputType;
