@@ -13,8 +13,11 @@ namespace REslava.Result;
 /// Result&lt;User&gt;.Fail(new ConflictError("A user with this email already exists"));
 /// </code>
 /// </example>
-public class ConflictError : Reason<ConflictError>, IError
+public class ConflictError : Reason<ConflictError>, IError, IErrorFactory<ConflictError>
 {
+    /// <inheritdoc/>
+    public static ConflictError Create(string message) => new(message);
+
     public ConflictError(
         string message,
         [CallerMemberName] string? callerMember = null,
@@ -33,9 +36,9 @@ public class ConflictError : Reason<ConflictError>, IError
         : base(
             $"{entityName} with {conflictField} '{conflictValue}' already exists",
             CreateDefaultTags()
-                .Add("EntityName", entityName)
-                .Add("ConflictField", conflictField)
-                .Add("ConflictValue", conflictValue?.ToString() ?? "null"))
+                .Add(DomainTags.Entity.Name, entityName)
+                .Add(DomainTags.Field.Name, conflictField)
+                .Add(DomainTags.Value.Name, conflictValue?.ToString() ?? "null"))
     {
     }
 
@@ -49,9 +52,9 @@ public class ConflictError : Reason<ConflictError>, IError
         [CallerLineNumber] int     callerLine   = 0)
     {
         var tags = CreateDefaultTags()
-            .Add("EntityName", entityName)
-            .Add("ConflictField", conflictField)
-            .Add("ConflictValue", conflictValue?.ToString() ?? "null");
+            .Add(DomainTags.Entity.Name, entityName)
+            .Add(DomainTags.Field.Name, conflictField)
+            .Add(DomainTags.Value.Name, conflictValue);
         return new ConflictError(
             $"{entityName} with {conflictField} '{conflictValue}' already exists", tags)
         {

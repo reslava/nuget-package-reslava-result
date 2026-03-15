@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using REslava.Result;
 using REslava.Result.Serialization;
 
 namespace REslava.Result.Tests.Reasons;
@@ -249,17 +250,17 @@ public class ReasonMetadataTests
     public void NotFoundError_Constructor_AutoTags_EntityNameAndId()
     {
         var error = new NotFoundError("User", 42);
-        Assert.AreEqual("User", error.Tags["EntityName"]);
-        Assert.AreEqual("42", error.Tags["EntityId"]);
+        Assert.AreEqual("User", error.Tags[DomainTags.Entity.Name]);
+        Assert.AreEqual("42", error.Tags[DomainTags.EntityId.Name]);
     }
 
     [TestMethod]
     public void ConflictError_Duplicate_T_AutoTags_EntityFieldValue()
     {
         var error = ConflictError.Duplicate<TestEntity>("email", "test@example.com");
-        Assert.AreEqual("TestEntity", error.Tags["EntityName"]);
-        Assert.AreEqual("email", error.Tags["ConflictField"]);
-        Assert.AreEqual("test@example.com", error.Tags["ConflictValue"]);
+        Assert.AreEqual("TestEntity", error.Tags[DomainTags.Entity.Name]);
+        Assert.AreEqual("email", error.Tags[DomainTags.Field.Name]);
+        Assert.AreEqual("test@example.com", error.Tags[DomainTags.Value.Name]);
     }
 
     // -------------------------------------------------------------------------

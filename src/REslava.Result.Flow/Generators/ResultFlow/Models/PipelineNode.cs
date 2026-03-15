@@ -29,6 +29,13 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Models
         /// </summary>
         public IReadOnlyCollection<string> PossibleErrors { get; set; } = new HashSet<string>();
 
+        /// <summary>
+        /// Stable node identity assigned by the renderer (e.g. <c>"N0_FindUser"</c>).
+        /// Matches <see cref="REslava.Result.ReasonMetadata.NodeId"/> for runtime error correlation.
+        /// Set by <see cref="ResultFlowMermaidRenderer"/> after visibility filtering.
+        /// </summary>
+        public string? NodeId { get; set; }
+
         public PipelineNode(string methodName, NodeKind kind)
         {
             MethodName = methodName;

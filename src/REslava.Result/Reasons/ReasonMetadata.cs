@@ -19,6 +19,18 @@ public sealed record ReasonMetadata
     /// <summary>Source line number of the creation site (via <c>[CallerLineNumber]</c>).</summary>
     public int? CallerLine { get; init; }
 
+    /// <summary>
+    /// Name of the pipeline step that produced this reason (e.g. <c>"FindUser"</c>, <c>"SaveOrder"</c>).
+    /// Set by <c>REslava.Result.Flow</c> at diagram generation time for Mermaid node annotation.
+    /// </summary>
+    public string? PipelineStep { get; init; }
+
+    /// <summary>
+    /// Stable node identity within the pipeline diagram (e.g. <c>"node_2"</c>).
+    /// Set by <c>REslava.Result.Flow</c> to correlate runtime errors with diagram nodes.
+    /// </summary>
+    public string? NodeId { get; init; }
+
     /// <summary>Singleton empty metadata instance.</summary>
     public static readonly ReasonMetadata Empty = new();
 

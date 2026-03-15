@@ -13,8 +13,11 @@ namespace REslava.Result;
 /// Result&lt;Order&gt;.Fail(new NotFoundError("Order not found"));
 /// </code>
 /// </example>
-public class NotFoundError : Reason<NotFoundError>, IError
+public class NotFoundError : Reason<NotFoundError>, IError, IErrorFactory<NotFoundError>
 {
+    /// <inheritdoc/>
+    public static NotFoundError Create(string message) => new(message);
+
     public NotFoundError(
         string message,
         [CallerMemberName] string? callerMember = null,
@@ -34,8 +37,8 @@ public class NotFoundError : Reason<NotFoundError>, IError
         : base(
             $"{entityName} with id '{id}' was not found",
             CreateDefaultTags()
-                .Add("EntityName", entityName)
-                .Add("EntityId", id?.ToString() ?? "null"),
+                .Add(DomainTags.Entity.Name, entityName)
+                .Add(DomainTags.EntityId.Name, id?.ToString() ?? "null"),
             ReasonMetadata.FromCaller(callerMember, callerFile, callerLine))
     {
     }

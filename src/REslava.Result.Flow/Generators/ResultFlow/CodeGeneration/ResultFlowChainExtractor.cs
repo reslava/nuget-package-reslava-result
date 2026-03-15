@@ -66,6 +66,15 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
 
             rootExpr = UnwrapSyntax(rootExpr);
 
+            // Gap 3: if root is a variable reference (e.g. `return result;`), resolve its
+            // initializer in the method body so the chain walk finds the actual fluent expression.
+            if (rootExpr is IdentifierNameSyntax identRoot && method.Body != null)
+            {
+                var resolved = ResolveVariableInitializer(identRoot.Identifier.ValueText, method.Body);
+                if (resolved != null)
+                    rootExpr = UnwrapSyntax(resolved);
+            }
+
             if (!(rootExpr is InvocationExpressionSyntax rootInv)) return null;
 
             // Walk the syntax chain (outermost → root), collecting each member-access invocation.
@@ -118,6 +127,19 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 else
                     kind = NodeKind.Unknown;
 
+                // Gap 1: if the first argument is a single-expression lambda calling a standalone
+                // method (e.g. .Bind(x => SaveUser(x))), use the inner method name as the step
+                // label. Kind is still derived from the outer pipeline method (Bind), so fail
+                // edges remain correct.
+                string effectiveName = methodName;
+                var firstArg = invSyntax.ArgumentList.Arguments.FirstOrDefault();
+                if (firstArg != null)
+                {
+                    var lambdaName = TryGetLambdaBodyMethodName(firstArg);
+                    if (lambdaName != null)
+                        effectiveName = lambdaName;
+                }
+
                 // Per-node semantic operation — works for each step independently
                 var op = semanticModel.GetOperation(invSyntax) as IInvocationOperation;
 
@@ -131,7 +153,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 if (op != null && kind != NodeKind.PureTransform && kind != NodeKind.Invisible && iErrorSymbol != null)
                     possibleErrors = ResultTypeExtractor.GetPossibleErrors(op, compilation, iErrorSymbol);
 
-                nodes.Add(new PipelineNode(methodName, kind)
+                nodes.Add(new PipelineNode(effectiveName, kind)
                 {
                     InputType = previousOutputType,
                     OutputType = outputType,
@@ -226,6 +248,55 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 else if (expr is ParenthesizedExpressionSyntax parenExpr) expr = parenExpr.Expression;
                 else return expr;
             }
+        }
+
+        /// <summary>
+        /// Gap 3: scans a method block body for a local variable whose name matches
+        /// <paramref name="variableName"/> and returns its initializer expression, if any.
+        /// Only one resolution level — multi-hop variable chains are not followed.
+        /// </summary>
+        private static ExpressionSyntax? ResolveVariableInitializer(string variableName, BlockSyntax body)
+        {
+            foreach (var stmt in body.Statements)
+            {
+                if (stmt is LocalDeclarationStatementSyntax localDecl)
+                {
+                    foreach (var variable in localDecl.Declaration.Variables)
+                    {
+                        if (variable.Identifier.ValueText == variableName && variable.Initializer != null)
+                            return variable.Initializer.Value;
+                    }
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Gap 1: if <paramref name="arg"/> is a single-expression lambda whose body calls a
+        /// standalone method (identifier, not member access), returns that method's name so the
+        /// caller can use it as the step label. Returns null to fall back to the outer pipeline
+        /// method name (Bind, Ensure, etc.).
+        /// </summary>
+        private static string? TryGetLambdaBodyMethodName(ArgumentSyntax arg)
+        {
+            ExpressionSyntax? body = null;
+
+            if (arg.Expression is SimpleLambdaExpressionSyntax simple)
+                body = simple.Body as ExpressionSyntax;
+            else if (arg.Expression is ParenthesizedLambdaExpressionSyntax parens)
+                body = parens.Body as ExpressionSyntax;
+
+            if (body == null) return null;
+
+            body = UnwrapSyntax(body);
+
+            // Only rename when the lambda calls a standalone function (x => DoThing(x)).
+            // Ignore member-access calls (x => x.Name, x => obj.Method()) — not meaningful renames.
+            if (body is InvocationExpressionSyntax invBody &&
+                invBody.Expression is IdentifierNameSyntax identName)
+                return identName.Identifier.ValueText;
+
+            return null;
         }
     }
 }

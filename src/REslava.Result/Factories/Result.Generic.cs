@@ -202,4 +202,26 @@ public partial class Result<TValue>
     {
         return Result<TValue>.FromResult(Result.Fail(errors));
     }
+
+    /// <summary>
+    /// Creates a failed result using a typed error factory.
+    /// </summary>
+    /// <typeparam name="TError">Error type that implements <see cref="IErrorFactory{TSelf}"/>.</typeparam>
+    /// <param name="message">The error message.</param>
+    /// <returns>A failed <see cref="Result{TValue}"/> containing a new <typeparamref name="TError"/> instance.</returns>
+    /// <example>
+    /// <code>
+    /// var result = Result&lt;User&gt;.Fail&lt;NotFoundError&gt;("User not found");
+    /// // Equivalent to: Result&lt;User&gt;.Fail(new NotFoundError("User not found"))
+    ///
+    /// // Useful in generic code:
+    /// Result&lt;T&gt; NotFound&lt;T, TError&gt;(string message) where TError : IErrorFactory&lt;TError&gt;
+    ///     => Result&lt;T&gt;.Fail&lt;TError&gt;(message);
+    /// </code>
+    /// </example>
+    public static new Result<TValue> Fail<TError>(string message) where TError : IError, IErrorFactory<TError>
+    {
+        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        return FromResult(Result.Fail<TError>(message));
+    }
 }

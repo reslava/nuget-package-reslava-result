@@ -14,8 +14,11 @@ namespace REslava.Result;
 /// Result&lt;User&gt;.Fail(ForbiddenError.For("Delete", "Order"));
 /// </code>
 /// </example>
-public class ForbiddenError : Reason<ForbiddenError>, IError
+public class ForbiddenError : Reason<ForbiddenError>, IError, IErrorFactory<ForbiddenError>
 {
+    /// <inheritdoc/>
+    public static ForbiddenError Create(string message) => new(message);
+
     /// <summary>Creates a generic access-denied error. <see cref="ReasonMetadata.CallerMember"/> is not captured.</summary>
     public ForbiddenError()
         : base("Access denied", CreateDefaultTags())

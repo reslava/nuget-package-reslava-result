@@ -26,6 +26,10 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             if (visible.Count == 0)
                 return "flowchart LR";
 
+            // Assign stable NodeIds before rendering (used for diagram nodes and runtime correlation).
+            for (int i = 0; i < visible.Count; i++)
+                visible[i].NodeId = $"N{i}_{visible[i].MethodName}";
+
             var lines = new List<string>();
             var classDefs = new List<string>();
             var declaredClasses = new HashSet<string>();
@@ -34,10 +38,10 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             for (int i = 0; i < visible.Count; i++)
             {
                 var node = visible[i];
-                var nodeId = $"N{i}_{node.MethodName}";
+                var nodeId = node.NodeId!;
                 var label = BuildLabel(node);
                 bool hasNext = i < visible.Count - 1;
-                string nextId = hasNext ? $"N{i + 1}_{visible[i + 1].MethodName}" : string.Empty;
+                string nextId = hasNext ? visible[i + 1].NodeId! : string.Empty;
 
                 switch (node.Kind)
                 {
@@ -98,6 +102,13 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 sb.AppendLine(line);
             foreach (var classDef in classDefs)
                 sb.AppendLine(classDef);
+
+            // Correlation table: maps diagram NodeId → pipeline step name.
+            // At runtime, set error.Metadata = error.Metadata with { NodeId = "<id>", PipelineStep = "<name>" }
+            // to link a runtime error back to its diagram node.
+            sb.AppendLine("%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---");
+            foreach (var n in visible)
+                sb.AppendLine($"%%   {n.NodeId} → {n.MethodName}");
 
             return sb.ToString().TrimEnd();
         }

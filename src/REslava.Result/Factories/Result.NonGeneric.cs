@@ -135,6 +135,24 @@ public partial class Result
     }
 
     /// <summary>
+    /// Creates a failed result using a typed error factory.
+    /// </summary>
+    /// <typeparam name="TError">Error type that implements <see cref="IErrorFactory{TSelf}"/>.</typeparam>
+    /// <param name="message">The error message.</param>
+    /// <returns>A failed result containing a new <typeparamref name="TError"/> instance.</returns>
+    /// <example>
+    /// <code>
+    /// var result = Result.Fail&lt;NotFoundError&gt;("User not found");
+    /// // Equivalent to: Result.Fail(new NotFoundError("User not found"))
+    /// </code>
+    /// </example>
+    public static Result Fail<TError>(string message) where TError : IError, IErrorFactory<TError>
+    {
+        ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
+        return Fail(TError.Create(message));
+    }
+
+    /// <summary>
     /// Creates a failed result with multiple error messages.
     /// </summary>
     /// <param name="messages">Collection of error messages.</param>

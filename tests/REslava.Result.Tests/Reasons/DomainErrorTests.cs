@@ -24,9 +24,24 @@ public sealed class DomainErrorTests
         var error = new NotFoundError("User", 42);
 
         Assert.AreEqual("User with id '42' was not found", error.Message);
-        Assert.AreEqual("User", error.Tags["EntityName"]);
-        Assert.AreEqual("42", error.Tags["EntityId"]);
-        Assert.AreEqual(404, error.Tags["HttpStatusCode"]);
+        Assert.AreEqual("User", error.Tags[DomainTags.Entity.Name]);
+        Assert.AreEqual("42", error.Tags[DomainTags.EntityId.Name]);
+        Assert.AreEqual(404, error.Tags[SystemTags.HttpStatus.Name]);
+    }
+
+    [TestMethod]
+    public void NotFoundError_WithEntityAndId_TypedTagsRoundTrip()
+    {
+        var error = new NotFoundError("Order", 99);
+
+        Assert.IsTrue(error.TryGet(DomainTags.Entity, out var entity));
+        Assert.AreEqual("Order", entity);
+
+        Assert.IsTrue(error.TryGet(DomainTags.EntityId, out var entityId));
+        Assert.AreEqual("99", entityId);
+
+        Assert.IsTrue(error.TryGet(SystemTags.HttpStatus, out var status));
+        Assert.AreEqual(404, status);
     }
 
     [TestMethod]
@@ -70,7 +85,16 @@ public sealed class DomainErrorTests
 
         Assert.AreEqual("Invalid email format", error.Message);
         Assert.AreEqual("Email", error.FieldName);
-        Assert.AreEqual("Email", error.Tags["FieldName"]);
+        Assert.AreEqual("Email", error.Tags[DomainTags.Field.Name]);
+    }
+
+    [TestMethod]
+    public void ValidationError_Field_TypedTagRoundTrip()
+    {
+        var error = ValidationError.Field("Username", "Too short");
+
+        Assert.IsTrue(error.TryGet(DomainTags.Field, out var field));
+        Assert.AreEqual("Username", field);
     }
 
     [TestMethod]
@@ -124,9 +148,23 @@ public sealed class DomainErrorTests
         var error = ConflictError.Duplicate("User", "email", "test@test.com");
 
         Assert.AreEqual("User with email 'test@test.com' already exists", error.Message);
-        Assert.AreEqual("User", error.Tags["EntityName"]);
-        Assert.AreEqual("email", error.Tags["ConflictField"]);
-        Assert.AreEqual("test@test.com", error.Tags["ConflictValue"]);
+        Assert.AreEqual("User", error.Tags[DomainTags.Entity.Name]);
+        Assert.AreEqual("email", error.Tags[DomainTags.Field.Name]);
+        Assert.AreEqual("test@test.com", error.Tags[DomainTags.Value.Name]);
+    }
+
+    [TestMethod]
+    public void ConflictError_Duplicate_TypedTagsRoundTrip()
+    {
+        var error = ConflictError.Duplicate("Product", "sku", "ABC-123");
+
+        Assert.IsTrue(error.TryGet(DomainTags.Entity, out var entity));
+        Assert.AreEqual("Product", entity);
+
+        Assert.IsTrue(error.TryGet(DomainTags.Field, out var field));
+        Assert.AreEqual("sku", field);
+
+        Assert.IsTrue(error.Has(DomainTags.Value));
     }
 
     [TestMethod]

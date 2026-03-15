@@ -13,8 +13,11 @@ namespace REslava.Result;
 /// Result&lt;User&gt;.Fail(new ValidationError("Name is required"));
 /// </code>
 /// </example>
-public class ValidationError : Reason<ValidationError>, IError
+public class ValidationError : Reason<ValidationError>, IError, IErrorFactory<ValidationError>
 {
+    /// <inheritdoc/>
+    public static ValidationError Create(string message) => new(message);
+
     public string? FieldName { get; }
 
     public ValidationError(
@@ -31,7 +34,7 @@ public class ValidationError : Reason<ValidationError>, IError
     public ValidationError(string fieldName, string message)
         : base(
             message,
-            CreateDefaultTags().Add("FieldName", fieldName))
+            CreateDefaultTags().Add(DomainTags.Field.Name, fieldName))
     {
         FieldName = fieldName;
     }
@@ -44,7 +47,7 @@ public class ValidationError : Reason<ValidationError>, IError
         [CallerFilePath]   string? callerFile   = null,
         [CallerLineNumber] int     callerLine   = 0)
     {
-        var tags = CreateDefaultTags().Add("FieldName", fieldName);
+        var tags = CreateDefaultTags().Add(DomainTags.Field.Name, fieldName);
         return new ValidationError(message, tags, fieldName,
                                    ReasonMetadata.FromCaller(callerMember, callerFile, callerLine));
     }

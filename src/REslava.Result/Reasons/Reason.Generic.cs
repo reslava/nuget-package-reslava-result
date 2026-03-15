@@ -41,6 +41,19 @@ public abstract class Reason<TReason> : Reason
     }
 
     /// <summary>
+    /// Creates a new instance with an additional typed tag (immutable).
+    /// Throws if key already exists. Preserves existing <see cref="Reason.Metadata"/>.
+    /// </summary>
+    public TReason WithTag<T>(TagKey<T> key, T value)
+    {
+        key = key.EnsureNotNull(nameof(key));
+        var validKey = key.Name.EnsureValidDictionaryKey(Tags, nameof(key));
+        var copy = CreateNew(Message, Tags.Add(validKey, value!));
+        copy.Metadata = Metadata;
+        return copy;
+    }
+
+    /// <summary>
     /// Creates a new instance with multiple additional tags (immutable).
     /// Throws if any key already exists. Preserves existing <see cref="Reason.Metadata"/>.
     /// </summary>

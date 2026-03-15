@@ -1691,6 +1691,76 @@ bool hasCaller = reason.HasCallerInfo();            // true when CallerMember is
 }
 ```
 
+### 5.8. Typed Tags — `TagKey<T>`, `DomainTags`, `SystemTags` (v1.41.0)
+
+Tags are stored as `ImmutableDictionary<string, object>` internally. `TagKey<T>` gives you a typed, refactor-safe accessor — no magic strings, no casts.
+
+#### Predefined keys
+
+```csharp
+// DomainTags — business/domain context
+DomainTags.Entity      // TagKey<string>  — entity type name, e.g. "Order"
+DomainTags.EntityId    // TagKey<string>  — entity identifier
+DomainTags.Field       // TagKey<string>  — field name for validation/conflict errors
+DomainTags.Value       // TagKey<object?> — conflicting value (any type)
+DomainTags.Operation   // TagKey<string>  — operation name, e.g. "CreateOrder"
+
+// SystemTags — integration/infrastructure context
+SystemTags.HttpStatus  // TagKey<int>     — HTTP status code (key = "HttpStatusCode")
+SystemTags.ErrorCode   // TagKey<string>  — machine-readable error code
+SystemTags.RetryAfter  // TagKey<int>     — seconds before retry
+SystemTags.Service     // TagKey<string>  — originating service name
+```
+
+#### Reading tags — `TryGet<T>` / `Has<T>`
+
+```csharp
+var error = new NotFoundError("Order", orderId);
+
+// Typed read — no cast, no KeyNotFoundException
+if (error.TryGet(DomainTags.Entity, out var entity))
+    Console.WriteLine(entity);  // "Order"
+
+if (error.TryGet(DomainTags.EntityId, out var id))
+    Console.WriteLine(id);      // "42"
+
+// Presence check
+bool hasField = error.Has(DomainTags.Field);
+
+// Works on any IReason
+IReason reason = error;
+reason.TryGet(SystemTags.HttpStatus, out var status);  // 404
+```
+
+#### Writing custom tags
+
+```csharp
+// Typed WithTag — key + value type are verified at compile time
+var error = new Error("Payment declined")
+    .WithTag(SystemTags.ErrorCode, "CARD_DECLINED")
+    .WithTag(SystemTags.RetryAfter, 30);
+
+// Custom application-level keys
+var OrderIdKey = new TagKey<Guid>("OrderId");
+var error2 = new ConflictError("Duplicate order")
+    .WithTag(OrderIdKey, orderId);
+
+error2.TryGet(OrderIdKey, out var oid);  // oid is Guid
+```
+
+#### `IErrorFactory<TSelf>` — generic error construction (v1.41.0)
+
+Built-in errors implement `IErrorFactory<TSelf>`, enabling typed factory calls — useful in generic code:
+
+```csharp
+// Instead of: Result<User>.Fail(new NotFoundError("User not found"))
+Result<User>.Fail<NotFoundError>("User not found");
+
+// Generic helper — no Activator.CreateInstance, no reflection
+Result<T> Fail<T, TError>(string message) where TError : IErrorFactory<TError>
+    => Result<T>.Fail<TError>(message);
+```
+
 ---
 
 ## 6. ✅ Validation Rules

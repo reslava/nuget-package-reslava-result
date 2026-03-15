@@ -206,9 +206,9 @@ public sealed class ReasonGenericTests
         var reason = new TestReason("Test");
 
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => 
-            reason.WithTag(null!, "Value"));
-        
+        var exception = Assert.Throws<ArgumentException>(() =>
+            reason.WithTag((string)null!, "Value"));
+
         Assert.Contains(ValidationExtensions.DefaultNullOrWhitespaceMessage, exception.Message);
     }
 

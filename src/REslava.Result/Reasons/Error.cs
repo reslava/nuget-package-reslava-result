@@ -5,10 +5,13 @@ namespace REslava.Result;
 // ============================================================================
 // Error
 // ============================================================================
-public class Error : Reason<Error>, IError
-{        
+public class Error : Reason<Error>, IError, IErrorFactory<Error>
+{
     // NO parameterless constructor
-    
+
+    /// <inheritdoc/>
+    public static Error Create(string message) => new(message);
+
     /// <summary>Creates an error reason with a specific message.</summary>
     public Error(
         string message,

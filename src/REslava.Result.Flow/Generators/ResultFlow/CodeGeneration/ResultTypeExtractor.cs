@@ -97,6 +97,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             INamedTypeSymbol iErrorSymbol,
             HashSet<string> errors)
         {
+            // Object creations: new NotFoundError(...), new ValidationError(...)
             foreach (var creation in body.DescendantNodesAndSelf()
                 .OfType<BaseObjectCreationExpressionSyntax>())
             {
@@ -105,6 +106,33 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                     ImplementsInterface(createdType, iErrorSymbol))
                 {
                     errors.Add(createdType.Name);
+                }
+            }
+
+            // Static factory calls: NotFoundError.For<Order>(...), ValidationError.Field(...)
+            // Use the semantic return type to confirm the result implements IError.
+            foreach (var invocation in body.DescendantNodesAndSelf()
+                .OfType<InvocationExpressionSyntax>())
+            {
+                if (!(invocation.Expression is MemberAccessExpressionSyntax memberAccess))
+                    continue;
+
+                var returnType = semanticModel.GetTypeInfo(invocation).Type as INamedTypeSymbol;
+                if (returnType == null || !ImplementsInterface(returnType, iErrorSymbol))
+                    continue;
+
+                // If the factory method has a generic type argument (e.g. For<Order>),
+                // extract the entity name for a richer edge label: "NotFoundError<Order>".
+                var methodName = memberAccess.Name;
+                if (methodName is GenericNameSyntax genericMethod &&
+                    genericMethod.TypeArgumentList.Arguments.Count == 1 &&
+                    genericMethod.TypeArgumentList.Arguments[0] is IdentifierNameSyntax entityType)
+                {
+                    errors.Add($"{returnType.Name}<{entityType.Identifier.ValueText}>");
+                }
+                else
+                {
+                    errors.Add(returnType.Name);
                 }
             }
         }
