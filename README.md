@@ -12,7 +12,7 @@ REslava.Result - Railway-Oriented Programming for .NET
 [![GitHub Stars](https://img.shields.io/github/stars/reslava/REslava.Result)](https://github.com/reslava/REslava.Result/stargazers) 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 ![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
-![Test Suite](https://img.shields.io/badge/tests->4400%20passing-brightgreen)
+![Test Suite](https://img.shields.io/badge/tests->4500%20passing-brightgreen)
 
 </div>
 
@@ -89,6 +89,8 @@ Includes API reference, advanced patterns, and interactive examples.
   - [3.7. 🏷️ Success Type Travel](#37-️-success-type-travel)
   - [3.8. 🔬 REslava.Result.Flow — Native Companion Package](#38--reslavaresultflow--native-companion-package)
   - [3.9. 🏷️ Error Type Annotation on Failure Edges (v1.40.0)](#39-️-error-type-annotation-on-failure-edges-v1400)
+  - [3.10. 🔗 Clickable Mermaid Nodes — VS Code Navigation (v1.43.0)](#310--clickable-mermaid-nodes--vs-code-navigation-v1430)
+  - [3.11. 📄 Sidecar Markdown Constant — Pipeline Docs Alongside Code (v1.43.0)](#311--sidecar-markdown-constant--pipeline-docs-alongside-code-v1430)
 - [4. 📐 REslava.Result Core Library](#4--reslavaresult-core-library)
   - [4.1. Core Operations](#41-core-operations)
     - [4.1.1. 💡 Why Result Instead of Exceptions?](#411--why-result-instead-of-exceptions)
@@ -246,6 +248,7 @@ Includes API reference, advanced patterns, and interactive examples.
   - [18.9. RESL1010 — Unhandled `Result<T>` Failure Path `[Warning]`](#189-resl1010--unhandled-resultt-failure-path-warning)
   - [18.10. RESL2002 — `ErrorsOf.Match()` Not Exhaustive `[Warning]`](#1810-resl2002--errorsofmatch-not-exhaustive-warning)
   - [18.11. RESL1021 — Multi-Argument `IError` Constructor `[Warning]`](#1811-resl1021--multi-argument-ierror-constructor-warning)
+  - [18.12. RESL1030 — Domain Boundary Typed Error Crossing `[Warning]`](#1812-resl1030--domain-boundary-typed-error-crossing-warning)
 - [19. 📈 Production Benefits](#19--production-benefits)
   - [19.1. 🌍 Real-World Impact](#191--real-world-impact)
     - [19.1.1. 🏢 **For Enterprise Teams**](#1911--for-enterprise-teams)
@@ -268,38 +271,39 @@ Includes API reference, advanced patterns, and interactive examples.
   - [22.2. `.WriteErrorTagsToSpan()` — write error tags to active span](#222-writeerrortagstospan--write-error-tags-to-active-span)
   - [22.3. End-to-end example](#223-end-to-end-example)
 - [23. 🎯 Roadmap](#23--roadmap)
-  - [23.1. v1.42.0 (Current) ✅](#231-v1420-current-)
-  - [23.2. v1.41.0 ✅](#232-v1410-)
-  - [23.3. v1.40.0 ✅](#233-v1400-)
-  - [23.4. v1.39.1 ✅](#234-v1391-)
-  - [23.5. v1.39.0 ✅](#235-v1390-)
-  - [23.6. v1.38.1 ✅](#236-v1381-)
-  - [23.7. v1.38.0 ✅](#237-v1380-)
-  - [23.8. v1.37.0 ✅](#238-v1370-)
-  - [23.9. v1.36.0 ✅](#239-v1360-)
-  - [23.10. v1.35.0 ✅](#2310-v1350-)
-  - [23.11. v1.34.0 ✅](#2311-v1340-)
-  - [23.12. v1.33.0 ✅](#2312-v1330-)
-  - [23.13. v1.32.0 ✅](#2313-v1320-)
-  - [23.14. v1.31.0 ✅](#2314-v1310-)
-  - [23.15. v1.30.0 ✅](#2315-v1300-)
-  - [23.16. v1.29.0 ✅](#2316-v1290-)
-  - [23.17. v1.28.0 ✅](#2317-v1280-)
-  - [23.18. v1.27.0 ✅](#2318-v1270-)
-  - [23.19. v1.26.0 ✅](#2319-v1260-)
-  - [23.20. v1.25.0 ✅](#2320-v1250-)
-  - [23.21. v1.24.0 ✅](#2321-v1240-)
-  - [23.22. v1.23.0 ✅](#2322-v1230-)
-  - [23.23. v1.22.0 ✅](#2323-v1220-)
-  - [23.24. v1.21.0 ✅](#2324-v1210-)
-  - [23.25. v1.20.0 ✅](#2325-v1200-)
-  - [23.26. v1.19.0 ✅](#2326-v1190-)
-  - [23.27. v1.18.0 ✅](#2327-v1180-)
-  - [23.28. v1.17.0 ✅](#2328-v1170-)
-  - [23.29. v1.16.0 ✅](#2329-v1160-)
-  - [23.30. v1.15.0 ✅](#2330-v1150-)
-  - [23.31. v1.14.x ✅](#2331-v114x-)
-  - [23.32. v1.13.0 ✅](#2332-v1130-)
+  - [23.1. v1.43.0 (Current) ✅](#231-v1430-current-)
+  - [23.2. v1.42.0 ✅](#232-v1420-)
+  - [23.3. v1.41.0 ✅](#233-v1410-)
+  - [23.4. v1.40.0 ✅](#234-v1400-)
+  - [23.5. v1.39.1 ✅](#235-v1391-)
+  - [23.6. v1.39.0 ✅](#236-v1390-)
+  - [23.7. v1.38.1 ✅](#237-v1381-)
+  - [23.8. v1.38.0 ✅](#238-v1380-)
+  - [23.9. v1.37.0 ✅](#239-v1370-)
+  - [23.10. v1.36.0 ✅](#2310-v1360-)
+  - [23.11. v1.35.0 ✅](#2311-v1350-)
+  - [23.12. v1.34.0 ✅](#2312-v1340-)
+  - [23.13. v1.33.0 ✅](#2313-v1330-)
+  - [23.14. v1.32.0 ✅](#2314-v1320-)
+  - [23.15. v1.31.0 ✅](#2315-v1310-)
+  - [23.16. v1.30.0 ✅](#2316-v1300-)
+  - [23.17. v1.29.0 ✅](#2317-v1290-)
+  - [23.18. v1.28.0 ✅](#2318-v1280-)
+  - [23.19. v1.27.0 ✅](#2319-v1270-)
+  - [23.20. v1.26.0 ✅](#2320-v1260-)
+  - [23.21. v1.25.0 ✅](#2321-v1250-)
+  - [23.22. v1.24.0 ✅](#2322-v1240-)
+  - [23.23. v1.23.0 ✅](#2323-v1230-)
+  - [23.24. v1.22.0 ✅](#2324-v1220-)
+  - [23.25. v1.21.0 ✅](#2325-v1210-)
+  - [23.26. v1.20.0 ✅](#2326-v1200-)
+  - [23.27. v1.19.0 ✅](#2327-v1190-)
+  - [23.28. v1.18.0 ✅](#2328-v1180-)
+  - [23.29. v1.17.0 ✅](#2329-v1170-)
+  - [23.30. v1.16.0 ✅](#2330-v1160-)
+  - [23.31. v1.15.0 ✅](#2331-v1150-)
+  - [23.32. v1.14.x ✅](#2332-v114x-)
+  - [23.33. v1.13.0 ✅](#2333-v1130-)
 - [24. 📈 Version History](#24--version-history)
 - [25. 🤝 Contributing](#25--contributing)
 - [26. 📄 License](#26--license)
@@ -347,34 +351,34 @@ dotnet add package REslava.Result.FluentValidation
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="REslava.Result" Version="1.42.0" />
-  <PackageReference Include="REslava.Result.Analyzers" Version="1.42.0" />
+  <PackageReference Include="REslava.Result" Version="1.43.0" />
+  <PackageReference Include="REslava.Result.Analyzers" Version="1.43.0" />
 
   <!-- OPTIONAL — only for ASP.NET Core projects.
        Source generators: SmartEndpoints, [Validate], OneOfToIResult. -->
-  <PackageReference Include="REslava.Result.AspNetCore" Version="1.42.0" />
+  <PackageReference Include="REslava.Result.AspNetCore" Version="1.43.0" />
 
   <!-- OPTIONAL — pipeline diagram generator (REslava.Result-native).
        Full type travel + typed error surface inference. Requires REslava.Result. -->
-  <PackageReference Include="REslava.Result.Flow" Version="1.42.0" />
+  <PackageReference Include="REslava.Result.Flow" Version="1.43.0" />
 
   <!-- OPTIONAL — pipeline diagram generator (library-agnostic).
        Works with any Result library (ErrorOr, LanguageExt, etc.). No REslava.Result dependency. -->
-  <PackageReference Include="REslava.ResultFlow" Version="1.42.0" />
+  <PackageReference Include="REslava.ResultFlow" Version="1.43.0" />
 
   <!-- OPTIONAL — HTTP client extensions: wrap HttpClient calls as typed Result<T> -->
-  <PackageReference Include="REslava.Result.Http" Version="1.42.0" />
+  <PackageReference Include="REslava.Result.Http" Version="1.43.0" />
 
   <!-- OPTIONAL — OpenTelemetry integration. Seeds ResultContext from the active span and
        writes error tags as span attributes on failure. Zero-cost when no active span. -->
-  <PackageReference Include="REslava.Result.OpenTelemetry" Version="1.42.0" />
+  <PackageReference Include="REslava.Result.OpenTelemetry" Version="1.43.0" />
 
   <!--
     OPTIONAL — migration bridge. NOT needed for new projects.
     REslava.Result already includes equivalent validation via [Validate] + Validation DSL.
     Only add this if your team has existing FluentValidation validators you want to keep.
   -->
-  <PackageReference Include="REslava.Result.FluentValidation" Version="1.42.0" />
+  <PackageReference Include="REslava.Result.FluentValidation" Version="1.43.0" />
 </ItemGroup>
 ```
 
@@ -3975,7 +3979,7 @@ result.Context?.EntityId // "42"
 Zero-cost OpenTelemetry integration via a separate optional NuGet package.
 
 ```xml
-<PackageReference Include="REslava.Result.OpenTelemetry" Version="1.42.0" />
+<PackageReference Include="REslava.Result.OpenTelemetry" Version="1.43.0" />
 ```
 
 ### 22.1. `.WithOpenTelemetry()` — seed context from active span
@@ -4022,7 +4026,16 @@ var result = Result<Order>.Ok(order)
 
 ## 23. 🎯 Roadmap
 
-### 23.1. v1.42.0 (Current) ✅
+### 23.1. v1.43.0 (Current) ✅
+
+- **`[DomainBoundary]` attribute** — marks methods/constructors as architectural entry points (`[DomainBoundary]` or `[DomainBoundary("Application")]`); lives in `REslava.Result` namespace
+- **RESL1030** — new analyzer; warns when a `Result<T, TError>` is passed directly to a `[DomainBoundary]` method without calling `.MapError()` first; prevents domain-specific error surfaces from leaking across layers
+- **SmartEndpoints `ProducesResponseType` for `ErrorsOf<T1..Tn>`** — when a method returns `Result<T, ErrorsOf<T1..Tn>>`, the generator now emits `.Produces<Ti>(statusCode)` per error type in OpenAPI metadata
+- **Clickable Mermaid nodes** — `PipelineNode.SourceFile`/`SourceLine` sourced from `SyntaxNode.GetLocation()`; `ResultFlowLinkMode = vscode` emits `click` directives so nodes open the exact source line in VS Code
+- **`{MethodName}_Sidecar` constant** — always-generated companion constant wrapping the Mermaid diagram in a fenced `# Pipeline` markdown block; write to `.md` with `File.WriteAllText(...)`
+- 187 features, >4,500 tests
+
+### 23.2. v1.42.0 ✅
 
 - **`ResultContext`** — pipeline context carrier embedded in `Result<T>`, `Result<T,TError>`, `Result`; carries `Entity`, `EntityId`, `CorrelationId`, `OperationName`, `TenantId` through the pipeline
 - **Auto-seeding** — `Ok()`/`Fail()` set `Context.Entity = typeof(T).Name` automatically; no user code needed
@@ -4035,7 +4048,7 @@ var result = Result<Order>.Ok(order)
 - **Generator fix** — `FluentValidateExtensionGenerator` and `ValidateExtensionGenerator` updated to emit `ValidationError.Field(...)` instead of deprecated 2-arg constructor
 - 182 features, >4,400 tests
 
-### 23.2. v1.41.0 ✅
+### 23.3. v1.41.0 ✅
 
 - **`TagKey<T>`** — typed accessor into `ImmutableDictionary<string, object>` Tags; `abstract record TagKey(string Name)` + `sealed record TagKey<T>(string Name) : TagKey(Name)`; record equality and value semantics
 - **`DomainTags`** — predefined typed domain tag keys: `Entity`, `EntityId`, `Field`, `Value`, `Operation`; used by `NotFoundError`, `ConflictError`, `ValidationError` auto-tags
@@ -4050,7 +4063,7 @@ var result = Result<Order>.Ok(order)
 - **`REslava.Result.Flow` — Mermaid node correlation block** — `%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---` block emitted at the end of every generated diagram; pairs diagram nodes with runtime `ReasonMetadata.NodeId` values
 - 169 features, >4,300 tests
 
-### 23.3. v1.40.0 ✅
+### 23.4. v1.40.0 ✅
 
 - **`ReasonMetadata`** — new sealed record capturing `CallerMember`, `CallerFile`, `CallerLine` via compiler-injected `[CallerMemberName/FilePath/LineNumber]` on factory methods; zero-allocation `Empty` singleton; completely separate from `Tags` (no framework leakage into user metadata)
 - **`IReasonMetadata`** — secondary capability interface (same pattern as `IAsyncDisposable`); opt-in metadata exposure from `IReason`-typed references without breaking existing implementations; `Reason` base class implements it automatically
@@ -4062,11 +4075,11 @@ var result = Result<Order>.Ok(order)
 - **ResultFlow `ErrorHint`** — Mermaid failure edges now annotate the error type for body-scan pipelines: `.Ensure(pred, new NotFoundError(...))` → `|"fail: NotFoundError"|`; syntactic extraction (no semantic model required); `ErrorType` from type-read mode still takes precedence
 - 158 features, >4,300 tests
 
-### 23.4. v1.39.1 ✅
+### 23.5. v1.39.1 ✅
 
 - Minor update: Fixed and updated NuGet package `REslava.Result` README
 
-### 23.5. v1.39.0 ✅
+### 23.6. v1.39.0 ✅
 - **`OneOf<T1..T8>` sealed class** — all `OneOf` types converted from `readonly struct` to `sealed class`; `OneOf<T1..T7>` and `OneOf<T1..T8>` added for full arity symmetry ⚠️ *breaking: copy→reference semantics*
 - **`OneOfBase<T1..T8>`** — unconstrained abstract class holding all shared dispatch (`IsT1..T8`, `AsT1..T8`, `Match`, `Switch`, `Equals`, `GetHashCode`, `ToString`); `OneOf` and `ErrorsOf` both inherit it
 - **`IOneOf<T1..T8>`** — shared interface implemented by both `OneOf<>` and `ErrorsOf<>`; enables generic programming over any discriminated union
@@ -4080,7 +4093,7 @@ var result = Result<Order>.Ok(order)
 - 153 features across 13 categories
 - >4,000 tests
 
-### 23.6. v1.38.1 ✅
+### 23.7. v1.38.1 ✅
 - **`REslava.Result.Flow` chain walker bug fix** — `IInvocationOperation.Instance` traversal stopped after the first node for static roots (`Result<T>.Ok(...)`) and async extension methods. Fixed with syntax-walk + per-node `semanticModel.GetOperation()` — all pipeline steps reliably captured regardless of calling convention.
 - **`REslava.Result.Flow` — REF002 analyzer + Code Action** — native companion package now emits REF002 on every `[ResultFlow]` method with a detectable chain. Code action inserts a full-fidelity diagram (type travel + typed error edges) as a ` ```mermaid ` fence comment — rendering inline in VS Code, GitHub, Rider.
 - **`REslava.ResultFlow` — `mermaid` fence format** — "Insert diagram as comment" code action now wraps diagrams in ` ```mermaid … ``` ` fence (was plain `/* ... */`). Renders inline in any Markdown-aware IDE.
@@ -4090,7 +4103,7 @@ var result = Result<Order>.Ok(order)
 - 142 features across 13 categories
 - >3,900 tests
 
-### 23.7. v1.38.0 ✅
+### 23.8. v1.38.0 ✅
 - **RESL1009 analyzer + code fix** — detects `try/catch` patterns that can be replaced by `Result<T>.Try`; two code actions: Fix A (basic `Try`) and Fix B (preserves custom error handler); handles sync and async methods; `TryAsync` rewrite removes `async/await`
 - **⚡ Async step annotation** (`REslava.ResultFlow`) — `*Async` method nodes automatically get a `⚡` label suffix in generated Mermaid diagrams; zero configuration; custom `resultflow.json`-mapped methods inherit ⚡ if their name ends in `Async`
 - **Success type travel** (`REslava.ResultFlow`) — infers `T` from each step's generic return type via Roslyn semantic model; renders `"Bind<br/>User"` or `"Map<br/>User → UserDto"` inline labels; library-agnostic (`Result<T>`, `ErrorOr<T>`, `Fin<T>`, any `SomeWrapper<T>`)
@@ -4099,14 +4112,14 @@ var result = Result<Order>.Ok(order)
 - 140 features across 13 categories
 - 3,983 tests
 
-### 23.8. v1.37.0 ✅
+### 23.9. v1.37.0 ✅
 - **`Switch()` / `SwitchAsync()`** — void side-effect dispatch; routes success/failure to two actions; explicit intent signal for void branching; `Task<Result>` / `Task<Result<T>>` extensions enable clean end-of-chain dispatch after async pipelines
 - **`MapError()` / `MapErrorAsync()`** — transforms errors in the failure path; symmetric counterpart to `Map`; success passes through unchanged; result state never changes; Task extensions included
 - **`Or()` / `OrElse()` / `OrElseAsync()`** — fallback result on failure; simpler API than `Recover`; `Or(fallback)` is eager, `OrElse(factory)` is lazy and receives the error list; Task extensions included
 - 136 features across 13 categories
 - 3,960 tests
 
-### 23.9. v1.36.0 ✅
+### 23.10. v1.36.0 ✅
 - **`REslava.ResultFlow` standalone package** — independent of `REslava.Result`; works with any fluent Result library via built-in convention dictionary (REslava.Result, ErrorOr, LanguageExt) or custom `resultflow.json`
 - **REF002 + Code Action** — IDE code action inserts the Mermaid diagram as a `/* ... */` block comment above the method; no build required
 - **Convention dictionary expansion** — ErrorOr (`Then`/`Switch`), LanguageExt (`Filter`/`Do`/`DoLeft`) built-in support
@@ -4116,45 +4129,45 @@ var result = Result<Order>.Ok(order)
 - 133 features across 13 categories
 - 3,783 tests
 
-### 23.10. v1.35.0 ✅
+### 23.11. v1.35.0 ✅
 - **`[ResultFlow]` source generator** — annotate any fluent `Result<T>` pipeline method → auto-generated Mermaid `flowchart LR` diagram as a `public const string` in `Generated.ResultFlow.{Class}_Flows` at compile time; zero runtime overhead; 9 operation semantics; REF001 info diagnostic for non-fluent methods
 - 128 features across 13 categories
 - 3,768 tests
 
-### 23.11. v1.34.0 ✅
+### 23.12. v1.34.0 ✅
 - **`IResultResponse<T>` → `IResultBase<T>`** ⚠️ *breaking rename* — `IResultResponse` carried an unintended HTTP connotation; `IResultBase` is the semantically correct name (base contract for all Result types). Update direct references from `IResultResponse<T>` to `IResultBase<T>`.
 - **Documentation gaps filled** — Http extensions usage guide, generator setup guide, `ConversionError` in error type table
 - 123 features across 12 categories
 - 3,756 tests
 
-### 23.12. v1.33.0 ✅
+### 23.13. v1.33.0 ✅
 - **`REslava.Result.Http`** — new 5th NuGet package; `GetResult<T>`, `PostResult<TBody, TResponse>`, `PutResult<TBody, TResponse>`, `DeleteResult`, `DeleteResult<T>` extension methods on `HttpClient`; every HTTP error and network failure becomes a typed `Result<T>`; configurable via `HttpResultOptions` (custom JSON options, custom status code mapper)
 - **README/TOC restructure** — full logical reorganization of all 26 sections; improved hierarchy and navigation
 - **MkDocs restructure** — sub-folder grid-card navigation across all sections; `architecture/source-generators/` sub-folder split; orphan detection tooling
 - 123 features across 12 categories
 - 3,756 tests
 
-### 23.13. v1.32.0 ✅
+### 23.14. v1.32.0 ✅
 - **`Result.Validate(r1, r2, ..., mapper)`** — applicative validation; runs 2/3/4 independent `Result<T>` validations simultaneously, accumulates ALL errors (no short-circuit), maps heterogeneous success values via typed mapper func to `Result<TResult>`
 - **`Result<T>.Deconstruct()`** — C# 8+ tuple syntax; `var (value, errors) = result` and `var (isSuccess, value, errors) = result` for `Result<T>`; `var (isSuccess, errors) = result` for non-generic `Result`
 - **`Maybe<T>` ↔ `Result<T>` interop** — `maybe.ToResult(errorFactory/error/string)` bridges `None` to typed failure; `result.ToMaybe()` discards errors and returns `Some(value)` or `None`
 - 117 features across 11 categories
 - 3,696 tests
 
-### 23.14. v1.31.0 ✅
+### 23.15. v1.31.0 ✅
 - **`Result.WithLogger(ILogger, string)`** / **`LogOnFailure(ILogger, string)`** — Tap-style ILogger integration; Debug on success, Warning on domain failure, Error on ExceptionError; structured log properties (`result.outcome`, `result.error.type`, `result.error.message`); Task extensions with CancellationToken
 - **`Result.Recover()`** / **`RecoverAsync()`** — railway recovery; transforms any failure into a new `Result<T>` (success or failure) via a fallback func; error list passed to recovery func for context-aware branching; both `Result` and `Result<T>`; Task extensions
 - **`Result.Filter()`** / **`FilterAsync()`** — convert success to failure when a predicate fails; `Func<T, IError>` error factory enables value-dependent contextual messages; 3 sync overloads (factory / static IError / string); async predicate variant; Task extensions
 - 114 features across 11 categories
 - 3,591 tests
 
-### 23.15. v1.30.0 ✅
+### 23.16. v1.30.0 ✅
 - **`Result.Catch<TException>()`** / **`CatchAsync<TException>()`** — inline typed exception handler in the railway; converts an `ExceptionError` wrapping `TException` to any `IError`; `Task<Result<T>>` extension also catches direct throws from the source task
 - **`Result.WithActivity(Activity?)`** — enriches an existing OTel `Activity` span with outcome tags (`result.outcome`, `result.error.type`, `result.error.message`); Tap-style (returns result unchanged), null-safe, no new NuGet dependency
 - 111 features across 11 categories
 - 3,432 tests
 
-### 23.16. v1.29.0 ✅
+### 23.17. v1.29.0 ✅
 - **`IsFailed` → `IsFailure`** ⚠️ *breaking rename* — `IsSuccess` / `IsFailure` is the correct symmetric pair; find-and-replace across call sites
 - **Console samples** — 3 new examples: `14_ValidationDSL`, `15_OneOf5_OneOf6`, `16_AsyncPatterns_Advanced` (covers all v1.27–v1.28 features)
 - **FastMinimalAPI validation showcase** — side-by-side `/api/smart/validation` (DSL vs DataAnnotations) and `/api/smart/fluent-validation` (bridge demo)
@@ -4162,12 +4175,12 @@ var result = Result<Order>.Ok(order)
 - **Feature Reference page** — 109 features across 11 categories in docs
 - 3,339 tests
 
-### 23.17. v1.28.0 ✅
+### 23.18. v1.28.0 ✅
 - **FluentValidation Bridge** ⚠️ *optional migration bridge* — new `REslava.Result.FluentValidation` package (4th NuGet); `[FluentValidate]` attribute generates `.Validate(IValidator<T>)` + `.ValidateAsync()` extensions; SmartEndpoints auto-injects `IValidator<T>` as a lambda parameter; for teams with existing FV validators only — **new projects do not need this package**
 - **RESL1006 analyzer** — compile error when both `[Validate]` and `[FluentValidate]` appear on the same type (conflicting `.Validate()` signatures)
 - 3,339 tests
 
-### 23.18. v1.27.0 ✅
+### 23.19. v1.27.0 ✅
 - **CancellationToken Support in SmartEndpoints** — generated lambdas detect `CancellationToken` in service method signatures and inject it as an endpoint parameter; backward-compatible
 - **OneOf5 / OneOf6** — `OneOf<T1..T5>` and `OneOf<T1..T6>` structs with full `Match`, `Switch`, `MapT*`, `BindT*`, equality, and implicit conversions; OneOf4 bug fixes
 - **OneOf chain extensions** — `ToFourWay`, `ToFiveWay`, `ToSixWay` and corresponding down-conversions across the full 2↔3↔4↔5↔6 arity chain
@@ -4175,67 +4188,67 @@ var result = Result<Order>.Ok(order)
 - **DocFX API Reference** — all public types, members, and XML docs fully surfaced at `/reference/api/`
 - 3,313 tests
 
-### 23.19. v1.26.0 ✅
+### 23.20. v1.26.0 ✅
 - **RESL1005 analyzer** — Info-level diagnostic suggests domain error types (`NotFoundError`, `ConflictError`, etc.) when `new Error("...")` message implies an HTTP error category; 14 new tests
 - **SmartEndpoints Auto-Validation** — `[Validate]` on a body parameter type auto-injects `.Validate()` into the generated lambda; returns 422 early on failure; 5 new tests
 - 2,862 tests
 
-### 23.20. v1.25.0 ✅
+### 23.21. v1.25.0 ✅
 - **Documentation Website** — MkDocs Material site auto-generated from README.md; 8 nav sections, dark/light, search, social cards
 - **DocFX API Reference landing page** — Bootstrap namespace cards, Core Types grid, quick-links to docs/GitHub/NuGet
 - **CI optimization** — path allowlist (src/tests only); docs commits no longer trigger test suite
 - 2,843 tests (unchanged)
 
-### 23.21. v1.24.0 ✅
+### 23.22. v1.24.0 ✅
 - **`[Validate]` Source Generator** — decorate any record/class to get `.Validate()` returning `Result<T>`; delegates to `Validator.TryValidateObject` (all 20+ `DataAnnotations` types supported); field errors surface as `ValidationError` with `FieldName`; composable with `.Bind()` / `.ToIResult()` / `.ToActionResult()`
 - 7 new generator tests, 2,843 total tests
 
-### 23.22. v1.23.0 ✅
+### 23.23. v1.23.0 ✅
 - **SmartEndpoints: Endpoint Filters** — `[SmartFilter(typeof(T))]` attribute generates `.AddEndpointFilter<T>()`, stackable (AllowMultiple = true)
 - **SmartEndpoints: Output Caching** — `CacheSeconds` property on `[AutoGenerateEndpoints]` and `[AutoMapEndpoint]`; class-level default, method-level override, `-1` to opt out; only applied to GET
 - **SmartEndpoints: Rate Limiting** — `RateLimitPolicy` property on both attribute levels; `"none"` to opt out; inherits class default
 - **FastMinimalAPI Demo: SmartCatalogController** — showcases all three features with `LoggingEndpointFilter`
 - 11 new source generator tests, 2,836 total tests
 
-### 23.23. v1.22.0 ✅
+### 23.24. v1.22.0 ✅
 - **OneOf<>.ToActionResult() — MVC One-Liners** — source-generated `IActionResult` extension methods for `OneOf<T1,...,T4>` in MVC controllers, domain errors auto-map via `IError.Tags["HttpStatusCode"]`
 - **OneOfToIResult: Tag-Based Error Mapping Fix** — `MapErrorToHttpResult` checks `IError.Tags["HttpStatusCode"]` first before falling back to type-name heuristics
 - **SmartEndpoints: Accurate OpenAPI Error Docs** — `ValidationError` → 422 (was 400), `Result<T>` endpoints declare 400/404/409/422
 - 12 new source generator tests, 2,825 total tests
 
-### 23.24. v1.21.0 ✅
+### 23.25. v1.21.0 ✅
 - **Result<T>.ToActionResult() — ASP.NET MVC Support** — source-generated `IActionResult` extension methods for MVC controllers, convention-based HTTP mapping with explicit overload escape hatch
 - **FastMvcAPI Demo App** — MVC equivalent of FastMinimalAPI demo (Users, Products, Orders) on port 5001
 - 9 new source generator tests
 
-### 23.25. v1.20.0 ✅
+### 23.26. v1.20.0 ✅
 - **Structured Error Hierarchy** — 5 built-in domain errors (`NotFoundError`, `ValidationError`, `ConflictError`, `UnauthorizedError`, `ForbiddenError`) with HTTP status code tags and CRTP fluent chaining
 - **ResultToIResult: Domain Error-Aware HTTP Mapping** — reads `HttpStatusCode` tag for accurate status codes (was always 400)
 - **Test Coverage Hardening** — 150 new tests covering OkIf/FailIf, Try, Combine, Tap, LINQ Task extensions
 - **Internal Quality** — cached computed properties, ExceptionError namespace fix, Result\<T\> constructor encapsulation, ToString() override, dead code cleanup, convention-based SmartEndpoints route prefix
 
-### 23.26. v1.19.0 ✅
+### 23.27. v1.19.0 ✅
 - **RESL1004 — Async Result Not Awaited** — detects `Task<Result<T>>` assigned without `await` + code fix
 - **CancellationToken Support Throughout** — `CancellationToken cancellationToken = default` on all async methods (source-compatible)
 - 5 diagnostics + 3 code fixes
 
-### 23.27. v1.18.0 ✅
+### 23.28. v1.18.0 ✅
 - **Task-Based Async Patterns** — `Result.WhenAll()` (typed tuples), `Result.Retry()` (exponential backoff), `.Timeout()` extension
 
-### 23.28. v1.17.0 ✅
+### 23.29. v1.17.0 ✅
 - **JSON Serialization Support (System.Text.Json)** — `JsonConverter` for `Result<T>`, `OneOf<T1..T4>`, `Maybe<T>`
 
-### 23.29. v1.16.0 ✅
+### 23.30. v1.16.0 ✅
 - Tailored NuGet README for each of the 3 packages
 
-### 23.30. v1.15.0 ✅
+### 23.31. v1.15.0 ✅
 - Repository cleanup: removed unused Node.js toolchain, stale samples, incomplete templates
 
-### 23.31. v1.14.x ✅
+### 23.32. v1.14.x ✅
 - **REslava.Result.Analyzers** — RESL1001, RESL1002, RESL1003, RESL2001 + 3 code fixes
 - OneOf generator consolidation (15 files → 7)
 
-### 23.32. v1.13.0 ✅
+### 23.33. v1.13.0 ✅
 - **SmartEndpoints: Authorization & Policy Support** — `RequiresAuth`, `Roles`, `Policies`, `[SmartAllowAnonymous]`
 - **LINQ query comprehension syntax for Result<T>**
 - SmartEndpoints: OpenAPI Metadata Auto-Generation
@@ -4244,6 +4257,7 @@ var result = Result<Order>.Ok(order)
 
 ## 24. 📈 Version History
 
+- **v1.43.0** - `[DomainBoundary]` attribute + RESL1030 analyzer (typed error crossing guard); SmartEndpoints `ProducesResponseType` per error type for `ErrorsOf<T1..Tn>`; clickable Mermaid nodes (`ResultFlowLinkMode = vscode`); `{MethodName}_Sidecar` fenced markdown constant; 187 features, >4,500 tests
 - **v1.42.0** - `ResultContext` pipeline context carrier (Entity/EntityId/CorrelationId/OperationName/TenantId); auto-seeding on `Ok()`/`Fail()`, `.WithContext()` fluent merge, parent-wins propagation through all pipeline operators, error auto-enrichment (non-overwriting); `DomainTags.CorrelationId`/`OperationName`/`TenantId` new keys; `REslava.Result.OpenTelemetry` new package (`.WithOpenTelemetry()`, `.WriteErrorTagsToSpan()`); ResultFlow `WithContext` Invisible + context hints footer; 182 features, >4,400 tests
 - **v1.41.0** - `TagKey<T>`, `DomainTags`, `SystemTags` typed tag access layer; `ReasonTagExtensions` (`TryGet<T>`, `Has<T>`); `IErrorFactory<TSelf>` static abstract interface; `Result.Fail<TError>(string)` typed factory; `ReasonMetadata.PipelineStep`/`NodeId`; `REslava.Result.Flow`: Gap 1 (lambda body step name), Gap 3 (variable initializer root), `PipelineNode.NodeId`, Mermaid node correlation block; 169 features, >4,300 tests
 - **v1.40.0** - `ReasonMetadata` + `IReasonMetadata` + `ReasonMetadataExtensions`; static error factories (`ValidationError.Field`, `ForbiddenError.For`, `ConflictError.Duplicate/Duplicate<T>`) with `[CallerMemberName]` capture; RESL1010 (unhandled failure path), RESL2002 (non-exhaustive ErrorsOf.Match), RESL1021 (multi-arg IError ctor); `REslava.ResultFlow` `ErrorHint` failure-edge annotation; 158 features, >4,300 tests

@@ -76,6 +76,7 @@ var message = result.Match(
 | [REslava.Result.AspNetCore](https://www.nuget.org/packages/REslava.Result.AspNetCore) | Auto-generate ASP.NET endpoints (Minimal API + MVC), IResult/IActionResult conversions, OneOf extensions, OpenAPI metadata |
 | [REslava.Result.Http](https://www.nuget.org/packages/REslava.Result.Http) | Wrap `HttpClient` calls so every HTTP response and network failure becomes a typed `Result<T>` |
 | [REslava.Result.Analyzers](https://www.nuget.org/packages/REslava.Result.Analyzers) | Roslyn analyzers that catch unsafe Result/OneOf usage at compile time |
+| [REslava.Result.OpenTelemetry](https://www.nuget.org/packages/REslava.Result.OpenTelemetry) | Zero-cost OpenTelemetry integration — seeds `ResultContext` from the active span and writes error tags as span attributes on failure |
 | [FluentValidation](https://www.nuget.org/packages/FluentValidation) | ≥ 11.x (installed by user) ⚠️ **Optional**  FluentValidation bridge |
 
 ## Links

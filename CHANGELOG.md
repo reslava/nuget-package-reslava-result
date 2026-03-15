@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.43.0] - 2026-03-15
+
+### ✨ Added
+
+- **`[DomainBoundary]` attribute** — new attribute in `REslava.Result` namespace; marks methods and constructors as domain boundary entry points; accepts optional `layer` string parameter for documentation (`[DomainBoundary("Application")]`)
+- **RESL1030 — Domain Boundary Typed Error Crossing** — new Roslyn analyzer in `REslava.Result.Analyzers`; warns (Warning severity) when a `Result<T, TError>` is passed directly as an argument to a `[DomainBoundary]`-decorated method without calling `.MapError()` first; prevents domain-specific error surfaces from leaking across architectural layers
+- **SmartEndpoints `ProducesResponseType` for `ErrorsOf<T1..Tn>`** — when a `[AutoGenerateEndpoints]` method returns `Result<T, ErrorsOf<T1..Tn>>`, the SmartEndpoints source generator now emits one `.Produces<Ti>(statusCode)` per union error type in the OpenAPI metadata; previously only the success type was emitted
+
+#### REslava.Result.Flow + REslava.ResultFlow
+
+- **`PipelineNode.SourceFile` / `SourceLine`** — each pipeline node now carries the source file path and 1-indexed line number of its corresponding method call in the user's source, populated from `SyntaxNode.GetLocation().GetLineSpan()`; null for in-memory compilations (empty path guard)
+- **Clickable Mermaid nodes (`ResultFlowLinkMode`)** — when set to `vscode`, the renderer emits one `click {nodeId} "vscode://file/{path}:{line}" "Go to {name}"` directive per node with a known source location; Windows backslash paths normalised to forward slashes; opt-in (default `none` — existing output unchanged)
+  - `REslava.Result.Flow`: configure via MSBuild `<ResultFlowLinkMode>vscode</ResultFlowLinkMode>` in `.csproj`
+  - `REslava.ResultFlow`: configure via `"linkMode": "vscode"` in `resultflow.json`
+- **`{MethodName}_Sidecar` constant** — always-generated companion constant alongside every diagram constant; wraps the Mermaid diagram in a `# Pipeline — {name}` heading and fenced code block; write to disk with `File.WriteAllText("{name}.ResultFlow.md", Flows.{name}_Sidecar)`
+
+### Stats
+- Tests: 4,510 passing (floor updated: >4,400 → >4,500)
+- 187 features across 15 categories
+
+---
+
 ## [1.42.0] - 2026-03-15
 
 ### ✨ Added

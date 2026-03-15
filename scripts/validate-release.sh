@@ -234,7 +234,7 @@ echo ""
 echo -e "${BOLD}9. Test count floor${RESET}"
 
 # ── Memorized floor — update when test count crosses the next hundred ──────────
-TEST_FLOOR=4400
+TEST_FLOOR=4500
 # ─────────────────────────────────────────────────────────────────────────────
 
 if [[ -f "$CACHE_FILE" ]]; then
