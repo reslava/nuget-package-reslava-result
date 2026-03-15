@@ -59,7 +59,7 @@ public static class ResultOpenTelemetryExtensions
     // ── Step 27: WriteErrorTagsToSpan ─────────────────────────────────────────
 
     /// <summary>
-    /// On failure, writes every tag from each error in <see cref="Result{T}.Errors"/>
+    /// On failure, writes every tag from each error in <c>Result&lt;T&gt;.Errors</c>
     /// as a key-value attribute on <c>Activity.Current</c>.
     /// Passes through on success or when no active span is present.
     /// </summary>
