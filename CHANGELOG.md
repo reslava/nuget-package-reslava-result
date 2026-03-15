@@ -4,6 +4,47 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.42.0] - 2026-03-15
+
+### ✨ Added
+
+- **`ResultContext` sealed record** — pipeline context carrier embedded in `Result<T>`, `Result<T,TError>`, and non-generic `Result`; carries `Entity`, `EntityId`, `CorrelationId`, `OperationName`, `TenantId` (all nullable strings) through the pipeline
+- **Auto-seeding** — `Result<T>.Ok(value)` and `Result<T>.Fail(...)` (both generic forms) set `Context.Entity = typeof(T).Name` automatically; no user code required
+- **`WithContext(entityId, correlationId, operationName, tenantId)`** — fluent method on `Result<T>` and `Result<T,TError>` that merges runtime values into the existing `Context`; non-generic `Result.WithContext(...)` also accepts an `entity` parameter
+- **Parent-wins context propagation** — all pipeline operators (`Bind`/`BindAsync`, `Ensure`/`EnsureAsync`, `Tap`/`TapAsync`/`TapOnFailure`, `Or`/`OrElse`, `MapError`) copy the incoming result's `Context` to the outgoing result; child result context is ignored
+- **`Map`/`MapAsync` entity update** — derives a new `Context` from the parent but updates `Entity = typeof(TOut).Name` on success; entity unchanged on failure
+- **Error auto-enrichment** — `ResultContextEnricher` (internal): when a pipeline step produces an error, injects `ResultContext` fields (`Entity`, `EntityId`, `CorrelationId`, `OperationName`, `TenantId`) as tags; non-overwriting — tags already set by the error's factory are preserved
+- **`DomainTags.CorrelationId`** — new `TagKey<string>` constant for context → error tag injection
+- **`DomainTags.OperationName`** — new `TagKey<string>` constant for context → error tag injection
+- **`DomainTags.TenantId`** — new `TagKey<string>` constant for context → error tag injection
+- **Typed pipeline propagation** — same parent-wins rules applied to all 7 `Bind` overloads, `Map`, and 7+7 `Ensure`/`EnsureAsync` overloads on `Result<T,TError>`
+
+#### REslava.Result.Flow
+
+- **`WithContext` — Invisible node** — `.WithContext(...)` classified as `NodeKind.Invisible` in the chain extractor; rendered as transparent in the pipeline diagram
+- **`TryExtractContextHints`** — new static method on `ResultFlowChainExtractor`; scans method body for `.WithContext(operationName:..., correlationId:...)` literal string arguments
+- **Mermaid context footer** — `ResultFlowMermaidRenderer.Render` emits a `%%` footer comment block when context hints are found, documenting `OperationName` and `CorrelationId` values
+
+#### REslava.ResultFlow
+
+- **`WithContext` — Invisible node** — same classification as `REslava.Result.Flow` for consistency
+
+#### REslava.Result.OpenTelemetry (new package)
+
+- **`.WithOpenTelemetry()`** — seeds `ResultContext.CorrelationId` from `Activity.Current.TraceId` and `OperationName` from `Activity.Current.DisplayName`; no-op when no active span; available on `Result<T>`, `Result`, `Result<T,TError>`
+- **`.WriteErrorTagsToSpan()`** — on failure, writes all error tags as key-value attributes on `Activity.Current`; passes through unchanged on success or when no active span; available on all three result types
+
+### 🔧 Changed (non-breaking)
+
+- **`FluentValidateExtensionGenerator`** — generated code now emits `ValidationError.Field(fieldName, message)` instead of the deprecated 2-arg constructor
+- **`ValidateExtensionGenerator`** — same fix; generated `.Validate()` extension now uses `ValidationError.Field(...)` for field-specific errors
+
+### Stats
+- Tests: >4,400 passing (same floor — no new hundred crossed)
+- 182 features across 15 categories
+
+---
+
 ## [1.41.0] - 2026-03-15
 
 ### ✨ Added

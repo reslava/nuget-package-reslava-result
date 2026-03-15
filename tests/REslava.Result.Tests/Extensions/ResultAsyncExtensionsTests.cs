@@ -222,17 +222,22 @@ public sealed class ResultAsyncExtensionsTests
         // Arrange
         var resultTask = Task.FromResult(Result<int>.Ok(42));
         var binderError = new Error("Binder failed");
-        
+
         // Act
         var result = await resultTask.BindAsync(async x =>
         {
             await Task.Delay(10);
             return Result<string>.Fail(binderError);
         });
-        
+
         // Assert
         Assert.IsTrue(result.IsFailure);
-        Assert.AreSame(binderError, result.Errors[0]);
+        // v1.42.0: Ok() auto-sets Context = { Entity = "Int32" }; that context enriches
+        // the binder's error (adds Entity tag), so the error is a new object — AreSame
+        // no longer holds. Verify message identity and that context was propagated.
+        Assert.AreEqual(1, result.Errors.Count);
+        Assert.AreEqual(binderError.Message, result.Errors[0].Message);
+        Assert.IsTrue(result.Errors[0].Tags.ContainsKey(DomainTags.Entity.Name));
     }
 
     #endregion
