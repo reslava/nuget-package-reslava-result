@@ -17,8 +17,11 @@ public partial class Result<TValue>
     /// </code>
     /// </example>
     public static Result<TValue> Ok(TValue value)
-    {        
-        return new Result<TValue>(value, ImmutableList<IReason>.Empty);
+    {
+        return new Result<TValue>(value, ImmutableList<IReason>.Empty)
+        {
+            Context = new ResultContext { Entity = typeof(TValue).Name }
+        };
     }
 
     /// <summary>
@@ -36,7 +39,10 @@ public partial class Result<TValue>
     public static Result<TValue> Ok(TValue value, string message)
     {
         ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
-        return new Result<TValue>(value, new Success(message));
+        return new Result<TValue>(value, new Success(message))
+        {
+            Context = new ResultContext { Entity = typeof(TValue).Name }
+        };
     }
 
     /// <summary>
@@ -53,9 +59,12 @@ public partial class Result<TValue>
     /// </code>
     /// </example>
     public static Result<TValue> Ok(TValue value, ISuccess success)
-    {        
+    {
         success = success.EnsureNotNull(nameof(success));
-        return new Result<TValue>(value, success);
+        return new Result<TValue>(value, success)
+        {
+            Context = new ResultContext { Entity = typeof(TValue).Name }
+        };
     }
 
     /// <summary>
@@ -78,7 +87,10 @@ public partial class Result<TValue>
         if (messageList.Count == 0)
             throw new ArgumentException("The success messages list cannot be empty", nameof(messages));
         
-        return new Result<TValue>(value, messageList.Select(m => new Success(m)).ToImmutableList<IReason>());
+        return new Result<TValue>(value, messageList.Select(m => new Success(m)).ToImmutableList<IReason>())
+        {
+            Context = new ResultContext { Entity = typeof(TValue).Name }
+        };
     }
 
     /// <summary>
@@ -104,7 +116,10 @@ public partial class Result<TValue>
         if (successes.Count == 0)
             throw new ArgumentException("The successes list cannot be empty", nameof(successes));
         
-        return new Result<TValue>(value, successes.ToImmutableList<IReason>());
+        return new Result<TValue>(value, successes.ToImmutableList<IReason>())
+        {
+            Context = new ResultContext { Entity = typeof(TValue).Name }
+        };
     }
 
     /// <summary>
@@ -148,7 +163,9 @@ public partial class Result<TValue>
     /// </example>
     public static new Result<TValue> Fail(string message)
     {
-        return Result<TValue>.FromResult(Result.Fail(message));
+        var result = Result<TValue>.FromResult(Result.Fail(message));
+        result.Context = new ResultContext { Entity = typeof(TValue).Name };
+        return result;
     }
 
     /// <summary>
@@ -164,7 +181,9 @@ public partial class Result<TValue>
     /// </example>
     public static new Result<TValue> Fail(IError error)
     {
-        return Result<TValue>.FromResult(Result.Fail(error));
+        var result = Result<TValue>.FromResult(Result.Fail(error));
+        result.Context = new ResultContext { Entity = typeof(TValue).Name };
+        return result;
     }
 
     /// <summary>
@@ -180,7 +199,9 @@ public partial class Result<TValue>
     /// </example>
     public static new Result<TValue> Fail(IEnumerable<string> messages)
     {
-        return Result<TValue>.FromResult(Result.Fail(messages));
+        var result = Result<TValue>.FromResult(Result.Fail(messages));
+        result.Context = new ResultContext { Entity = typeof(TValue).Name };
+        return result;
     }
 
     /// <summary>
@@ -200,7 +221,9 @@ public partial class Result<TValue>
     /// </example>
     public static new Result<TValue> Fail(IEnumerable<IError> errors)
     {
-        return Result<TValue>.FromResult(Result.Fail(errors));
+        var result = Result<TValue>.FromResult(Result.Fail(errors));
+        result.Context = new ResultContext { Entity = typeof(TValue).Name };
+        return result;
     }
 
     /// <summary>
@@ -222,6 +245,8 @@ public partial class Result<TValue>
     public static new Result<TValue> Fail<TError>(string message) where TError : IError, IErrorFactory<TError>
     {
         ArgumentException.ThrowIfNullOrEmpty(message, nameof(message));
-        return FromResult(Result.Fail<TError>(message));
+        var result = FromResult(Result.Fail<TError>(message));
+        result.Context = new ResultContext { Entity = typeof(TValue).Name };
+        return result;
     }
 }

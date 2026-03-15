@@ -25,11 +25,18 @@ public static class ResultValidationExtensions
 
         try
         {
-            return predicate(result.Value!) ? result : Result<T>.Fail(error);
+            if (predicate(result.Value!)) return result;
+            var enrichedError = ResultContextEnricher.EnrichError(error, result.Context);
+            var fail = Result<T>.Fail(enrichedError);
+            fail.Context = result.Context;
+            return fail;
         }
         catch (Exception ex)
         {
-            return Result<T>.Fail(new ExceptionError(ex));
+            var enrichedError = ResultContextEnricher.EnrichError(new ExceptionError(ex), result.Context);
+            var fail = Result<T>.Fail(enrichedError);
+            fail.Context = result.Context;
+            return fail;
         }
     }
 
@@ -54,11 +61,19 @@ public static class ResultValidationExtensions
 
         try
         {
-            return predicate(result.Value!) ? result : Result<T>.Fail(errorMessage);
+            if (predicate(result.Value!)) return result;
+            var rawError = new Error(errorMessage);
+            var enrichedError = ResultContextEnricher.EnrichError(rawError, result.Context);
+            var fail = Result<T>.Fail(enrichedError);
+            fail.Context = result.Context;
+            return fail;
         }
         catch (Exception ex)
         {
-            return Result<T>.Fail(new ExceptionError(ex));
+            var enrichedError = ResultContextEnricher.EnrichError(new ExceptionError(ex), result.Context);
+            var fail = Result<T>.Fail(enrichedError);
+            fail.Context = result.Context;
+            return fail;
         }
     }
 
@@ -75,7 +90,7 @@ public static class ResultValidationExtensions
     {
         result = result.EnsureNotNull(nameof(result));
         validations = validations.EnsureNotNull(nameof(validations));
-        
+
         if (validations.Length == 0)
         {
             throw new ArgumentException("At least one validation is required", nameof(validations));
@@ -97,7 +112,10 @@ public static class ResultValidationExtensions
 
         if (errors.Any())
         {
-            return Result<T>.Fail(errors);
+            var enrichedErrors = errors.Select(e => ResultContextEnricher.EnrichError(e, result.Context));
+            var fail = Result<T>.Fail(enrichedErrors);
+            fail.Context = result.Context;
+            return fail;
         }
 
         return result;
@@ -137,11 +155,18 @@ public static class ResultValidationExtensions
 
         try
         {
-            return predicate(result.Value!) ? result : Result<T>.Fail(error);
+            if (predicate(result.Value!)) return result;
+            var enrichedError = ResultContextEnricher.EnrichError(error, result.Context);
+            var fail = Result<T>.Fail(enrichedError);
+            fail.Context = result.Context;
+            return fail;
         }
         catch (Exception ex)
         {
-            return Result<T>.Fail(new ExceptionError(ex));
+            var enrichedError = ResultContextEnricher.EnrichError(new ExceptionError(ex), result.Context);
+            var fail = Result<T>.Fail(enrichedError);
+            fail.Context = result.Context;
+            return fail;
         }
     }
 
@@ -166,11 +191,19 @@ public static class ResultValidationExtensions
 
         try
         {
-            return predicate(result.Value!) ? result : Result<T>.Fail(errorMessage);
+            if (predicate(result.Value!)) return result;
+            var rawError = new Error(errorMessage);
+            var enrichedError = ResultContextEnricher.EnrichError(rawError, result.Context);
+            var fail = Result<T>.Fail(enrichedError);
+            fail.Context = result.Context;
+            return fail;
         }
         catch (Exception ex)
         {
-            return Result<T>.Fail(new ExceptionError(ex));
+            var enrichedError = ResultContextEnricher.EnrichError(new ExceptionError(ex), result.Context);
+            var fail = Result<T>.Fail(enrichedError);
+            fail.Context = result.Context;
+            return fail;
         }
     }
 
@@ -208,7 +241,11 @@ public static class ResultValidationExtensions
         }
 
         var isValid = await predicate(result.Value!);
-        return isValid ? result : Result<T>.Fail(error);
+        if (isValid) return result;
+        var enrichedError = ResultContextEnricher.EnrichError(error, result.Context);
+        var fail = Result<T>.Fail(enrichedError);
+        fail.Context = result.Context;
+        return fail;
     }
 
     /// <summary>
@@ -229,7 +266,12 @@ public static class ResultValidationExtensions
         }
 
         var isValid = await predicate(result.Value!);
-        return isValid ? result : Result<T>.Fail(errorMessage);
+        if (isValid) return result;
+        var rawError = new Error(errorMessage);
+        var enrichedError = ResultContextEnricher.EnrichError(rawError, result.Context);
+        var fail = Result<T>.Fail(enrichedError);
+        fail.Context = result.Context;
+        return fail;
     }
 
     #endregion
@@ -265,7 +307,11 @@ public static class ResultValidationExtensions
         }
 
         var isValid = await predicate(result.Value!);
-        return isValid ? result : Result<T>.Fail(error);
+        if (isValid) return result;
+        var enrichedError = ResultContextEnricher.EnrichError(error, result.Context);
+        var fail = Result<T>.Fail(enrichedError);
+        fail.Context = result.Context;
+        return fail;
     }
 
     /// <summary>
@@ -288,7 +334,12 @@ public static class ResultValidationExtensions
         }
 
         var isValid = await predicate(result.Value!);
-        return isValid ? result : Result<T>.Fail(errorMessage);
+        if (isValid) return result;
+        var rawError = new Error(errorMessage);
+        var enrichedError = ResultContextEnricher.EnrichError(rawError, result.Context);
+        var fail = Result<T>.Fail(enrichedError);
+        fail.Context = result.Context;
+        return fail;
     }
 
     #endregion

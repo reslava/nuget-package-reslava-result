@@ -77,7 +77,7 @@ public partial class Result<TValue>
             }
             catch (Exception ex)
             {
-                return new Result<TValue>(default(TValue), new ExceptionError(ex));
+                return new Result<TValue>(default(TValue), new ExceptionError(ex)) { Context = Context };
             }
         }
         return this;
@@ -109,9 +109,10 @@ public partial class Result<TValue>
             }
             catch (Exception ex)
             {
-                return new Result<TValue>(default(TValue), new ExceptionError(ex));
+                return new Result<TValue>(default(TValue), new ExceptionError(ex)) { Context = Context };
             }
         }
         return this;
-    }    
+    }
 }
+

@@ -57,14 +57,50 @@ public sealed class Result<TValue, TError> where TError : IError
         : throw new InvalidOperationException(
             "Cannot access Error on a successful Result. Check IsFailure first.");
 
+    /// <summary>
+    /// Ambient context carried through this pipeline — entity type, runtime identity,
+    /// correlation, operation name, and tenant. Seeded automatically by Ok/Fail and
+    /// propagated by all pipeline operators (parent-wins).
+    /// </summary>
+    public ResultContext? Context { get; internal set; }
+
     private Result(TValue value)  { _value = value; IsSuccess = true; }
     private Result(TError error)  { _error = error; IsSuccess = false; }
 
     /// <summary>Creates a successful result with the given value.</summary>
-    public static Result<TValue, TError> Ok(TValue value)   => new(value);
+    public static Result<TValue, TError> Ok(TValue value) => new(value)
+    {
+        Context = new ResultContext { Entity = typeof(TValue).Name }
+    };
 
     /// <summary>Creates a failed result with the given error.</summary>
-    public static Result<TValue, TError> Fail(TError error) => new(error);
+    public static Result<TValue, TError> Fail(TError error) => new(error)
+    {
+        Context = new ResultContext { Entity = typeof(TValue).Name }
+    };
+
+    /// <summary>
+    /// Returns a copy of this result with additional context values merged in.
+    /// Only non-null arguments overwrite existing context fields.
+    /// </summary>
+    public Result<TValue, TError> WithContext(
+        string? entityId = null,
+        string? correlationId = null,
+        string? operationName = null,
+        string? tenantId = null)
+    {
+        var current = Context ?? ResultContext.Empty;
+        var merged = current with
+        {
+            EntityId      = entityId      ?? current.EntityId,
+            CorrelationId = correlationId ?? current.CorrelationId,
+            OperationName = operationName ?? current.OperationName,
+            TenantId      = tenantId      ?? current.TenantId,
+        };
+        var copy = IsSuccess ? new Result<TValue, TError>(_value!) : new Result<TValue, TError>(_error!);
+        copy.Context = merged;
+        return copy;
+    }
 
     /// <inheritdoc/>
     public override string ToString() =>

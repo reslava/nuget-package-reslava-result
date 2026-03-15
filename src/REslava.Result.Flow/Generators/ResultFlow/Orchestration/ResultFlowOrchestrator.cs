@@ -86,7 +86,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                             continue;
                         }
 
-                        var mermaid = ResultFlowMermaidRenderer.Render(chain);
+                        var (opName, corrId) = ResultFlowChainExtractor.TryExtractContextHints(methodDecl);
+                        var mermaid = ResultFlowMermaidRenderer.Render(chain, operationName: opName, correlationId: corrId);
                         diagrams.Add((methodDecl.Identifier.ValueText, mermaid));
                     }
 

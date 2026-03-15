@@ -22,7 +22,9 @@ public static class ResultMapErrorExtensions
         result = result.EnsureNotNull(nameof(result));
         mapper = mapper.EnsureNotNull(nameof(mapper));
         if (result.IsSuccess) return result;
-        return Result.Fail(mapper(result.Errors));
+        var fail = Result.Fail(mapper(result.Errors));
+        fail.Context = result.Context;
+        return fail;
     }
 
     /// <summary>
@@ -41,7 +43,9 @@ public static class ResultMapErrorExtensions
         result = result.EnsureNotNull(nameof(result));
         mapper = mapper.EnsureNotNull(nameof(mapper));
         if (result.IsSuccess) return result;
-        return Result<T>.Fail(mapper(result.Errors));
+        var fail = Result<T>.Fail(mapper(result.Errors));
+        fail.Context = result.Context;
+        return fail;
     }
 
     /// <summary>
@@ -61,7 +65,9 @@ public static class ResultMapErrorExtensions
         mapper = mapper.EnsureNotNull(nameof(mapper));
         cancellationToken.ThrowIfCancellationRequested();
         if (result.IsSuccess) return result;
-        return Result.Fail(await mapper(result.Errors).ConfigureAwait(false));
+        var fail = Result.Fail(await mapper(result.Errors).ConfigureAwait(false));
+        fail.Context = result.Context;
+        return fail;
     }
 
     /// <summary>
@@ -82,6 +88,8 @@ public static class ResultMapErrorExtensions
         mapper = mapper.EnsureNotNull(nameof(mapper));
         cancellationToken.ThrowIfCancellationRequested();
         if (result.IsSuccess) return result;
-        return Result<T>.Fail(await mapper(result.Errors).ConfigureAwait(false));
+        var fail = Result<T>.Fail(await mapper(result.Errors).ConfigureAwait(false));
+        fail.Context = result.Context;
+        return fail;
     }
 }

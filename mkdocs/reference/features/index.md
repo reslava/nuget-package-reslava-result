@@ -95,6 +95,9 @@ tagline: Know exactly what you're getting.
 | `IErrorFactory<TSelf>` | C# 11 static abstract interface — `static abstract TSelf Create(string message)` | v1.41.0 | `## Error Types` — `### Typed Tags` |
 | Built-in errors implement `IErrorFactory<TSelf>` | `Error`, `NotFoundError`, `ConflictError`, `ValidationError`, `ForbiddenError`, `UnauthorizedError` | v1.41.0 | `## Error Types` — `### Typed Tags` |
 | `Result.Fail<TError>(string)` | Typed factory overload; `where TError : IError, IErrorFactory<TError>` | v1.41.0 | `## Error Types` — `### Typed Tags` |
+| `DomainTags.CorrelationId` | `TagKey<string>` — context → error tag injection key | v1.42.0 | — |
+| `DomainTags.OperationName` | `TagKey<string>` — context → error tag injection key | v1.42.0 | — |
+| `DomainTags.TenantId` | `TagKey<string>` — context → error tag injection key | v1.42.0 | — |
 
 ---
 
@@ -250,18 +253,43 @@ tagline: Know exactly what you're getting.
 | Gap 3: variable initializer resolution | `var r = FindUser(); return r.Bind(...)` correctly seeds chain root | v1.41.0 | — |
 | `PipelineNode.NodeId` | Stable node identifier (`"N{i}_{MethodName}"`) for runtime→diagram correlation via `ReasonMetadata.NodeId` | v1.41.0 | — |
 | Mermaid node correlation block | `%% --- Node correlation ---` block at end of every diagram | v1.41.0 | — |
+| `WithContext` — Invisible node | `.WithContext(...)` classified as `NodeKind.Invisible` in both extractors — not rendered as a pipeline step | v1.42.0 | — |
+| `TryExtractContextHints` + diagram footer | `REslava.Result.Flow`: extracts `operationName`/`correlationId` literal args; emits `%%` footer comment block in Mermaid output | v1.42.0 | — |
+
+---
+
+## 11. OpenTelemetry Integration — `REslava.Result.OpenTelemetry`
+
+| Feature | Short Description | Version | Docs |
+|---------|------------------|---------|------|
+| `REslava.Result.OpenTelemetry` package | New NuGet package — zero-cost OTel integration; no-op when no active span | v1.42.0 | — |
+| `.WithOpenTelemetry()` | Seeds `ResultContext.CorrelationId` from `Activity.Current.TraceId` and `OperationName` from `DisplayName`; 3 overloads: `Result<T>`, `Result`, `Result<T,TError>` | v1.42.0 | — |
+| `.WriteErrorTagsToSpan()` | On failure, writes all error tags as span attributes on `Activity.Current`; passes through on success or no span; 3 overloads | v1.42.0 | — |
+
+---
+
+## 12. ResultContext — `REslava.Result`
+
+| Feature | Short Description | Version | Docs |
+|---------|------------------|---------|------|
+| `ResultContext` sealed record | Pipeline context carrier: `Entity`, `EntityId`, `CorrelationId`, `OperationName`, `TenantId` (all nullable strings) | v1.42.0 | — |
+| `Result<T>.Context` / `Result<T,TError>.Context` | Auto-seeded from `typeof(T).Name` on `Ok()`/`Fail()`; public readable, internal settable | v1.42.0 | — |
+| `Result.Context` (non-generic) | Null by default; set explicitly via `.WithContext(entity: ...)` | v1.42.0 | — |
+| `WithContext(...)` | Fluent merge of `entityId`, `correlationId`, `operationName`, `tenantId` into existing `Context` | v1.42.0 | — |
+| Context propagation — parent-wins | All pipeline operators copy incoming `Context` to outgoing; `Map` additionally updates `Entity = typeof(TOut).Name` | v1.42.0 | — |
+| Error auto-enrichment | On failure, injects `ResultContext` fields as error tags — non-overwriting (factory-set tags win) | v1.42.0 | — |
 
 ---
 
 ## Summary
 
-!!! new "**v1.41.0** — 169 features across 13 categories."
+!!! new "**v1.42.0** — 182 features across 15 categories."
 
 
 | Category | Total Features |
 |----------|---------------|
 | Core Library | 42 |
-| Error Types | 20 |
+| Error Types | 23 |
 | SmartEndpoints | 18 |
 | Result/OneOf → IResult | 14 |
 | Result/OneOf → ActionResult | 8 |
@@ -272,8 +300,10 @@ tagline: Know exactly what you're getting.
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
-| ResultFlow | 26 |
-| **Total** | **169** |
+| ResultFlow | 28 |
+| OpenTelemetry | 3 |
+| ResultContext | 6 |
+| **Total** | **182** |
 
 ---
 

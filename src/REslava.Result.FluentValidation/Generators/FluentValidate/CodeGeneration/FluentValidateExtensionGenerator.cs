@@ -39,7 +39,7 @@ namespace REslava.Result.FluentValidation.Generators.FluentValidate.CodeGenerati
             sb.AppendLine($"                return Result<{fullTypeName}>.Ok(instance);");
             sb.AppendLine();
             sb.AppendLine("            var errors = result.Errors");
-            sb.AppendLine("                .Select(e => (IError)new ValidationError(e.PropertyName, e.ErrorMessage))");
+            sb.AppendLine("                .Select(e => (IError)ValidationError.Field(e.PropertyName, e.ErrorMessage))");
             sb.AppendLine("                .ToList();");
             sb.AppendLine($"            return Result<{fullTypeName}>.Fail(errors);");
             sb.AppendLine("        }");
@@ -56,7 +56,7 @@ namespace REslava.Result.FluentValidation.Generators.FluentValidate.CodeGenerati
             sb.AppendLine($"                return Result<{fullTypeName}>.Ok(instance);");
             sb.AppendLine();
             sb.AppendLine("            var errors = result.Errors");
-            sb.AppendLine("                .Select(e => (IError)new ValidationError(e.PropertyName, e.ErrorMessage))");
+            sb.AppendLine("                .Select(e => (IError)ValidationError.Field(e.PropertyName, e.ErrorMessage))");
             sb.AppendLine("                .ToList();");
             sb.AppendLine($"            return Result<{fullTypeName}>.Fail(errors);");
             sb.AppendLine("        }");

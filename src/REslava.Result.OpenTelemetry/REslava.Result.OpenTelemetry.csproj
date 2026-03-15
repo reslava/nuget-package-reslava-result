@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <RootNamespace>REslava.Result.OpenTelemetry</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+
+    <!-- Code Analysis -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- NuGet Metadata -->
+    <PackageId>REslava.Result.OpenTelemetry</PackageId>
+    <Title>REslava.Result.OpenTelemetry - OpenTelemetry integration for Result pattern</Title>
+    <Authors>Rafael Eslava</Authors>
+    <Company>REslava</Company>
+    <Product>REslava.Result.OpenTelemetry</Product>
+    <Description>OpenTelemetry integration for REslava.Result. Provides .WithOpenTelemetry() to seed ResultContext.CorrelationId from the active span's TraceId and OperationName from its DisplayName. Also provides .WriteErrorTagsToSpan() to write error tags as span attributes on failure. Zero-cost when no active span is present.</Description>
+    <Copyright>Copyright (c) 2025 Rafa Eslava</Copyright>
+    <PackageProjectUrl>https://reslava.github.io/nuget-package-reslava-result</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>opentelemetry;result;tracing;correlation;error-handling;functional;railway;otel</PackageTags>
+    <PackageReleaseNotes>https://github.com/reslava/nuget-package-reslava-result/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <PackageIcon>icon.png</PackageIcon>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+
+    <!-- Source Link -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Runtime dependency on core library — ships in the package.
+         ProjectReference so local builds resolve without a published NuGet.
+         dotnet pack converts this to a PackageDependency automatically. -->
+    <ProjectReference Include="..\REslava.Result\REslava.Result.csproj" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

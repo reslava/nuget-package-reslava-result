@@ -34,8 +34,19 @@ public static class ResultTErrorMapExtensions
         if (mapper is null) throw new ArgumentNullException(nameof(mapper));
 
         if (result.IsFailure)
-            return Result<TOut, TError>.Fail(result.Error);
+        {
+            var fail = Result<TOut, TError>.Fail(result.Error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TOut, TError>.Ok(mapper(result.Value));
+        // Successful Map: entity updates to TOut name, other fields inherited from parent
+        var mappedContext = result.Context is null
+            ? new ResultContext { Entity = typeof(TOut).Name }
+            : result.Context with { Entity = typeof(TOut).Name };
+
+        var ok = Result<TOut, TError>.Ok(mapper(result.Value));
+        ok.Context = mappedContext;
+        return ok;
     }
 }

@@ -13,7 +13,10 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
     /// </summary>
     internal static class ResultFlowMermaidRenderer
     {
-        public static string Render(IReadOnlyList<PipelineNode> nodes)
+        public static string Render(
+            IReadOnlyList<PipelineNode> nodes,
+            string? operationName = null,
+            string? correlationId = null)
         {
             // Filter invisible nodes
             var visible = new List<PipelineNode>();
@@ -109,6 +112,18 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             sb.AppendLine("%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---");
             foreach (var n in visible)
                 sb.AppendLine($"%%   {n.NodeId} → {n.MethodName}");
+
+            // Context hints: static OperationName/CorrelationId literals found in .WithContext() call.
+            // Entity is shown inline on each node label. Runtime-only fields are noted as <runtime>.
+            if (operationName != null || correlationId != null)
+            {
+                sb.AppendLine("%% --- Context (ResultContext fields from .WithContext() call) ---");
+                sb.AppendLine("%%   Entity: auto-seeded per Result<T> type (see node labels)");
+                if (operationName != null)
+                    sb.AppendLine($"%%   OperationName: \"{operationName}\"");
+                if (correlationId != null)
+                    sb.AppendLine($"%%   CorrelationId: \"{correlationId}\"");
+            }
 
             return sb.ToString().TrimEnd();
         }

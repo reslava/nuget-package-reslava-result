@@ -18,7 +18,9 @@ public static class ResultOrExtensions
         Result fallback)
     {
         result = result.EnsureNotNull(nameof(result));
-        return result.IsSuccess ? result : fallback;
+        if (result.IsSuccess) return result;
+        fallback.Context = result.Context;
+        return fallback;
     }
 
     /// <summary>
@@ -33,7 +35,10 @@ public static class ResultOrExtensions
     {
         result = result.EnsureNotNull(nameof(result));
         fallbackFactory = fallbackFactory.EnsureNotNull(nameof(fallbackFactory));
-        return result.IsSuccess ? result : fallbackFactory(result.Errors);
+        if (result.IsSuccess) return result;
+        var fallback = fallbackFactory(result.Errors);
+        fallback.Context = result.Context;
+        return fallback;
     }
 
     /// <summary>
@@ -51,7 +56,10 @@ public static class ResultOrExtensions
         result = result.EnsureNotNull(nameof(result));
         fallbackFactory = fallbackFactory.EnsureNotNull(nameof(fallbackFactory));
         cancellationToken.ThrowIfCancellationRequested();
-        return result.IsSuccess ? result : await fallbackFactory(result.Errors).ConfigureAwait(false);
+        if (result.IsSuccess) return result;
+        var fallback = await fallbackFactory(result.Errors).ConfigureAwait(false);
+        fallback.Context = result.Context;
+        return fallback;
     }
 
     /// <summary>
@@ -66,7 +74,9 @@ public static class ResultOrExtensions
         Result<T> fallback)
     {
         result = result.EnsureNotNull(nameof(result));
-        return result.IsSuccess ? result : fallback;
+        if (result.IsSuccess) return result;
+        fallback.Context = result.Context;
+        return fallback;
     }
 
     /// <summary>
@@ -82,7 +92,10 @@ public static class ResultOrExtensions
     {
         result = result.EnsureNotNull(nameof(result));
         fallbackFactory = fallbackFactory.EnsureNotNull(nameof(fallbackFactory));
-        return result.IsSuccess ? result : fallbackFactory(result.Errors);
+        if (result.IsSuccess) return result;
+        var fallback = fallbackFactory(result.Errors);
+        fallback.Context = result.Context;
+        return fallback;
     }
 
     /// <summary>
@@ -101,6 +114,9 @@ public static class ResultOrExtensions
         result = result.EnsureNotNull(nameof(result));
         fallbackFactory = fallbackFactory.EnsureNotNull(nameof(fallbackFactory));
         cancellationToken.ThrowIfCancellationRequested();
-        return result.IsSuccess ? result : await fallbackFactory(result.Errors).ConfigureAwait(false);
+        if (result.IsSuccess) return result;
+        var fallback = await fallbackFactory(result.Errors).ConfigureAwait(false);
+        fallback.Context = result.Context;
+        return fallback;
     }
 }

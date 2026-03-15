@@ -16,40 +16,45 @@ public partial class Result<TValue>
     {
         mapper = mapper.EnsureNotNull(nameof(mapper));
 
-        // If already failed, propagate all reasons to new type
+        // If already failed, propagate all reasons to new type — entity unchanged (no mapping occurred)
         if (IsFailure)
         {
-            return new Result<TOut>(default, Reasons);
+            return new Result<TOut>(default, Reasons) { Context = Context };
         }
 
+        // Successful Map: entity updates to TOut name, other fields inherited from parent
+        var mappedContext = Context is null ? new ResultContext { Entity = typeof(TOut).Name }
+                                           : Context with { Entity = typeof(TOut).Name };
         try
         {
             // Transform the value
             TOut mappedValue = mapper(Value!);
-            
+
             // Create new result preserving all success reasons
-            // If there are success reasons, include them
             if (Successes.Count > 0)
             {
-                return new Result<TOut>(mappedValue, Reasons);
+                return new Result<TOut>(mappedValue, Reasons) { Context = mappedContext };
             }
-            
+
             // No success reasons to preserve
-            return Result<TOut>.Ok(mappedValue);
+            var ok = Result<TOut>.Ok(mappedValue);
+            ok.Context = mappedContext;
+            return ok;
         }
         catch (Exception ex)
         {
             // On exception, preserve any success reasons from original result
             var exceptionError = new ExceptionError(ex);
-            
+
             if (Successes.Count > 0)
             {
-                // Combine original successes with the new error
                 var combinedReasons = Successes.ToImmutableList<IReason>().Add(exceptionError);
-                return new Result<TOut>(default, combinedReasons);
+                return new Result<TOut>(default, combinedReasons) { Context = Context };
             }
-            
-            return Result<TOut>.Fail(exceptionError);
+
+            var fail = Result<TOut>.Fail(exceptionError);
+            fail.Context = Context;
+            return fail;
         }
     }
     
@@ -67,37 +72,42 @@ public partial class Result<TValue>
         mapper = mapper.EnsureNotNull(nameof(mapper));
         cancellationToken.ThrowIfCancellationRequested();
 
-        // If already failed, propagate all reasons to new type
+        // If already failed, propagate all reasons to new type — entity unchanged
         if (IsFailure)
         {
-            return new Result<TOut>(default, Reasons);
+            return new Result<TOut>(default, Reasons) { Context = Context };
         }
 
+        var mappedContext = Context is null ? new ResultContext { Entity = typeof(TOut).Name }
+                                           : Context with { Entity = typeof(TOut).Name };
         try
         {
             // Transform the value asynchronously
             var mappedValue = await mapper(Value!);
-            
+
             // Create new result preserving all success reasons
             if (Successes.Count > 0)
             {
-                return new Result<TOut>(mappedValue, Reasons);
+                return new Result<TOut>(mappedValue, Reasons) { Context = mappedContext };
             }
-            
-            return Result<TOut>.Ok(mappedValue);
+
+            var ok = Result<TOut>.Ok(mappedValue);
+            ok.Context = mappedContext;
+            return ok;
         }
         catch (Exception ex)
         {
-            // On exception, preserve any success reasons from original result
             var exceptionError = new ExceptionError(ex);
-            
+
             if (Successes.Count > 0)
             {
                 var combinedReasons = Successes.ToImmutableList<IReason>().Add(exceptionError);
-                return new Result<TOut>(default, combinedReasons);
+                return new Result<TOut>(default, combinedReasons) { Context = Context };
             }
-            
-            return Result<TOut>.Fail(exceptionError);
+
+            var fail = Result<TOut>.Fail(exceptionError);
+            fail.Context = Context;
+            return fail;
         }
     }
 }

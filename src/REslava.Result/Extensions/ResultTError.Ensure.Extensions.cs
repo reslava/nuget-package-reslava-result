@@ -43,12 +43,22 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2>>.Fail(result.Error); // T1 → ErrorsOf<T1,T2> implicit
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2>>.Fail(result.Error); // T1 → ErrorsOf<T1,T2> implicit
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!predicate(result.Value))
-            return Result<TValue, ErrorsOf<T1, T2>>.Fail(error);        // T2 → ErrorsOf<T1,T2> implicit
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2>>.Fail(error);        // T2 → ErrorsOf<T1,T2> implicit
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion
@@ -69,15 +79,25 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2, T3>>.Fail(
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3>>.Fail(
                 result.Error.Match(
                     e1 => ErrorsOf<T1, T2, T3>.FromT1(e1),
                     e2 => ErrorsOf<T1, T2, T3>.FromT2(e2)));
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!predicate(result.Value))
-            return Result<TValue, ErrorsOf<T1, T2, T3>>.Fail(error);   // T3 → ErrorsOf implicit
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3>>.Fail(error);   // T3 → ErrorsOf implicit
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2, T3>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2, T3>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion
@@ -99,16 +119,26 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4>>.Fail(
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4>>.Fail(
                 result.Error.Match(
                     e1 => ErrorsOf<T1, T2, T3, T4>.FromT1(e1),
                     e2 => ErrorsOf<T1, T2, T3, T4>.FromT2(e2),
                     e3 => ErrorsOf<T1, T2, T3, T4>.FromT3(e3)));
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!predicate(result.Value))
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4>>.Fail(error);
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4>>.Fail(error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2, T3, T4>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2, T3, T4>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion
@@ -131,17 +161,27 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5>>.Fail(
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5>>.Fail(
                 result.Error.Match(
                     e1 => ErrorsOf<T1, T2, T3, T4, T5>.FromT1(e1),
                     e2 => ErrorsOf<T1, T2, T3, T4, T5>.FromT2(e2),
                     e3 => ErrorsOf<T1, T2, T3, T4, T5>.FromT3(e3),
                     e4 => ErrorsOf<T1, T2, T3, T4, T5>.FromT4(e4)));
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!predicate(result.Value))
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5>>.Fail(error);
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5>>.Fail(error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion
@@ -165,18 +205,28 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6>>.Fail(
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6>>.Fail(
                 result.Error.Match(
                     e1 => ErrorsOf<T1, T2, T3, T4, T5, T6>.FromT1(e1),
                     e2 => ErrorsOf<T1, T2, T3, T4, T5, T6>.FromT2(e2),
                     e3 => ErrorsOf<T1, T2, T3, T4, T5, T6>.FromT3(e3),
                     e4 => ErrorsOf<T1, T2, T3, T4, T5, T6>.FromT4(e4),
                     e5 => ErrorsOf<T1, T2, T3, T4, T5, T6>.FromT5(e5)));
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!predicate(result.Value))
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6>>.Fail(error);
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6>>.Fail(error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion
@@ -201,7 +251,8 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7>>.Fail(
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7>>.Fail(
                 result.Error.Match(
                     e1 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7>.FromT1(e1),
                     e2 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7>.FromT2(e2),
@@ -209,11 +260,20 @@ public static class ResultTErrorEnsureExtensions
                     e4 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7>.FromT4(e4),
                     e5 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7>.FromT5(e5),
                     e6 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7>.FromT6(e6)));
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!predicate(result.Value))
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7>>.Fail(error);
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7>>.Fail(error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion
@@ -239,7 +299,8 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>>.Fail(
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>>.Fail(
                 result.Error.Match(
                     e1 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>.FromT1(e1),
                     e2 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>.FromT2(e2),
@@ -248,11 +309,20 @@ public static class ResultTErrorEnsureExtensions
                     e5 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>.FromT5(e5),
                     e6 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>.FromT6(e6),
                     e7 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>.FromT7(e7)));
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!predicate(result.Value))
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>>.Fail(error);
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>>.Fail(error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion
@@ -277,12 +347,22 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2>>.Fail(result.Error);
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2>>.Fail(result.Error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!await predicate(result.Value).ConfigureAwait(false))
-            return Result<TValue, ErrorsOf<T1, T2>>.Fail(error);
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2>>.Fail(error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion
@@ -303,15 +383,25 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2, T3>>.Fail(
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3>>.Fail(
                 result.Error.Match(
                     e1 => ErrorsOf<T1, T2, T3>.FromT1(e1),
                     e2 => ErrorsOf<T1, T2, T3>.FromT2(e2)));
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!await predicate(result.Value).ConfigureAwait(false))
-            return Result<TValue, ErrorsOf<T1, T2, T3>>.Fail(error);
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3>>.Fail(error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2, T3>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2, T3>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion
@@ -333,16 +423,26 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4>>.Fail(
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4>>.Fail(
                 result.Error.Match(
                     e1 => ErrorsOf<T1, T2, T3, T4>.FromT1(e1),
                     e2 => ErrorsOf<T1, T2, T3, T4>.FromT2(e2),
                     e3 => ErrorsOf<T1, T2, T3, T4>.FromT3(e3)));
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!await predicate(result.Value).ConfigureAwait(false))
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4>>.Fail(error);
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4>>.Fail(error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2, T3, T4>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2, T3, T4>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion
@@ -365,17 +465,27 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5>>.Fail(
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5>>.Fail(
                 result.Error.Match(
                     e1 => ErrorsOf<T1, T2, T3, T4, T5>.FromT1(e1),
                     e2 => ErrorsOf<T1, T2, T3, T4, T5>.FromT2(e2),
                     e3 => ErrorsOf<T1, T2, T3, T4, T5>.FromT3(e3),
                     e4 => ErrorsOf<T1, T2, T3, T4, T5>.FromT4(e4)));
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!await predicate(result.Value).ConfigureAwait(false))
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5>>.Fail(error);
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5>>.Fail(error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion
@@ -399,18 +509,28 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6>>.Fail(
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6>>.Fail(
                 result.Error.Match(
                     e1 => ErrorsOf<T1, T2, T3, T4, T5, T6>.FromT1(e1),
                     e2 => ErrorsOf<T1, T2, T3, T4, T5, T6>.FromT2(e2),
                     e3 => ErrorsOf<T1, T2, T3, T4, T5, T6>.FromT3(e3),
                     e4 => ErrorsOf<T1, T2, T3, T4, T5, T6>.FromT4(e4),
                     e5 => ErrorsOf<T1, T2, T3, T4, T5, T6>.FromT5(e5)));
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!await predicate(result.Value).ConfigureAwait(false))
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6>>.Fail(error);
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6>>.Fail(error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion
@@ -435,7 +555,8 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7>>.Fail(
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7>>.Fail(
                 result.Error.Match(
                     e1 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7>.FromT1(e1),
                     e2 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7>.FromT2(e2),
@@ -443,11 +564,20 @@ public static class ResultTErrorEnsureExtensions
                     e4 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7>.FromT4(e4),
                     e5 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7>.FromT5(e5),
                     e6 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7>.FromT6(e6)));
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!await predicate(result.Value).ConfigureAwait(false))
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7>>.Fail(error);
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7>>.Fail(error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion
@@ -473,7 +603,8 @@ public static class ResultTErrorEnsureExtensions
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
 
         if (result.IsFailure)
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>>.Fail(
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>>.Fail(
                 result.Error.Match(
                     e1 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>.FromT1(e1),
                     e2 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>.FromT2(e2),
@@ -482,11 +613,20 @@ public static class ResultTErrorEnsureExtensions
                     e5 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>.FromT5(e5),
                     e6 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>.FromT6(e6),
                     e7 => ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>.FromT7(e7)));
+            fail.Context = result.Context;
+            return fail;
+        }
 
         if (!await predicate(result.Value).ConfigureAwait(false))
-            return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>>.Fail(error);
+        {
+            var fail = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>>.Fail(error);
+            fail.Context = result.Context;
+            return fail;
+        }
 
-        return Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>>.Ok(result.Value);
+        var ok = Result<TValue, ErrorsOf<T1, T2, T3, T4, T5, T6, T7, T8>>.Ok(result.Value);
+        ok.Context = result.Context;
+        return ok;
     }
 
     #endregion

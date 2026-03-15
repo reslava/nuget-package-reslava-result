@@ -11,6 +11,35 @@ public partial class Result : IResultBase
     private ImmutableList<IError>? _errors;
     private ImmutableList<ISuccess>? _successes;
 
+    /// <summary>
+    /// Ambient context for this result. Null by default on non-generic Result (no T to infer
+    /// Entity from). Set explicitly via <see cref="WithContext"/>.
+    /// </summary>
+    public ResultContext? Context { get; internal set; }
+
+    /// <summary>
+    /// Returns a copy of this result with additional context values merged in.
+    /// Only non-null arguments overwrite existing context fields.
+    /// </summary>
+    public Result WithContext(
+        string? entity = null,
+        string? entityId = null,
+        string? correlationId = null,
+        string? operationName = null,
+        string? tenantId = null)
+    {
+        var current = Context ?? ResultContext.Empty;
+        var merged = current with
+        {
+            Entity        = entity        ?? current.Entity,
+            EntityId      = entityId      ?? current.EntityId,
+            CorrelationId = correlationId ?? current.CorrelationId,
+            OperationName = operationName ?? current.OperationName,
+            TenantId      = tenantId      ?? current.TenantId,
+        };
+        return new Result(Reasons) { Context = merged };
+    }
+
     public bool IsSuccess => !IsFailure;
     public bool IsFailure => Errors.Count > 0;
     public ImmutableList<IReason> Reasons { get; private init; }

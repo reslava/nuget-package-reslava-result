@@ -33,6 +33,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             { "WithSuccessAsync",    NodeKind.Invisible },
             { "WithError",           NodeKind.Invisible },
             { "WithSuccessIf",       NodeKind.Invisible },
+            { "WithContext",         NodeKind.Invisible },
 
             // ── ErrorOr ───────────────────────────────────────────────────────
             { "Then",                NodeKind.TransformWithRisk },

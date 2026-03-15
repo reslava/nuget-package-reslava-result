@@ -19,7 +19,7 @@ public partial class Result<TValue> : Result, IResultBase<TValue>
         // If already failed, convert to new type with same reasons
         if (IsFailure)
         {
-            return new Result<TOut>(default, Reasons);
+            return new Result<TOut>(default, Reasons) { Context = Context };
         }
 
         try
@@ -29,36 +29,51 @@ public partial class Result<TValue> : Result, IResultBase<TValue>
             // If original result has success reasons, preserve them
             if (Successes.Count > 0)
             {
+                // Enrich any errors produced by the binder with parent context tags
+                var bindReasons = bindResult.IsFailure
+                    ? ResultContextEnricher.EnrichReasons(bindResult.Reasons, Context)
+                    : bindResult.Reasons;
+
                 // Combine original successes with bind result's reasons
                 // Order: original successes first (chronological), then new reasons
                 var combinedReasons = Successes.ToImmutableList<IReason>()
-                    .AddRange(bindResult.Reasons);
+                    .AddRange(bindReasons);
 
                 // Determine the value based on bind result's success/failure
                 var value = bindResult.IsSuccess ? bindResult.Value : default;
-                
-                return new Result<TOut>(value, combinedReasons);
+
+                return new Result<TOut>(value, combinedReasons) { Context = Context };
             }
 
-            // No original successes to preserve - return bind result as-is
+            // Enrich errors produced by the binder, then apply parent-wins context
+            if (bindResult.IsFailure)
+            {
+                var enrichedReasons = ResultContextEnricher.EnrichReasons(bindResult.Reasons, Context);
+                return new Result<TOut>(default, enrichedReasons) { Context = Context };
+            }
+
+            // Success: parent-wins context
+            bindResult.Context = Context;
             return bindResult;
         }
         catch (Exception ex)
-        {            
-            var exceptionError = new ExceptionError(ex);
-            
+        {
+            var exceptionError = (IError)ResultContextEnricher.EnrichError(new ExceptionError(ex), Context);
+
             // Even on exception, preserve original success reasons
             if (Successes.Count > 0)
             {
                 // Combine: original successes + exception error
                 var combinedReasons = Successes.ToImmutableList<IReason>()
                     .Add(exceptionError);
-                
-                return new Result<TOut>(default, combinedReasons);
+
+                return new Result<TOut>(default, combinedReasons) { Context = Context };
             }
-            
+
             // No successes to preserve
-            return Result<TOut>.Fail(exceptionError);
+            var failResult = Result<TOut>.Fail(exceptionError);
+            failResult.Context = Context;
+            return failResult;
         }
     }
 
@@ -79,7 +94,7 @@ public partial class Result<TValue> : Result, IResultBase<TValue>
         // If already failed, convert to new type with same reasons
         if (IsFailure)
         {
-            return new Result<TOut>(default, Reasons);
+            return new Result<TOut>(default, Reasons) { Context = Context };
         }
 
         try
@@ -89,36 +104,51 @@ public partial class Result<TValue> : Result, IResultBase<TValue>
             // If original result has success reasons, preserve them
             if (Successes.Count > 0)
             {
+                // Enrich any errors produced by the binder with parent context tags
+                var bindReasons = bindResult.IsFailure
+                    ? ResultContextEnricher.EnrichReasons(bindResult.Reasons, Context)
+                    : bindResult.Reasons;
+
                 // Combine original successes with bind result's reasons
                 // Order: original successes first (chronological), then new reasons
                 var combinedReasons = Successes.ToImmutableList<IReason>()
-                    .AddRange(bindResult.Reasons);
+                    .AddRange(bindReasons);
 
                 // Determine the value based on bind result's success/failure
-                var value = bindResult.IsSuccess ? bindResult.Value : default;                
-                
-                return new Result<TOut>(value, combinedReasons);
+                var value = bindResult.IsSuccess ? bindResult.Value : default;
+
+                return new Result<TOut>(value, combinedReasons) { Context = Context };
             }
 
-            // No original successes to preserve - return bind result as-is
+            // Enrich errors produced by the binder, then apply parent-wins context
+            if (bindResult.IsFailure)
+            {
+                var enrichedReasons = ResultContextEnricher.EnrichReasons(bindResult.Reasons, Context);
+                return new Result<TOut>(default, enrichedReasons) { Context = Context };
+            }
+
+            // Success: parent-wins context
+            bindResult.Context = Context;
             return bindResult;
         }
         catch (Exception ex)
         {
-            var exceptionError = new ExceptionError(ex);
-            
+            var exceptionError = (IError)ResultContextEnricher.EnrichError(new ExceptionError(ex), Context);
+
             // Even on exception, preserve original success reasons
             if (Successes.Count > 0)
             {
                 // Combine: original successes + exception error
                 var combinedReasons = Successes.ToImmutableList<IReason>()
                     .Add(exceptionError);
-                
-                return new Result<TOut>(default, combinedReasons);
+
+                return new Result<TOut>(default, combinedReasons) { Context = Context };
             }
-            
+
             // No successes to preserve
-            return Result<TOut>.Fail(exceptionError);
+            var failResult = Result<TOut>.Fail(exceptionError);
+            failResult.Context = Context;
+            return failResult;
         }
     }
 }

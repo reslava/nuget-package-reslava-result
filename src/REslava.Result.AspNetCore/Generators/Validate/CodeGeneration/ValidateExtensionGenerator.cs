@@ -35,7 +35,7 @@ namespace REslava.Result.SourceGenerators.Generators.Validate.CodeGeneration
             sb.AppendLine("                    var fieldName = r.MemberNames.FirstOrDefault();");
             sb.AppendLine("                    return string.IsNullOrEmpty(fieldName)");
             sb.AppendLine("                        ? (IError)new ValidationError(r.ErrorMessage ?? \"Validation failed\")");
-            sb.AppendLine("                        : (IError)new ValidationError(fieldName, r.ErrorMessage ?? \"Validation failed\");");
+            sb.AppendLine("                        : (IError)ValidationError.Field(fieldName, r.ErrorMessage ?? \"Validation failed\");");
             sb.AppendLine("                })");
             sb.AppendLine("                .ToList();");
             sb.AppendLine($"            return Result<{fullTypeName}>.Fail(errors);");

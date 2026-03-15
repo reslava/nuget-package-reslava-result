@@ -32,4 +32,13 @@ public static class DomainTags
 
     /// <summary>The operation or action name (e.g., "Delete", "Publish").</summary>
     public static readonly TagKey<string> Operation = new("Operation");
+
+    /// <summary>The correlation / trace identifier for distributed tracing.</summary>
+    public static readonly TagKey<string> CorrelationId = new("CorrelationId");
+
+    /// <summary>The pipeline operation name used when injecting <see cref="ResultContext.OperationName"/> into error tags.</summary>
+    public static readonly TagKey<string> OperationName = new("OperationName");
+
+    /// <summary>The tenant identifier used when injecting <see cref="ResultContext.TenantId"/> into error tags.</summary>
+    public static readonly TagKey<string> TenantId = new("TenantId");
 }

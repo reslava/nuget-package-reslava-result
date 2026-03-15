@@ -9,8 +9,38 @@ namespace REslava.Result;
 public partial class Result<TValue> : Result, IResultBase<TValue>
 {   
     // Private backing field - used internally for creating new instances
-    private readonly TValue? _value;         
-    
+    private readonly TValue? _value;
+
+    /// <summary>
+    /// Ambient context carried through this pipeline — entity type, runtime identity,
+    /// correlation, operation name, and tenant. Seeded automatically by Ok/Fail and
+    /// propagated by all pipeline operators (parent-wins).
+    /// </summary>
+    public new ResultContext? Context { get; internal set; }
+
+    /// <summary>
+    /// Returns a copy of this result with additional context values merged in.
+    /// Only non-null arguments overwrite existing context fields; omitted arguments keep
+    /// whatever the current context already has.
+    /// </summary>
+    public Result<TValue> WithContext(
+        string? entityId = null,
+        string? correlationId = null,
+        string? operationName = null,
+        string? tenantId = null)
+    {
+        var current = Context ?? ResultContext.Empty;
+        var merged = current with
+        {
+            EntityId      = entityId      ?? current.EntityId,
+            CorrelationId = correlationId ?? current.CorrelationId,
+            OperationName = operationName ?? current.OperationName,
+            TenantId      = tenantId      ?? current.TenantId,
+        };
+        var copy = new Result<TValue>(_value, Reasons) { Context = merged };
+        return copy;
+    }
+
     /// <summary>
     /// Gets the value if the result is successful.
     /// </summary>

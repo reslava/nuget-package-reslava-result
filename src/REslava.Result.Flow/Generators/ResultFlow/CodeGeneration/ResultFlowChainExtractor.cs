@@ -39,6 +39,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             { "WithSuccessAsync",  NodeKind.Invisible },
             { "WithError",         NodeKind.Invisible },
             { "WithSuccessIf",     NodeKind.Invisible },
+            { "WithContext",       NodeKind.Invisible },
         };
 
         private static readonly IReadOnlyCollection<string> EmptyErrors =
@@ -269,6 +270,42 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// Scans the method body for a <c>.WithContext(...)</c> call and extracts any string-literal
+        /// named arguments for <c>operationName</c> and <c>correlationId</c>.
+        /// Returns <c>(null, null)</c> if no <c>WithContext</c> call or no literals are found.
+        /// </summary>
+        public static (string? OperationName, string? CorrelationId) TryExtractContextHints(
+            MethodDeclarationSyntax method)
+        {
+            string? operationName = null;
+            string? correlationId = null;
+
+            foreach (var inv in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
+            {
+                if (!(inv.Expression is MemberAccessExpressionSyntax ma)) continue;
+                if (ma.Name.Identifier.ValueText != "WithContext") continue;
+
+                foreach (var arg in inv.ArgumentList.Arguments)
+                {
+                    if (arg.NameColon == null) continue;
+                    var argName = arg.NameColon.Name.Identifier.ValueText;
+                    var literal = arg.Expression as LiteralExpressionSyntax;
+                    if (literal == null) continue;
+                    var value = literal.Token.ValueText;
+
+                    if (argName == "operationName" && operationName == null)
+                        operationName = value;
+                    else if (argName == "correlationId" && correlationId == null)
+                        correlationId = value;
+                }
+
+                if (operationName != null && correlationId != null) break; // found both
+            }
+
+            return (operationName, correlationId);
         }
 
         /// <summary>
