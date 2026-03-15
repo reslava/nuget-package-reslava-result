@@ -29,6 +29,7 @@
     <PackageTags>opentelemetry;result;tracing;correlation;error-handling;functional;railway;otel</PackageTags>
     <PackageReleaseNotes>https://github.com/reslava/nuget-package-reslava-result/blob/main/CHANGELOG.md</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.REslava.Result.OpenTelemetry.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
 
@@ -41,6 +42,7 @@
 
   <ItemGroup>
     <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
+    <None Include="..\..\docs\nuget\README.REslava.Result.OpenTelemetry.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>

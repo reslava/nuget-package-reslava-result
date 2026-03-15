@@ -76,7 +76,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     default: // Unknown
                         lines.Add($"    {nodeId}[\"{label}\"]:::operation");
                         if (hasNext) lines.Add($"    {nodeId} --> {nextId}");
-                        TryAddClass(declaredClasses, classDefs, "operation", "fill:#e8f4f0,color:#1c7e6f");
+                        TryAddClass(declaredClasses, classDefs, "operation", "fill:#fef0e3,color:#b86a1c");
                         break;
                 }
             }
