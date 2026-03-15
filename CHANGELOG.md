@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.41.0] - 2026-03-15
+
+### ✨ Added
+
+- **`TagKey<T>`** — `abstract record TagKey(string Name)` + `sealed record TagKey<T>(string Name) : TagKey(Name)`; typed accessor into `ImmutableDictionary<string, object>` Tags; record equality and value semantics; abstract base enables non-generic storage and enumeration
+- **`DomainTags`** — static class with predefined typed domain tag keys: `Entity` (`TagKey<string>`), `EntityId` (`TagKey<object>`), `Field` (`TagKey<string>`), `Value` (`TagKey<object?>`), `Operation` (`TagKey<string>`); used by `NotFoundError`, `ConflictError`, `ValidationError` auto-tags
+- **`SystemTags`** — static class with predefined typed integration tag keys: `HttpStatus` (`TagKey<int>`), `ErrorCode` (`TagKey<string>`), `RetryAfter` (`TagKey<int>`), `Service` (`TagKey<string>`); shared contract for Http/AspNetCore packages
+- **`WithTag<T>(TagKey<T> key, T value)`** typed overload on `Reason<TReason>` — writes `key.Name` as the string dictionary key; null guard at entry; `Metadata` preserved on CRTP copies
+- **`ReasonTagExtensions`** — `TryGet<T>(this IReason, TagKey<T>, out T?)` and `Has<T>(this IReason, TagKey<T>)` typed reads on any `IReason`; safe cast via `is T`; `null` for type mismatch (returns `false`, not exception)
+- **`IErrorFactory<TSelf>`** — C# 11 static abstract interface; `static abstract TSelf Create(string message)`; enables type-parameterized error creation without reflection
+- **`IErrorFactory<TSelf>` on built-in errors** — `Error`, `NotFoundError`, `ConflictError`, `ValidationError`, `ForbiddenError`, `UnauthorizedError` implement `IErrorFactory<TSelf>`; `ExceptionError` and `ConversionError` excluded (incompatible constructor signatures)
+- **`Result.Fail<TError>(string message)`** on both `Result` and `Result<TValue>` — dual constraint `where TError : IError, IErrorFactory<TError>`; delegates to `TError.Create(message)` then to existing `Fail(IError)` overload; `Result<TValue>.Fail<TError>` uses `new` keyword to shadow base
+- **`ReasonMetadata.PipelineStep`** (`string?`) — name of the pipeline step that produced the error, for runtime → diagram correlation
+- **`ReasonMetadata.NodeId`** (`string?`) — stable node identity matching the diagram node (e.g. `"N0_FindUser"`); emitted by `REslava.Result.Flow` renderer
+
+#### REslava.Result.Flow
+
+- **Gap 1 — lambda body method name** — `TryGetLambdaBodyMethodName()` extracts the inner method name from single-expression lambda arguments: `.Bind(x => SaveUser(x))` now renders step label `"SaveUser"` instead of `"Bind"` in generated Mermaid diagrams
+- **Gap 3 — variable initializer resolution** — `ResolveVariableInitializer()` traces a local identifier to its `EqualsValueClauseSyntax`; `var r = FindUser(); return r.Bind(...)` now correctly seeds the chain root from `FindUser`
+- **`PipelineNode.NodeId`** (`string?`) — stable node identifier assigned by `ResultFlowMermaidRenderer` before the render loop (`"N{i}_{MethodName}"`); surfaced via `ReasonMetadata.NodeId` for runtime → diagram correlation
+- **Mermaid node correlation block** — `%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---` comment block emitted at the end of every generated diagram; lists all visible nodes with their stable `NodeId`
+
+### Stats
+- Tests: same floor (>4,300) — no new tests crossed the next hundred
+- 169 features across 13 categories
+
+---
+
 ## [1.40.0] - 2026-03-14
 
 ### ✨ Added
