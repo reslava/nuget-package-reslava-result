@@ -2,13 +2,13 @@
 hide:
   - navigation
 title: Test Suite
-description: 3,339 tests across net8.0, net9.0, net10.0. Core library, source generators, analyzers, and FluentValidation bridge — all covered.
+description: 4,500+ tests across netstandard2.0, net8.0, net9.0, net10.0. Core library, source generators, analyzers, and FluentValidation bridge — all covered.
 tagline: The test suite your code deserves.
 ---
 
 # Testing & Quality
 
-3,339+ passing tests, 95%+ coverage, and real‑world reliability.
+4,500+ passing tests, 95%+ coverage, and real‑world reliability.
 
 <div class="grid cards" markdown>
 

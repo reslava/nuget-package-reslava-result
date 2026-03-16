@@ -1,8 +1,8 @@
 # REslava.Result.Flow
 
-**REslava.Result-native** source generator that visualises `Result<T>` pipelines with **full type travel and typed error surface** in generated Mermaid diagrams.
+**The recommended pipeline visualization package for REslava.Result projects.** Generates Mermaid diagrams with full type travel, typed error edges from method body scanning, and entry-point detection — all via Roslyn semantic analysis.
 
-> Looking for the library-agnostic version that works with ErrorOr, LanguageExt, or any other Result library? Use [`REslava.ResultFlow`](https://www.nuget.org/packages/REslava.ResultFlow) instead.
+> Using a different Result library (ErrorOr, LanguageExt, FluentResults)? Use [`REslava.ResultFlow`](https://www.nuget.org/packages/REslava.ResultFlow) — the library-agnostic alternative instead.
 
 ## Installation
 
@@ -76,3 +76,5 @@ Compared to `REslava.ResultFlow`, this package adds:
 ## Documentation
 
 Full documentation: [reslava.github.io/nuget-package-reslava-result](https://reslava.github.io/nuget-package-reslava-result/resultflow/)
+
+**MIT License** | Works with any .NET project (netstandard2.0)

@@ -14,7 +14,7 @@
     <Authors>REslava</Authors>
     <Company>REslava</Company>
     <Product>REslava.Result.Flow</Product>
-    <Description>REslava.Result-native source generator that visualises Result pipelines with full type travel and error surface. Requires REslava.Result. Uses IResultBase and IError as Roslyn anchors to infer success types and scan method bodies for possible error types.</Description>
+    <Description>REslava.Result-native source generator for automatic Mermaid pipeline diagrams. Add [ResultFlow] to any pipeline method — produces a typed flow diagram with success type travel at every step, named error edges from method body scanning, and entry-point detection via full Roslyn semantic analysis. Requires REslava.Result. For library-agnostic visualization, see REslava.ResultFlow.</Description>
     <Copyright>Copyright © REslava 2025</Copyright>
     <PackageProjectUrl>https://reslava.github.io/nuget-package-reslava-result</PackageProjectUrl>
     <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>

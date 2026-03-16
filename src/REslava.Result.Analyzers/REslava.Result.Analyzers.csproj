@@ -11,7 +11,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>REslava.Result.Analyzers</PackageId>
     <Authors>REslava</Authors>
-    <Description>Roslyn analyzers for REslava.Result. Detects unsafe .Value access without IsSuccess checks and suggests safe alternatives.</Description>
+    <Description>Roslyn safety analyzers for REslava.Result. Enforces correct usage patterns at compile time — detects unsafe .Value access, missing IsSuccess checks, incorrect error type usage, and domain boundary violations. RESL10xx series covers API safety; RESL20xx series covers domain modeling rules. Zero runtime overhead — analysis runs entirely at compile time.</Description>
     <PackageTags>analyzers;roslyn;result;code-fix;diagnostics</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://reslava.github.io/nuget-package-reslava-result</PackageProjectUrl>

@@ -1,6 +1,8 @@
 # REslava.Result
 
-**Railway-oriented programming for .NET** — type-safe error handling without exceptions.
+**Visual Result pipelines for .NET** — typed errors, Railway-Oriented pipelines, automatic flow diagrams.
+
+*Don't try to understand the pipeline—watch the flow.*
 
 [![NuGet](https://img.shields.io/nuget/v/REslava.Result?logo=nuget)](https://www.nuget.org/packages/REslava.Result)
 [![Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
@@ -85,4 +87,4 @@ var message = result.Match(
 - [Changelog](https://github.com/reslava/nuget-package-reslava-result/blob/main/CHANGELOG.md)
 - [API Samples](https://github.com/reslava/nuget-package-reslava-result/tree/main/samples)
 
-**MIT License** | .NET 8 / 9 / 10
+**MIT License** | .NET Framework 4.6.1+ / .NET Core 2.0+ / .NET 8 / 9 / 10

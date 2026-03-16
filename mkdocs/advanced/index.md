@@ -1,5 +1,7 @@
 ---
 title: Advanced
+description: Power-user features for REslava.Result — compile-time typed error pipelines, Roslyn safety analyzers, and architectural deep-dives into source generators and package design.
+tagline: More power. More safety. More clarity.
 ---
 
 # Advanced

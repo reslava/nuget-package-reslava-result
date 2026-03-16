@@ -19,7 +19,7 @@
     <Authors>Rafael Eslava</Authors>
     <Company>REslava</Company>
     <Product>REslava.Result.Http</Product>
-    <Description>HttpClient extension methods that return Result&lt;T&gt; instead of throwing. Maps HTTP 4xx/5xx status codes to typed domain errors (NotFoundError, UnauthorizedError, ForbiddenError, ConflictError, ValidationError) and wraps network exceptions in ExceptionError. Configurable via HttpResultOptions.</Description>
+    <Description>HttpClient extensions that return Result&lt;T&gt; instead of throwing. Maps HTTP 4xx/5xx status codes to typed REslava.Result domain errors (NotFoundError, UnauthorizedError, ForbiddenError, ConflictError, ValidationError) and wraps network exceptions in ExceptionError. Designed for Railway-Oriented pipelines — chain BindAsync, Map, Ensure directly on HTTP responses. Configurable via HttpResultOptions.</Description>
     <Copyright>Copyright (c) 2025 Rafa Eslava</Copyright>
     <PackageProjectUrl>https://reslava.github.io/nuget-package-reslava-result</PackageProjectUrl>
     <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>

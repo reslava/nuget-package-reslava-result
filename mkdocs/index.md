@@ -1,12 +1,12 @@
 ---
 hide:
   - navigation
-title: No exceptions. No nulls. 
-description: Result<T> + OneOf + Maybe<T> + SmartEndpoints. Handle errors, auto-generate APIs, compose async pipelines. One package.
-tagline: Railway-oriented .NET made simple.
+title: Visual Result pipelines for .NET
+description: A Result pattern library for .NET with typed errors, Railway-Oriented pipelines, and automatic flow diagrams generated from your code.
+tagline: Don't try to understand the pipeline—watch the flow.
 ---
 
-# REslava.Result .NET Functional Error Handling & Zero‑Boilerplate APIs
+# REslava.Result — Visual Result pipelines for .NET
 <div align="center" markdown>
 ![.NET](https://img.shields.io/badge/.NET-512BD4?logo=dotnet&logoColor=white)
 ![C#](https://img.shields.io/badge/C%23-239120?&logo=csharp&logoColor=white)
@@ -19,9 +19,40 @@ tagline: Railway-oriented .NET made simple.
 ![Test Suite](https://img.shields.io/badge/tests-3960%20passing-brightgreen)
 </div>
 
-**:material-api: The only .NET library that blends functional error handling with compile‑time API generation.**
+**Visual Result pipelines for .NET**
+
+*Don't try to understand the pipeline—watch the flow.*
+
+Build Railway-Oriented pipelines with strongly typed errors and automatically generated flow diagrams.
 
 **:material-source-repository: [nuget-package-reslava-result GitHub repo](https://github.com/reslava/nuget-package-reslava-result)**
+
+```mermaid
+flowchart LR
+    N0_ValidateCommand["ValidateCommand<br/>RegisterCommand"]:::operation
+    N0_ValidateCommand --> N1_EnsureEmailAsync
+    N1_EnsureEmailAsync["EnsureEmailAsync ⚡<br/>RegisterCommand"]:::gatekeeper
+    N1_EnsureEmailAsync -->|pass| N2_EnsureUsernameAsync
+    N1_EnsureEmailAsync -->|ValidationError| FAIL
+    N2_EnsureUsernameAsync["EnsureUsernameAsync ⚡<br/>RegisterCommand"]:::gatekeeper
+    N2_EnsureUsernameAsync -->|pass| N3_CreateUserAsync
+    N2_EnsureUsernameAsync -->|ConflictError| FAIL
+    N3_CreateUserAsync["CreateUserAsync ⚡<br/>User"]:::transform
+    N3_CreateUserAsync -->|ok| N4_SaveAsync
+    N3_CreateUserAsync -->|DatabaseError| FAIL
+    N4_SaveAsync["SaveAsync ⚡<br/>User"]:::transform
+    N4_SaveAsync -->|ok| N5_TapAsync
+    N5_TapAsync["TapAsync ⚡<br/>User"]:::operation
+    N5_TapAsync --> N6_MapAsync
+    N6_MapAsync["MapAsync ⚡<br/>User → UserDto"]:::transform
+    FAIL([fail]):::failure
+    classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
+    classDef transform fill:#e3f0e8,color:#2f7a5c
+    classDef failure fill:#f8e3e3,color:#b13e3e
+    classDef operation fill:#e8f4f0,color:#1c7e6f
+```
+
+*[`[ResultFlow]`](resultflow) — one attribute, live Mermaid diagram of your pipeline. Type travel, async markers, named error edges — generated from your code.*
 
 !!! tip "🎯 Typed Error Pipelines — compile-time failure edges with `Result<TValue, TError>` (v1.39.0)"
     Replace `IEnumerable<IError>` bags with **exact, exhaustive error types**. Each `Bind` step grows the error union by one slot (`ErrorsOf<T1,T2,...>`). At the callsite, `Match` is exhaustive — the compiler tells you if you missed a case.
@@ -97,7 +128,19 @@ tagline: Railway-oriented .NET made simple.
 
 ## Why REslava.Result?
 
-> **Zero‑boilerplate APIs, railway‑oriented programming, and source‑generated ASP.NET integration – all in one package.**
+> **A Result pattern library for .NET with typed errors, Railway-Oriented pipelines, and automatic flow diagrams generated from your code.**
+
+**What REslava.Result gives you:**
+
+| Pillar | Features |
+|---|---|
+| **Railway-oriented pipelines** | `Result<T>`, `Bind`, `Map`, `Ensure`, `Tap`, `Or`, `MapError` — sync + async |
+| **Typed error pipelines** | `Result<T,TError>`, `ErrorsOf<T1..T8>` — compile-time error type safety |
+| **Rich domain errors** | `ValidationError`, `ForbiddenError`, `NotFoundError`, `ConflictError`, `ExceptionError` + `TagKey<T>`, `DomainTags`, `SystemTags` |
+| **Error metadata & context** | `ReasonMetadata` (caller info), `ResultContext` (entity / correlation / tenant / operation), auto-enrichment |
+| **Pipeline visualization** | `[ResultFlow]` → auto-generated Mermaid diagrams from your code |
+| **Framework integrations** | ASP.NET Core Smart Endpoints, FluentValidation, OpenTelemetry, HTTP client mapping |
+| **Safety analyzers** | RESL10xx / RESL20xx Roslyn analyzers enforcing correct usage patterns |
 
 ⚡ **[Performance benchmarks](reference/performance/)** — `Ok` creation **9.6× faster** than FluentResults · failure handling **6.8× faster** than exceptions · measured on .NET 9 with BenchmarkDotNet.
 
@@ -105,20 +148,20 @@ tagline: Railway-oriented .NET made simple.
     | | REslava.Result | FluentResults | ErrorOr | LanguageExt |
     |---|:---:|:---:|:---:|:---:|
     | Result&lt;T&gt; pattern | ✅ | ✅ | ✅ | ✅ |
-    | OneOf discriminated unions | ✅ (2-8 types) | — | — | ✅ |
-    | **Typed error pipelines (`ErrorsOf` + `Result<T,TError>`)** | **✅** | — | — | — |
+    | ✨ **Pipeline visualization (`[ResultFlow]`)** | **✅** | — | — | — |
+    | **OneOf** discriminated unions | ✅ (2-8 types) | — | — | ✅ |
+    | **Typed error pipelines** (`ErrorsOf` + `Result<T,TError>`) | **✅** | — | — | — |
     | Maybe&lt;T&gt; | ✅ | — | — | ✅ |
-    | **ASP.NET source generators (Minimal API + MVC)** | **✅** | — | — | — |
-    | **SmartEndpoints (zero-boilerplate APIs)** | **✅** | — | — | — |
-    | **OpenAPI metadata auto-generation** | **✅** | — | — | — |
-    | **Authorization & Policy support** | **✅** | — | — | — |
+    | **ASP.NET source generators** (Minimal API + MVC) | **✅** | — | — | — |
+    | **SmartEndpoints** (zero-boilerplate APIs) | **✅** | — | — | — |
+    | **OpenAPI** metadata auto-generation | **✅** | — | — | — |
+    | Authorization & Policy support | **✅** | — | — | — |
     | **Roslyn safety analyzers** | **✅** | — | — | — |
-    | **JSON serialization (System.Text.Json)** | **✅** | — | — | — |
-    | **Async patterns (WhenAll, Retry, Timeout)** | **✅** | — | — | — |
-    | **Domain error hierarchy (NotFound, Validation, etc.)** | **✅** | — | Partial | — |
+    | **JSON serialization** (System.Text.Json) | **✅** | — | — | — |
+    | **Async patterns** (WhenAll, Retry, Timeout) | **✅** | — | — | — |
+    | **Domain error hierarchy** (NotFound, Validation, etc.) | **✅** | — | Partial | — |
     | Validation framework | ✅ | Basic | — | ✅ |
     | **FluentValidation bridge** *(optional, migration only)* | **✅** | — | — | — |
-    | **Pipeline visualization (`[ResultFlow]`)** | **✅** | — | — | — |
     | Zero dependencies (core) | ✅ | ✅ | ✅ | — |
     | **[`Ok` creation speed](reference/performance/)** | **5.9 ns / 48 B** | 57 ns / 112 B | — | — |
     | **[Failure path vs exceptions](reference/performance/)** | **6.8× faster** | ~5.8× faster | — | — |

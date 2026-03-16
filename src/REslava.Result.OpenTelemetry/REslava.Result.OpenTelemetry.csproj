@@ -19,7 +19,7 @@
     <Authors>Rafael Eslava</Authors>
     <Company>REslava</Company>
     <Product>REslava.Result.OpenTelemetry</Product>
-    <Description>OpenTelemetry integration for REslava.Result. Provides .WithOpenTelemetry() to seed ResultContext.CorrelationId from the active span's TraceId and OperationName from its DisplayName. Also provides .WriteErrorTagsToSpan() to write error tags as span attributes on failure. Zero-cost when no active span is present.</Description>
+    <Description>OpenTelemetry integration for REslava.Result. Seeds ResultContext.CorrelationId from the active span's TraceId and OperationName from its DisplayName via .WithOpenTelemetry(). Writes error tags as span attributes on pipeline failure via .WriteErrorTagsToSpan(). Zero cost when no active span is present — checks Activity.Current == null before any allocation.</Description>
     <Copyright>Copyright (c) 2025 Rafa Eslava</Copyright>
     <PackageProjectUrl>https://reslava.github.io/nuget-package-reslava-result</PackageProjectUrl>
     <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>

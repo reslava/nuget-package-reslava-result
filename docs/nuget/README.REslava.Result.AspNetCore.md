@@ -1,9 +1,9 @@
-# REslava.Result.SourceGenerators
+# REslava.Result.AspNetCore
 
 **Zero-boilerplate ASP.NET endpoint generation** — write business logic, Minimal API + MVC endpoints generate themselves.
 
-[![NuGet](https://img.shields.io/nuget/v/REslava.Result.SourceGenerators?logo=nuget)](https://www.nuget.org/packages/REslava.Result.SourceGenerators)
-[![Downloads](https://img.shields.io/nuget/dt/REslava.Result.SourceGenerators)](https://www.nuget.org/packages/REslava.Result.SourceGenerators)
+[![NuGet](https://img.shields.io/nuget/v/REslava.Result.AspNetCore?logo=nuget)](https://www.nuget.org/packages/REslava.Result.AspNetCore)
+[![Downloads](https://img.shields.io/nuget/dt/REslava.Result.AspNetCore)](https://www.nuget.org/packages/REslava.Result.AspNetCore)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/reslava/nuget-package-reslava-result/blob/main/LICENSE)
 
 ## What It Does
@@ -64,7 +64,7 @@ app.MapProductServiceEndpoints();
 
 ```bash
 dotnet add package REslava.Result
-dotnet add package REslava.Result.SourceGenerators
+dotnet add package REslava.Result.AspNetCore
 ```
 
 ```csharp
@@ -101,4 +101,4 @@ The generator infers:
 - [MVC Demo](https://github.com/reslava/nuget-package-reslava-result/tree/main/samples/FastMvcAPI.REslava.Result.Demo)
 - [Changelog](https://github.com/reslava/nuget-package-reslava-result/blob/main/CHANGELOG.md)
 
-**MIT License** | .NET 8 / 9 / 10
+**MIT License** | Works with any .NET project (netstandard2.0)

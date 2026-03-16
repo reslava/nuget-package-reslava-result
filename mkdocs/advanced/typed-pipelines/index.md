@@ -1,5 +1,7 @@
 ---
 title: Typed Error Pipelines
+description: Replace runtime error bags with compile-time typed failure edges. Result<TValue, TError> + ErrorsOf<T1..T8> — exhaustive Match, no missed error cases.
+tagline: The compiler knows your failure modes.
 ---
 
 # 🎯 Typed Error Pipelines

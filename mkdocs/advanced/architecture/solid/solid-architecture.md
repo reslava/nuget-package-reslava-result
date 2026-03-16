@@ -165,19 +165,16 @@ graph TD
 4. **Clean Output**: No duplicate classes or attributes
 
 
-### For Developers
 - **Zero Duplicate Errors**: No more CS0101 or CS0579 compilation errors
 - **Faster Compilation**: Single execution instead of multiple generators
 - **Cleaner Generated Code**: Consistent patterns and proper separation
 - **Easier Debugging**: Clear separation makes issues easier to identify
 
-### For Maintainers
 - **Maintainable Code**: Each class has a single, clear responsibility
 - **Extensible Design**: New generators can be added without modifying existing code
 - **Testable Components**: Each generator can be tested in isolation
 - **Clear Documentation**: Well-defined interfaces and responsibilities
 
-### For Users
 - **Reliable Generation**: Consistent, error-free code generation
 - **Better Performance**: Faster compilation times
 - **Smaller Packages**: Reduced package size without losing functionality

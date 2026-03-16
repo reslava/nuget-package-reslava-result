@@ -33,7 +33,8 @@ MAPPING = {
     #   11 = ASP.NET  12 = Architecture  13 = Package Structure  14 = How Generators Work
     #   15 = Sample Projects  16 = Quick Examples  17 = Testing  18 = Safety Analyzers
     #   19 = Production Benefits  20 = Performance  21 = Roadmap  22 = Version History
-    #   23-26 = Community
+    #   23-28 = Community (23 = Contributing, 24 = License, 25 = Changelog, 26 = FAQ,
+    #                       27 = Acknowledgments, 28 = Contributors)
     "2.1.": "getting-started/installation",
     "2.2.": "getting-started",
     "2.3.": "getting-started/quick-start-scenarios",
@@ -70,6 +71,8 @@ MAPPING = {
     "24.":  "community",
     "25.":  "community",
     "26.":  "community",
+    "27.":  "community",
+    "28.":  "community",
 
     # ── Content-name routing (##-level wrapper files + legacy flat names) ────
     # Getting Started

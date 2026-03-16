@@ -2,6 +2,8 @@
 
 **Compile-time safety for Result\<T\> and OneOf** — catch mistakes before they reach production.
 
+Enforces correct usage patterns via Roslyn: RESL10xx series covers API safety (unsafe `.Value` access, discarded results, missing awaits); RESL20xx series covers domain modeling rules (domain boundary violations, incorrect error types).
+
 [![NuGet](https://img.shields.io/nuget/v/REslava.Result.Analyzers?logo=nuget)](https://www.nuget.org/packages/REslava.Result.Analyzers)
 [![Downloads](https://img.shields.io/nuget/dt/REslava.Result.Analyzers)](https://www.nuget.org/packages/REslava.Result.Analyzers)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/reslava/nuget-package-reslava-result/blob/main/LICENSE)

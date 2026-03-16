@@ -1,58 +1,70 @@
 ---
 hide:
   - navigation
-title: ResultFlow
-description: Source generator that auto-generates Mermaid pipeline diagrams at compile time. Add [ResultFlow] to any fluent method and get a const string diagram — zero runtime overhead, zero manual maintenance.
-tagline: Your pipeline diagram, written by the compiler.
+title: ResultFlow — Pipeline Visualization
+description: Auto-generate Mermaid pipeline diagrams from your Result pipelines. REslava.Result.Flow for REslava.Result projects (richer, semantic); REslava.ResultFlow for any library (library-agnostic).
+tagline: Don't try to understand the pipeline—watch the flow.
 ---
 
-# ResultFlow
+# ResultFlow — Pipeline Visualization
 
-Auto-generate **Mermaid pipeline diagrams** for any fluent Result pipeline.
+Auto-generate **Mermaid pipeline diagrams** from your fluent Result pipelines. Add `[ResultFlow]` to any method — the diagram is inserted as a comment with one click, or accessed as a `const string` after build.
 
-Add `[ResultFlow]` to a method. The diagram will be inserted as a comment with a click, paste it into any Mermaid renderer to instantly visualize the data flow.
+!!! tip "Which package?"
+    **Using REslava.Result?** → install **`REslava.Result.Flow`** — richer diagrams with typed error edges, entry-point node, and full semantic type travel.
+
+    **Using FluentResults, ErrorOr, LanguageExt, or any other library?** → install **`REslava.ResultFlow`** — library-agnostic, zero configuration for common methods.
 
 ```bash
+# For REslava.Result projects (recommended)
+dotnet add package REslava.Result.Flow
+
+# For any other Result library
 dotnet add package REslava.ResultFlow
 ```
 
 <div class="grid cards" markdown>
 
--   :material-graph: __`[Result.Flow]` Native Companion Package__
+-   :material-graph: __`REslava.Result.Flow` — For REslava.Result projects__
 
-    Annotate any fluent pipeline method. The source generator walks the chain and emits a Mermaid flowchart block comment — no runtime cost, no maintenance. See how `type` and `customs errors` travel. **To be used with REslava.Result**
+    The recommended package. Full Roslyn semantic analysis — typed error edges from method body scanning, entry-point detection, and complete type travel via `IResultBase`. Requires REslava.Result.
 
-    [](reslava.result.flow--native-companion-package.md)
+    [](installation--reslava.result.flow)
 
+-   :material-chart-timeline-variant: __Pipeline Visualization — `[ResultFlow]`__
 
--   :material-graph: __`[ResultFlow]` Attribute__
-
-    Annotate any fluent pipeline method. The source generator walks the chain and emits a Mermaid flowchart constant — no runtime cost, no maintenance. See how `type` travel. **To be used with external result libraries like FlentResuts, ErrorOr, ...**
+    Add one attribute. Get a live Mermaid diagram of every success path, failure branch, async step, and side effect — generated from your code.
 
     [](pipeline-visualization--resultflow)
 
--   :material-package-variant-closed-check: __`[ResultFlow]` Standalone Package__    
-  
-    [ResultFlow] is provided by the REslava.ResultFlow package — completely independent of REslava.Result. It works with any fluent Result library.
+-   :material-wrench: __Code Action — Insert Diagram as Comment__
 
-    [](standalone-package)    
+    One click inserts the generated Mermaid diagram directly above the method — no build required. Renders inline in VS Code, GitHub, and Rider.
 
--   :material-book-open-variant: __`[ResultFlow]` Convention Dictionary__
+    [](code-action--insert-diagram-as-comment)
 
-    Built-in support for **REslava.Result**, **ErrorOr**, and **LanguageExt** — classify Ensure, Bind, Map, Tap, Match, Filter, Then, and more out of the box.
+-   :material-lightning-bolt: __Async Step Annotation__
 
-    [](supported-libraries)
+    `*Async` methods are automatically annotated with a ⚡ suffix in the diagram label — no configuration required.
 
--   :material-file-cog: __`[ResultFlow]` - `resultflow.json` Configuration__
+    [](async-step-annotation)
 
-    Escape hatch for custom or third-party libraries. Add a single JSON file and override any built-in classification with your own method names.
+-   :material-swap-horizontal: __Success Type Travel__
+
+    The success type `T` is inferred at each pipeline step and rendered inline — zero configuration, works with any Result library.
+
+    [](success-type-travel)
+
+-   :material-file-cog: __`resultflow.json` — Custom Classification__
+
+    Classify custom or third-party methods. Add a single JSON file and override any built-in classification with your own method names.
 
     [](resultflow.json--custom-classification)
 
--   :material-wrench: __`[Result.Flow]` & `[ResultFlow]`Code Action — Insert Diagram__
+-   :material-package-variant-closed-check: __`REslava.ResultFlow` — Library-agnostic Alternative__
 
-    The companion analyzer detects missing diagram comments on `[ResultFlow]` methods. One click inserts the generated Mermaid diagram directly above the method body.
+    Works with ErrorOr, FluentResults, LanguageExt, or any fluent Result library. Syntax-only analysis — no REslava.Result dependency required.
 
-    [](code-action--insert-diagram-as-comment)
+    [](reslava.resultflow--library-agnostic-alternative)
 
 </div>

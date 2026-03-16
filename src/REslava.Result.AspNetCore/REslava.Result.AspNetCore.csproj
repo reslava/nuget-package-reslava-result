@@ -15,7 +15,7 @@
     <Authors>REslava</Authors>
     <Company>REslava</Company>
     <Product>REslava.Result.AspNetCore</Product>
-    <Description>Source generators for REslava.Result library. Automatically generates extension methods to convert Result types to ASP.NET Core IResult with proper HTTP status codes and ProblemDetails.</Description>
+    <Description>ASP.NET Core source generators for REslava.Result. SmartEndpoints auto-generates complete Minimal API and MVC endpoints from business logic methods — routing, DI injection, HTTP status mapping, full OpenAPI metadata (Produces&lt;T&gt;, WithSummary, WithTags), and authorization support. Also generates ToIResult() and ToOneOfResult() extension methods for manual endpoint mapping.</Description>
     <Copyright>Copyright © REslava 2025</Copyright>
     <PackageProjectUrl>https://reslava.github.io/nuget-package-reslava-result</PackageProjectUrl>
     <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>

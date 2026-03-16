@@ -15,7 +15,7 @@
     <Authors>REslava</Authors>
     <Company>REslava</Company>
     <Product>REslava.ResultFlow</Product>
-    <Description>Source generator that auto-generates Mermaid pipeline diagrams at compile time for any Result library. Add [ResultFlow] to any fluent method and get a generated const string diagram — zero runtime overhead, zero manual maintenance.</Description>
+    <Description>Library-agnostic source generator for automatic Mermaid pipeline diagrams. Add [ResultFlow] to any fluent method — works with REslava.Result, ErrorOr, FluentResults, LanguageExt, or any fluent Result library. Generates typed flow diagrams with async markers, success type travel, and named error edges. Zero runtime overhead. For REslava.Result users wanting richer diagrams with typed error body scanning, see REslava.Result.Flow.</Description>
     <Copyright>Copyright © REslava 2025</Copyright>
     <PackageProjectUrl>https://reslava.github.io/nuget-package-reslava-result</PackageProjectUrl>
     <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>

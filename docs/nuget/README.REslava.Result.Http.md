@@ -2,7 +2,7 @@
 
 **HttpClient extensions that return `Result<T>` instead of throwing.**
 
-Map HTTP 4xx/5xx status codes to typed domain errors and wrap network failures in `ExceptionError` — no `try/catch`, no manual status code checks.
+Map HTTP 4xx/5xx status codes to typed REslava.Result domain errors and wrap network failures in `ExceptionError` — no `try/catch`, no manual status code checks. Designed for Railway-Oriented pipelines: chain `BindAsync`, `Map`, `Ensure` directly on HTTP responses.
 
 [![NuGet](https://img.shields.io/nuget/v/REslava.Result.Http?logo=nuget)](https://www.nuget.org/packages/REslava.Result.Http)
 [![Downloads](https://img.shields.io/nuget/dt/REslava.Result.Http)](https://www.nuget.org/packages/REslava.Result.Http)

@@ -48,3 +48,5 @@ All methods check `Activity.Current == null` and return immediately — no alloc
 ## Documentation
 
 Full documentation: [reslava.github.io/nuget-package-reslava-result](https://reslava.github.io/nuget-package-reslava-result/)
+
+**MIT License** | .NET 8 / 9 / 10

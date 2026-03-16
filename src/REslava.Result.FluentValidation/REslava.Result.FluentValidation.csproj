@@ -14,7 +14,7 @@
     <Authors>REslava</Authors>
     <Company>REslava</Company>
     <Product>REslava.Result.FluentValidation</Product>
-    <Description>FluentValidation bridge for REslava.Result — [FluentValidate] source generator emits .Validate(IValidator&lt;T&gt;) extensions with SmartEndpoints auto-injection. Migration aid for teams with existing FluentValidation validators.</Description>
+    <Description>FluentValidation bridge for REslava.Result. Converts AbstractValidator&lt;T&gt; results into REslava.Result ValidationError collections — no migration required for teams with existing FluentValidation validators. [FluentValidate] source generator emits .Validate(IValidator&lt;T&gt;) extensions with SmartEndpoints auto-injection support.</Description>
     <Copyright>Copyright © REslava 2025</Copyright>
     <PackageProjectUrl>https://reslava.github.io/nuget-package-reslava-result</PackageProjectUrl>
     <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>

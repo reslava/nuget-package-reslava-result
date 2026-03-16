@@ -125,4 +125,4 @@ ordersGroup.MapPost("/", async (
 - [GitHub Repository](https://github.com/reslava/nuget-package-reslava-result)
 - [Changelog](https://github.com/reslava/nuget-package-reslava-result/blob/main/CHANGELOG.md)
 
-**MIT License** | .NET 8 / 9 / 10
+**MIT License** | Works with any .NET project (netstandard2.0)
