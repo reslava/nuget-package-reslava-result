@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.44.1] - 2026-03-16
+
+### 🔧 Changed (non-breaking)
+
+- **Library branding** — tagline updated to "Visual Result pipelines for .NET"; slogan "Don't try to understand the pipeline—watch the flow."; showcase Mermaid diagram (`RegisterUserAsync` pipeline in real generator format) added above the fold in README
+- **NuGet `<Description>` fields** — all 8 packages updated with feature-accurate descriptions covering typed errors, railway-oriented pipelines, pipeline visualization, Roslyn analyzers, and framework integrations
+- **NuGet README opening sections** — all 8 `docs/nuget/README.*.md` rewritten with updated tagline, feature summaries, and package hierarchy; `REslava.Result.AspNetCore` README fixed (was still titled `REslava.Result.SourceGenerators`)
+- **`REslava.Result.Flow` primary positioning** — README section 3 and `mkdocs/resultflow/index.md` restructured: `REslava.Result.Flow` (semantic, library-native) is now clearly the primary package; `REslava.ResultFlow` (syntax-only, library-agnostic) presented as secondary alternative
+- **MkDocs updates** — `mkdocs/index.md` mirrored to match new README hero; `advanced/index.md` and `advanced/typed-pipelines/index.md` added `description` + `tagline` frontmatter; `testing/index.md` test count updated to 4,500+; `netstandard2.0` added to TFM list
+- **`organize_docs.py`** — sections 27–28 (Acknowledgments, Contributors) added to community MAPPING; fixes bad filenames (`27.--acknowledgments.md`, `28.-contributors.md`) on next MkDocs script run
+
+### Stats
+- Tests: >4,500 passing (unchanged)
+- 187 features across 15 categories
+
+---
+
 ## [1.44.0] - 2026-03-15
 
 ### ✨ Added
