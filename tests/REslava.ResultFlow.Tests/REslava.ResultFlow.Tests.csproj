@@ -40,6 +40,11 @@
     <Compile Include="ResultFlowAnalyzerTests.cs" />
     <Compile Include="ResultFlowChainExtractorGapTests.cs" />
     <Compile Include="ResultFlowDiagramDeliveryTests.cs" />
+    <Compile Include="ResultFlowCrossMethodTests.cs" />
+    <Compile Include="ResultFlowLayerViewTests.cs" />
+    <Compile Include="ResultFlowStatsTests.cs" />
+    <Compile Include="ResultFlowErrorSurfaceTests.cs" />
+    <Compile Include="ResultFlowLayerDetectionTests.cs" />
   </ItemGroup>
 
   <!-- Prevent double compilation of generated files -->

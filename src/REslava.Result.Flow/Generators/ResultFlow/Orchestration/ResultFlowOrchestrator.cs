@@ -30,13 +30,32 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                 ctx.AddSource("ResultFlowAttribute.g.cs", ResultFlowAttributeGenerator.GenerateAttribute()));
 
             // Stage 2: find [ResultFlow]-decorated methods (syntax only — cheap)
+            // Also read MaxDepth from the attribute args at the syntax level (no semantic model needed).
             var annotatedMethods = context.SyntaxProvider
                 .CreateSyntaxProvider(
                     predicate: (node, _) => node is MethodDeclarationSyntax m &&
                         m.AttributeLists.SelectMany(al => al.Attributes)
                             .Any(a => a.Name.ToString().Contains(AttributeShortName)),
-                    transform: (ctx, _) => (MethodDeclarationSyntax)ctx.Node)
-                .Where(m => m != null);
+                    transform: (ctx, _) =>
+                    {
+                        var method = (MethodDeclarationSyntax)ctx.Node;
+                        var maxDepth = 2; // default
+                        var attr = method.AttributeLists
+                            .SelectMany(al => al.Attributes)
+                            .FirstOrDefault(a => a.Name.ToString().Contains(AttributeShortName));
+                        if (attr?.ArgumentList != null)
+                        {
+                            foreach (var arg in attr.ArgumentList.Arguments)
+                            {
+                                if (arg.NameEquals?.Name.Identifier.ValueText == "MaxDepth" &&
+                                    arg.Expression is LiteralExpressionSyntax lit &&
+                                    int.TryParse(lit.Token.ValueText, out var d))
+                                    maxDepth = d;
+                            }
+                        }
+                        return (Method: method, MaxDepth: maxDepth);
+                    })
+                .Where(t => t.Method != null);
 
             // Stage 3: resolve IResultBase and IError once per compilation
             var compilationWithSymbols = context.CompilationProvider.Select((compilation, _) =>
@@ -66,14 +85,14 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                 var resultBaseSymbol = compWithSymbols.ResultBase;
                 var iErrorSymbol = compWithSymbols.IError;
 
-                foreach (var group in methods.GroupBy(m => m.Parent))
+                foreach (var group in methods.GroupBy(t => t.Method.Parent))
                 {
                     if (!(group.Key is TypeDeclarationSyntax typeDecl)) continue;
 
                     var className = typeDecl.Identifier.ValueText;
-                    var diagrams = new List<(string methodName, string mermaid)>();
+                    var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? errorPropagation)>();
 
-                    foreach (var methodDecl in group)
+                    foreach (var (methodDecl, maxDepth) in group)
                     {
                         var semanticModel = compilation.GetSemanticModel(methodDecl.SyntaxTree);
 
@@ -82,7 +101,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                             semanticModel,
                             compilation,
                             resultBaseSymbol,
-                            iErrorSymbol);
+                            iErrorSymbol,
+                            maxDepth: maxDepth);
 
                         if (chain == null)
                         {
@@ -95,7 +115,20 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
 
                         var (opName, corrId) = ResultFlowChainExtractor.TryExtractContextHints(methodDecl);
                         var mermaid = ResultFlowMermaidRenderer.Render(chain, operationName: opName, correlationId: corrId, linkMode: linkMode);
-                        diagrams.Add((methodDecl.Identifier.ValueText, mermaid));
+
+                        // Detect root method layer for LayerView / Stats
+                        string? rootLayer = null;
+                        var rootSymbol = semanticModel.GetDeclaredSymbol(methodDecl) as Microsoft.CodeAnalysis.IMethodSymbol;
+                        if (rootSymbol != null)
+                            rootLayer = LayerDetector.Detect(rootSymbol);
+
+                        var methodName = methodDecl.Identifier.ValueText;
+                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, opName, linkMode);
+                        var stats = layerView != null ? ResultFlowStatsRenderer.Render(chain, rootLayer) : null;
+                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain) : null;
+                        var errorPropagation = layerView != null ? ResultFlowErrorPropagationRenderer.Render(chain, rootLayer) : null;
+
+                        diagrams.Add((methodName, mermaid, layerView, stats, errorSurface, errorPropagation));
                     }
 
                     if (diagrams.Count > 0)

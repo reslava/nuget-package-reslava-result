@@ -18,7 +18,14 @@ namespace REslava.ResultFlow
     /// The generated diagram constant is available at Generated.ResultFlow.{ClassName}_Flows.{MethodName}.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public sealed class ResultFlowAttribute : Attribute { }
+    public sealed class ResultFlowAttribute : Attribute
+    {
+        /// <summary>
+        /// Maximum depth to follow Bind/BindAsync calls into sub-methods.
+        /// 0 disables cross-method tracing. Default: 2.
+        /// </summary>
+        public int MaxDepth { get; set; } = 2;
+    }
 }";
             return SourceText.From(source, Encoding.UTF8);
         }

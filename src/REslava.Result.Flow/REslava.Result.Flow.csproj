@@ -82,7 +82,12 @@
     <Compile Include="Generators\ResultFlow\CodeGeneration\ResultTypeExtractor.cs" />
     <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowChainExtractor.cs" />
     <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowMermaidRenderer.cs" />
+    <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowLayerViewRenderer.cs" />
+    <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowStatsRenderer.cs" />
+    <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowErrorSurfaceRenderer.cs" />
+    <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowErrorPropagationRenderer.cs" />
     <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowCodeGenerator.cs" />
+    <Compile Include="Generators\ResultFlow\LayerDetector.cs" />
   </ItemGroup>
 
 </Project>

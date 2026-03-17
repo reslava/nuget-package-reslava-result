@@ -44,13 +44,32 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
             });
 
             // Stage 2: Find method declarations decorated with [ResultFlow]
+            // Also read MaxDepth from the attribute args at the syntax level.
             var annotatedMethods = context.SyntaxProvider
                 .CreateSyntaxProvider(
                     predicate: (node, _) => node is MethodDeclarationSyntax m &&
                         m.AttributeLists.SelectMany(al => al.Attributes)
                             .Any(a => a.Name.ToString().Contains(AttributeShortName)),
-                    transform: (ctx, _) => (MethodDeclarationSyntax)ctx.Node)
-                .Where(m => m != null);
+                    transform: (ctx, _) =>
+                    {
+                        var method = (MethodDeclarationSyntax)ctx.Node;
+                        var maxDepth = 2; // default
+                        var attr = method.AttributeLists
+                            .SelectMany(al => al.Attributes)
+                            .FirstOrDefault(a => a.Name.ToString().Contains(AttributeShortName));
+                        if (attr?.ArgumentList != null)
+                        {
+                            foreach (var arg in attr.ArgumentList.Arguments)
+                            {
+                                if (arg.NameEquals?.Name.Identifier.ValueText == "MaxDepth" &&
+                                    arg.Expression is LiteralExpressionSyntax lit &&
+                                    int.TryParse(lit.Token.ValueText, out var d))
+                                    maxDepth = d;
+                            }
+                        }
+                        return (Method: method, MaxDepth: maxDepth);
+                    })
+                .Where(t => t.Method != null);
 
             // Stage 2b: Pick up resultflow.json if present in AdditionalFiles
             var configFile = context.AdditionalTextsProvider
@@ -65,6 +84,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
             {
                 var methods = source.Left.Right;
                 if (!methods.Any()) return;
+
 
                 // Load custom mappings and linkMode from resultflow.json (if present)
                 IReadOnlyDictionary<string, NodeKind>? customMappings = null;
@@ -87,18 +107,20 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
 
                 var compilation = source.Left.Left;
 
-                foreach (var group in methods.GroupBy(m => m.Parent))
+                foreach (var group in methods.GroupBy(t => t.Method.Parent))
                 {
                     // Both ClassDeclarationSyntax and RecordDeclarationSyntax inherit TypeDeclarationSyntax
                     if (!(group.Key is TypeDeclarationSyntax typeDecl)) continue;
 
                     var className = typeDecl.Identifier.ValueText;
-                    var diagrams = new List<(string methodName, string mermaid)>();
+                    var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface)>();
 
-                    foreach (var methodDecl in group)
+                    foreach (var (methodDecl, maxDepth) in group)
                     {
                         var semanticModel = compilation.GetSemanticModel(methodDecl.SyntaxTree);
-                        var chain = ResultFlowChainExtractor.Extract(methodDecl, semanticModel, customMappings);
+                        var chain = ResultFlowChainExtractor.Extract(
+                            methodDecl, semanticModel, customMappings,
+                            maxDepth: maxDepth, compilation: compilation);
                         if (chain == null)
                         {
                             spc.ReportDiagnostic(Diagnostic.Create(
@@ -109,7 +131,17 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                         }
 
                         var mermaid = ResultFlowMermaidRenderer.Render(chain, linkMode);
-                        diagrams.Add((methodDecl.Identifier.ValueText, mermaid));
+
+                        // Detect root method layer for LayerView / Stats
+                        var containingNs = ResultFlowChainExtractor.GetContainingNamespace(methodDecl);
+                        var rootLayer = LayerDetector.Detect(methodDecl, containingNs);
+
+                        var methodName = methodDecl.Identifier.ValueText;
+                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, linkMode: linkMode);
+                        var stats = layerView != null ? ResultFlowStatsRenderer.Render(chain, rootLayer) : null;
+                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain) : null;
+
+                        diagrams.Add((methodName, mermaid, layerView, stats, errorSurface));
                     }
 
                     if (diagrams.Count > 0)

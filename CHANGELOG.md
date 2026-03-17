@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.45.0] - 2026-03-18
+
+### ✨ Added
+
+#### REslava.Result
+
+- **`[DomainBoundary]` on classes** — `AttributeUsage` extended to include `AttributeTargets.Class`; annotating a class applies the layer to all its methods (method-level annotation takes priority; class-level is the fallback before namespace heuristics)
+
+#### REslava.Result.Flow
+
+- **`LayerDetector`** — new internal class that resolves the architectural layer of any `IMethodSymbol`; priority chain: `[DomainBoundary]` method attribute → `[DomainBoundary]` class attribute → namespace heuristics (`*.Domain.*` → Domain, `*.Application.*` / `*.UseCases.*` → Application, `*.Infrastructure.*` / `*.Repositories.*` → Infrastructure, `*.Controllers.*` / `*.Presentation.*` → Presentation)
+- **`PipelineNode.Layer`** — each pipeline node now carries its detected architectural layer string (null when no layer is detected)
+- **`_LayerView` constant** — `flowchart TD` diagram; groups pipeline nodes into `subgraph` blocks by Layer → Class → Method; outer layer subgraphs are color-coded via Mermaid `class` directive (Application = green, Domain = amber, Infrastructure = purple, Presentation = blue); class-level subgraphs intentionally neutral (grey) to create a clear three-tier visual hierarchy; generated only when at least one layer is detected
+- **`_Stats` constant** — Markdown table summarising the pipeline: step count, async step count, all possible error types, layers crossed (ordered), and max depth traced; generated alongside `_LayerView`
+- **`_ErrorSurface` constant** — `flowchart LR` diagram; renders only failure edges from the pipeline (success path stripped); lets reviewers see the complete error surface at a glance; generated alongside `_LayerView`
+- **`_ErrorPropagation` constant** — `flowchart TD` diagram; one `subgraph` per detected architectural layer, one node per distinct error type originating from that layer, all edges converging on a shared `FAIL` terminal; layer subgraphs color-coded with the same palette as `_LayerView`; generated only when `_LayerView` is generated AND at least one layer has errors
+
+### 🔧 Changed (non-breaking)
+
+- **`_LayerView` subgraph coloring** — outer layer subgraphs now receive a `class {SubgraphId} {classDef}` Mermaid directive so the container background is colored (previously only the method nodes were colored)
+- **README hero** — replaced single `flowchart LR` diagram with two contrasting diagrams: `_LayerView` (architecture, `flowchart TD`) + `_Diagram` (pipeline, `flowchart LR`)
+- **MkDocs** — new `mkdocs/resultflow/diagrams/index.md` public gallery showcasing all diagram types; new grid card for Domain Boundary Diagrams in `mkdocs/resultflow/index.md`
+
+### Stats
+- Tests: ~4,680 passing (floor: >4,500)
+- Features: 192 across 15 categories
+
+---
+
 ## [1.44.1] - 2026-03-16
 
 ### 🔧 Changed (non-breaking)
@@ -203,7 +232,7 @@ Minor update: Fixed and updated NuGet package `REslava.Result` README
 - **`REslava.ResultFlow` — ` ```mermaid ` fence in code action** — the "Insert diagram as comment" code action (REF002) now wraps the inserted Mermaid diagram in a `` ```mermaid `` / ` ``` ` fence. The diagram renders inline in VS Code, GitHub, Rider, and any other Markdown-aware IDE. The `[ResultFlow] Pipeline: {name}` header line is removed (method name is already visible below the comment).
 - **`REslava.Result.Flow` — REF002 analyzer + "Insert diagram as comment" code action** — the native companion package now emits the same REF002 diagnostic on every `[ResultFlow]` method whose chain is detectable. Accepting the code action inserts a full-fidelity Mermaid comment (type travel + typed error edges) with the `` ```mermaid `` fence — matching the source-generated `const string` output exactly.
 - **3 regression tests** in `REslava.Result.Flow.Tests` — guard against recurrence of the chain walker bug for Ensure×3 chains, `Result<T>.Ok(...)` roots, and multi-step mixed chains.
-- **Pre-inserted Mermaid diagrams** in both sample projects (`samples/resultflow/Program.cs` — 7 methods; `samples/result-flow/Program.cs` — 5 methods) — each `[ResultFlow]` method ships with its diagram as an IDE-previewable comment.
+- **Pre-inserted Mermaid diagrams** in both sample projects (`samples/resultflow/Program.cs` — 7 methods; `samples/REslava.Result.Flow.Demo/Program.cs` — 5 methods) — each `[ResultFlow]` method ships with its diagram as an IDE-previewable comment.
 
 ### Stats
 - 3,986 tests passing across net8.0, net9.0, net10.0 (1,216×3) + generator AspNetCore (131) + Result.Flow (22) + ResultFlow (40) + analyzer (79) + FluentValidation bridge (26) + Http (20×3)

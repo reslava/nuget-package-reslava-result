@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using REslava.ResultFlow.Generators.ResultFlow;
 using REslava.ResultFlow.Generators.ResultFlow.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,10 +71,30 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
         /// These <b>override</b> the built-in convention dictionary — allowing full substitution
         /// of any built-in classification for custom or non-standard libraries.
         /// </param>
+        /// <param name="maxDepth">
+        /// Maximum depth to follow Bind/BindAsync calls into sub-methods for cross-method tracing.
+        /// 0 disables tracing. Default: 2.
+        /// </param>
+        /// <param name="compilation">
+        /// Optional compilation used for cross-method tracing (syntax-only name lookup).
+        /// When null, cross-method tracing is disabled regardless of <paramref name="maxDepth"/>.
+        /// </param>
         public static IReadOnlyList<PipelineNode>? Extract(
             MethodDeclarationSyntax method,
             SemanticModel? semanticModel = null,
-            IReadOnlyDictionary<string, NodeKind>? customMappings = null)
+            IReadOnlyDictionary<string, NodeKind>? customMappings = null,
+            int maxDepth = 2,
+            Compilation? compilation = null)
+            => ExtractCore(method, semanticModel, customMappings, compilation,
+                visited: new HashSet<string>(), remainingDepth: maxDepth);
+
+        private static IReadOnlyList<PipelineNode>? ExtractCore(
+            MethodDeclarationSyntax method,
+            SemanticModel? semanticModel,
+            IReadOnlyDictionary<string, NodeKind>? customMappings,
+            Compilation? compilation,
+            HashSet<string> visited,
+            int remainingDepth)
         {
             var rootExpr = GetRootExpression(method);
             if (rootExpr == null) return null;
@@ -192,11 +213,122 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     SourceLine = sourceLine,
                 };
 
+                // Cross-method tracing: follow Bind/BindAsync lambdas into same-project methods.
+                // Syntax-only: look up by name; skip if 0 or 2+ matches (ambiguous).
+                if (kind == NodeKind.TransformWithRisk && remainingDepth > 0
+                    && firstArg != null && compilation != null)
+                {
+                    var lambdaBodyInv = TryGetLambdaBodyInvocation(firstArg);
+                    string? traceMethodName = null;
+                    if (lambdaBodyInv != null)
+                    {
+                        if (lambdaBodyInv.Expression is IdentifierNameSyntax ident)
+                            traceMethodName = ident.Identifier.ValueText;
+                        else if (lambdaBodyInv.Expression is MemberAccessExpressionSyntax memberAccessTrace)
+                            traceMethodName = memberAccessTrace.Name.Identifier.ValueText;
+                    }
+
+                    if (traceMethodName != null)
+                    {
+                        var (subNodes, subLayer, subClassName) = TraceInto(
+                            traceMethodName, compilation,
+                            customMappings, visited, remainingDepth - 1);
+                        if (subNodes != null)
+                        {
+                            node.SubNodes = subNodes;
+                            node.SubGraphName = effectiveName;
+                            node.Layer = subLayer;
+                            node.ClassName = subClassName;
+                        }
+                    }
+                }
+
                 nodes.Add(node);
                 prevOutputType = outputType;
             }
 
             return nodes;
+        }
+
+        // ── Cross-method tracing (syntax-only) ───────────────────────────────
+
+        /// <summary>
+        /// Syntax-only best-effort: finds the unique <see cref="MethodDeclarationSyntax"/>
+        /// with <paramref name="methodName"/> across all syntax trees in the compilation,
+        /// then recursively extracts its pipeline. Returns (null, null) when:
+        /// - depth is exhausted
+        /// - the method name is already on the call stack (cycle guard)
+        /// - no match, or more than one match (ambiguous — avoids false positives)
+        /// The second tuple element is the detected architectural layer of the found method.
+        /// </summary>
+        private static (IReadOnlyList<PipelineNode>? nodes, string? layer, string? className) TraceInto(
+            string methodName,
+            Compilation compilation,
+            IReadOnlyDictionary<string, NodeKind>? customMappings,
+            HashSet<string> visited,
+            int remainingDepth)
+        {
+            if (remainingDepth < 0) return (null, null, null);
+            if (!visited.Add(methodName)) return (null, null, null); // cycle guard by name
+
+            try
+            {
+                MethodDeclarationSyntax? match = null;
+                int matchCount = 0;
+
+                foreach (var tree in compilation.SyntaxTrees)
+                {
+                    foreach (var m in tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>())
+                    {
+                        if (m.Identifier.ValueText == methodName)
+                        {
+                            match = m;
+                            matchCount++;
+                            if (matchCount > 1) break;
+                        }
+                    }
+                    if (matchCount > 1) break;
+                }
+
+                if (matchCount != 1 || match == null) return (null, null, null);
+
+                // Detect the layer and class name of the found method before tracing into it.
+                var containingNs = GetContainingNamespace(match);
+                var layer = LayerDetector.Detect(match, containingNs);
+                var className = (match.Parent as Microsoft.CodeAnalysis.CSharp.Syntax.TypeDeclarationSyntax)?.Identifier.ValueText;
+
+                // Use a fresh semantic model for the target tree to preserve type info.
+                var targetModel = compilation.GetSemanticModel(match.SyntaxTree);
+                var nodes = ExtractCore(match, targetModel, customMappings, compilation, visited, remainingDepth);
+                return (nodes, layer, className);
+            }
+            finally
+            {
+                visited.Remove(methodName); // allow same method in sibling branches
+            }
+        }
+
+        /// <summary>
+        /// Walks the syntax tree upward from <paramref name="method"/> to reconstruct
+        /// the fully-qualified namespace string. Handles both block-scoped
+        /// (<c>namespace Foo.Bar { }</c>) and file-scoped (<c>namespace Foo.Bar;</c>) declarations.
+        /// Returns an empty string when no enclosing namespace is found.
+        /// </summary>
+        internal static string GetContainingNamespace(MethodDeclarationSyntax method)
+        {
+            var parts = new System.Collections.Generic.Stack<string>();
+            SyntaxNode? node = method.Parent;
+
+            while (node != null)
+            {
+                if (node is NamespaceDeclarationSyntax ns)
+                    parts.Push(ns.Name.ToString());
+                else if (node is FileScopedNamespaceDeclarationSyntax fsns)
+                    parts.Push(fsns.Name.ToString());
+                node = node.Parent;
+            }
+
+            return string.Join(".", parts);
         }
 
         private static ExpressionSyntax? GetRootExpression(MethodDeclarationSyntax method)
@@ -300,6 +432,32 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
         }
 
         /// <summary>
+        /// Returns the <see cref="InvocationExpressionSyntax"/> from a single-expression lambda
+        /// arg whose body is a standalone method call (e.g. <c>x => SaveUser(x)</c>).
+        /// Used to obtain the target method name for cross-method tracing.
+        /// Returns null for member-access calls, method groups, or non-lambda args.
+        /// </summary>
+        private static InvocationExpressionSyntax? TryGetLambdaBodyInvocation(ArgumentSyntax arg)
+        {
+            ExpressionSyntax? body = null;
+
+            if (arg.Expression is SimpleLambdaExpressionSyntax simple)
+                body = simple.Body as ExpressionSyntax;
+            else if (arg.Expression is ParenthesizedLambdaExpressionSyntax parens)
+                body = parens.Body as ExpressionSyntax;
+
+            if (body == null) return null;
+            body = Unwrap(body);
+
+            // Trace standalone calls (x => DoThing(x)) AND qualified calls (x => SomeClass.DoThing(x)).
+            if (body is InvocationExpressionSyntax inv &&
+                (inv.Expression is IdentifierNameSyntax || inv.Expression is MemberAccessExpressionSyntax))
+                return inv;
+
+            return null;
+        }
+
+        /// <summary>
         /// Gap 1: if <paramref name="arg"/> is a single-expression lambda whose body is a call
         /// to a standalone method (identifier, not member access), returns that method's name;
         /// otherwise returns null so the caller falls back to the outer pipeline method name.
@@ -317,12 +475,15 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
 
             body = Unwrap(body);
 
-            // Only rename when the lambda calls a standalone function (x => DoThing(x)).
-            // Ignore member-access calls (x => x.Name, x => x.ToString()) — those don't
-            // represent meaningful business-step renames.
-            if (body is InvocationExpressionSyntax invBody &&
-                invBody.Expression is IdentifierNameSyntax identName)
-                return identName.Identifier.ValueText;
+            if (body is InvocationExpressionSyntax invBody)
+            {
+                // Standalone call: x => DoThing(x) → "DoThing"
+                if (invBody.Expression is IdentifierNameSyntax identName)
+                    return identName.Identifier.ValueText;
+                // Qualified call: x => SomeClass.DoThing(x) → "DoThing"
+                if (invBody.Expression is MemberAccessExpressionSyntax memberAccess)
+                    return memberAccess.Name.Identifier.ValueText;
+            }
 
             return null;
         }

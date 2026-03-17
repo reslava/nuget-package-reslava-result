@@ -47,6 +47,39 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Models
         /// </summary>
         public int? SourceLine { get; set; }
 
+        /// <summary>
+        /// Stable node identity assigned by the renderer (e.g. <c>"N0_FindUser"</c>).
+        /// Set by <see cref="ResultFlowMermaidRenderer"/> after visibility filtering.
+        /// </summary>
+        public string? NodeId { get; set; }
+
+        /// <summary>
+        /// When non-null, this Bind/BindAsync node expands into a sub-pipeline traced from the
+        /// called method. The renderer emits a Mermaid <c>subgraph</c> block instead of a box.
+        /// </summary>
+        public IReadOnlyList<PipelineNode>? SubNodes { get; set; }
+
+        /// <summary>
+        /// Title of the Mermaid <c>subgraph</c> block — the called method's name.
+        /// Populated whenever <see cref="SubNodes"/> is non-null.
+        /// </summary>
+        public string? SubGraphName { get; set; }
+
+        /// <summary>
+        /// Architectural layer of the method this node calls into.
+        /// Populated only for subgraph nodes (<see cref="SubNodes"/> != null).
+        /// Sourced from <c>[DomainBoundary("Layer")]</c> annotation (takes precedence)
+        /// or namespace heuristics (fallback). Null when undetermined.
+        /// </summary>
+        public string? Layer { get; set; }
+
+        /// <summary>
+        /// Name of the class that contains the method this node calls into.
+        /// Populated only for subgraph nodes (<see cref="SubNodes"/> != null).
+        /// Used by <c>ResultFlowLayerViewRenderer</c> to group nodes by class within a layer.
+        /// </summary>
+        public string? ClassName { get; set; }
+
         public PipelineNode(string methodName, NodeKind kind)
         {
             MethodName = methodName;

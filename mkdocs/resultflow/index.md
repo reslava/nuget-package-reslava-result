@@ -67,4 +67,22 @@ dotnet add package REslava.ResultFlow
 
     [](reslava.resultflow--library-agnostic-alternative)
 
+-   :material-call-split: __Cross-Method Pipeline Tracing — `MaxDepth`__
+
+    `Bind` lambdas that call same-project methods are automatically expanded as Mermaid `subgraph` blocks — one diagram across multiple methods. `MaxDepth` controls recursion depth; cycle guard prevents infinite loops.
+
+    [](cross-method-pipeline-tracing--maxdepth)
+
+-   :material-layers-triple: __Domain Boundary Diagrams — `_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation`__
+
+    Apply `[DomainBoundary("LayerName")]` to a class or method and get four additional constants: architecture view, pipeline stats, fail-edges only, and errors grouped by layer.
+
+    [](domain-boundary-diagrams--_layerview-_stats-_errorsurface-_errorpropagation-v1450)
+
+-   :material-image-multiple: __Diagram Gallery — All 5 Types__
+
+    See all five diagram types side by side — `_Diagram`, `_LayerView`, `_ErrorSurface`, `_ErrorPropagation`, and `_Stats` — on the same `PlaceOrder` scenario for easy comparison.
+
+    [View gallery](diagrams)
+
 </div>

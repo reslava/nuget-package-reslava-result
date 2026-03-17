@@ -51,14 +51,46 @@ The `` ```mermaid `` fence makes the diagram render inline in VS Code, GitHub, R
 
 ## Generated Diagram Example
 
-```
+`_LayerView` — architecture diagram across layers, generated from `[DomainBoundary]` annotations:
+
+```mermaid
 flowchart TD
-    N0["CreateUser<br/>User"] --> N1["EnsureAsync ⚡<br/>User"]
-    N1 --> N2["BindAsync ⚡<br/>User"]
-    N1 -->|"InvalidEmailError"| F0["Failure"]:::failure
-    N2 --> N3["TapAsync ⚡<br/>User"]
-    N2 -->|"SaveError"| F1["Failure"]:::failure
-    N3 --> N4["MapAsync ⚡<br/>User → UserDto"]
+
+  subgraph Application["Application"]
+    subgraph OrderService["OrderService"]
+      N_PlaceOrder["PlaceOrder"]:::layerApp
+    end
+  end
+
+  subgraph Domain["Domain"]
+    subgraph UserService["UserService"]
+      N_ValidateUser["ValidateUser"]:::layerDomain
+    end
+  end
+
+  subgraph Infrastructure["Infrastructure"]
+    subgraph PaymentGateway["PaymentGateway"]
+      N_ProcessPayment["ProcessPayment"]:::layerInfra
+    end
+  end
+
+  N_PlaceOrder -->|"Order / ValidationError"| N_ValidateUser
+  N_PlaceOrder -->|"Order"| N_ProcessPayment
+  N_ValidateUser -->|"ValidationError"| FAIL
+  N_ProcessPayment -->|ok| SUCCESS
+
+  FAIL([fail]):::failure
+  SUCCESS([success]):::success
+
+  classDef layerApp    fill:#e8f7ee,color:#1e6f43
+  classDef layerDomain fill:#fff6e5,color:#a36b00
+  classDef layerInfra  fill:#f4e8ff,color:#6a3fa0
+  classDef failure     fill:#f8e3e3,color:#b13e3e
+  classDef success     fill:#e6f6ea,color:#1c7e4f
+
+  class Application layerApp
+  class Domain layerDomain
+  class Infrastructure layerInfra
 ```
 
 Compared to `REslava.ResultFlow`, this package adds:

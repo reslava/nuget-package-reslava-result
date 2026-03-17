@@ -8,6 +8,30 @@
 [![Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/reslava/nuget-package-reslava-result/blob/main/LICENSE)
 
+```mermaid
+flowchart LR
+  N0_PlaceOrder["PlaceOrder"]:::operation
+  N1_ValidateUser(["ValidateUser ⚡"]):::transform
+  N2_ProcessPayment["ProcessPayment"]:::transform
+  N3_Match{{"Match"}}:::terminal
+
+  N0_PlaceOrder -->|"Order"| N1_ValidateUser
+  N1_ValidateUser -->|"ValidationError"| FAIL
+  N1_ValidateUser -->|"User"| N2_ProcessPayment
+  N2_ProcessPayment -->|"PaymentError"| FAIL
+  N2_ProcessPayment --> N3_Match
+  N3_Match -->|ok| SUCCESS
+
+  FAIL([fail]):::failure
+  SUCCESS([success]):::success
+
+  classDef operation fill:#fef0e3,color:#b86a1c
+  classDef transform fill:#e3f0e8,color:#2f7a5c
+  classDef terminal  fill:#f2e3f5,color:#8a4f9e
+  classDef failure   fill:#f8e3e3,color:#b13e3e
+  classDef success   fill:#e6f6ea,color:#1c7e4f
+```
+
 ## Why REslava.Result?
 
 - **Result\<T\> + OneOf (2–8 types) + Maybe\<T\>** in a single zero-dependency package

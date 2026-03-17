@@ -21,6 +21,11 @@
 //   3. Multi-hop type travel — User → Product → Order → string
 //   4. Async pipeline — ⚡ markers + type travel + typed errors
 //   5. Full pipeline — all node kinds, type travel end-to-end
+//   6. Cross-method tracing — [ResultFlow(MaxDepth = 2)] expands Bind into subgraph
+//   7. Sidecar constant — writes PlaceOrderCross.ResultFlow.md to disk
+//   8. Clickable nodes — ResultFlowLinkMode = vscode
+//   9. Domain boundary diagrams — [DomainBoundary] triggers _LayerView, _Stats,
+//      _ErrorSurface, _ErrorPropagation alongside the existing _Diagram constant
 // =============================================================================
 using Generated.ResultFlow;
 using REslava.Result;
@@ -31,7 +36,7 @@ var sep  = new string('─', 60);
 var sep2 = new string('═', 60);
 
 Console.WriteLine(sep2);
-Console.WriteLine("  REslava.Result.Flow — Type Travel + Typed Error Diagrams");
+Console.WriteLine("  REslava.Result.Flow — Feature Demo");
 Console.WriteLine(sep2);
 
 void Print(string label, string diagram)
@@ -42,11 +47,51 @@ void Print(string label, string diagram)
     Console.WriteLine(diagram);
 }
 
-Print("1. Guard chain — Ensure × 3 + typed errors",       Pipelines_Flows.ValidateOrder);
-Print("2. Risk chain — Bind × 2, typed errors",           Pipelines_Flows.PlaceOrder);
-Print("3. Type travel — User → Product → Order → string", Pipelines_Flows.ProcessCheckout);
-Print("4. Async pipeline — ⚡ labels + typed errors",     Pipelines_Flows.PlaceOrderAsync);
-Print("5. Full pipeline — all node kinds",                 Pipelines_Flows.AdminCheckout);
+Print("1. Guard chain — Ensure × 3 + typed errors",                Pipelines_Flows.ValidateOrder);
+Print("2. Risk chain — Bind × 2, typed errors",                    Pipelines_Flows.PlaceOrder);
+Print("3. Type travel — User → Product → Order → string",          Pipelines_Flows.ProcessCheckout);
+Print("4. Async pipeline — ⚡ labels + typed errors",              Pipelines_Flows.PlaceOrderAsync);
+Print("5. Full pipeline — all node kinds",                          Pipelines_Flows.AdminCheckout);
+Print("6. Cross-method tracing — MaxDepth = 2, subgraph expanded", OrderService_Flows.PlaceOrderCross);
+
+// ── 7. Sidecar constant ───────────────────────────────────────────────────────
+Console.WriteLine();
+Console.WriteLine("  7. Sidecar constant — written to PlaceOrderCross.ResultFlow.md");
+Console.WriteLine(sep);
+File.WriteAllText("PlaceOrderCross.ResultFlow.md", OrderService_Flows.PlaceOrderCross_Sidecar);
+Console.WriteLine("     ↳ Wrote PlaceOrderCross.ResultFlow.md");
+Console.WriteLine("       Open in VS Code (Ctrl+Shift+V) to preview the diagram.");
+
+// ── 8. Clickable nodes ────────────────────────────────────────────────────────
+Console.WriteLine();
+Console.WriteLine("  8. Clickable nodes — ResultFlowLinkMode = vscode");
+Console.WriteLine(sep);
+Console.WriteLine("     Add to .csproj:");
+Console.WriteLine("       <ResultFlowLinkMode>vscode</ResultFlowLinkMode>");
+Console.WriteLine("     Each node becomes:");
+Console.WriteLine("       click N0_FindUser \"vscode://file/{path}:{line}\" \"Go to FindUser\"");
+Console.WriteLine("     Click in VS Code Mermaid preview → jumps directly to that source line.");
+
+// ── 9. Domain boundary diagrams ───────────────────────────────────────────────
+//
+// [DomainBoundary("Application")] on OrderService class  → rootLayer = "Application"
+// [DomainBoundary("Domain")]      on UserService class   → ValidateUser subgraph Layer = "Domain"
+//
+// Because PlaceOrderCross has MaxDepth = 2, the generator traces into UserService.ValidateUser
+// and detects two distinct layers → triggers all four additional constants:
+//
+//   _LayerView         — flowchart TD, Layer → Class → Method subgraphs, colored containers
+//   _Stats             — markdown table: steps, async steps, errors, layers, depth
+//   _ErrorSurface      — fail-edges-only filtered view of the full cross-method chain
+//   _ErrorPropagation  — flowchart TD, errors grouped by the layer they originate from
+//
+Console.WriteLine();
+Console.WriteLine("  9. Domain boundary diagrams — [DomainBoundary] + layer-aware constants");
+Console.WriteLine(sep2);
+Print("9a. _LayerView        — architecture (Application → Domain)", OrderService_Flows.PlaceOrderCross_LayerView);
+Print("9b. _Stats            — pipeline statistics",                 OrderService_Flows.PlaceOrderCross_Stats);
+Print("9c. _ErrorSurface     — fail-edges only",                     OrderService_Flows.PlaceOrderCross_ErrorSurface);
+Print("9d. _ErrorPropagation — errors grouped by layer",             OrderService_Flows.PlaceOrderCross_ErrorPropagation);
 
 Console.WriteLine();
 Console.WriteLine(sep2);
@@ -56,28 +101,35 @@ Console.WriteLine(sep2);
 void Run(string label, object result)
 {
     var ok = result.GetType().GetProperty("IsSuccess")?.GetValue(result) is true;
-    Console.WriteLine($"  {label}: {(ok ? "OK" : "FAIL")}");
+    Console.WriteLine($"  {label}: {(ok ? "✓ OK" : "✗ FAIL")}");
 }
 
 using var cts = new CancellationTokenSource();
-Run("ValidateOrder (valid)               ", Pipelines.ValidateOrder(new Order(1, 42, 199.99m)));
-Run("ValidateOrder (amount ≤ 0)          ", Pipelines.ValidateOrder(new Order(2, 42, 0m)));
-Run("ValidateOrder (wrong role)          ", Pipelines.ValidateOrder(new Order(3, 7, 50m)));
-Run("PlaceOrder (success)                ", Pipelines.PlaceOrder(42, 7));
-Run("PlaceOrder (product not found)      ", Pipelines.PlaceOrder(42, 99));
-Run("ProcessCheckout (success)           ", Pipelines.ProcessCheckout(42, 7));
-Run("ProcessCheckout (user not found)    ", Pipelines.ProcessCheckout(999, 7));
-Run("PlaceOrderAsync (success)           ", Pipelines.PlaceOrderAsync(42, 7, cts.Token).GetAwaiter().GetResult());
-Run("PlaceOrderAsync (out of stock)      ", Pipelines.PlaceOrderAsync(42, 8, cts.Token).GetAwaiter().GetResult());
-Run("AdminCheckout (success)             ", Pipelines.AdminCheckout(42, 7, cts.Token).GetAwaiter().GetResult());
-Run("AdminCheckout (unauthorized role)   ", Pipelines.AdminCheckout(7,  7, cts.Token).GetAwaiter().GetResult());
+Run("ValidateOrder (valid)                    ", Pipelines.ValidateOrder(new Order(1, 42, 199.99m)));
+Run("ValidateOrder (amount ≤ 0)               ", Pipelines.ValidateOrder(new Order(2, 42, 0m)));
+Run("ValidateOrder (wrong role)               ", Pipelines.ValidateOrder(new Order(3, 7, 50m)));
+Run("PlaceOrder (success)                     ", Pipelines.PlaceOrder(42, 7));
+Run("PlaceOrder (product not found)           ", Pipelines.PlaceOrder(42, 99));
+Run("ProcessCheckout (success)                ", Pipelines.ProcessCheckout(42, 7));
+Run("ProcessCheckout (user not found)         ", Pipelines.ProcessCheckout(999, 7));
+Run("PlaceOrderAsync (success)                ", Pipelines.PlaceOrderAsync(42, 7, cts.Token).GetAwaiter().GetResult());
+Run("PlaceOrderAsync (out of stock)           ", Pipelines.PlaceOrderAsync(42, 8, cts.Token).GetAwaiter().GetResult());
+Run("AdminCheckout (success)                  ", Pipelines.AdminCheckout(42, 7, cts.Token).GetAwaiter().GetResult());
+Run("AdminCheckout (unauthorized role)        ", Pipelines.AdminCheckout(7,  7, cts.Token).GetAwaiter().GetResult());
+Console.WriteLine();
+Console.WriteLine("  Cross-method tracing:");
+Run("PlaceOrderCross (success)                ", OrderService.PlaceOrderCross(42, 7));
+Run("PlaceOrderCross (user not found)         ", OrderService.PlaceOrderCross(999, 7));
+Run("PlaceOrderCross (user inactive)          ", OrderService.PlaceOrderCross(8, 7));
+Run("PlaceOrderCross (unauthorized role)      ", OrderService.PlaceOrderCross(7, 7));
+Run("PlaceOrderCross (product not found)      ", OrderService.PlaceOrderCross(42, 99));
 
 Console.WriteLine();
 
 // =============================================================================
 // Domain
 // =============================================================================
-record User(int Id, string Email, string Role);
+record User(int Id, string Email, string Role, bool IsActive = true);
 record Order(int Id, int UserId, decimal Amount);
 record Product(int Id, string Name, decimal Price, int Stock);
 
@@ -95,13 +147,16 @@ sealed class ProductNotFoundError(int id)
     : NotFoundError($"Product {id} not found") { }
 
 sealed class OutOfStockError(string productName)
-    : ValidationError("stock", $"'{productName}' is out of stock") { }
+    : ValidationError($"stock: '{productName}' is out of stock") { }
 
 sealed class CreditLimitError(decimal amount, decimal limit)
-    : ValidationError("amount", $"Amount {amount:C} exceeds credit limit {limit:C}") { }
+    : ValidationError($"amount: Amount {amount:C} exceeds credit limit {limit:C}") { }
 
 sealed class UnauthorizedRoleError(string role)
     : ForbiddenError($"Role '{role}' is not authorized for this operation") { }
+
+sealed class UserInactiveError(int id)
+    : ForbiddenError($"User {id} account is inactive") { }
 
 // =============================================================================
 // Pipelines — [ResultFlow] from REslava.Result.Flow
@@ -309,8 +364,9 @@ flowchart LR
 
     private static readonly Dictionary<int, User> _users = new()
     {
-        [42] = new User(42, "alice@example.com", "Admin"),
-        [7]  = new User(7,  "bob@example.com",   "User")
+        [42] = new User(42, "alice@example.com", "Admin", IsActive: true),
+        [7]  = new User(7,  "bob@example.com",   "User",  IsActive: true),
+        [8]  = new User(8,  "carol@example.com", "User",  IsActive: false)  // inactive
     };
 
     private static readonly Dictionary<int, Product> _products = new()
@@ -362,4 +418,86 @@ flowchart LR
     }
 
     private static void Log(string msg) => Console.WriteLine($"    [LOG] {msg}");
+}
+
+// =============================================================================
+// Section 6 — Cross-method pipeline tracing (cross-class)
+//
+// [ResultFlow(MaxDepth = 2)] on OrderService.PlaceOrderCross causes the generator
+// to follow the lambda body `.Bind(u => UserService.ValidateUser(u))` into
+// UserService.ValidateUser and expand its chain as a Mermaid subgraph:
+//
+//   N0_FindUser -->|ok| sg_N1_ValidateUser
+//
+//   subgraph sg_N1_ValidateUser["ValidateUser"]
+//       N1_ValidateUser_0_Bind["Bind"]:::transform
+//       N1_ValidateUser_0_Bind -->|ok| N1_ValidateUser_1_Bind
+//       N1_ValidateUser_0_Bind -->|"UserInactiveError"| FAIL
+//       N1_ValidateUser_1_Bind["Bind"]:::transform
+//       N1_ValidateUser_1_Bind -->|"UnauthorizedRoleError"| FAIL
+//   end
+//
+//   sg_N1_ValidateUser -->|ok| N2_Bind
+//
+// MaxDepth controls recursion depth. Default is 2. Set MaxDepth = 0 to disable.
+// =============================================================================
+
+// [DomainBoundary("Domain")] on the class tags all methods as Domain layer.
+// The generator reads this via class-level annotation (priority: method > class > namespace heuristic).
+[DomainBoundary("Domain")]
+static class UserService
+{
+    // Bind is used (instead of Ensure + string) so the source generator's error scanner
+    // detects UserInactiveError / UnauthorizedRoleError in the lambda body and emits them
+    // on the _ErrorPropagation diagram under the Domain layer subgraph.
+    public static Result<User> ValidateUser(User u) =>
+        Result<User>.Ok(u)
+            .Bind(x => x.IsActive
+                ? Result<User>.Ok(x)
+                : Result<User>.Fail(new UserInactiveError(x.Id)))
+            .Bind(x => x.Role == "Admin"
+                ? Result<User>.Ok(x)
+                : Result<User>.Fail(new UnauthorizedRoleError(x.Role)));
+}
+
+// [DomainBoundary("Application")] on the class tags PlaceOrderCross (and any other methods) as Application layer.
+[DomainBoundary("Application")]
+static class OrderService
+{
+    private static readonly Dictionary<int, User> _users = new()
+    {
+        [42] = new User(42, "alice@example.com", "Admin", IsActive: true),
+        [7]  = new User(7,  "bob@example.com",   "User",  IsActive: true),
+        [8]  = new User(8,  "carol@example.com", "User",  IsActive: false)   // inactive
+    };
+
+    private static readonly Dictionary<int, Product> _products = new()
+    {
+        [7] = new Product(7, "Widget", 29.99m, 100),
+    };
+
+    private static Result<User> FindUser(int id) =>
+        _users.TryGetValue(id, out var u)
+            ? Result<User>.Ok(u)
+            : Result<User>.Fail(new UserNotFoundError(id));
+
+    private static Result<Product> FindProduct(int id) =>
+        _products.TryGetValue(id, out var p)
+            ? Result<Product>.Ok(p)
+            : Result<Product>.Fail(new ProductNotFoundError(id));
+
+    // ── Cross-method tracing entry point ─────────────────────────────────────
+    //
+    // [ResultFlow(MaxDepth = 2)] follows the lambda into UserService.ValidateUser
+    // and stitches its Ensure chain as a Mermaid subgraph connected with -->|ok|.
+    // Qualified calls (x => SomeClass.Method(x)) are now supported.
+    //
+    // Sidecar constant: OrderService_Flows.PlaceOrderCross_Sidecar
+    [ResultFlow(MaxDepth = 2)]
+    public static Result<Order> PlaceOrderCross(int userId, int productId) =>
+        FindUser(userId)
+            .Bind(u => UserService.ValidateUser(u))
+            .Bind(_ => FindProduct(productId))
+            .Map(p  => new Order(0, userId, p.Price));
+
 }

@@ -93,7 +93,7 @@ public class ResultFlowDiagramDeliveryTests
     [TestMethod]
     public void SidecarConstant_AlwaysGeneratedInOutput()
     {
-        var diagrams = new List<(string, string)> { ("Process", "flowchart LR\n    N0_Process[\"Process\"]:::operation") };
+        var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface)> { ("Process", "flowchart LR\n    N0_Process[\"Process\"]:::operation", null, null, null) };
         var output = ResultFlowCodeGenerator.Generate("OrderService", diagrams).ToString();
 
         Assert.IsTrue(output.Contains("Process_Sidecar"), "Sidecar constant must be generated");
@@ -103,7 +103,7 @@ public class ResultFlowDiagramDeliveryTests
     public void SidecarConstant_ContainsMermaidFencedBlock()
     {
         var mermaid = "flowchart LR\n    N0_Op[\"Op\"]:::operation";
-        var diagrams = new List<(string, string)> { ("Op", mermaid) };
+        var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface)> { ("Op", mermaid, null, null, null) };
         var output = ResultFlowCodeGenerator.Generate("MyService", diagrams).ToString();
 
         Assert.IsTrue(output.Contains("```mermaid"), "Sidecar must contain mermaid fenced block");
@@ -114,7 +114,7 @@ public class ResultFlowDiagramDeliveryTests
     public void DiagramConstant_UnaffectedBySidecarAddition()
     {
         var mermaid = "flowchart LR\n    N0_Op[\"Op\"]:::operation";
-        var diagrams = new List<(string, string)> { ("Op", mermaid) };
+        var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface)> { ("Op", mermaid, null, null, null) };
         var output = ResultFlowCodeGenerator.Generate("Service", diagrams).ToString();
 
         Assert.IsTrue(output.Contains("public const string Op ="), "Original diagram constant must still exist");

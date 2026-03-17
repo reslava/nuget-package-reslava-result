@@ -41,6 +41,12 @@
     <Compile Include="ResultFlowAnalyzerTests.cs" />
     <Compile Include="ResultFlowGeneratorTests.cs" />
     <Compile Include="ResultFlowDiagramDeliveryTests.cs" />
+    <Compile Include="ResultFlowCrossMethodTests.cs" />
+    <Compile Include="ResultFlowLayerViewTests.cs" />
+    <Compile Include="ResultFlowStatsTests.cs" />
+    <Compile Include="ResultFlowErrorSurfaceTests.cs" />
+    <Compile Include="ResultFlowErrorPropagationTests.cs" />
+    <Compile Include="ResultFlowLayerDetectionTests.cs" />
   </ItemGroup>
 
   <ItemGroup>

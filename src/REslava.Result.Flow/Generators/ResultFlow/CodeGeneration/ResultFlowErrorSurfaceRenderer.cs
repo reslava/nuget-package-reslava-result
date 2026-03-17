@@ -1,0 +1,66 @@
+using REslava.Result.Flow.Generators.ResultFlow.Models;
+using System.Collections.Generic;
+using System.Text;
+
+namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
+{
+    /// <summary>
+    /// Renders a <c>{Method}_ErrorSurface</c> Mermaid diagram — fail-edges-only filtered view.
+    /// Shows every error type the pipeline can produce and where it originates.
+    /// Returns null when the pipeline has no error edges.
+    /// </summary>
+    internal static class ResultFlowErrorSurfaceRenderer
+    {
+        public static string? Render(IReadOnlyList<PipelineNode> nodes)
+        {
+            var failEdges = new List<(string nodeLabel, string errorLabel)>();
+            Collect(nodes, failEdges);
+
+            if (failEdges.Count == 0)
+                return null;
+
+            var sb = new StringBuilder();
+            sb.AppendLine("flowchart TD");
+
+            foreach (var (nodeLabel, errorLabel) in failEdges)
+                sb.AppendLine($"  {SanitizeId(nodeLabel)}[\"{nodeLabel}\"] -->|\"{errorLabel}\"| FAIL");
+
+            sb.AppendLine();
+            sb.AppendLine("  FAIL([fail]):::failure");
+            sb.AppendLine();
+            sb.Append("  classDef failure fill:#f8e3e3,color:#b13e3e");
+
+            return sb.ToString();
+        }
+
+        private static void Collect(
+            IReadOnlyList<PipelineNode> nodes,
+            List<(string, string)> failEdges)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.Kind == NodeKind.Invisible)
+                    continue;
+
+                string label = node.SubGraphName ?? node.MethodName;
+
+                if (node.PossibleErrors.Count > 0)
+                {
+                    foreach (var err in node.PossibleErrors)
+                        failEdges.Add((label, err));
+                }
+                else if (node.Kind == NodeKind.Gatekeeper || node.Kind == NodeKind.TransformWithRisk)
+                {
+                    // Always show a fail edge for gatekeepers/transforms even without typed errors
+                    failEdges.Add((label, "fail"));
+                }
+
+                if (node.SubNodes != null && node.SubNodes.Count > 0)
+                    Collect(node.SubNodes, failEdges);
+            }
+        }
+
+        private static string SanitizeId(string name) =>
+            name.Replace(".", "_").Replace("<", "_").Replace(">", "_").Replace(" ", "_");
+    }
+}
