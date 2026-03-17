@@ -147,9 +147,10 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 // method (e.g. .Bind(x => SaveUser(x))), use the inner method name as the step
                 // label. Kind is still derived from the outer pipeline method (Bind), so fail
                 // edges remain correct.
-                string effectiveName = methodName;
+                // Terminal (Match) is excluded — its label must stay "Match"/"MatchAsync".
                 var firstArg = invSyntax.ArgumentList.Arguments.FirstOrDefault();
-                if (firstArg != null)
+                string effectiveName = methodName;
+                if (kind != NodeKind.Terminal && firstArg != null)
                 {
                     var lambdaName = TryGetLambdaBodyMethodName(firstArg);
                     if (lambdaName != null)
@@ -187,6 +188,41 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                     SourceFile = sourceFile,
                     SourceLine = sourceLine,
                 };
+
+                // Match/MatchAsync: extract typed error-branch labels from explicitly-typed lambda parameters.
+                // Works for: .Match((Order o) => ..., (ValidationError v) => ..., (InventoryError i) => ...)
+                // Arguments: index 0 = onSuccess, index 1..N = typed error branches.
+                // Uses syntax (not semantic model) so it works even when op is null.
+                if (kind == NodeKind.Terminal && invSyntax.ArgumentList.Arguments.Count > 2)
+                {
+                    var branchLabels = new List<string>();
+                    for (int j = 1; j < invSyntax.ArgumentList.Arguments.Count; j++)
+                    {
+                        var argExpr = invSyntax.ArgumentList.Arguments[j].Expression;
+                        var parenLambda = argExpr as ParenthesizedLambdaExpressionSyntax;
+                        if (parenLambda?.ParameterList.Parameters.Count > 0)
+                        {
+                            var firstParam = parenLambda.ParameterList.Parameters[0];
+                            if (firstParam.Type != null)
+                            {
+                                // Prefer semantic type name; fall back to identifier text from syntax
+                                string? typeName = null;
+                                if (semanticModel != null)
+                                {
+                                    var typeInfo = semanticModel.GetTypeInfo(firstParam.Type);
+                                    if (typeInfo.Type?.TypeKind != TypeKind.TypeParameter)
+                                        typeName = typeInfo.Type?.Name;
+                                }
+                                if (typeName == null && firstParam.Type is IdentifierNameSyntax id)
+                                    typeName = id.Identifier.ValueText;
+                                if (typeName != null)
+                                    branchLabels.Add(typeName);
+                            }
+                        }
+                    }
+                    if (branchLabels.Count > 0)
+                        node.MatchBranchLabels = branchLabels;
+                }
 
                 // Cross-method tracing: follow Bind/BindAsync lambdas into same-project methods.
                 // Only when depth remains and the first arg is a lambda calling a standalone method.

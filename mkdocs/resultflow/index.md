@@ -25,6 +25,13 @@ dotnet add package REslava.ResultFlow
 
 <div class="grid cards" markdown>
 
+-   :material-image-multiple: __Diagram Gallery — All 5 Types__
+
+    See all five diagram types side by side — `_Diagram`, `_LayerView`, `_ErrorSurface`, `_ErrorPropagation`, and `_Stats` — on the same `PlaceOrder` scenario for easy comparison.
+
+    [View gallery](diagrams)
+    {: .is-featured }
+
 -   :material-graph: __`REslava.Result.Flow` — For REslava.Result projects__
 
     The recommended package. Full Roslyn semantic analysis — typed error edges from method body scanning, entry-point detection, and complete type travel via `IResultBase`. Requires REslava.Result.
@@ -79,10 +86,5 @@ dotnet add package REslava.ResultFlow
 
     [](domain-boundary-diagrams--_layerview-_stats-_errorsurface-_errorpropagation-v1450)
 
--   :material-image-multiple: __Diagram Gallery — All 5 Types__
-
-    See all five diagram types side by side — `_Diagram`, `_LayerView`, `_ErrorSurface`, `_ErrorPropagation`, and `_Stats` — on the same `PlaceOrder` scenario for easy comparison.
-
-    [View gallery](diagrams)
 
 </div>

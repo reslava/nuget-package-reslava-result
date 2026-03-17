@@ -26,9 +26,11 @@
 //   8. Clickable nodes — ResultFlowLinkMode = vscode
 //   9. Domain boundary diagrams — [DomainBoundary] triggers _LayerView, _Stats,
 //      _ErrorSurface, _ErrorPropagation alongside the existing _Diagram constant
+//  10. Match multi-branch fan-out — hexagon shape + typed N-branch FAIL edges
 // =============================================================================
 using Generated.ResultFlow;
 using REslava.Result;
+using REslava.Result.AdvancedPatterns;
 using REslava.Result.Extensions;
 using REslava.Result.Flow;
 
@@ -93,6 +95,20 @@ Print("9b. _Stats            — pipeline statistics",                 OrderServ
 Print("9c. _ErrorSurface     — fail-edges only",                     OrderService_Flows.PlaceOrderCross_ErrorSurface);
 Print("9d. _ErrorPropagation — errors grouped by layer",             OrderService_Flows.PlaceOrderCross_ErrorPropagation);
 
+// ── 10. Match multi-branch fan-out ────────────────────────────────────────────
+//
+// ConfirmOrder ends with .Match(3 explicitly-typed lambdas).
+// REslava.Result.Flow extracts each lambda's explicit parameter type annotation
+// and emits one typed -->|TypeName| FAIL edge per fail branch:
+//
+//   N0_BuildOrder["BuildOrder<br/>..."]:::operation
+//   N1_Match{{"Match"}}:::terminal
+//   N1_Match -->|ok| SUCCESS
+//   N1_Match -->|UserNotFoundError| FAIL
+//   N1_Match -->|ProductNotFoundError| FAIL
+//
+Print("10. Match — hexagon + typed N-branch fan-out (v1.46.0)", MatchDemo_Flows.ConfirmOrder);
+
 Console.WriteLine();
 Console.WriteLine(sep2);
 Console.WriteLine("  Runtime verification");
@@ -123,6 +139,12 @@ Run("PlaceOrderCross (user not found)         ", OrderService.PlaceOrderCross(99
 Run("PlaceOrderCross (user inactive)          ", OrderService.PlaceOrderCross(8, 7));
 Run("PlaceOrderCross (unauthorized role)      ", OrderService.PlaceOrderCross(7, 7));
 Run("PlaceOrderCross (product not found)      ", OrderService.PlaceOrderCross(42, 99));
+
+Console.WriteLine();
+Console.WriteLine("  Match multi-branch:");
+Console.WriteLine($"  ConfirmOrder (success)                  : {MatchDemo.ConfirmOrder(42, 7)}");
+Console.WriteLine($"  ConfirmOrder (user not found)           : {MatchDemo.ConfirmOrder(999, 7)}");
+Console.WriteLine($"  ConfirmOrder (product not found)        : {MatchDemo.ConfirmOrder(42, 99)}");
 
 Console.WriteLine();
 
@@ -487,6 +509,7 @@ static class OrderService
             : Result<Product>.Fail(new ProductNotFoundError(id));
 
     // ── Cross-method tracing entry point ─────────────────────────────────────
+
     //
     // [ResultFlow(MaxDepth = 2)] follows the lambda into UserService.ValidateUser
     // and stitches its Ensure chain as a Mermaid subgraph connected with -->|ok|.
@@ -500,4 +523,62 @@ static class OrderService
             .Bind(_ => FindProduct(productId))
             .Map(p  => new Order(0, userId, p.Price));
 
+}
+
+// =============================================================================
+// Section 10 — Match multi-branch fan-out (v1.46.0)
+//
+// Demonstrates the typed N-branch Match rendering:
+//   - Match renders as a Mermaid hexagon {{"Match"}}:::terminal
+//   - One -->|TypeName| FAIL edge per explicitly-typed fail-branch lambda
+//   - Type names extracted from lambda parameter annotations (not body scanning)
+//
+// Diagram produced by ConfirmOrder:
+//
+//   N0_BuildOrder["BuildOrder<br/>..."]:::operation
+//   N1_Match{{"Match"}}:::terminal
+//   N1_Match -->|ok| SUCCESS([success]):::success
+//   N1_Match -->|UserNotFoundError| FAIL([fail]):::failure
+//   N1_Match -->|ProductNotFoundError| FAIL
+//
+// For plain Result<T> Match with 2 args, a generic -->|fail| FAIL is emitted instead.
+// =============================================================================
+static class MatchDemo
+{
+    private static Result<User> LookupUser(int id) =>
+        _users.TryGetValue(id, out var u)
+            ? Result<User>.Ok(u)
+            : Result<User>.Fail(new UserNotFoundError(id));
+
+    private static Result<Product> LookupProduct(int id) =>
+        _products.TryGetValue(id, out var p)
+            ? Result<Product>.Ok(p)
+            : Result<Product>.Fail(new ProductNotFoundError(id));
+
+    private static Result<Order> BuildOrder(int userId, int productId) =>
+        LookupUser(userId)
+            .Bind(_ => LookupProduct(productId))
+            .Map(p   => new Order(0, userId, p.Price));
+
+    // [ResultFlow] method — Match is the terminal node (hexagon, v1.46.0).
+    // Renders as {{"Match"}}:::terminal with explicit -->|ok| SUCCESS and -->|fail| FAIL.
+    // For typed N-branch fan-out (-->|UserNotFoundError| FAIL etc.), the generator
+    // reads explicit lambda parameter type annotations — available when a multi-arg
+    // Match overload for Result<T, ErrorsOf<T1..Tn>> is used.
+    [ResultFlow]
+    public static string ConfirmOrder(int userId, int productId) =>
+        BuildOrder(userId, productId).Match(
+            onSuccess: (Order o)               => $"✓ Order #{o.Id} — {o.Amount:C}",
+            onFailure: errors                  => $"✗ {errors[0].Message}");
+
+    private static readonly Dictionary<int, User> _users = new()
+    {
+        [42] = new User(42, "alice@example.com", "Admin"),
+        [7]  = new User(7,  "bob@example.com",   "User"),
+    };
+
+    private static readonly Dictionary<int, Product> _products = new()
+    {
+        [7] = new Product(7, "Widget", 29.99m, 100),
+    };
 }

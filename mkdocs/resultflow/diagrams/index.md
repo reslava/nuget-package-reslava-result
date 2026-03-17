@@ -26,6 +26,7 @@ flowchart LR
   N2_ProcessPayment -->|"PaymentError"| FAIL
   N2_ProcessPayment --> N3_Match
   N3_Match -->|ok| SUCCESS
+  N3_Match -->|fail| FAIL
 
   FAIL([fail]):::failure
   SUCCESS([success]):::success
@@ -35,6 +36,34 @@ flowchart LR
   classDef terminal   fill:#f2e3f5,color:#8a4f9e
   classDef failure    fill:#f8e3e3,color:#b13e3e
   classDef success    fill:#e6f6ea,color:#1c7e4f
+```
+
+---
+
+## `_Diagram` — Match with typed N-branch fan-out
+
+When `Match` is called with explicitly-typed lambda parameters (e.g. `(ValidationError v) => ...`), `REslava.Result.Flow` emits one typed fail edge per error branch — all converging on the shared `FAIL` terminal.
+
+```mermaid
+flowchart LR
+  N0_Checkout["Checkout"]:::operation
+  N1_Validate["Validate"]:::transform
+  N2_ReserveInventory["ReserveInventory"]:::transform
+  N3_ProcessPayment["ProcessPayment"]:::transform
+  N4_Match{{"Match"}}:::terminal
+
+  N0_Checkout --> N1_Validate --> N2_ReserveInventory --> N3_ProcessPayment --> N4_Match
+
+  N4_Match -->|ok| SUCCESS([success]):::success
+  N4_Match -->|ValidationError| FAIL([fail]):::failure
+  N4_Match -->|InventoryError| FAIL
+  N4_Match -->|PaymentError| FAIL
+
+  classDef operation fill:#fef0e3,color:#b86a1c
+  classDef transform fill:#e3f0e8,color:#2f7a5c
+  classDef terminal  fill:#f2e3f5,color:#8a4f9e
+  classDef failure   fill:#f8e3e3,color:#b13e3e
+  classDef success   fill:#e6f6ea,color:#1c7e4f
 ```
 
 ---

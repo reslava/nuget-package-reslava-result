@@ -21,6 +21,7 @@ dotnet run
 | 7 | Sidecar constant — writes `PlaceOrderCross.ResultFlow.md` to disk | v1.43.0 |
 | 8 | Clickable nodes — `ResultFlowLinkMode = vscode` | v1.43.0 |
 | 9 | Domain boundary diagrams — `[DomainBoundary]` triggers `_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation` | v1.45.0 |
+| 10 | Match multi-branch fan-out — hexagon + typed N-branch `-->|TypeName| FAIL` edges | v1.46.0 |
 
 ---
 
@@ -147,3 +148,4 @@ Generated constant available at `Generated.ResultFlow.{ClassName}_Flows.{MethodN
 | **`_Stats`** | ❌ | ✅ |
 | **`_ErrorSurface`** | ❌ | ✅ |
 | **`_ErrorPropagation`** | ❌ | ✅ |
+| **Match typed N-branch** | ❌ (generic 2-branch) | ✅ |

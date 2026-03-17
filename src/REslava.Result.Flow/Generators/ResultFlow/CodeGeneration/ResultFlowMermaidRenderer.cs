@@ -207,7 +207,23 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                         break;
 
                     case NodeKind.Terminal:
-                        lines.Add($"{indent}{nodeId}[\"{label}\"]:::terminal");
+                        lines.Add($"{indent}{nodeId}{{{{\"{label}\"}}}}:::terminal");
+                        lines.Add($"{indent}{nodeId} -->|ok| SUCCESS");
+                        lines.Add($"{indent}SUCCESS([success]):::success");
+                        TryAddClass(declaredClasses, classDefs, "success", "fill:#e6f6ea,color:#1c7e4f");
+                        if (node.MatchBranchLabels != null && node.MatchBranchLabels.Count > 0)
+                        {
+                            foreach (var branch in node.MatchBranchLabels)
+                            {
+                                lines.Add($"{indent}{nodeId} -->|{branch}| FAIL");
+                                anyErrorEdges = true;
+                            }
+                        }
+                        else
+                        {
+                            lines.Add($"{indent}{nodeId} -->|fail| FAIL");
+                            anyErrorEdges = true;
+                        }
                         TryAddClass(declaredClasses, classDefs, "terminal", "fill:#f2e3f5,color:#8a4f9e");
                         break;
 

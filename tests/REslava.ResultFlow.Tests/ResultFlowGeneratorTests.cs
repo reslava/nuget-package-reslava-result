@@ -54,10 +54,10 @@ public class ResultFlowGeneratorTests
     }
 
     // ───────────────────────────────────────────────────────────────────────
-    // 4. Match → terminal class, no outbound edge after it
+    // 4. Match → terminal class, emits hexagon + ok/fail edges
     // ───────────────────────────────────────────────────────────────────────
     [TestMethod]
-    public void ResultFlow_Match_Should_Be_Terminal_Without_Outbound_Edge()
+    public void ResultFlow_Match_Should_Be_Terminal_With_Ok_And_Fail_Edges()
     {
         var source = CreateSource("UserService", "GetAsync",
             "GetUser(id).Match(ok => ok, err => null)");
@@ -66,8 +66,9 @@ public class ResultFlowGeneratorTests
         Assert.IsTrue(output.Contains("Match"),    "Should contain Match node");
         Assert.IsTrue(output.Contains("terminal"), "Should apply terminal class");
 
-        // Terminal node should not have a --> edge after it
-        Assert.IsFalse(output.Contains("N0_Match -->"), "Match should have no outbound edge");
+        // Terminal node emits |ok| SUCCESS and |fail| edges
+        Assert.IsTrue(output.Contains("-->|ok| SUCCESS"), "Match should emit -->|ok| SUCCESS edge");
+        Assert.IsTrue(output.Contains("-->|fail|"),        "Match should emit a fail edge");
     }
 
     // ───────────────────────────────────────────────────────────────────────

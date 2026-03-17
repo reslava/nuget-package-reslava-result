@@ -76,6 +76,13 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Models
         /// </summary>
         public string? ClassName { get; set; }
 
+        /// <summary>
+        /// Typed error-branch labels for Match/MatchAsync, extracted from lambda parameter types
+        /// via the semantic model. Count &gt; 0 means typed N-branch fan-out; null or empty means
+        /// generic 2-branch (ok/fail). Null for all other NodeKinds.
+        /// </summary>
+        public IReadOnlyList<string>? MatchBranchLabels { get; set; }
+
         public PipelineNode(string methodName, NodeKind kind)
         {
             MethodName = methodName;

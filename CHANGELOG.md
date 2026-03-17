@@ -4,6 +4,36 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.46.0] - 2026-03-18
+
+### ✨ Added
+
+#### REslava.Result.Flow
+
+- **`PipelineNode.MatchBranchLabels`** — new `IReadOnlyList<string>?` property; populated when a `Match`/`MatchAsync` invocation has explicitly-typed fail-branch lambdas (e.g. `(ValidationError v) => ...`); `Count > 0` means typed N-branch fan-out; `Count == 0` / `null` means generic 2-branch
+
+#### REslava.Result.Flow + REslava.ResultFlow
+
+- **Match hexagon shape** — `Match`/`MatchAsync` now renders as a Mermaid decision hexagon `{{"Match"}}:::terminal` (previously a plain rectangle)
+- **Match `-->|ok| SUCCESS` + `-->|fail| FAIL` edges** — Terminal node emits both exits explicitly; `SUCCESS([success]):::success` and `FAIL([fail]):::failure` nodes are emitted by the Terminal case directly (not by the shared post-pipeline logic)
+
+### 🔧 Changed (non-breaking)
+
+#### REslava.Result.Flow + REslava.ResultFlow
+
+- **Gap 1 Terminal guard** — the lambda body method-name heuristic (Gap 1) no longer overwrites the `Match` node label; previously, `Match(o => o.Id.ToString(), ...)` would rename the node to `"ToString"`
+
+### ✨ Added — Typed N-branch (REslava.Result.Flow only)
+
+- When `Match` has `argumentCount > 2`, `ResultFlowChainExtractor` reads each fail-branch lambda's explicit parameter type annotation from `ParenthesizedLambdaExpressionSyntax`; semantic model (`GetTypeInfo`) is tried first, raw identifier text is the fallback; result stored in `PipelineNode.MatchBranchLabels`
+- `ResultFlowMermaidRenderer` emits N distinct `-->|TypeName| FAIL` edges when `MatchBranchLabels.Count > 0`; falls back to generic `-->|fail| FAIL` for plain `Result<T>` or when type info is unavailable
+
+### Stats
+- Tests: ~4,550 passing (floor: >4,500)
+- Features: 197 across 15 categories
+
+---
+
 ## [1.45.0] - 2026-03-18
 
 ### ✨ Added

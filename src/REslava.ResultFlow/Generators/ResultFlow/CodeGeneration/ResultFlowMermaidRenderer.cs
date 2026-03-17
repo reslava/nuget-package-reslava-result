@@ -187,9 +187,17 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                         break;
 
                     case NodeKind.Terminal:
-                        lines.Add($"{indent}{nodeId}[\"{label}\"]:::terminal");
+                    {
+                        var fId = $"F{failureCounter++}";
+                        lines.Add($"{indent}{nodeId}{{{{\"{label}\"}}}}:::terminal");
+                        lines.Add($"{indent}{nodeId} -->|ok| SUCCESS");
+                        lines.Add($"{indent}SUCCESS([success]):::success");
+                        TryAddClass(declaredClasses, classDefs, "success", "fill:#e6f6ea,color:#1c7e4f");
+                        lines.Add($"{indent}{nodeId} -->|fail| {fId}[\"Failure\"]:::failure");
                         TryAddClass(declaredClasses, classDefs, "terminal", "fill:#f2e3f5,color:#8a4f9e");
+                        TryAddClass(declaredClasses, classDefs, "failure", "fill:#f8e3e3,color:#b13e3e");
                         break;
+                    }
 
                     default: // Unknown
                         lines.Add($"{indent}{nodeId}[\"{label}\"]:::operation");

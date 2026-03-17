@@ -168,9 +168,10 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                 // method (e.g. .Bind(x => DoThing(x))), use the inner method name as the
                 // step label — the Kind (TransformWithRisk etc.) is still derived from the
                 // outer pipeline method (Bind), so fail edges remain correct.
+                // Terminal (Match) is excluded — its label must stay "Match"/"MatchAsync".
                 string effectiveName = name;
                 var firstArg = invocationNode.ArgumentList.Arguments.FirstOrDefault();
-                if (firstArg != null)
+                if (kind != NodeKind.Terminal && firstArg != null)
                 {
                     var lambdaName = TryGetLambdaBodyMethodName(firstArg);
                     if (lambdaName != null)

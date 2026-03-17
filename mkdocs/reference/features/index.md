@@ -261,6 +261,16 @@ tagline: Know exactly what you're getting.
 | `PipelineNode.SourceFile` / `SourceLine` | Source location per pipeline step from `SyntaxNode.GetLocation()`; null for in-memory compilations | v1.43.0 | `### 3.10. Clickable Mermaid Nodes` |
 | `ResultFlowLinkMode` — clickable nodes | MSBuild property / `resultflow.json` key; `vscode` mode emits `click` directives with `vscode://file/` URI per node | v1.43.0 | `### 3.10. Clickable Mermaid Nodes` |
 | `{MethodName}_Sidecar` constant | Always-generated companion constant — Mermaid diagram wrapped in fenced `# Pipeline — {name}` markdown block | v1.43.0 | `### 3.11. Sidecar Markdown Constant` |
+| Cross-method pipeline tracing (`_Cross`) | `REslava.Result.Flow`: follows `[ResultFlow]` chains across method boundaries; emits a `{MethodName}_Cross` constant stitching together all called sub-methods into one unified Mermaid diagram | v1.45.0 | `## 🗺️ Pipeline Visualization` — `### Cross-Method Tracing` |
+| `_LayerView` constant | Layer-segregated subgraph Mermaid diagram — groups pipeline nodes by architectural layer (Domain, Application, Infrastructure, Presentation, CrossCutting); one subgraph per layer; layer colors match classDef palette | v1.45.0 | `## 🗺️ Pipeline Visualization` — `### Domain Boundary Diagrams` |
+| `_Stats` constant | Pipeline statistics Mermaid diagram — node count, async step ratio, gatekeeper/bind ratios; rendered as a `%%` metadata block + info table | v1.45.0 | `## 🗺️ Pipeline Visualization` — `### Domain Boundary Diagrams` |
+| `_ErrorSurface` constant | Error surface Mermaid diagram (`flowchart LR`) — highlights which steps can produce failures and what error types surface from each gatekeeper | v1.45.0 | `## 🗺️ Pipeline Visualization` — `### Domain Boundary Diagrams` |
+| `_ErrorPropagation` constant | Error propagation Mermaid diagram (`flowchart TD`) — traces how each failure kind propagates end-to-end through the pipeline toward the terminal exit | v1.45.0 | `## 🗺️ Pipeline Visualization` — `### Domain Boundary Diagrams` |
+| `LayerDetector` | Internal component that auto-detects the architectural layer of each `PipelineNode` from its declaring type's namespace segments and `[DomainBoundary]` markers; drives `_LayerView` subgraph grouping | v1.45.0 | — |
+| Layer subgraph coloring | Each detected layer in `_LayerView` gets a distinct Mermaid subgraph with its own border/background color — Domain (purple), Application (blue), Infrastructure (orange), Presentation (green), CrossCutting (grey) | v1.45.0 | — |
+| Match hexagon + ok/fail edges | `Match`/`MatchAsync` now renders as a Mermaid hexagon `{{"Match"}}:::terminal` with explicit `-->|ok| SUCCESS` and `-->|fail| FAIL` exits — replaces the dead-end rectangle; applies to both `REslava.Result.Flow` and `REslava.ResultFlow` | v1.46.0 | `## 🗺️ Pipeline Visualization` — `### Match — Multi-Branch Fan-Out` |
+| `PipelineNode.MatchBranchLabels` | `IReadOnlyList<string>?` — when `Match` is called with N fail-branch lambdas (typed `ErrorsOf<T1..Tn>`), extracts each lambda's explicit parameter type name; drives N typed fail edges in the renderer | v1.46.0 | `## 🗺️ Pipeline Visualization` — `### Match — Multi-Branch Fan-Out` |
+| Typed N-branch Match fan-out | `REslava.Result.Flow` only: when `MatchBranchLabels.Count > 0`, emits N distinct `-->|TypeName| FAIL` edges per error type instead of the generic `-->|fail| FAIL`; semantic model resolution with raw-syntax fallback | v1.46.0 | `## 🗺️ Pipeline Visualization` — `### Match — Multi-Branch Fan-Out` |
 
 ---
 
@@ -289,7 +299,7 @@ tagline: Know exactly what you're getting.
 
 ## Summary
 
-!!! new "**v1.43.0** — 187 features across 15 categories."
+!!! new "**v1.46.0** — 197 features across 15 categories."
 
 
 | Category | Total Features |
@@ -306,10 +316,10 @@ tagline: Know exactly what you're getting.
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
-| ResultFlow | 31 |
+| ResultFlow | 41 |
 | OpenTelemetry | 3 |
 | ResultContext | 6 |
-| **Total** | **187** |
+| **Total** | **197** |
 
 ---
 

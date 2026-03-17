@@ -37,10 +37,10 @@ public class ResultFlowErrorPropagationTests
         var source = CreateLayerSource();
         var output = RunGenerator(source);
 
-        // _ErrorPropagation is flowchart TD — count occurrences alongside _LayerView and _ErrorSurface
+        // _ErrorPropagation and _LayerView use flowchart TD; _ErrorSurface uses flowchart LR
         var tdCount = CountOccurrences(output, "flowchart TD");
-        Assert.IsTrue(tdCount >= 3,
-            $"Expected at least 3 'flowchart TD' (_LayerView + _ErrorSurface + _ErrorPropagation), got {tdCount}");
+        Assert.IsTrue(tdCount >= 2,
+            $"Expected at least 2 'flowchart TD' (_LayerView + _ErrorPropagation), got {tdCount}");
     }
 
     // ── 4. Subgraph per layer ─────────────────────────────────────────────────
