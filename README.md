@@ -4318,7 +4318,7 @@ var result = Result<Order>.Ok(order)
 - **Match hexagon + ok/fail edges** — `Match`/`MatchAsync` now renders as a Mermaid decision hexagon `{{"Match"}}:::terminal` with explicit `-->|ok| SUCCESS` and `-->|fail| FAIL` exits; replaces the dead-end rectangle; both `REslava.Result.Flow` and `REslava.ResultFlow`
 - **Typed N-branch fan-out** — when `Match` is called with explicitly-typed lambda parameters (e.g. `(ValidationError v) => ...`), `REslava.Result.Flow` emits one `-->|TypeName| FAIL` edge per branch via `PipelineNode.MatchBranchLabels`; semantic model resolution with syntax fallback
 - **Gap 1 Terminal guard** — `Match` node label no longer overwritten by the inner lambda body method name (e.g. `ToString` would have replaced `Match`); both extractors fixed
-- ~4,550 tests, >4,500 floor
+- 4,634 tests, >4,500 floor
 
 ### 23.2. v1.45.0 ✅
 
@@ -4575,7 +4575,7 @@ var result = Result<Order>.Ok(order)
 
 ## 24. 📈 Version History
 
-- **v1.46.0** - Match multi-branch Mermaid: `Match`/`MatchAsync` renders as hexagon with `-->|ok| SUCCESS` + typed N-branch `-->|TypeName| FAIL` edges; `PipelineNode.MatchBranchLabels`; Gap 1 Terminal guard; both packages; ~4,550 tests
+- **v1.46.0** - Match multi-branch Mermaid: `Match`/`MatchAsync` renders as hexagon with `-->|ok| SUCCESS` + typed N-branch `-->|TypeName| FAIL` edges; `PipelineNode.MatchBranchLabels`; Gap 1 Terminal guard; both packages; 4,634 tests
 - **v1.45.0** - Domain Boundary Diagrams: `[DomainBoundary]` on class/method triggers `_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation` constants; automatic layer detection via namespace heuristics; layer subgraph coloring; README hero replaced with `_LayerView` + `_Diagram` duo; public diagram gallery at `mkdocs/resultflow/diagrams/`; ~4,680 tests
 - **v1.44.1** - "Visual Result pipelines for .NET" branding; NuGet `<Description>` + README opening sections updated for all 8 packages; `REslava.Result.Flow` positioned as primary ResultFlow package; MkDocs frontmatter audit; `organize_docs.py` sections 27–28 fix
 - **v1.44.0** - `REslava.Result` adds `netstandard2.0` target (fixes NuGet search visibility); NuGet title + tags updated for better discoverability; 187 features, >4,500 tests

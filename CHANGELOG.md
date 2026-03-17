@@ -29,7 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - `ResultFlowMermaidRenderer` emits N distinct `-->|TypeName| FAIL` edges when `MatchBranchLabels.Count > 0`; falls back to generic `-->|fail| FAIL` for plain `Result<T>` or when type info is unavailable
 
 ### Stats
-- Tests: ~4,550 passing (floor: >4,500)
+- Tests: 4,634 passing (floor: >4,500)
 - Features: 197 across 15 categories
 
 ---

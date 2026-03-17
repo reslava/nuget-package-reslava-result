@@ -66,7 +66,7 @@ The lambda body method-name heuristic (Gap 1) no longer overwrites the `Match` n
 
 ## Stats
 
-- Tests: ~4,550 passing (floor: >4,500)
+- Tests: 4,634 passing (floor: >4,500)
 - Features: 197 across 15 categories
 
 ---
