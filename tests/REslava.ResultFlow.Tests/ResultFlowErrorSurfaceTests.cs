@@ -34,14 +34,15 @@ public class ResultFlowErrorSurfaceTests
         Assert.IsTrue(output.Contains("FAIL([fail]):::failure"), "_ErrorSurface must contain FAIL([fail]):::failure terminal");
     }
 
-    // ── 4. _ErrorSurface uses flowchart TD ────────────────────────────────────
+    // ── 4. _ErrorSurface uses flowchart LR ────────────────────────────────────
     [TestMethod]
-    public void ErrorSurface_UsesFlowchartTD()
+    public void ErrorSurface_UsesFlowchartLR()
     {
         var output = RunGenerator(CreateLayerSource());
 
-        var tdCount = CountOccurrences(output, "flowchart TD");
-        Assert.IsTrue(tdCount >= 2, $"Expected at least 2 'flowchart TD' occurrences (_LayerView + _ErrorSurface), got {tdCount}");
+        // _ErrorSurface uses flowchart LR (horizontal); _LayerView uses flowchart TD (vertical)
+        Assert.IsTrue(output.Contains("flowchart LR"), "_ErrorSurface must use flowchart LR");
+        Assert.IsTrue(output.Contains("flowchart TD"), "_LayerView must use flowchart TD");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
