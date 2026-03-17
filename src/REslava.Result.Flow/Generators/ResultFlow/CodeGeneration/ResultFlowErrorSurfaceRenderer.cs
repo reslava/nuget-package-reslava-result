@@ -20,10 +20,13 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 return null;
 
             var sb = new StringBuilder();
-            sb.AppendLine("flowchart TD");
+            sb.AppendLine("flowchart LR");
 
-            foreach (var (nodeLabel, errorLabel) in failEdges)
-                sb.AppendLine($"  {SanitizeId(nodeLabel)}[\"{nodeLabel}\"] -->|\"{errorLabel}\"| FAIL");
+            for (int i = 0; i < failEdges.Count; i++)
+            {
+                var (nodeLabel, errorLabel) = failEdges[i];
+                sb.AppendLine($"  N{i}_{SanitizeId(nodeLabel)}[\"{nodeLabel}\"] -->|\"{errorLabel}\"| FAIL");
+            }
 
             sb.AppendLine();
             sb.AppendLine("  FAIL([fail]):::failure");

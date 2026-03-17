@@ -31,8 +31,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Models
 
         /// <summary>
         /// Stable node identity assigned by the renderer (e.g. <c>"N0_FindUser"</c>).
-        /// Matches <see cref="REslava.Result.ReasonMetadata.NodeId"/> for runtime error correlation.
-        /// Set by <see cref="ResultFlowMermaidRenderer"/> after visibility filtering.
+        /// Matches <c>ReasonMetadata.NodeId</c> for runtime error correlation.
+        /// Set by <c>ResultFlowMermaidRenderer</c> after visibility filtering.
         /// </summary>
         public string? NodeId { get; set; }
 
