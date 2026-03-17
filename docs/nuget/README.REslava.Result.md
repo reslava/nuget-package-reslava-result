@@ -8,29 +8,21 @@
 [![Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/reslava/nuget-package-reslava-result/blob/main/LICENSE)
 
-```mermaid
-flowchart LR
-  N0_PlaceOrder["PlaceOrder"]:::operation
-  N1_ValidateUser["ValidateUser"]:::transform
-  N2_ProcessPayment["ProcessPayment"]:::transform
-  N3_Match["Match"]:::terminal
+<p align="center">
+  <a href="https://github.com/reslava/nuget-package-reslava-result">
+    <img src="https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/diagram-pipeline.svg" width="700" />
+  </a>
+</p>
+<p align="center"><em>Auto-generated pipeline diagram — success path, typed error edges, async steps</em></p>
 
-  N0_PlaceOrder --> N1_ValidateUser
-  N1_ValidateUser -->|ValidationError| FAIL
-  N1_ValidateUser --> N2_ProcessPayment
-  N2_ProcessPayment -->|PaymentError| FAIL
-  N2_ProcessPayment --> N3_Match
-  N3_Match -->|ok| SUCCESS
+<p align="center">
+  <a href="https://github.com/reslava/nuget-package-reslava-result">
+    <img src="https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/layerview-architecture-diagram.svg" width="700" />
+  </a>
+</p>
+<p align="center"><em>Architecture layer view — Domain / Application / Infrastructure boundaries, auto-detected from namespaces</em></p>
 
-  FAIL([fail]):::failure
-  SUCCESS([success]):::success
-
-  classDef operation fill:#fef0e3,color:#b86a1c
-  classDef transform fill:#e3f0e8,color:#2f7a5c
-  classDef terminal  fill:#f2e3f5,color:#8a4f9e
-  classDef failure   fill:#f8e3e3,color:#b13e3e
-  classDef success   fill:#e6f6ea,color:#1c7e4f
-```
+<p align="center"><a href="https://github.com/reslava/nuget-package-reslava-result">→ Full documentation and diagram gallery on GitHub</a></p>
 
 ## Why REslava.Result?
 

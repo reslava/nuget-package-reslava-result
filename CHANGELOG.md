@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.46.1] - 2026-03-18
+
+### 🔧 Changed (non-breaking)
+
+#### REslava.Result + REslava.Result.Flow NuGet READMEs
+
+- **SVG diagrams replace Mermaid blocks** — NuGet.org does not render Mermaid; replaced with hosted SVG images via `raw.githubusercontent.com`. Images are clickable links to the GitHub repository
+- `REslava.Result` README shows: pipeline flowchart + architecture layer view
+- `REslava.Result.Flow` README shows: cross-method pipeline tracing + Match multi-branch fan-out
+
+### Stats
+- Tests: 4,634 passing (floor: >4,500)
+- Features: 197 across 15 categories
+
+---
+
 ## [1.46.0] - 2026-03-18
 
 ### ✨ Added

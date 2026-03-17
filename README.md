@@ -449,34 +449,34 @@ dotnet add package REslava.Result.FluentValidation
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="REslava.Result" Version="1.46.0" />
-  <PackageReference Include="REslava.Result.Analyzers" Version="1.46.0" />
+  <PackageReference Include="REslava.Result" Version="1.46.1" />
+  <PackageReference Include="REslava.Result.Analyzers" Version="1.46.1" />
 
   <!-- OPTIONAL — only for ASP.NET Core projects.
        Source generators: SmartEndpoints, [Validate], OneOfToIResult. -->
-  <PackageReference Include="REslava.Result.AspNetCore" Version="1.46.0" />
+  <PackageReference Include="REslava.Result.AspNetCore" Version="1.46.1" />
 
   <!-- OPTIONAL — pipeline diagram generator (REslava.Result-native).
        Full type travel + typed error surface inference. Requires REslava.Result. -->
-  <PackageReference Include="REslava.Result.Flow" Version="1.46.0" />
+  <PackageReference Include="REslava.Result.Flow" Version="1.46.1" />
 
   <!-- OPTIONAL — pipeline diagram generator (library-agnostic).
        Works with any Result library (ErrorOr, LanguageExt, etc.). No REslava.Result dependency. -->
-  <PackageReference Include="REslava.ResultFlow" Version="1.46.0" />
+  <PackageReference Include="REslava.ResultFlow" Version="1.46.1" />
 
   <!-- OPTIONAL — HTTP client extensions: wrap HttpClient calls as typed Result<T> -->
-  <PackageReference Include="REslava.Result.Http" Version="1.46.0" />
+  <PackageReference Include="REslava.Result.Http" Version="1.46.1" />
 
   <!-- OPTIONAL — OpenTelemetry integration. Seeds ResultContext from the active span and
        writes error tags as span attributes on failure. Zero-cost when no active span. -->
-  <PackageReference Include="REslava.Result.OpenTelemetry" Version="1.46.0" />
+  <PackageReference Include="REslava.Result.OpenTelemetry" Version="1.46.1" />
 
   <!--
     OPTIONAL — migration bridge. NOT needed for new projects.
     REslava.Result already includes equivalent validation via [Validate] + Validation DSL.
     Only add this if your team has existing FluentValidation validators you want to keep.
   -->
-  <PackageReference Include="REslava.Result.FluentValidation" Version="1.46.0" />
+  <PackageReference Include="REslava.Result.FluentValidation" Version="1.46.1" />
 </ItemGroup>
 ```
 
@@ -4266,7 +4266,7 @@ result.Context?.EntityId // "42"
 Zero-cost OpenTelemetry integration via a separate optional NuGet package.
 
 ```xml
-<PackageReference Include="REslava.Result.OpenTelemetry" Version="1.46.0" />
+<PackageReference Include="REslava.Result.OpenTelemetry" Version="1.46.1" />
 ```
 
 ### 22.1. `.WithOpenTelemetry()` — seed context from active span
@@ -4313,7 +4313,11 @@ var result = Result<Order>.Ok(order)
 
 ## 23. 🎯 Roadmap
 
-### 23.1. v1.46.0 (Current) ✅
+### 23.1. v1.46.1 (Current) ✅
+
+- **SVG diagrams in NuGet READMEs** — `REslava.Result` and `REslava.Result.Flow` NuGet README pages now show rendered pipeline diagrams via hosted SVG images; Mermaid blocks removed (NuGet does not render Mermaid)
+
+### v1.46.0 ✅
 
 - **Match hexagon + ok/fail edges** — `Match`/`MatchAsync` now renders as a Mermaid decision hexagon `{{"Match"}}:::terminal` with explicit `-->|ok| SUCCESS` and `-->|fail| FAIL` exits; replaces the dead-end rectangle; both `REslava.Result.Flow` and `REslava.ResultFlow`
 - **Typed N-branch fan-out** — when `Match` is called with explicitly-typed lambda parameters (e.g. `(ValidationError v) => ...`), `REslava.Result.Flow` emits one `-->|TypeName| FAIL` edge per branch via `PipelineNode.MatchBranchLabels`; semantic model resolution with syntax fallback
@@ -4575,6 +4579,7 @@ var result = Result<Order>.Ok(order)
 
 ## 24. 📈 Version History
 
+- **v1.46.1** - SVG diagrams in NuGet READMEs — `REslava.Result` and `REslava.Result.Flow` NuGet pages now show rendered pipeline diagrams via hosted SVG; Mermaid blocks removed (NuGet does not render Mermaid); 4,634 tests
 - **v1.46.0** - Match multi-branch Mermaid: `Match`/`MatchAsync` renders as hexagon with `-->|ok| SUCCESS` + typed N-branch `-->|TypeName| FAIL` edges; `PipelineNode.MatchBranchLabels`; Gap 1 Terminal guard; both packages; 4,634 tests
 - **v1.45.0** - Domain Boundary Diagrams: `[DomainBoundary]` on class/method triggers `_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation` constants; automatic layer detection via namespace heuristics; layer subgraph coloring; README hero replaced with `_LayerView` + `_Diagram` duo; public diagram gallery at `mkdocs/resultflow/diagrams/`; ~4,680 tests
 - **v1.44.1** - "Visual Result pipelines for .NET" branding; NuGet `<Description>` + README opening sections updated for all 8 packages; `REslava.Result.Flow` positioned as primary ResultFlow package; MkDocs frontmatter audit; `organize_docs.py` sections 27–28 fix
