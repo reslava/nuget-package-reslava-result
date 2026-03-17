@@ -51,46 +51,33 @@ The `` ```mermaid `` fence makes the diagram render inline in VS Code, GitHub, R
 
 ## Generated Diagram Example
 
-`_LayerView` — architecture diagram across layers, generated from `[DomainBoundary]` annotations:
+`_Diagram` — pipeline with full type travel and typed error edges, generated from `[ResultFlow]`:
 
 ```mermaid
-flowchart TD
+flowchart LR
+  N0_CreateUser["CreateUser<br/>Request → User"]:::operation
+  N1_EnsureAsync["EnsureAsync<br/>User"]:::gatekeeper
+  N2_SaveUser["SaveUser<br/>User"]:::transform
+  N3_TapAsync["TapAsync<br/>User"]:::sideeffect
+  N4_MapAsync["MapAsync<br/>User → UserDto"]:::transform
+  N4_MapAsync -->|ok| SUCCESS
 
-  subgraph Application["Application"]
-    subgraph OrderService["OrderService"]
-      N_PlaceOrder["PlaceOrder"]:::layerApp
-    end
-  end
-
-  subgraph Domain["Domain"]
-    subgraph UserService["UserService"]
-      N_ValidateUser["ValidateUser"]:::layerDomain
-    end
-  end
-
-  subgraph Infrastructure["Infrastructure"]
-    subgraph PaymentGateway["PaymentGateway"]
-      N_ProcessPayment["ProcessPayment"]:::layerInfra
-    end
-  end
-
-  N_PlaceOrder -->|"Order / ValidationError"| N_ValidateUser
-  N_PlaceOrder -->|"Order"| N_ProcessPayment
-  N_ValidateUser -->|"ValidationError"| FAIL
-  N_ProcessPayment -->|ok| SUCCESS
+  N0_CreateUser --> N1_EnsureAsync
+  N1_EnsureAsync -->|InvalidEmailError| FAIL
+  N1_EnsureAsync -->|pass| N2_SaveUser
+  N2_SaveUser -->|DatabaseError| FAIL
+  N2_SaveUser -->|ok| N3_TapAsync
+  N3_TapAsync --> N4_MapAsync
 
   FAIL([fail]):::failure
   SUCCESS([success]):::success
 
-  classDef layerApp    fill:#e8f7ee,color:#1e6f43
-  classDef layerDomain fill:#fff6e5,color:#a36b00
-  classDef layerInfra  fill:#f4e8ff,color:#6a3fa0
-  classDef failure     fill:#f8e3e3,color:#b13e3e
-  classDef success     fill:#e6f6ea,color:#1c7e4f
-
-  class Application layerApp
-  class Domain layerDomain
-  class Infrastructure layerInfra
+  classDef operation  fill:#fef0e3,color:#b86a1c
+  classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
+  classDef transform  fill:#e3f0e8,color:#2f7a5c
+  classDef sideeffect fill:#fff4d9,color:#b8882c
+  classDef failure    fill:#f8e3e3,color:#b13e3e
+  classDef success    fill:#e6f6ea,color:#1c7e4f
 ```
 
 Compared to `REslava.ResultFlow`, this package adds:

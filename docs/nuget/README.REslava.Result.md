@@ -11,14 +11,14 @@
 ```mermaid
 flowchart LR
   N0_PlaceOrder["PlaceOrder"]:::operation
-  N1_ValidateUser(["ValidateUser ⚡"]):::transform
+  N1_ValidateUser["ValidateUser"]:::transform
   N2_ProcessPayment["ProcessPayment"]:::transform
-  N3_Match{{"Match"}}:::terminal
+  N3_Match["Match"]:::terminal
 
-  N0_PlaceOrder -->|"Order"| N1_ValidateUser
-  N1_ValidateUser -->|"ValidationError"| FAIL
-  N1_ValidateUser -->|"User"| N2_ProcessPayment
-  N2_ProcessPayment -->|"PaymentError"| FAIL
+  N0_PlaceOrder --> N1_ValidateUser
+  N1_ValidateUser -->|ValidationError| FAIL
+  N1_ValidateUser --> N2_ProcessPayment
+  N2_ProcessPayment -->|PaymentError| FAIL
   N2_ProcessPayment --> N3_Match
   N3_Match -->|ok| SUCCESS
 
