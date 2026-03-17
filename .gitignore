@@ -164,5 +164,8 @@ mkdocs/**
 docfx/.manifest
 docfx/*.yml
 
+# Demo generated output files (written by File.WriteAllText in demo sections)
+samples/REslava.Result.Flow.Demo/*.ResultFlow.md
+
 # Benchmarks (raw BDN output — commit only processed results to mkdocs/)
 benchmarks/BenchmarkDotNet.Artifacts/
