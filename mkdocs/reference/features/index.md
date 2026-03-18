@@ -271,6 +271,12 @@ tagline: Know exactly what you're getting.
 | Match hexagon + ok/fail edges | `Match`/`MatchAsync` now renders as a Mermaid hexagon `{{"Match"}}:::terminal` with explicit `-->|ok| SUCCESS` and `-->|fail| FAIL` exits — replaces the dead-end rectangle; applies to both `REslava.Result.Flow` and `REslava.ResultFlow` | v1.46.0 | `## 🗺️ Pipeline Visualization` — `### Match — Multi-Branch Fan-Out` |
 | `PipelineNode.MatchBranchLabels` | `IReadOnlyList<string>?` — when `Match` is called with N fail-branch lambdas (typed `ErrorsOf<T1..Tn>`), extracts each lambda's explicit parameter type name; drives N typed fail edges in the renderer | v1.46.0 | `## 🗺️ Pipeline Visualization` — `### Match — Multi-Branch Fan-Out` |
 | Typed N-branch Match fan-out | `REslava.Result.Flow` only: when `MatchBranchLabels.Count > 0`, emits N distinct `-->|TypeName| FAIL` edges per error type instead of the generic `-->|fail| FAIL`; semantic model resolution with raw-syntax fallback | v1.46.0 | `## 🗺️ Pipeline Visualization` — `### Match — Multi-Branch Fan-Out` |
+| Subgraph entry arrow | Cross-method subgraph blocks open with `ENTRY_{nodeId}[ ]:::entry ==>` (invisible thick arrow) to the first inner node; makes execution entry point visible in expanded pipelines; flat pipelines unchanged; both packages | v1.46.3 | — |
+| `generate_flow_catalog.py` | Post-build script that scans `obj/Generated/**/*_Flows.g.cs` and publishes all diagram constants as a browsable MkDocs catalog page; groups by class → method → view type; `--project` / `--output` flags | v1.47.0 | — |
+| Demo Project MkDocs section | `mkdocs/demo/` — dedicated docs section for `REslava.Result.Flow.Demo`; includes feature overview and live flow catalog; CI auto-rebuilds on every MkDocs deploy | v1.47.0 | — |
+| Diagram frontmatter title | Every `[ResultFlow]` diagram opens with `---\ntitle: MethodName\n---`; renders as a native heading above the diagram in VS Code preview, GitHub, and all Mermaid viewers; both packages | v1.47.1 | — |
+| `ENTRY_ROOT` root entry node | Chain seed call (e.g. `FindUser`) rendered as amber `ENTRY_ROOT["Method<br/>→ Type"]:::operation ==>` before the first pipeline step; async calls get `⚡`; both packages | v1.47.1 | — |
+| Code action: insert/refresh parity | `REslava.ResultFlow` code action now replaces existing diagram comment in-place (was inserting duplicates); shows "Refresh" title when block exists; CRLF-normalised content; both packages now fully equivalent | v1.47.1 | — |
 
 ---
 
@@ -299,7 +305,7 @@ tagline: Know exactly what you're getting.
 
 ## Summary
 
-!!! new "**v1.46.0** — 197 features across 15 categories."
+!!! new "**v1.47.1** — 203 features across 15 categories."
 
 
 | Category | Total Features |
@@ -316,10 +322,10 @@ tagline: Know exactly what you're getting.
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
-| ResultFlow | 41 |
+| ResultFlow | 47 |
 | OpenTelemetry | 3 |
 | ResultContext | 6 |
-| **Total** | **197** |
+| **Total** | **203** |
 
 ---
 
