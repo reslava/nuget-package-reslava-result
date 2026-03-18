@@ -47,4 +47,4 @@ Every `[ResultFlow]`-annotated method gets a set of generated constants in a `*_
 | `{MethodName}_ErrorPropagation` | Error types grouped by the layer they originate from |
 | `{MethodName}_Sidecar` | Same as pipeline, wrapped in a fenced markdown block (write to disk) |
 
-[→ See all generated diagrams from the demo](flow-catalog/){ .md-button }
+[→ See all generated diagrams from the demo](flow-catalog){ .md-button }

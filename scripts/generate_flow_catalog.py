@@ -182,8 +182,11 @@ def render_page(catalog: list[tuple[str, dict[str, dict[str, str]]]]) -> str:
                 lines.append(f"*{description}*")
                 lines.append("")
 
+                # _Stats is a Markdown table — render as plain markdown, not mermaid
+                if suffix == "_Stats":
+                    lines.append(content)
                 # Detect if content already contains a mermaid fence (e.g. _Sidecar style)
-                if "```mermaid" in content:
+                elif "```mermaid" in content:
                     lines.append(content)
                 else:
                     lines.append("```mermaid")

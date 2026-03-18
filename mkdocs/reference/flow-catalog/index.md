@@ -121,7 +121,6 @@ flowchart TD
 
 *Node count, error count, depth, async steps*
 
-```mermaid
 | Property        | Value                                    |
 |-----------------|------------------------------------------|
 | Steps           | 6                                        |
@@ -129,7 +128,6 @@ flowchart TD
 | Possible errors | UserInactiveError, UnauthorizedRoleError |
 | Layers crossed  | Domain                                   |
 | Max depth traced | 1                                        |
-```
 
 #### Error Surface
 

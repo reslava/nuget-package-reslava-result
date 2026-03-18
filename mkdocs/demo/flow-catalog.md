@@ -37,6 +37,6 @@ python scripts/generate_flow_catalog.py
 
 ---
 
-[→ View the full Architectural Flow Catalog](../../reference/flow-catalog/index.md){ .md-button .md-button--primary }
+[→ View the full Architectural Flow Catalog](../reference/flow-catalog){ .md-button .md-button--primary }
 
 The catalog groups every generated diagram by class → method → view type (Pipeline, Layer View, Stats, Error Surface, Error Propagation), so you can browse the full output of the demo project end-to-end.
