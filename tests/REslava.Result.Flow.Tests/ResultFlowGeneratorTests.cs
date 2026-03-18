@@ -296,6 +296,57 @@ namespace TestNS
         Assert.IsNull(mapLine, "Map (PureTransform) must not have an error edge");
     }
 
+    // ── Title frontmatter + entry node (v1.47.1) ─────────────────────────────
+
+    // 12. Method name appears as Mermaid frontmatter title
+    [TestMethod]
+    public void Title_EmitsMethodNameAsFrontmatterTitle()
+    {
+        var source = CreateSource("UserService", "Register",
+            "CreateUser().Bind(SaveUser)",
+            extraMethods: @"
+        static Result<User> CreateUser() => Result<User>.Ok(new User());
+        static Result<User> SaveUser(User u) => Result<User>.Ok(u);");
+
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("title: Register"), "Frontmatter title should contain method name");
+        Assert.IsTrue(output.Contains("---"), "Frontmatter delimiters should be present");
+    }
+
+    // 13. Seed method name + type appear as ENTRY_ROOT node
+    [TestMethod]
+    public void EntryNode_EmitsSeedMethodAndType()
+    {
+        var source = CreateSource("UserService", "Register",
+            "CreateUser().Bind(SaveUser)",
+            extraMethods: @"
+        static Result<User> CreateUser() => Result<User>.Ok(new User());
+        static Result<User> SaveUser(User u) => Result<User>.Ok(u);");
+
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("ENTRY_ROOT"), "Entry node should be emitted");
+        Assert.IsTrue(output.Contains("CreateUser"), "Entry node should use seed method name");
+        Assert.IsTrue(output.Contains("==>"), "Entry node should use thick arrow");
+    }
+
+    // 14. Async seed method gets ⚡ marker
+    [TestMethod]
+    public void EntryNode_AsyncSeed_EmitsLightningMarker()
+    {
+        var source = CreateSource("UserService", "Register",
+            "CreateUserAsync().Bind(SaveUser)",
+            extraMethods: @"
+        static Result<User> CreateUserAsync() => Result<User>.Ok(new User());
+        static Result<User> SaveUser(User u) => Result<User>.Ok(u);");
+
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("ENTRY_ROOT"), "Entry node should be emitted");
+        Assert.IsTrue(output.Contains("\u26a1"), "Async seed should have ⚡ marker");
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     /// <summary>

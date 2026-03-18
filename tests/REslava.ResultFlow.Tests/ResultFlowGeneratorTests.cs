@@ -442,7 +442,10 @@ namespace TestNamespace
         Assert.IsTrue(output.Contains("Bind"),  "Bind node present");
         Assert.IsTrue(output.Contains("<br/>"), "Type label present");
         Assert.IsTrue(output.Contains("User"),  "User type present");
-        Assert.IsFalse(output.Contains("\u2192"), "No transition arrow for same-type Bind");
+        // Bind node itself should have no → (same-type); ENTRY_ROOT may contain → from seed label
+        var bindLine = System.Array.Find(output.Split('\n'), l => l.Contains("_Bind["));
+        Assert.IsNotNull(bindLine, "Bind node line should exist");
+        Assert.IsFalse(bindLine!.Contains("\u2192"), "Bind node label should have no transition arrow for same-type Bind");
     }
 
     // ───────────────────────────────────────────────────────────────────────
@@ -520,6 +523,39 @@ namespace TestNamespace
         Assert.IsTrue(output.Contains("User"),   "User type present");
         Assert.IsTrue(output.Contains("UserDto"), "UserDto type present");
         Assert.IsTrue(output.Contains("\u2192"), "Transition arrow present for Map");
+    }
+
+    // ── Title frontmatter + entry node (v1.47.1) ─────────────────────────────
+
+    [TestMethod]
+    public void Title_EmitsMethodNameAsFrontmatterTitle()
+    {
+        var source = CreateSource("UserService", "RegisterAsync", "GetUser(cmd).Bind(SaveUser)");
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("title: RegisterAsync"), "Frontmatter title should contain method name");
+        Assert.IsTrue(output.Contains("---"), "Frontmatter delimiters should be present");
+    }
+
+    [TestMethod]
+    public void EntryNode_EmitsSeedMethodAndType()
+    {
+        var source = CreateSource("UserService", "RegisterAsync", "GetUser(cmd).Bind(SaveUser)");
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("ENTRY_ROOT"), "Entry node should be emitted");
+        Assert.IsTrue(output.Contains("GetUser"), "Entry node should use seed method name");
+        Assert.IsTrue(output.Contains("==>"), "Entry node should use thick arrow");
+    }
+
+    [TestMethod]
+    public void EntryNode_AsyncSeed_EmitsLightningMarker()
+    {
+        var source = CreateSource("UserService", "RegisterAsync", "GetUserAsync(cmd).Bind(SaveUser)");
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("ENTRY_ROOT"), "Entry node should be emitted");
+        Assert.IsTrue(output.Contains("\u26a1"), "Async seed should have ⚡ marker");
     }
 
     #region Helpers

@@ -130,13 +130,13 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                             continue;
                         }
 
-                        var mermaid = ResultFlowMermaidRenderer.Render(chain, linkMode);
+                        var methodName = methodDecl.Identifier.ValueText;
+                        var seedMethodName = ResultFlowChainExtractor.TryGetSeedMethodName(methodDecl);
+                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, linkMode: linkMode);
 
                         // Detect root method layer for LayerView / Stats
                         var containingNs = ResultFlowChainExtractor.GetContainingNamespace(methodDecl);
                         var rootLayer = LayerDetector.Detect(methodDecl, containingNs);
-
-                        var methodName = methodDecl.Identifier.ValueText;
                         var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, linkMode: linkMode);
                         var stats = layerView != null ? ResultFlowStatsRenderer.Render(chain, rootLayer) : null;
                         var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain) : null;

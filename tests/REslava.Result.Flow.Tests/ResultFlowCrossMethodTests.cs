@@ -247,8 +247,9 @@ namespace TestNS
 
         var output = RunGenerator(source);
 
-        Assert.IsFalse(output.Contains("ENTRY_"), "Flat pipeline should not emit entry arrow");
-        Assert.IsFalse(output.Contains("==>"),    "Flat pipeline should not emit thick arrow");
+        // ENTRY_ROOT is expected (seed node) — only subgraph-style ENTRY_{nodeId} should be absent
+        Assert.IsFalse(output.Contains("ENTRY_N"), "Flat pipeline should not emit subgraph entry arrows");
+        Assert.IsTrue(output.Contains("ENTRY_ROOT"), "Flat pipeline should still emit seed entry node");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

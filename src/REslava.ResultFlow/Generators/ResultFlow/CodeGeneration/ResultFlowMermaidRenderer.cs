@@ -10,7 +10,11 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
         /// Converts an ordered list of <see cref="PipelineNode"/> into a Mermaid <c>flowchart LR</c> string.
         /// Invisible nodes are filtered out before rendering.
         /// </summary>
-        public static string Render(IReadOnlyList<PipelineNode> nodes, string? linkMode = null)
+        public static string Render(
+            IReadOnlyList<PipelineNode> nodes,
+            string? methodTitle = null,
+            string? seedMethodName = null,
+            string? linkMode = null)
         {
             var visible = FilterVisible(nodes);
             if (visible.Count == 0)
@@ -24,6 +28,23 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             var declaredClasses = new HashSet<string>();
             int failureCounter = 0;
 
+            // Entry node: the chain seed call (e.g. FindUser) as an :::operation node with ==> arrow
+            if (seedMethodName != null)
+            {
+                var seedType = visible[0].InputType;
+                var seedIsAsync = seedMethodName.EndsWith("Async");
+                var seedDisplayName = seedIsAsync ? seedMethodName + " \u26a1" : seedMethodName;
+                var seedLabel = seedType != null
+                    ? $"{seedDisplayName}<br/>\u2192 {seedType}"
+                    : seedDisplayName;
+                var firstNode = visible[0];
+                var firstConnectId = (firstNode.SubNodes != null && firstNode.SubNodes.Count > 0)
+                    ? $"sg_{firstNode.NodeId}"
+                    : firstNode.NodeId!;
+                lines.Add($"    ENTRY_ROOT[\"{seedLabel}\"]:::operation ==> {firstConnectId}");
+                TryAddClass(declaredClasses, classDefs, "operation", "fill:#fef0e3,color:#b86a1c");
+            }
+
             RenderNodes(visible, lines, classDefs, declaredClasses, ref failureCounter, indent: "    ");
 
             // SUCCESS terminal: connect the last top-level node's happy path to SUCCESS
@@ -36,6 +57,12 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             }
 
             var sb = new StringBuilder();
+            if (methodTitle != null)
+            {
+                sb.AppendLine("---");
+                sb.AppendLine($"title: {methodTitle}");
+                sb.AppendLine("---");
+            }
             sb.AppendLine("flowchart LR");
             foreach (var line in lines)
                 sb.AppendLine(line);

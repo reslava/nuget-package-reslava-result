@@ -23,13 +23,18 @@ Each method shows its full set of generated views: pipeline flow, architecture l
 *Success path, typed error edges, async steps*
 
 ```mermaid
+---
+title: ConfirmOrder
+---
 flowchart LR
+    ENTRY_ROOT["BuildOrder<br/>→ Order"]:::operation ==> N0_Match
     N0_Match{{"Match"}}:::terminal
     N0_Match -->|ok| SUCCESS
     SUCCESS([success]):::success
     N0_Match -->|fail| FAIL
     FAIL([fail])
     FAIL:::failure
+    classDef operation fill:#fef0e3,color:#b86a1c
     classDef success fill:#e6f6ea,color:#1c7e4f
     classDef terminal fill:#f2e3f5,color:#8a4f9e
     classDef failure fill:#f8e3e3,color:#b13e3e
@@ -48,7 +53,11 @@ flowchart LR
 *Success path, typed error edges, async steps*
 
 ```mermaid
+---
+title: PlaceOrderCross
+---
 flowchart LR
+    ENTRY_ROOT["FindUser<br/>→ User"]:::operation ==> sg_N0_ValidateUser
     subgraph sg_N0_ValidateUser["ValidateUser"]
         ENTRY_N0_ValidateUser[ ]:::entry
         ENTRY_N0_ValidateUser[ ] ==> N0_ValidateUser_0_Ok
@@ -70,8 +79,8 @@ flowchart LR
     SUCCESS([success]):::success
     FAIL([fail])
     FAIL:::failure
-    classDef entry fill:none,stroke:none
     classDef operation fill:#fef0e3,color:#b86a1c
+    classDef entry fill:none,stroke:none
     classDef transform fill:#e3f0e8,color:#2f7a5c
     classDef success fill:#e6f6ea,color:#1c7e4f
     classDef failure fill:#f8e3e3,color:#b13e3e
@@ -177,6 +186,9 @@ flowchart TD
 *Success path, typed error edges, async steps*
 
 ```mermaid
+---
+title: ValidateOrder
+---
 flowchart LR
     N0_Ok["Ok<br/>Order"]:::operation
     N0_Ok --> N1_Ensure
@@ -212,7 +224,11 @@ flowchart LR
 *Success path, typed error edges, async steps*
 
 ```mermaid
+---
+title: PlaceOrder
+---
 flowchart LR
+    ENTRY_ROOT["FindUser<br/>→ User"]:::operation ==> N0_FindProduct
     N0_FindProduct["FindProduct<br/>User → Product"]:::transform
     N0_FindProduct -->|ok| N1_BuildOrder
     N0_FindProduct -->|fail| FAIL
@@ -222,6 +238,7 @@ flowchart LR
     SUCCESS([success]):::success
     FAIL([fail])
     FAIL:::failure
+    classDef operation fill:#fef0e3,color:#b86a1c
     classDef transform fill:#e3f0e8,color:#2f7a5c
     classDef success fill:#e6f6ea,color:#1c7e4f
     classDef failure fill:#f8e3e3,color:#b13e3e
@@ -239,7 +256,11 @@ flowchart LR
 *Success path, typed error edges, async steps*
 
 ```mermaid
+---
+title: ProcessCheckout
+---
 flowchart LR
+    ENTRY_ROOT["FindUser<br/>→ User"]:::operation ==> N0_FindProduct
     N0_FindProduct["FindProduct<br/>User → Product"]:::transform
     N0_FindProduct -->|ok| N1_BuildOrder
     N0_FindProduct -->|fail| FAIL
@@ -251,6 +272,7 @@ flowchart LR
     SUCCESS([success]):::success
     FAIL([fail])
     FAIL:::failure
+    classDef operation fill:#fef0e3,color:#b86a1c
     classDef transform fill:#e3f0e8,color:#2f7a5c
     classDef success fill:#e6f6ea,color:#1c7e4f
     classDef failure fill:#f8e3e3,color:#b13e3e
@@ -269,7 +291,11 @@ flowchart LR
 *Success path, typed error edges, async steps*
 
 ```mermaid
+---
+title: PlaceOrderAsync
+---
 flowchart LR
+    ENTRY_ROOT["FindUserAsync ⚡<br/>→ User"]:::operation ==> N0_FindProductAsync
     N0_FindProductAsync["FindProductAsync ⚡<br/>User → Product"]:::transform
     N0_FindProductAsync -->|ok| N1_EnsureAsync
     N0_FindProductAsync -->|fail| FAIL
@@ -284,6 +310,7 @@ flowchart LR
     SUCCESS([success]):::success
     FAIL([fail])
     FAIL:::failure
+    classDef operation fill:#fef0e3,color:#b86a1c
     classDef transform fill:#e3f0e8,color:#2f7a5c
     classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
     classDef success fill:#e6f6ea,color:#1c7e4f
@@ -304,7 +331,11 @@ flowchart LR
 *Success path, typed error edges, async steps*
 
 ```mermaid
+---
+title: AdminCheckout
+---
 flowchart LR
+    ENTRY_ROOT["FindUserAsync ⚡<br/>→ User"]:::operation ==> N0_EnsureAsync
     N0_EnsureAsync["EnsureAsync ⚡<br/>User"]:::gatekeeper
     N0_EnsureAsync -->|pass| N1_FindProductAsync
     N0_EnsureAsync -->|fail| FAIL
@@ -328,6 +359,7 @@ flowchart LR
     SUCCESS([success]):::success
     FAIL([fail])
     FAIL:::failure
+    classDef operation fill:#fef0e3,color:#b86a1c
     classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
     classDef transform fill:#e3f0e8,color:#2f7a5c
     classDef sideeffect fill:#fff4d9,color:#b8882c

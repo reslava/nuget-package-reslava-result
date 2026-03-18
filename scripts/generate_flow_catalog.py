@@ -89,8 +89,15 @@ def extract_constants(cs_file: Path) -> dict[str, str]:
             found_close = False
             while i < len(lines):
                 l = lines[i]
-                # Closing: line is exactly `";` (possibly with whitespace)
+                # Closing: line is exactly `";` (possibly with whitespace) — old multi-line format
                 if re.match(r'^\s*";\s*$', l):
+                    found_close = True
+                    i += 1
+                    break
+                # Closing: line ends with `";` — new compact format (@"content...last-line";)
+                stripped = l.rstrip()
+                if stripped.endswith('";'):
+                    content_lines.append(stripped[:-2])
                     found_close = True
                     i += 1
                     break

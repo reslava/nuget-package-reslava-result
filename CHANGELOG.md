@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.47.1] - 2026-03-18
+
+### ✨ Added
+
+#### REslava.Result.Flow + REslava.ResultFlow — Diagram Title & Root Entry Node
+
+- **Mermaid frontmatter title** — every generated `[ResultFlow]` diagram now opens with `---\ntitle: MethodName\n---`, rendering the annotated method name as a native heading above the diagram in all Mermaid-capable viewers
+- **Root entry node (`ENTRY_ROOT`)** — the chain seed call (e.g. `FindUser`) is rendered as a labelled amber `:::operation` node with a thick `==>` arrow to the first pipeline step, making the pipeline entry point explicit in every diagram; async seed calls receive the `⚡` suffix
+- Both `REslava.Result.Flow` (semantic) and `REslava.ResultFlow` (syntax-only) updated in parity
+
+#### Code Action — Insert / Refresh diagram comment
+
+- **Title + entry node** — the "Insert / Refresh `[ResultFlow]` diagram" code action now passes `methodTitle`, `seedMethodName`, `operationName`, and `correlationId` to the renderer — previously called with no arguments, so title and entry node were absent from inserted comments
+- **Refresh parity** (`REslava.ResultFlow`) — code action now replaces an existing diagram comment in-place instead of inserting a duplicate; "Refresh" title shown when block already exists (matches `REslava.Result.Flow` behaviour)
+- **CRLF normalisation** — comment content is normalised to `\n` before insertion, preventing a spurious blank line in the correlation block on second refresh on Windows
+
+#### `generate_flow_catalog.py`
+
+- **Compact verbatim string format** — catalog script now correctly parses constants in the new `@"content";` single-declaration format (previously only matched the multi-line `@"\n...\n";` format, silently producing an empty catalog)
+
+### Stats
+- Tests: 4,638 passing (floor: >4,500)
+- Features: 197 across 15 categories
+
+---
+
 ## [1.47.0] - 2026-03-18
 
 ### ✨ Added

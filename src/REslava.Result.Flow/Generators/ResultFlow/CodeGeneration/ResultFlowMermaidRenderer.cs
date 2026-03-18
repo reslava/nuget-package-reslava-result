@@ -15,6 +15,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
     {
         public static string Render(
             IReadOnlyList<PipelineNode> nodes,
+            string? methodTitle = null,
+            string? seedMethodName = null,
             string? operationName = null,
             string? correlationId = null,
             string? linkMode = null)
@@ -38,6 +40,23 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             var declaredClasses = new HashSet<string>();
             bool anyErrorEdges = false;
 
+            // Entry node: the chain seed call (e.g. FindUser) as an :::operation node with ==> arrow
+            if (seedMethodName != null)
+            {
+                var seedType = visible[0].InputType;
+                var seedIsAsync = seedMethodName.EndsWith("Async");
+                var seedDisplayName = seedIsAsync ? seedMethodName + " \u26a1" : seedMethodName;
+                var seedLabel = seedType != null
+                    ? $"{seedDisplayName}<br/>\u2192 {seedType}"
+                    : seedDisplayName;
+                var firstNode = visible[0];
+                var firstConnectId = (firstNode.SubNodes != null && firstNode.SubNodes.Count > 0)
+                    ? $"sg_{firstNode.NodeId}"
+                    : firstNode.NodeId!;
+                lines.Add($"    ENTRY_ROOT[\"{seedLabel}\"]:::operation ==> {firstConnectId}");
+                TryAddClass(declaredClasses, classDefs, "operation", "fill:#fef0e3,color:#b86a1c");
+            }
+
             RenderNodes(visible, lines, classDefs, declaredClasses, ref anyErrorEdges, indent: "    ");
 
             // SUCCESS terminal: connect the last top-level node's happy path to SUCCESS
@@ -57,6 +76,12 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             }
 
             var sb = new StringBuilder();
+            if (methodTitle != null)
+            {
+                sb.AppendLine("---");
+                sb.AppendLine($"title: {methodTitle}");
+                sb.AppendLine("---");
+            }
             sb.AppendLine("flowchart LR");
             foreach (var line in lines)
                 sb.AppendLine(line);

@@ -35,9 +35,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 sb.AppendLine($"        /// Mermaid flow diagram for {methodName}.");
                 sb.AppendLine($"        /// Copy into any Mermaid renderer to visualize the pipeline.");
                 sb.AppendLine($"        /// </summary>");
-                sb.AppendLine($"        public const string {methodName} = @\"");
-                sb.AppendLine(escapedMermaid);
-                sb.AppendLine($"\";");
+                sb.Append($"        public const string {methodName} = @\"{escapedMermaid.Trim()}");
+                sb.AppendLine("\";");
                 sb.AppendLine();
 
                 // ── Sidecar markdown ─────────────────────────────────────────
@@ -48,9 +47,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 sb.AppendLine($"        /// Previewable in VS Code (Ctrl+Shift+V) or rendered on GitHub.");
                 sb.AppendLine($"        /// Write to disk: File.WriteAllText(\"{methodName}.ResultFlow.md\", {methodName}_Sidecar)");
                 sb.AppendLine($"        /// </summary>");
-                sb.AppendLine($"        public const string {methodName}_Sidecar = @\"");
-                sb.AppendLine(escapedSidecar);
-                sb.AppendLine($"\";");
+                sb.Append($"        public const string {methodName}_Sidecar = @\"{escapedSidecar.Trim()}");
+                sb.AppendLine("\";");
                 sb.AppendLine();
 
                 // ── LayerView diagram (optional) ─────────────────────────────
@@ -61,9 +59,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                     sb.AppendLine($"        /// Architecture-level diagram for {methodName}.");
                     sb.AppendLine($"        /// Shows one node per traced method, grouped by architectural layer and class.");
                     sb.AppendLine($"        /// </summary>");
-                    sb.AppendLine($"        public const string {methodName}_LayerView = @\"");
-                    sb.AppendLine(escapedLayerView);
-                    sb.AppendLine($"\";");
+                    sb.Append($"        public const string {methodName}_LayerView = @\"{escapedLayerView.Trim()}");
+                    sb.AppendLine("\";");
                     sb.AppendLine();
                 }
 
@@ -75,9 +72,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                     sb.AppendLine($"        /// Pipeline statistics for {methodName} — markdown table.");
                     sb.AppendLine($"        /// Paste into docs, changelogs, or ADRs.");
                     sb.AppendLine($"        /// </summary>");
-                    sb.AppendLine($"        public const string {methodName}_Stats = @\"");
-                    sb.AppendLine(escapedStats);
-                    sb.AppendLine($"\";");
+                    sb.Append($"        public const string {methodName}_Stats = @\"{escapedStats.Trim()}");
+                    sb.AppendLine("\";");
                     sb.AppendLine();
                 }
 
@@ -89,9 +85,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                     sb.AppendLine($"        /// Fail-edges-only view for {methodName}.");
                     sb.AppendLine($"        /// Shows every error type the pipeline can produce and where it originates.");
                     sb.AppendLine($"        /// </summary>");
-                    sb.AppendLine($"        public const string {methodName}_ErrorSurface = @\"");
-                    sb.AppendLine(escapedErrorSurface);
-                    sb.AppendLine($"\";");
+                    sb.Append($"        public const string {methodName}_ErrorSurface = @\"{escapedErrorSurface.Trim()}");
+                    sb.AppendLine("\";");
                     sb.AppendLine();
                 }
 
@@ -103,9 +98,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                     sb.AppendLine($"        /// Per-layer error propagation diagram for {methodName}.");
                     sb.AppendLine($"        /// Shows which error types can escape from each architectural layer.");
                     sb.AppendLine($"        /// </summary>");
-                    sb.AppendLine($"        public const string {methodName}_ErrorPropagation = @\"");
-                    sb.AppendLine(escapedErrorPropagation);
-                    sb.AppendLine($"\";");
+                    sb.Append($"        public const string {methodName}_ErrorPropagation = @\"{escapedErrorPropagation.Trim()}");
+                    sb.AppendLine("\";");
                     sb.AppendLine();
                 }
             }

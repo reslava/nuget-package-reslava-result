@@ -332,6 +332,51 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             return string.Join(".", parts);
         }
 
+        /// <summary>
+        /// Returns the method name of the chain's seed call (leftmost invocation that is not a
+        /// pipeline operator), e.g. "FindUser" for <c>FindUser(userId).Bind(...)</c>.
+        /// Returns null when the chain structure cannot be determined or the seed is not a
+        /// simple/qualified method call (e.g. constructor, property).
+        /// </summary>
+        public static string? TryGetSeedMethodName(MethodDeclarationSyntax method)
+        {
+            var rootExpr = GetRootExpression(method);
+            if (rootExpr == null) return null;
+            rootExpr = Unwrap(rootExpr);
+
+            if (rootExpr is IdentifierNameSyntax identRoot && method.Body != null)
+            {
+                var resolved = ResolveVariableInitializer(identRoot.Identifier.ValueText, method.Body);
+                if (resolved != null)
+                    rootExpr = Unwrap(resolved);
+            }
+
+            if (!(rootExpr is InvocationExpressionSyntax)) return null;
+
+            ExpressionSyntax cur = rootExpr;
+            ExpressionSyntax? lastReceiver = null;
+            while (cur is InvocationExpressionSyntax inv)
+            {
+                if (inv.Expression is MemberAccessExpressionSyntax ma)
+                {
+                    lastReceiver = Unwrap(ma.Expression);
+                    cur = lastReceiver;
+                }
+                else
+                    break;
+            }
+
+            if (lastReceiver is InvocationExpressionSyntax seedInv)
+            {
+                if (seedInv.Expression is IdentifierNameSyntax ident)
+                    return ident.Identifier.ValueText;
+                if (seedInv.Expression is MemberAccessExpressionSyntax seedMa)
+                    return seedMa.Name.Identifier.ValueText;
+            }
+
+            return null;
+        }
+
         private static ExpressionSyntax? GetRootExpression(MethodDeclarationSyntax method)
         {
             // Expression body: method => expr

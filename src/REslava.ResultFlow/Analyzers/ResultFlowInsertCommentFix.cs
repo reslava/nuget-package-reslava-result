@@ -40,9 +40,17 @@ namespace REslava.ResultFlow.Analyzers
                 .FirstOrDefault();
             if (methodDecl == null) return;
 
+            var hasExisting = methodDecl.GetLeadingTrivia().Any(t =>
+                t.IsKind(SyntaxKind.MultiLineCommentTrivia) &&
+                t.ToFullString().Contains("```mermaid"));
+
+            var title = hasExisting
+                ? "Refresh [ResultFlow] diagram comment"
+                : "Insert [ResultFlow] diagram as comment";
+
             context.RegisterCodeFix(
                 CodeAction.Create(
-                    title: "Insert [ResultFlow] diagram as comment",
+                    title: title,
                     createChangedDocument: ct => InsertDiagramCommentAsync(context.Document, methodDecl, ct),
                     equivalenceKey: "InsertResultFlowDiagram"),
                 diagnostic);
@@ -56,52 +64,77 @@ namespace REslava.ResultFlow.Analyzers
             var chain = ResultFlowChainExtractor.Extract(methodDecl);
             if (chain == null) return document;
 
-            var mermaid = ResultFlowMermaidRenderer.Render(chain);
             var methodName = methodDecl.Identifier.ValueText;
-
-            // Detect indentation: find the last WhitespaceTrivia in the method's leading trivia
-            var leadingTrivia = methodDecl.GetLeadingTrivia();
-            var indent = "";
-            int lastWsIndex = -1;
-            for (int i = leadingTrivia.Count - 1; i >= 0; i--)
-            {
-                if (leadingTrivia[i].IsKind(SyntaxKind.WhitespaceTrivia))
-                {
-                    indent = leadingTrivia[i].ToFullString();
-                    lastWsIndex = i;
-                    break;
-                }
-            }
+            var seedMethodName = ResultFlowChainExtractor.TryGetSeedMethodName(methodDecl);
+            var mermaid = ResultFlowMermaidRenderer.Render(
+                chain,
+                methodTitle: methodName,
+                seedMethodName: seedMethodName);
 
             // Build: /*\n```mermaid\n{mermaid}\n```*/
             // Fence markers are flush-left (no indent) so all Markdown renderers activate preview.
+            // Normalize to \n to avoid CRLF-on-save → double-blank-line on next refresh.
             var sb = new StringBuilder();
             sb.Append("/*\n");
             sb.Append("```mermaid\n");
-            sb.Append(mermaid);
+            sb.Append(mermaid.Replace("\r\n", "\n"));
             sb.Append("\n```");
             sb.Append("*/");
             var commentTrivia = SyntaxFactory.Comment(sb.ToString());
 
-            // Insert at lastWsIndex+1 (just after the indentation whitespace) — in reverse order:
-            //   Before: [..., ws]
-            //   After:  [..., ws, comment, newline, ws_copy]
-            // which renders: {indent}/* ... */\n{indent}[ResultFlow]...
-            SyntaxTriviaList newLeadingTrivia;
-            if (lastWsIndex >= 0)
+            var leadingTrivia = methodDecl.GetLeadingTrivia();
+
+            // If an existing generated mermaid block is present, replace it in-place.
+            int existingIndex = -1;
+            for (int i = 0; i < leadingTrivia.Count; i++)
             {
-                int insertAt = lastWsIndex + 1;
-                newLeadingTrivia = leadingTrivia
-                    .Insert(insertAt, SyntaxFactory.Whitespace(indent))  // duplicate indent for method line
-                    .Insert(insertAt, SyntaxFactory.EndOfLine("\n"))     // newline after comment
-                    .Insert(insertAt, commentTrivia);                    // the comment itself
+                if (leadingTrivia[i].IsKind(SyntaxKind.MultiLineCommentTrivia) &&
+                    leadingTrivia[i].ToFullString().Contains("```mermaid"))
+                {
+                    existingIndex = i;
+                    break;
+                }
+            }
+
+            SyntaxTriviaList newLeadingTrivia;
+            if (existingIndex >= 0)
+            {
+                newLeadingTrivia = leadingTrivia.Replace(leadingTrivia[existingIndex], commentTrivia);
             }
             else
             {
-                // No indentation found — prepend comment + newline
-                newLeadingTrivia = leadingTrivia
-                    .Insert(0, SyntaxFactory.EndOfLine("\n"))
-                    .Insert(0, commentTrivia);
+                // Detect indentation: find the last WhitespaceTrivia in the method's leading trivia
+                var indent = "";
+                int lastWsIndex = -1;
+                for (int i = leadingTrivia.Count - 1; i >= 0; i--)
+                {
+                    if (leadingTrivia[i].IsKind(SyntaxKind.WhitespaceTrivia))
+                    {
+                        indent = leadingTrivia[i].ToFullString();
+                        lastWsIndex = i;
+                        break;
+                    }
+                }
+
+                // Insert at lastWsIndex+1 (just after the indentation whitespace) — in reverse order:
+                //   Before: [..., ws]
+                //   After:  [..., ws, comment, newline, ws_copy]
+                // which renders: {indent}/* ... */\n{indent}[ResultFlow]...
+                if (lastWsIndex >= 0)
+                {
+                    int insertAt = lastWsIndex + 1;
+                    newLeadingTrivia = leadingTrivia
+                        .Insert(insertAt, SyntaxFactory.Whitespace(indent))  // duplicate indent for method line
+                        .Insert(insertAt, SyntaxFactory.EndOfLine("\n"))     // newline after comment
+                        .Insert(insertAt, commentTrivia);                    // the comment itself
+                }
+                else
+                {
+                    // No indentation found — prepend comment + newline
+                    newLeadingTrivia = leadingTrivia
+                        .Insert(0, SyntaxFactory.EndOfLine("\n"))
+                        .Insert(0, commentTrivia);
+                }
             }
 
             var newMethodDecl = methodDecl.WithLeadingTrivia(newLeadingTrivia);

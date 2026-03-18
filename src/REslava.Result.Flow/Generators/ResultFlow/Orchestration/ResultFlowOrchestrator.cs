@@ -114,15 +114,15 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                         }
 
                         var (opName, corrId) = ResultFlowChainExtractor.TryExtractContextHints(methodDecl);
-                        var mermaid = ResultFlowMermaidRenderer.Render(chain, operationName: opName, correlationId: corrId, linkMode: linkMode);
+                        var methodName = methodDecl.Identifier.ValueText;
+                        var seedMethodName = ResultFlowChainExtractor.TryGetSeedMethodName(methodDecl);
+                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, operationName: opName, correlationId: corrId, linkMode: linkMode);
 
                         // Detect root method layer for LayerView / Stats
                         string? rootLayer = null;
                         var rootSymbol = semanticModel.GetDeclaredSymbol(methodDecl) as Microsoft.CodeAnalysis.IMethodSymbol;
                         if (rootSymbol != null)
                             rootLayer = LayerDetector.Detect(rootSymbol);
-
-                        var methodName = methodDecl.Identifier.ValueText;
                         var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, opName, linkMode);
                         var stats = layerView != null ? ResultFlowStatsRenderer.Render(chain, rootLayer) : null;
                         var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain) : null;
