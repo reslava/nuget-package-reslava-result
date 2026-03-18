@@ -79,6 +79,8 @@ flowchart LR
   N0_PlaceOrder -->|"UserNotFoundError"| FAIL
 
   subgraph sg_N1_ValidateUser["ValidateUser"]
+    ENTRY_N1_ValidateUser[ ]:::entry
+    ENTRY_N1_ValidateUser[ ] ==> N1_0_Bind
     N1_0_Bind["Bind<br/>User"]:::transform
     N1_0_Bind -->|ok| N1_1_Bind
     N1_0_Bind -->|"UserInactiveError"| FAIL
@@ -98,6 +100,7 @@ flowchart LR
   classDef transform fill:#e3f0e8,color:#2f7a5c
   classDef failure   fill:#f8e3e3,color:#b13e3e
   classDef success   fill:#e6f6ea,color:#1c7e4f
+  classDef entry     fill:none,stroke:none
 ```
 
 ---

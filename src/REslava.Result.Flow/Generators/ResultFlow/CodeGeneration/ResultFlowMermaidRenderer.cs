@@ -140,6 +140,20 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                     AssignNodeIds(subVisible, prefix: $"{nodeId}_");
 
                     lines.Add($"{indent}subgraph {sgId}[\"{node.SubGraphName ?? node.MethodName}\"]");
+
+                    // Entry arrow: thick ==> marks where execution enters the expanded method
+                    if (subVisible.Count > 0)
+                    {
+                        var innerIndent = indent + "    ";
+                        var entryId = $"ENTRY_{nodeId}";
+                        var firstConnectId = (subVisible[0].SubNodes != null && subVisible[0].SubNodes.Count > 0)
+                            ? $"sg_{subVisible[0].NodeId}"
+                            : subVisible[0].NodeId!;
+                        lines.Add($"{innerIndent}{entryId}[ ]:::entry");
+                        lines.Add($"{innerIndent}{entryId}[ ] ==> {firstConnectId}");
+                        TryAddClass(declaredClasses, classDefs, "entry", "fill:none,stroke:none");
+                    }
+
                     RenderNodes(subVisible, lines, classDefs, declaredClasses, ref anyErrorEdges,
                         indent: indent + "    ");
                     lines.Add($"{indent}end");

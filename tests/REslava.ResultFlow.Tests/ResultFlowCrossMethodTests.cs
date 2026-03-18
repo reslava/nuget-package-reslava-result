@@ -204,6 +204,41 @@ namespace TestNS
         Assert.IsTrue(output.Contains("sg_"),          "Subgraph ID should use sg_ prefix");
     }
 
+    // ── 10. Subgraph emits entry arrow ==> pointing to first inner node ───────
+    [TestMethod]
+    public void CrossMethod_Subgraph_EmitsEntryArrow()
+    {
+        var source = CreateSource("OrderService", "Process",
+            "CreateOrder().Bind(x => Validate(x)).Map(ToDto)",
+            extraMethods: @"
+        static Result<Order> CreateOrder() => Result<Order>.Ok(new Order());
+        static Result<Order> Validate(Order o) =>
+            Result<Order>.Ok(o).Ensure(x => x.Id > 0, ""invalid"");
+        static OrderDto ToDto(Order o) => new OrderDto();");
+
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("ENTRY_"),        "Entry node should be emitted inside subgraph");
+        Assert.IsTrue(output.Contains("==>"),           "Thick arrow ==> should be emitted for entry");
+        Assert.IsTrue(output.Contains("classDef entry"), "classDef entry fill:none,stroke:none should be declared");
+    }
+
+    // ── 11. Flat pipeline (no subgraph) does NOT emit entry arrow ─────────────
+    [TestMethod]
+    public void FlatPipeline_NoSubgraph_NoEntryArrow()
+    {
+        var source = CreateSourceWithMaxDepth("OrderService", "Process", maxDepth: 0,
+            "CreateOrder().Map(ToDto)",
+            extraMethods: @"
+        static Result<Order> CreateOrder() => Result<Order>.Ok(new Order());
+        static OrderDto ToDto(Order o) => new OrderDto();");
+
+        var output = RunGenerator(source);
+
+        Assert.IsFalse(output.Contains("ENTRY_"), "Flat pipeline should not emit entry arrow");
+        Assert.IsFalse(output.Contains("==>"),    "Flat pipeline should not emit thick arrow");
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static string CreateSource(

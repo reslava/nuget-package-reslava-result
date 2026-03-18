@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.46.3] - 2026-03-18
+
+### ✨ Added
+
+#### REslava.Result.Flow + REslava.ResultFlow — Subgraph Entry Arrow
+
+- **Subgraph entry arrow** — cross-method `subgraph` blocks now open with an invisible `ENTRY_N[ ]:::entry ==>` thick arrow pointing to the first inner node, making the execution entry point immediately visible in expanded pipelines
+- `classDef entry fill:none,stroke:none` is emitted once per diagram when at least one subgraph is present
+- Flat (non-subgraph) pipelines are unchanged — the root amber `:::operation` node continues to serve as the visual entry indicator
+
+### Stats
+- Tests: 4,638 passing (floor: >4,500)
+- Features: 197 across 15 categories
+
+---
+
 ## [1.46.2] - 2026-03-18
 
 ### 🔧 Changed (non-breaking)
