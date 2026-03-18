@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.47.0] - 2026-03-18
+
+### ✨ Added
+
+#### Architectural Flow Catalog — `scripts/generate_flow_catalog.py`
+
+- **`generate_flow_catalog.py`** — post-build Python script that scans `obj/Generated/**/*_Flows.g.cs` for all `[ResultFlow]` and `[DomainBoundary]` generated diagram constants and publishes them as a live MkDocs catalog page; no generator changes required
+- **`mkdocs/reference/flow-catalog/index.md`** — auto-generated MkDocs page grouping every Mermaid diagram by class → method → view type (Pipeline, Layer View, Stats, Error Surface, Error Propagation); replaces hand-maintained gallery with a code-driven equivalent always in sync with the source
+- **`mkdocs/demo/`** — new Demo Project MkDocs section (`index.md` + `flow-catalog.md`) presenting the `REslava.Result.Flow.Demo` as a live feature showcase; wired into nav and home page grid
+- **Catalog auto-rebuild on publish** — `mkdocs-docfx.yml` builds the demo project and runs `generate_flow_catalog.py` before every MkDocs deploy; catalog is always up to date with the latest generator output
+- **`_Sidecar` constants skipped** — internal correlation data excluded from the public catalog; all visual diagram types included
+
+### Stats
+- Tests: 4,638 passing (floor: >4,500)
+- Features: 197 across 15 categories
+
+---
+
 ## [1.46.3] - 2026-03-18
 
 ### ✨ Added

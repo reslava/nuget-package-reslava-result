@@ -22,6 +22,7 @@ dotnet run
 | 8 | Clickable nodes — `ResultFlowLinkMode = vscode` | v1.43.0 |
 | 9 | Domain boundary diagrams — `[DomainBoundary]` triggers `_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation` | v1.45.0 |
 | 10 | Match multi-branch fan-out — hexagon + typed N-branch `-->|TypeName| FAIL` edges | v1.46.0 |
+| 11 | Architectural Flow Catalog — all generated diagrams published to MkDocs via `scripts/generate_flow_catalog.py` | v1.47.0 |
 
 ---
 
@@ -131,6 +132,18 @@ public static Result<Order> PlaceOrder(int userId, int productId) => ...
 ```
 
 Generated constant available at `Generated.ResultFlow.{ClassName}_Flows.{MethodName}`.
+
+---
+
+## Architectural Flow Catalog (section 11)
+
+All diagrams generated from this demo are published to the live MkDocs documentation site via `scripts/generate_flow_catalog.py`. The script scans `obj/Generated/**/*_Flows.g.cs`, extracts every Mermaid constant, and writes `mkdocs/reference/flow-catalog/index.md` — regenerated automatically on every release.
+
+Run it manually against any project:
+
+```bash
+python scripts/generate_flow_catalog.py --project path/to/MyProject --output path/to/output.md
+```
 
 ---
 

@@ -114,7 +114,11 @@ flowchart LR
     3,339+ tests, CI/CD, real‑world impact, and production benefits.
     [](testing)
 
--   :material-book-open-variant: __Reference__  
+-   :material-play-circle: __Demo Project__
+    Runnable console app — every `[ResultFlow]` and `[DomainBoundary]` feature with live generated diagrams.
+    [](demo)
+
+-   :material-book-open-variant: __Reference__
     Version history, roadmap, and API documentation.
     [](reference)
 

@@ -17,6 +17,7 @@ from pathlib import Path
 SECTION_ORDER = [
     "getting-started",
     "resultflow",
+    "demo",
     "core-concepts",
     "aspnet",
     "advanced",

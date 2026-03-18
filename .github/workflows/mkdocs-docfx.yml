@@ -59,7 +59,18 @@ jobs:
           # Add any other plugins you use (e.g., mkdocstrings)
           pip install pyyaml
           # Optional: for frontmatter titles
-          pip install python-frontmatter          
+          pip install python-frontmatter
+
+      - name: Setup .NET SDK (for demo build)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build demo project (generates *_Flows.g.cs)
+        run: dotnet build samples/REslava.Result.Flow.Demo/REslava.Result.Flow.Demo.csproj --configuration Release
+
+      - name: Regenerate Architectural Flow Catalog
+        run: python scripts/generate_flow_catalog.py
 
       - name: Clean docs folder (except index.md)
         run: python .github/scripts/clean_docs.py --no-dry-run --yes
