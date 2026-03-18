@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.46.2] - 2026-03-18
+
+### 🔧 Changed (non-breaking)
+
+#### REslava.Result + REslava.Result.Flow NuGet READMEs
+
+- **Markdown image syntax** — replaced HTML `<p><img /></p>` blocks (stripped by NuGet's HTML sanitizer) with standard Markdown `![alt](url)` syntax; SVG diagrams now render correctly on NuGet.org
+
+### Stats
+- Tests: 4,634 passing (floor: >4,500)
+- Features: 197 across 15 categories
+
+---
+
 ## [1.46.1] - 2026-03-18
 
 ### 🔧 Changed (non-breaking)

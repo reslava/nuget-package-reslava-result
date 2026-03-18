@@ -8,21 +8,11 @@
 [![Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/reslava/nuget-package-reslava-result/blob/main/LICENSE)
 
-<p align="center">
-  <a href="https://github.com/reslava/nuget-package-reslava-result">
-    <img src="https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/diagram-pipeline.svg" width="700" />
-  </a>
-</p>
-<p align="center"><em>Auto-generated pipeline diagram — success path, typed error edges, async steps</em></p>
+![Auto-generated pipeline diagram — success path, typed error edges, async steps](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/diagram-pipeline.svg)
 
-<p align="center">
-  <a href="https://github.com/reslava/nuget-package-reslava-result">
-    <img src="https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/layerview-architecture-diagram.svg" width="700" />
-  </a>
-</p>
-<p align="center"><em>Architecture layer view — Domain / Application / Infrastructure boundaries, auto-detected from namespaces</em></p>
+![Architecture layer view — Domain / Application / Infrastructure boundaries, auto-detected from namespaces](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/layerview-architecture-diagram.svg)
 
-<p align="center"><a href="https://github.com/reslava/nuget-package-reslava-result">→ Full documentation and diagram gallery on GitHub</a></p>
+→ [Full documentation and diagram gallery on GitHub](https://github.com/reslava/nuget-package-reslava-result)
 
 ## Why REslava.Result?
 
