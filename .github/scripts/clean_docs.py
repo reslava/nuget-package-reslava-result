@@ -12,7 +12,8 @@ from pathlib import Path
 EXCLUDE_DIRS = [
     "reference/api-doc",
     "advanced/architecture/solid",
-    "code-examples/samples"
+    "code-examples/samples",
+    "demo",
 ]
 
 def main():

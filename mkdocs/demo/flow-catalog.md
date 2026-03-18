@@ -1,42 +1,347 @@
 ---
-title: Flow Catalog — Demo Project
-description: All pipeline and architecture diagrams auto-generated from the REslava.Result.Flow.Demo project — updated on every release.
+title: Architectural Flow Catalog
+description: Live pipeline and architecture diagrams auto-generated from the REslava.Result.Flow.Demo project — see exactly what ResultFlow produces for real application code.
 ---
 
-# 🗺️ Flow Catalog — Demo Project
+# 🗺️ Architectural Flow Catalog
 
-> Every diagram below is **auto-generated** from the [`REslava.Result.Flow.Demo`](https://github.com/reslava/nuget-package-reslava-result/tree/main/samples/REslava.Result.Flow.Demo) project by `scripts/generate_flow_catalog.py` — the same output you get when you annotate your own methods with `[ResultFlow]`.
+> **See ResultFlow in action on real code.** Every diagram on this page is auto-generated from the [`REslava.Result.Flow.Demo`](https://github.com/reslava/nuget-package-reslava-result/tree/main/samples/REslava.Result.Flow.Demo) project — the same output you get when you annotate your own methods with `[ResultFlow]`.
 
-The script scans `obj/Generated/**/*_Flows.g.cs`, extracts every Mermaid constant, and publishes it to the documentation site on every release. Zero manual work.
+Each method shows its full set of generated views: pipeline flow, architecture layer view, stats, error surface, and error propagation — all derived automatically from the source code with zero manual work.
 
 !!! info
-    This catalog is regenerated automatically on every release. Do not edit manually.
+    This page is regenerated automatically on every release. Do not edit manually.
 
 ---
 
-## Run it yourself
+## MatchDemo
 
-Generate the catalog against any project that has `EmitCompilerGeneratedFiles=true`:
+### ConfirmOrder
 
-```bash
-# Against the demo (default)
-python scripts/generate_flow_catalog.py
+#### Pipeline
 
-# Against your own project
-python scripts/generate_flow_catalog.py \
-    --project path/to/MyProject \
-    --output path/to/output.md
-```
+*Success path, typed error edges, async steps*
 
-First build the target project so the generated `.cs` files exist:
-
-```bash
-dotnet build samples/REslava.Result.Flow.Demo
-python scripts/generate_flow_catalog.py
+```mermaid
+flowchart LR
+    N0_Match{{"Match"}}:::terminal
+    N0_Match -->|ok| SUCCESS
+    SUCCESS([success]):::success
+    N0_Match -->|fail| FAIL
+    FAIL([fail])
+    FAIL:::failure
+    classDef success fill:#e6f6ea,color:#1c7e4f
+    classDef terminal fill:#f2e3f5,color:#8a4f9e
+    classDef failure fill:#f8e3e3,color:#b13e3e
+%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
+%%   N0_Match → Match
 ```
 
 ---
 
-[→ View the full Architectural Flow Catalog](../reference/flow-catalog){ .md-button .md-button--primary }
+## OrderService
 
-The catalog groups every generated diagram by class → method → view type (Pipeline, Layer View, Stats, Error Surface, Error Propagation), so you can browse the full output of the demo project end-to-end.
+### PlaceOrderCross
+
+#### Pipeline
+
+*Success path, typed error edges, async steps*
+
+```mermaid
+flowchart LR
+    subgraph sg_N0_ValidateUser["ValidateUser"]
+        ENTRY_N0_ValidateUser[ ]:::entry
+        ENTRY_N0_ValidateUser[ ] ==> N0_ValidateUser_0_Ok
+        N0_ValidateUser_0_Ok["Ok<br/>User"]:::operation
+        N0_ValidateUser_0_Ok --> N0_ValidateUser_1_Bind
+        N0_ValidateUser_1_Bind["Bind<br/>User"]:::transform
+        N0_ValidateUser_1_Bind -->|ok| N0_ValidateUser_2_Bind
+        N0_ValidateUser_1_Bind -->|UserInactiveError| FAIL
+        N0_ValidateUser_2_Bind["Bind<br/>User"]:::transform
+        N0_ValidateUser_2_Bind -->|UnauthorizedRoleError| FAIL
+    end
+    sg_N0_ValidateUser -->|ok| N1_FindProduct
+    sg_N0_ValidateUser -->|fail| FAIL
+    N1_FindProduct["FindProduct<br/>User → Product"]:::transform
+    N1_FindProduct -->|ok| N2_Map
+    N1_FindProduct -->|fail| FAIL
+    N2_Map["Map<br/>Product → Order"]:::transform
+    N2_Map -->|ok| SUCCESS
+    SUCCESS([success]):::success
+    FAIL([fail])
+    FAIL:::failure
+    classDef entry fill:none,stroke:none
+    classDef operation fill:#fef0e3,color:#b86a1c
+    classDef transform fill:#e3f0e8,color:#2f7a5c
+    classDef success fill:#e6f6ea,color:#1c7e4f
+    classDef failure fill:#f8e3e3,color:#b13e3e
+%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
+%%   N0_ValidateUser → ValidateUser
+%%   N1_FindProduct → FindProduct
+%%   N2_Map → Map
+```
+
+#### Layer View
+
+*Architecture layers — Domain / Application / Infrastructure boundaries*
+
+```mermaid
+flowchart TD
+
+  subgraph Application["Application"]
+    subgraph OrderService["OrderService"]
+      N_PlaceOrderCross["PlaceOrderCross"]:::layerApp
+    end
+  end
+
+  subgraph Domain["Domain"]
+    subgraph UserService["UserService"]
+      N_ValidateUser["ValidateUser"]:::layerDomain
+    end
+  end
+
+  N_PlaceOrderCross -->|"User / UserInactiveError, UnauthorizedRoleError"| N_ValidateUser
+  N_ValidateUser -->|"UserInactiveError"| FAIL
+  N_ValidateUser -->|"UnauthorizedRoleError"| FAIL
+  N_ValidateUser -->|ok| SUCCESS
+
+  FAIL([fail]):::failure
+  SUCCESS([success]):::success
+
+  classDef layerApp fill:#e8f7ee,color:#1e6f43
+  classDef layerDomain fill:#fff6e5,color:#a36b00
+  classDef failure fill:#f8e3e3,color:#b13e3e
+  classDef success fill:#e6f6ea,color:#1c7e4f
+
+  class Application layerApp
+  class Domain layerDomain
+```
+
+#### Stats
+
+*Node count, error count, depth, async steps*
+
+| Property        | Value                                    |
+|-----------------|------------------------------------------|
+| Steps           | 6                                        |
+| Async steps     | 0                                        |
+| Possible errors | UserInactiveError, UnauthorizedRoleError |
+| Layers crossed  | Domain                                   |
+| Max depth traced | 1                                        |
+
+#### Error Surface
+
+*All possible errors grouped by the step that produces them*
+
+```mermaid
+flowchart LR
+  N0_ValidateUser["ValidateUser"] -->|"fail"| FAIL
+  N1_Bind["Bind"] -->|"UserInactiveError"| FAIL
+  N2_Bind["Bind"] -->|"UnauthorizedRoleError"| FAIL
+  N3_FindProduct["FindProduct"] -->|"fail"| FAIL
+
+  FAIL([fail]):::failure
+
+  classDef failure fill:#f8e3e3,color:#b13e3e
+```
+
+#### Error Propagation
+
+*Error types grouped by the architectural layer they originate from*
+
+```mermaid
+flowchart TD
+
+  subgraph Domain["Domain"]
+    E0["UserInactiveError"]:::failure
+    E1["UnauthorizedRoleError"]:::failure
+  end
+
+  E0 --> FAIL([fail]):::failure
+  E1 --> FAIL([fail]):::failure
+
+  classDef layerDomain fill:#fff6e5,color:#a36b00
+  classDef failure fill:#f8e3e3,color:#b13e3e
+
+  class Domain layerDomain
+```
+
+---
+
+## Pipelines
+
+### ValidateOrder
+
+#### Pipeline
+
+*Success path, typed error edges, async steps*
+
+```mermaid
+flowchart LR
+    N0_Ok["Ok<br/>Order"]:::operation
+    N0_Ok --> N1_Ensure
+    N1_Ensure["Ensure<br/>Order"]:::gatekeeper
+    N1_Ensure -->|pass| N2_Ensure
+    N1_Ensure -->|fail| FAIL
+    N2_Ensure["Ensure<br/>Order"]:::gatekeeper
+    N2_Ensure -->|pass| N3_Ensure
+    N2_Ensure -->|fail| FAIL
+    N3_Ensure["Ensure<br/>Order"]:::gatekeeper
+    N3_Ensure -->|fail| FAIL
+    N3_Ensure -->|ok| SUCCESS
+    SUCCESS([success]):::success
+    FAIL([fail])
+    FAIL:::failure
+    classDef operation fill:#fef0e3,color:#b86a1c
+    classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
+    classDef success fill:#e6f6ea,color:#1c7e4f
+    classDef failure fill:#f8e3e3,color:#b13e3e
+%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
+%%   N0_Ok → Ok
+%%   N1_Ensure → Ensure
+%%   N2_Ensure → Ensure
+%%   N3_Ensure → Ensure
+```
+
+---
+
+### PlaceOrder
+
+#### Pipeline
+
+*Success path, typed error edges, async steps*
+
+```mermaid
+flowchart LR
+    N0_FindProduct["FindProduct<br/>User → Product"]:::transform
+    N0_FindProduct -->|ok| N1_BuildOrder
+    N0_FindProduct -->|fail| FAIL
+    N1_BuildOrder["BuildOrder<br/>Product → Order"]:::transform
+    N1_BuildOrder -->|fail| FAIL
+    N1_BuildOrder -->|ok| SUCCESS
+    SUCCESS([success]):::success
+    FAIL([fail])
+    FAIL:::failure
+    classDef transform fill:#e3f0e8,color:#2f7a5c
+    classDef success fill:#e6f6ea,color:#1c7e4f
+    classDef failure fill:#f8e3e3,color:#b13e3e
+%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
+%%   N0_FindProduct → FindProduct
+%%   N1_BuildOrder → BuildOrder
+```
+
+---
+
+### ProcessCheckout
+
+#### Pipeline
+
+*Success path, typed error edges, async steps*
+
+```mermaid
+flowchart LR
+    N0_FindProduct["FindProduct<br/>User → Product"]:::transform
+    N0_FindProduct -->|ok| N1_BuildOrder
+    N0_FindProduct -->|fail| FAIL
+    N1_BuildOrder["BuildOrder<br/>Product → Order"]:::transform
+    N1_BuildOrder -->|ok| N2_Map
+    N1_BuildOrder -->|fail| FAIL
+    N2_Map["Map<br/>Order → String"]:::transform
+    N2_Map -->|ok| SUCCESS
+    SUCCESS([success]):::success
+    FAIL([fail])
+    FAIL:::failure
+    classDef transform fill:#e3f0e8,color:#2f7a5c
+    classDef success fill:#e6f6ea,color:#1c7e4f
+    classDef failure fill:#f8e3e3,color:#b13e3e
+%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
+%%   N0_FindProduct → FindProduct
+%%   N1_BuildOrder → BuildOrder
+%%   N2_Map → Map
+```
+
+---
+
+### PlaceOrderAsync
+
+#### Pipeline
+
+*Success path, typed error edges, async steps*
+
+```mermaid
+flowchart LR
+    N0_FindProductAsync["FindProductAsync ⚡<br/>User → Product"]:::transform
+    N0_FindProductAsync -->|ok| N1_EnsureAsync
+    N0_FindProductAsync -->|fail| FAIL
+    N1_EnsureAsync["EnsureAsync ⚡<br/>Product"]:::gatekeeper
+    N1_EnsureAsync -->|pass| N2_MapAsync
+    N1_EnsureAsync -->|fail| FAIL
+    N2_MapAsync["MapAsync ⚡<br/>Product → Order"]:::transform
+    N2_MapAsync --> N3_SaveOrderAsync
+    N3_SaveOrderAsync["SaveOrderAsync ⚡<br/>Order"]:::transform
+    N3_SaveOrderAsync -->|fail| FAIL
+    N3_SaveOrderAsync -->|ok| SUCCESS
+    SUCCESS([success]):::success
+    FAIL([fail])
+    FAIL:::failure
+    classDef transform fill:#e3f0e8,color:#2f7a5c
+    classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
+    classDef success fill:#e6f6ea,color:#1c7e4f
+    classDef failure fill:#f8e3e3,color:#b13e3e
+%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
+%%   N0_FindProductAsync → FindProductAsync
+%%   N1_EnsureAsync → EnsureAsync
+%%   N2_MapAsync → MapAsync
+%%   N3_SaveOrderAsync → SaveOrderAsync
+```
+
+---
+
+### AdminCheckout
+
+#### Pipeline
+
+*Success path, typed error edges, async steps*
+
+```mermaid
+flowchart LR
+    N0_EnsureAsync["EnsureAsync ⚡<br/>User"]:::gatekeeper
+    N0_EnsureAsync -->|pass| N1_FindProductAsync
+    N0_EnsureAsync -->|fail| FAIL
+    N1_FindProductAsync["FindProductAsync ⚡<br/>User → Product"]:::transform
+    N1_FindProductAsync -->|ok| N2_EnsureAsync
+    N1_FindProductAsync -->|fail| FAIL
+    N2_EnsureAsync["EnsureAsync ⚡<br/>Product"]:::gatekeeper
+    N2_EnsureAsync -->|pass| N3_MapAsync
+    N2_EnsureAsync -->|fail| FAIL
+    N3_MapAsync["MapAsync ⚡<br/>Product → Order"]:::transform
+    N3_MapAsync --> N4_SaveOrderAsync
+    N4_SaveOrderAsync["SaveOrderAsync ⚡<br/>Order"]:::transform
+    N4_SaveOrderAsync -->|ok| N5_Log
+    N4_SaveOrderAsync -->|fail| FAIL
+    N5_Log["Log<br/>Order"]:::sideeffect
+    N5_Log --> N6_Log
+    N6_Log["Log<br/>Order"]:::sideeffect
+    N6_Log --> N7_MapAsync
+    N7_MapAsync["MapAsync ⚡<br/>Order → String"]:::transform
+    N7_MapAsync -->|ok| SUCCESS
+    SUCCESS([success]):::success
+    FAIL([fail])
+    FAIL:::failure
+    classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
+    classDef transform fill:#e3f0e8,color:#2f7a5c
+    classDef sideeffect fill:#fff4d9,color:#b8882c
+    classDef success fill:#e6f6ea,color:#1c7e4f
+    classDef failure fill:#f8e3e3,color:#b13e3e
+%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
+%%   N0_EnsureAsync → EnsureAsync
+%%   N1_FindProductAsync → FindProductAsync
+%%   N2_EnsureAsync → EnsureAsync
+%%   N3_MapAsync → MapAsync
+%%   N4_SaveOrderAsync → SaveOrderAsync
+%%   N5_Log → Log
+%%   N6_Log → Log
+%%   N7_MapAsync → MapAsync
+```
+
+---

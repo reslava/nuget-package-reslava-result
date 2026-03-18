@@ -213,7 +213,7 @@ def main():
     )
     parser.add_argument(
         "--output",
-        default=str(repo_root / "mkdocs" / "reference" / "flow-catalog" / "index.md"),
+        default=str(repo_root / "mkdocs" / "demo" / "flow-catalog.md"),
         help="Output MkDocs page path",
     )
     args = parser.parse_args()
