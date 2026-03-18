@@ -14,6 +14,8 @@ cd samples/REslava.Result.Flow.Demo
 dotnet run
 ```
 
+[→ See all generated diagrams from the demo](flow-catalog){ .md-button }
+
 ---
 
 ## Features demonstrated
@@ -46,5 +48,3 @@ Every `[ResultFlow]`-annotated method gets a set of generated constants in a `*_
 | `{MethodName}_ErrorSurface` | Fail-edges only — the full failure surface at a glance |
 | `{MethodName}_ErrorPropagation` | Error types grouped by the layer they originate from |
 | `{MethodName}_Sidecar` | Same as pipeline, wrapped in a fenced markdown block (write to disk) |
-
-[→ See all generated diagrams from the demo](flow-catalog){ .md-button }
