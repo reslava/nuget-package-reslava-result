@@ -282,6 +282,9 @@ tagline: Know exactly what you're getting.
 | Title type annotation | Frontmatter title includes output type: `PlaceOrder⚡ → ⟨Order⟩`; non-generic: `→ ⟨⟩`; `Result<T,TError>` shows T only; both packages | v1.47.2 | — |
 | `Legend` constant | One `Legend` Mermaid mini-diagram per `*_Flows` class; horizontal row showing all 9 node types with shapes and colors; access via `OrderService_Flows.Legend`; both packages | v1.47.2 | `### 🗺️ Node Type Legend — Legend constant` |
 | `PipelineNode.PredicateText` + Gatekeeper tooltip | `string?` property set when `Ensure`/`Filter` first arg is a lambda; renderer wraps label in `<span title='p.Stock > 0'>Ensure</span>`; visible on hover in VS Code, silently dropped on GitHub; both packages | v1.47.2 | — |
+| Legend Guard tooltip + note update | `Legend` constant Guard node uses `<span title='hover shows condition'>Guard</span>`; note updated to `⚡ = async \| Guard: condition shown on hover`; makes tooltip self-documenting in the legend; both packages | v1.47.3 | `### 3.11. Node Type Legend` |
+| `scripts/svg.sh` — SVG pipeline orchestrator | New local script: build Demo → export `.mmd` → convert to `.svg`; re-run whenever generator rendering changes; `images/*.mmd` transient (gitignored); local only (mmdc/Puppeteer not in CI) | v1.47.3 | — |
+| `generate_flow_catalog.py --export-mmd DIR` | New export mode: `{ClassName}_{ConstantName}.mmd` naming avoids collisions; `Legend.mmd` exported once; auto TD→450/LR→900 width via `SVGO_WIDTH` env var; Stats/Sidecar skipped | v1.47.3 | — |
 
 ---
 
@@ -310,7 +313,7 @@ tagline: Know exactly what you're getting.
 
 ## Summary
 
-!!! new "**v1.47.1** — 203 features across 15 categories."
+!!! new "**v1.47.3** — 206 features across 15 categories."
 
 
 | Category | Total Features |
@@ -327,10 +330,10 @@ tagline: Know exactly what you're getting.
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
-| ResultFlow | 47 |
+| ResultFlow | 50 |
 | OpenTelemetry | 3 |
 | ResultContext | 6 |
-| **Total** | **203** |
+| **Total** | **206** |
 
 ---
 
