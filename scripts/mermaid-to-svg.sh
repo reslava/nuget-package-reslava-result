@@ -1,19 +1,31 @@
 #!/bin/bash
+# mermaid-to-svg.sh
+# Converts every *.mmd file in the current directory to an optimised SVG.
+#
+# Width auto-detection:
+#   flowchart TD  →  width=450  (architecture / error-propagation — tall, narrow)
+#   flowchart LR  →  width=900  (pipeline / error-surface — wide)
+#
+# SVGO_WIDTH is exported so svgo.config.js picks it up without any duplication.
 
-for file in *.mmd; do
-  # Convert Mermaid to SVG
-  mmdc -i "$file" -o "${file%.mmd}.svg"
-  
-  # Check diagram type
-  if grep -qE "^flowchart TD" "$file"; then
-    width=450
-  elif grep -qE "^flowchart LR" "$file"; then
-    width=900
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG="$SCRIPT_DIR/../images/svgo.config.js"
+
+for mmd_file in *.mmd; do
+  svg_file="${mmd_file%.mmd}.svg"
+
+  # Detect orientation and set width
+  if grep -qE "^flowchart TD" "$mmd_file"; then
+    export SVGO_WIDTH=450
   else
-    width=900  # default to 900 for other types
+    export SVGO_WIDTH=900
   fi
-  
-  # Optimize with SVGO
-  #svgo "${file%.mmd}.svg" --multipass --disable=convertShapeToPath --width=$width
-  svgo "${file%.mmd}.svg" -o "${file%.mmd}.svg"
+
+  # Convert Mermaid → SVG (--width sets viewBox before SVGO runs)
+  mmdc -i "$mmd_file" -o "$svg_file" --width "$SVGO_WIDTH"
+
+  # Optimise with SVGO (reads SVGO_WIDTH from env via svgo.config.js)
+  svgo "$svg_file" -o "$svg_file" --config "$CONFIG"
 done

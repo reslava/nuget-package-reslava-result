@@ -85,7 +85,7 @@ public class ResultFlowGeneratorTests
 
         var output = RunGenerator(source);
 
-        Assert.IsFalse(output.Contains("span title="), "Method-group predicate should not emit tooltip");
+        Assert.IsFalse(PipelineOnly(output).Contains("span title="), "Method-group predicate should not emit tooltip");
     }
 
     // 4. Tap → label shows type (type-preserving side-effect)
@@ -489,5 +489,13 @@ namespace TestNS
         }
 
         return sb.ToString();
+    }
+
+    // Returns only the pipeline constants portion — strips the Legend constant so that
+    // Legend-specific content (Guard tooltip, note <br/>) doesn't trip pipeline-only assertions.
+    private static string PipelineOnly(string output)
+    {
+        var idx = output.IndexOf("const string Legend", StringComparison.Ordinal);
+        return idx >= 0 ? output[..idx] : output;
     }
 }

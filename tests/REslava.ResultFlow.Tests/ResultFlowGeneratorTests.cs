@@ -44,7 +44,7 @@ public class ResultFlowGeneratorTests
             "GetUser(cmd).Ensure(IsValid)");
         var output = RunGenerator(source);
 
-        Assert.IsFalse(output.Contains("span title="), "Method-group predicate should not emit tooltip");
+        Assert.IsFalse(PipelineOnly(output).Contains("span title="), "Method-group predicate should not emit tooltip");
     }
 
     // ───────────────────────────────────────────────────────────────────────
@@ -526,7 +526,7 @@ namespace TestNamespace
         var output = RunGenerator(source);
 
         Assert.IsTrue(output.Contains("Bind"),   "Bind node still present");
-        Assert.IsFalse(output.Contains("<br/>"), "No type label when type cannot be resolved");
+        Assert.IsFalse(PipelineOnly(output).Contains("<br/>"), "No type label when type cannot be resolved");
     }
 
     // ───────────────────────────────────────────────────────────────────────
@@ -628,6 +628,14 @@ namespace TestNS
     {
         var (output, _) = RunGeneratorFull(source);
         return output;
+    }
+
+    // Returns only the pipeline constants portion — strips the Legend constant so that
+    // Legend-specific content (Guard tooltip, note <br/>) doesn't trip pipeline-only assertions.
+    private static string PipelineOnly(string output)
+    {
+        var idx = output.IndexOf("const string Legend", StringComparison.Ordinal);
+        return idx >= 0 ? output[..idx] : output;
     }
 
     private static (string output, System.Collections.Generic.IReadOnlyList<Diagnostic> diagnostics)

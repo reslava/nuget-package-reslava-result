@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.47.3] - 2026-03-20
+
+### ✨ Added
+
+#### SVG Single Source of Truth — All Diagram Showcases Automated
+
+- **`scripts/svg.sh`** — new local orchestrator: builds the Demo project, exports `.mmd` files via `generate_flow_catalog.py --export-mmd`, converts to SVG via `mermaid-to-svg.sh`; SVGs committed as static assets (mmdc requires Puppeteer — not suitable for CI)
+- **`generate_flow_catalog.py --export-mmd DIR`** — new export mode: writes `{ClassName}_{ConstantName}.mmd` files for Pipeline/LayerView/ErrorSurface/ErrorPropagation/Cross constants; `Legend.mmd` exported once (no class prefix); Stats/Sidecar skipped
+- **Auto width detection** — `mermaid-to-svg.sh` detects `flowchart TD` → `SVGO_WIDTH=450`, else `SVGO_WIDTH=900`; `images/svgo.config.js` reads `SVGO_WIDTH` env var instead of hardcoded `'900'` — one config file, no duplication
+- **All showcase diagrams replaced with SVGs** — GitHub `README.md`, NuGet READMEs (`REslava.Result`, `REslava.Result.Flow`, `REslava.ResultFlow`), MkDocs `index.md` and `resultflow/diagrams/index.md` — all non-code Mermaid showcase blocks replaced with `![alt](images/Name.svg)` image links
+- **Demo project extended** — `InventoryService` (`[DomainBoundary("Infrastructure")]`, `[ResultFlow(MaxDepth = 2)]`) + `WarehouseService` (`[DomainBoundary("Domain")]`); provides variety for LayerView / ErrorSurface / ErrorPropagation diagram types beyond the existing `OrderService` scenario
+- **Legend Guard tooltip** — `Legend` constant Guard node now uses `<span title='hover shows condition'>Guard</span>` label, matching real Gatekeeper nodes and making the tooltip feature self-documenting in the legend; note text updated: `⚡ = async | Guard: condition shown on hover`; both packages
+
+### Stats
+- Tests: 4,648 passing (floor: >4,500)
+- Features: 197 across 15 categories
+
+---
+
 ## [1.47.2] - 2026-03-20
 
 ### ✨ Added

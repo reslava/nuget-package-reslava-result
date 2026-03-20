@@ -8,11 +8,19 @@ Usage:
     python scripts/generate_flow_catalog.py
     python scripts/generate_flow_catalog.py --project path/to/MyProject
     python scripts/generate_flow_catalog.py --project path/to/MyProject --output path/to/output.md
+    python scripts/generate_flow_catalog.py --export-mmd images/
     python scripts/generate_flow_catalog.py --help
 
 Defaults:
     --project  samples/REslava.Result.Flow.Demo
     --output   mkdocs/reference/flow-catalog/index.md
+
+--export-mmd DIR:
+    Instead of writing the MkDocs catalog, export each diagram constant as a
+    .mmd file into DIR.  Naming: {ClassName}_{ConstantName}.mmd
+    Legend is exported once as Legend.mmd (no class prefix).
+    Exported types: Pipeline, _LayerView, _ErrorSurface, _ErrorPropagation.
+    Skipped types:  _Stats, _Sidecar.
 """
 
 import argparse
@@ -34,6 +42,10 @@ SUFFIX_META = {
 SKIP_SUFFIXES = {"_Sidecar"}
 # Exact constant names that are per-class (not per-method) and should not appear as diagrams
 SKIP_NAMES = {"Legend"}
+# Suffixes excluded from .mmd export (Stats is a markdown table; Sidecar is wrapped markdown)
+_EXPORT_SKIP_SUFFIXES = {"_Stats", "_Sidecar"}
+# Exact names exported once with no class prefix
+_EXPORT_ONCE_NAMES = {"Legend"}
 
 # Suffix sort order for display
 SUFFIX_ORDER = ["", "_LayerView", "_Stats", "_ErrorSurface", "_ErrorPropagation"]
@@ -55,13 +67,16 @@ def find_generated_files(project_dir: Path) -> list[Path]:
     return sorted(files)
 
 
-def extract_constants(cs_file: Path) -> dict[str, str]:
+def extract_constants(cs_file: Path, skip_names: "set[str] | None" = None) -> dict[str, str]:
     """
     Extract all public const string constants from a C# verbatim string file.
     Returns {constant_name: mermaid_content}.
-    Skips constants in SKIP_SUFFIXES.
+    Skips constants whose name is in skip_names (default: SKIP_NAMES) or suffix is in SKIP_SUFFIXES.
     Unescapes verbatim string doubled-quote sequences ("" → ").
+    Pass skip_names=set() to include all constants (e.g. for --export-mmd mode).
     """
+    if skip_names is None:
+        skip_names = SKIP_NAMES
     text = cs_file.read_text(encoding="utf-8")
     constants = {}
 
@@ -76,7 +91,7 @@ def extract_constants(cs_file: Path) -> dict[str, str]:
             first_content = m.group(2)  # content on same line as opening @"
 
             # Determine suffix
-            skip = name in SKIP_NAMES
+            skip = name in skip_names
             if not skip:
                 for s in SKIP_SUFFIXES:
                     if name.endswith(s):
@@ -210,6 +225,59 @@ def render_page(catalog: list[tuple[str, dict[str, dict[str, str]]]]) -> str:
     return "\n".join(lines)
 
 
+def _should_export(const_name: str) -> bool:
+    """Returns True if this constant should be written as a .mmd file."""
+    # Skip _Stats and _Sidecar
+    for s in _EXPORT_SKIP_SUFFIXES:
+        if const_name.endswith(s):
+            return False
+    # Export _LayerView, _ErrorSurface, _ErrorPropagation
+    for s in ("_LayerView", "_ErrorSurface", "_ErrorPropagation"):
+        if const_name.endswith(s):
+            return True
+    # Export plain Pipeline (name has no recognised multi-word suffix)
+    all_known = {"_LayerView", "_Stats", "_ErrorSurface", "_ErrorPropagation", "_Sidecar"}
+    return not any(const_name.endswith(s) for s in all_known)
+
+
+def export_mmd(cs_files: "list[Path]", export_dir: Path) -> None:
+    """
+    Export diagram constants as .mmd files into export_dir.
+
+    Naming convention: {ClassName}_{ConstantName}.mmd
+    Exception: Legend is exported once as Legend.mmd (no class prefix).
+    """
+    export_dir.mkdir(parents=True, exist_ok=True)
+    legend_written = False
+    exported = 0
+
+    for cs_file in cs_files:
+        class_name = class_name_from_file(cs_file)
+        # Include Legend (pass empty skip_names so nothing is pre-filtered)
+        constants = extract_constants(cs_file, skip_names=set())
+
+        for const_name, content in constants.items():
+            # Legend: write once, no class prefix
+            if const_name in _EXPORT_ONCE_NAMES:
+                if not legend_written:
+                    out = export_dir / f"{const_name}.mmd"
+                    out.write_text(content, encoding="utf-8")
+                    print(f"  Exported: {out.name}")
+                    exported += 1
+                    legend_written = True
+                continue
+
+            if not _should_export(const_name):
+                continue
+
+            out = export_dir / f"{class_name}_{const_name}.mmd"
+            out.write_text(content, encoding="utf-8")
+            print(f"  Exported: {out.name}")
+            exported += 1
+
+    print(f"Total   : {exported} .mmd file(s) written to {export_dir}")
+
+
 def main():
     repo_root = Path(__file__).parent.parent
 
@@ -226,19 +294,33 @@ def main():
         default=str(repo_root / "mkdocs" / "demo" / "flow-catalog.md"),
         help="Output MkDocs page path",
     )
+    parser.add_argument(
+        "--export-mmd",
+        default=None,
+        metavar="DIR",
+        help="Export diagram constants as .mmd files to DIR (skips catalog generation)",
+    )
     args = parser.parse_args()
 
     project_dir = Path(args.project)
-    output_path = Path(args.output)
 
     print(f"Project : {project_dir}")
-    print(f"Output  : {output_path}")
 
     # Find generated files
     cs_files = find_generated_files(project_dir)
     print(f"Found   : {len(cs_files)} *_Flows.g.cs file(s)")
 
-    # Parse each file
+    # ── Export .mmd mode ──────────────────────────────────────────────────────
+    if args.export_mmd:
+        export_dir = Path(args.export_mmd)
+        print(f"Export  : {export_dir}")
+        export_mmd(cs_files, export_dir)
+        return
+
+    # ── Catalog generation mode ───────────────────────────────────────────────
+    output_path = Path(args.output)
+    print(f"Output  : {output_path}")
+
     catalog = []
     for cs_file in cs_files:
         class_name = class_name_from_file(cs_file)

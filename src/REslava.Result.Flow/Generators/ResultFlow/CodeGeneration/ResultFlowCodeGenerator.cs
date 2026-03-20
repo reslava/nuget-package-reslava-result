@@ -130,12 +130,12 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             sb.AppendLine("    S[ ]:::entry ==> E[\"Entry\"]:::operation");
             sb.AppendLine("    E ~~~ B[\"Bind\"]:::bind");
             sb.AppendLine("    B ~~~ M[\"Map\"]:::map");
-            sb.AppendLine("    M ~~~ G[\"Guard\"]:::gatekeeper");
+            sb.AppendLine("    M ~~~ G[\"<span title='hover shows condition'>Guard</span>\"]:::gatekeeper");
             sb.AppendLine("    G ~~~ T[\"Tap\"]:::sideeffect");
             sb.AppendLine("    T ~~~ X{{\"Match\"}}:::terminal");
             sb.AppendLine("    X ~~~ SUC([success]):::success");
             sb.AppendLine("    X ~~~ F([fail]):::failure");
-            sb.AppendLine("    F ~~~ A[\"\u26a1 = async\"]:::note");
+            sb.AppendLine("    F ~~~ A[\"\u26a1 = async<br/>Guard: condition shown on hover\"]:::note");
             sb.AppendLine("    classDef entry      fill:none,stroke:none");
             sb.AppendLine("    classDef operation  fill:#fef0e3,color:#b86a1c");
             sb.AppendLine("    classDef bind       fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px");

@@ -14,6 +14,256 @@ Each method shows its full set of generated views: pipeline flow, architecture l
 
 ---
 
+## InventoryService
+
+### CheckStock
+
+#### Pipeline
+
+*Success path, typed error edges, async steps*
+
+```mermaid
+---
+title: CheckStock → ⟨StockReservation⟩
+---
+flowchart LR
+    ENTRY_ROOT["FindProduct<br/>→ Product"]:::operation ==> sg_N0_ReserveStock
+    subgraph sg_N0_ReserveStock["ReserveStock"]
+        ENTRY_N0_ReserveStock[ ]:::entry
+        ENTRY_N0_ReserveStock[ ] ==> N0_ReserveStock_0_Ok
+        N0_ReserveStock_0_Ok["Ok<br/>Product"]:::operation
+        N0_ReserveStock_0_Ok --> N0_ReserveStock_1_Bind
+        N0_ReserveStock_1_Bind["Bind<br/>Product"]:::bind
+        N0_ReserveStock_1_Bind -->|InsufficientStockError| FAIL
+    end
+    sg_N0_ReserveStock -->|ok| N1_Map
+    sg_N0_ReserveStock -->|fail| FAIL
+    N1_Map["Map<br/>Product → StockReservation"]:::map
+    N1_Map -->|ok| SUCCESS
+    SUCCESS([success]):::success
+    FAIL([fail])
+    FAIL:::failure
+    classDef operation fill:#fef0e3,color:#b86a1c
+    classDef entry fill:none,stroke:none
+    classDef bind fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px
+    classDef transform fill:#e3f0e8,color:#2f7a5c
+    classDef map fill:#e3f0e8,color:#2f7a5c
+    classDef success fill:#e6f6ea,color:#1c7e4f
+    classDef failure fill:#f8e3e3,color:#b13e3e
+%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
+%%   N0_ReserveStock → ReserveStock
+%%   N1_Map → Map
+```
+
+#### Layer View
+
+*Architecture layers — Domain / Application / Infrastructure boundaries*
+
+```mermaid
+flowchart TD
+
+  subgraph Domain["Domain"]
+    subgraph WarehouseService["WarehouseService"]
+      N_ReserveStock["ReserveStock"]:::layerDomain
+    end
+  end
+
+  subgraph Infrastructure["Infrastructure"]
+    subgraph InventoryService["InventoryService"]
+      N_CheckStock["CheckStock"]:::layerInfra
+    end
+  end
+
+  N_CheckStock -->|"Product / InsufficientStockError"| N_ReserveStock
+  N_ReserveStock -->|"InsufficientStockError"| FAIL
+  N_ReserveStock -->|ok| SUCCESS
+
+  FAIL([fail]):::failure
+  SUCCESS([success]):::success
+
+  classDef layerDomain fill:#fff6e5,color:#a36b00
+  classDef layerInfra fill:#f4e8ff,color:#6a3fa0
+  classDef failure fill:#f8e3e3,color:#b13e3e
+  classDef success fill:#e6f6ea,color:#1c7e4f
+
+  class Domain layerDomain
+  class Infrastructure layerInfra
+```
+
+#### Stats
+
+*Node count, error count, depth, async steps*
+
+| Property        | Value                                    |
+|-----------------|------------------------------------------|
+| Steps           | 4                                        |
+| Async steps     | 0                                        |
+| Possible errors | InsufficientStockError                   |
+| Layers crossed  | Domain                                   |
+| Max depth traced | 1                                        |
+
+#### Error Surface
+
+*All possible errors grouped by the step that produces them*
+
+```mermaid
+flowchart LR
+  N0_ReserveStock["ReserveStock"] -->|"fail"| FAIL
+  N1_Bind["Bind"] -->|"InsufficientStockError"| FAIL
+
+  FAIL([fail]):::failure
+
+  classDef failure fill:#f8e3e3,color:#b13e3e
+```
+
+#### Error Propagation
+
+*Error types grouped by the architectural layer they originate from*
+
+```mermaid
+flowchart TD
+
+  subgraph Domain["Domain"]
+    E0["InsufficientStockError"]:::failure
+  end
+
+  E0 --> FAIL([fail]):::failure
+
+  classDef layerDomain fill:#fff6e5,color:#a36b00
+  classDef failure fill:#f8e3e3,color:#b13e3e
+
+  class Domain layerDomain
+```
+
+---
+
+### ReserveStock
+
+#### Pipeline
+
+*Success path, typed error edges, async steps*
+
+```mermaid
+---
+title: ReserveStock → ⟨StockReservation⟩
+---
+flowchart LR
+    ENTRY_ROOT["FindProduct<br/>→ Product"]:::operation ==> N0_Ensure
+    N0_Ensure["<span title='p.Stock > 0'>Ensure<br/>Product</span>"]:::gatekeeper
+    N0_Ensure -->|pass| sg_N1_ReserveStock
+    N0_Ensure -->|fail| FAIL
+    subgraph sg_N1_ReserveStock["ReserveStock"]
+        ENTRY_N1_ReserveStock[ ]:::entry
+        ENTRY_N1_ReserveStock[ ] ==> N1_ReserveStock_0_Ok
+        N1_ReserveStock_0_Ok["Ok<br/>Product"]:::operation
+        N1_ReserveStock_0_Ok --> N1_ReserveStock_1_Bind
+        N1_ReserveStock_1_Bind["Bind<br/>Product"]:::bind
+        N1_ReserveStock_1_Bind -->|InsufficientStockError| FAIL
+    end
+    sg_N1_ReserveStock -->|ok| N2_Map
+    sg_N1_ReserveStock -->|fail| FAIL
+    N2_Map["Map<br/>Product → StockReservation"]:::map
+    N2_Map -->|ok| SUCCESS
+    SUCCESS([success]):::success
+    FAIL([fail])
+    FAIL:::failure
+    classDef operation fill:#fef0e3,color:#b86a1c
+    classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
+    classDef entry fill:none,stroke:none
+    classDef bind fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px
+    classDef transform fill:#e3f0e8,color:#2f7a5c
+    classDef map fill:#e3f0e8,color:#2f7a5c
+    classDef success fill:#e6f6ea,color:#1c7e4f
+    classDef failure fill:#f8e3e3,color:#b13e3e
+%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
+%%   N0_Ensure → Ensure
+%%   N1_ReserveStock → ReserveStock
+%%   N2_Map → Map
+```
+
+#### Layer View
+
+*Architecture layers — Domain / Application / Infrastructure boundaries*
+
+```mermaid
+flowchart TD
+
+  subgraph Domain["Domain"]
+    subgraph WarehouseService["WarehouseService"]
+      N_ReserveStock["ReserveStock"]:::layerDomain
+    end
+  end
+
+  subgraph Infrastructure["Infrastructure"]
+    subgraph InventoryService["InventoryService"]
+      N_ReserveStock["ReserveStock"]:::layerInfra
+    end
+  end
+
+  N_ReserveStock -->|"Product / InsufficientStockError"| N_ReserveStock
+  N_ReserveStock -->|"InsufficientStockError"| FAIL
+  N_ReserveStock -->|ok| SUCCESS
+
+  FAIL([fail]):::failure
+  SUCCESS([success]):::success
+
+  classDef layerDomain fill:#fff6e5,color:#a36b00
+  classDef layerInfra fill:#f4e8ff,color:#6a3fa0
+  classDef failure fill:#f8e3e3,color:#b13e3e
+  classDef success fill:#e6f6ea,color:#1c7e4f
+
+  class Domain layerDomain
+  class Infrastructure layerInfra
+```
+
+#### Stats
+
+*Node count, error count, depth, async steps*
+
+| Property        | Value                                    |
+|-----------------|------------------------------------------|
+| Steps           | 5                                        |
+| Async steps     | 0                                        |
+| Possible errors | InsufficientStockError                   |
+| Layers crossed  | Domain                                   |
+| Max depth traced | 1                                        |
+
+#### Error Surface
+
+*All possible errors grouped by the step that produces them*
+
+```mermaid
+flowchart LR
+  N0_Ensure["Ensure"] -->|"fail"| FAIL
+  N1_ReserveStock["ReserveStock"] -->|"fail"| FAIL
+  N2_Bind["Bind"] -->|"InsufficientStockError"| FAIL
+
+  FAIL([fail]):::failure
+
+  classDef failure fill:#f8e3e3,color:#b13e3e
+```
+
+#### Error Propagation
+
+*Error types grouped by the architectural layer they originate from*
+
+```mermaid
+flowchart TD
+
+  subgraph Domain["Domain"]
+    E0["InsufficientStockError"]:::failure
+  end
+
+  E0 --> FAIL([fail]):::failure
+
+  classDef layerDomain fill:#fff6e5,color:#a36b00
+  classDef failure fill:#f8e3e3,color:#b13e3e
+
+  class Domain layerDomain
+```
+
+---
+
 ## MatchDemo
 
 ### ConfirmOrder

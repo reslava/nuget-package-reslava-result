@@ -27,6 +27,8 @@
 //   9. Domain boundary diagrams — [DomainBoundary] triggers _LayerView, _Stats,
 //      _ErrorSurface, _ErrorPropagation alongside the existing _Diagram constant
 //  10. Match multi-branch fan-out — hexagon shape + typed N-branch FAIL edges
+//  11. InventoryService.CheckStock — cross-method Infrastructure → Domain layer view
+//  12. InventoryService.ReserveStock — cross-method with Ensure gate before subgraph
 // =============================================================================
 using Generated.ResultFlow;
 using REslava.Result;
@@ -109,6 +111,22 @@ Print("9d. _ErrorPropagation — errors grouped by layer",             OrderServ
 //
 Print("10. Match — hexagon + typed N-branch fan-out (v1.46.0)", MatchDemo_Flows.ConfirmOrder);
 
+// ── 11. InventoryService — cross-method Infrastructure → Domain ───────────────
+Console.WriteLine();
+Console.WriteLine("  11. InventoryService — cross-method Infrastructure → Domain layer view");
+Console.WriteLine(sep2);
+Print("11a. CheckStock — pipeline (Infrastructure → Domain)",            InventoryService_Flows.CheckStock);
+Print("11b. CheckStock _LayerView  — architecture (Infrastructure → Domain)", InventoryService_Flows.CheckStock_LayerView);
+Print("11c. CheckStock _ErrorSurface  — fail-edges only",                InventoryService_Flows.CheckStock_ErrorSurface);
+Print("11d. CheckStock _ErrorPropagation — errors by layer",             InventoryService_Flows.CheckStock_ErrorPropagation);
+
+// ── 12. InventoryService.ReserveStock — Ensure gate before subgraph ────────────
+Console.WriteLine();
+Console.WriteLine("  12. ReserveStock — Ensure gate + cross-method subgraph");
+Console.WriteLine(sep2);
+Print("12a. ReserveStock — pipeline (Ensure → subgraph → Map)", InventoryService_Flows.ReserveStock);
+Print("12b. ReserveStock _LayerView  — architecture layers",     InventoryService_Flows.ReserveStock_LayerView);
+
 Console.WriteLine();
 Console.WriteLine(sep2);
 Console.WriteLine("  Runtime verification");
@@ -147,6 +165,14 @@ Console.WriteLine($"  ConfirmOrder (user not found)           : {MatchDemo.Confi
 Console.WriteLine($"  ConfirmOrder (product not found)        : {MatchDemo.ConfirmOrder(42, 99)}");
 
 Console.WriteLine();
+Console.WriteLine("  InventoryService:");
+Run("CheckStock (success — 10 units)          ", InventoryService.CheckStock(7, 10));
+Run("CheckStock (product not found)           ", InventoryService.CheckStock(99, 10));
+Run("CheckStock (insufficient stock)          ", InventoryService.CheckStock(8, 5));
+Run("ReserveStock (success)                   ", InventoryService.ReserveStock(7, 10));
+Run("ReserveStock (out of stock gate)         ", InventoryService.ReserveStock(8, 5));
+
+Console.WriteLine();
 
 // =============================================================================
 // Domain
@@ -154,6 +180,7 @@ Console.WriteLine();
 record User(int Id, string Email, string Role, bool IsActive = true);
 record Order(int Id, int UserId, decimal Amount);
 record Product(int Id, string Name, decimal Price, int Stock);
+record StockReservation(int ProductId, int Quantity, decimal UnitPrice);
 
 // =============================================================================
 // Custom domain errors (5) — extend built-in REslava.Result error types.
@@ -179,6 +206,9 @@ sealed class UnauthorizedRoleError(string role)
 
 sealed class UserInactiveError(int id)
     : ForbiddenError($"User {id} account is inactive") { }
+
+sealed class InsufficientStockError(string name, int available, int requested)
+    : ValidationError($"stock: '{name}' has {available} available, {requested} requested") { }
 
 // =============================================================================
 // Pipelines — [ResultFlow] from REslava.Result.Flow
@@ -668,4 +698,74 @@ flowchart LR
     {
         [7] = new Product(7, "Widget", 29.99m, 100),
     };
+}
+
+// =============================================================================
+// Section 11 & 12 — InventoryService + WarehouseService
+//
+// Two distinct layers introduce a second cross-method scenario independent of
+// the OrderService / UserService pairing:
+//
+//   WarehouseService   [DomainBoundary("Domain")]        — pure domain logic
+//   InventoryService   [DomainBoundary("Infrastructure")] — data access + orchestration
+//
+// CheckStock (§11):
+//   FindProduct → WarehouseService.ReserveStock (subgraph) → Map
+//   _LayerView shows Infrastructure root calling into Domain subgraph
+//
+// ReserveStock (§12):
+//   FindProduct → Ensure (gate, no subgraph) → WarehouseService.ReserveStock (subgraph) → Map
+//   Same layers but an extra Gatekeeper before the subgraph — different visual shape
+// =============================================================================
+
+[DomainBoundary("Domain")]
+static class WarehouseService
+{
+    // Pure domain check: returns the product with updated stock count, or fails.
+    // Uses .Bind() (fluent API) so the generator can trace into this method when
+    // InventoryService.CheckStock/ReserveStock call it with MaxDepth = 2.
+    public static Result<Product> ReserveStock(Product p, int quantity) =>
+        Result<Product>.Ok(p)
+            .Bind(x => x.Stock >= quantity
+                ? Result<Product>.Ok(x with { Stock = x.Stock - quantity })
+                : Result<Product>.Fail(new InsufficientStockError(x.Name, x.Stock, quantity)));
+}
+
+[DomainBoundary("Infrastructure")]
+static class InventoryService
+{
+    private static readonly Dictionary<int, Product> _products = new()
+    {
+        [7]  = new Product(7,  "Widget", 29.99m, 100),
+        [8]  = new Product(8,  "Gadget", 49.99m, 0),    // out of stock
+        [10] = new Product(10, "Gizmo",  19.99m, 3),
+    };
+
+    private static Result<Product> FindProduct(int id) =>
+        _products.TryGetValue(id, out var p)
+            ? Result<Product>.Ok(p)
+            : Result<Product>.Fail(new ProductNotFoundError(id));
+
+    // ── §11: CheckStock — FindProduct → subgraph → Map ───────────────────────
+    //
+    // Simplest cross-method shape: entry Bind, one subgraph expansion (Domain),
+    // one pure Map. Generates _LayerView (Infrastructure → Domain), _ErrorSurface,
+    // _ErrorPropagation in addition to the plain pipeline diagram.
+    [ResultFlow(MaxDepth = 2)]
+    public static Result<StockReservation> CheckStock(int productId, int quantity) =>
+        FindProduct(productId)
+            .Bind(p => WarehouseService.ReserveStock(p, quantity))
+            .Map(p  => new StockReservation(p.Id, quantity, p.Price));
+
+    // ── §12: ReserveStock — FindProduct → Ensure gate → subgraph → Map ───────
+    //
+    // Adds a Gatekeeper node before the cross-method subgraph expansion, producing
+    // a visually distinct pipeline: the Domain subgraph is preceded by a blue gate.
+    [ResultFlow(MaxDepth = 2)]
+    public static Result<StockReservation> ReserveStock(int productId, int quantity) =>
+        FindProduct(productId)
+            .Ensure(p => p.Stock > 0,
+                $"Product {productId} is out of stock")
+            .Bind(p => WarehouseService.ReserveStock(p, quantity))
+            .Map(p  => new StockReservation(p.Id, quantity, p.Price));
 }

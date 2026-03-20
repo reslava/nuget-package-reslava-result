@@ -27,30 +27,7 @@ Build Railway-Oriented pipelines with strongly typed errors and automatically ge
 
 **:material-source-repository: [nuget-package-reslava-result GitHub repo](https://github.com/reslava/nuget-package-reslava-result)**
 
-```mermaid
-flowchart LR
-    N0_ValidateCommand["ValidateCommand<br/>RegisterCommand"]:::operation
-    N0_ValidateCommand --> N1_EnsureEmailAsync
-    N1_EnsureEmailAsync["EnsureEmailAsync ⚡<br/>RegisterCommand"]:::gatekeeper
-    N1_EnsureEmailAsync -->|pass| N2_EnsureUsernameAsync
-    N1_EnsureEmailAsync -->|ValidationError| FAIL
-    N2_EnsureUsernameAsync["EnsureUsernameAsync ⚡<br/>RegisterCommand"]:::gatekeeper
-    N2_EnsureUsernameAsync -->|pass| N3_CreateUserAsync
-    N2_EnsureUsernameAsync -->|ConflictError| FAIL
-    N3_CreateUserAsync["CreateUserAsync ⚡<br/>User"]:::transform
-    N3_CreateUserAsync -->|ok| N4_SaveAsync
-    N3_CreateUserAsync -->|DatabaseError| FAIL
-    N4_SaveAsync["SaveAsync ⚡<br/>User"]:::transform
-    N4_SaveAsync -->|ok| N5_TapAsync
-    N5_TapAsync["TapAsync ⚡<br/>User"]:::operation
-    N5_TapAsync --> N6_MapAsync
-    N6_MapAsync["MapAsync ⚡<br/>User → UserDto"]:::transform
-    FAIL([fail]):::failure
-    classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
-    classDef transform fill:#e3f0e8,color:#2f7a5c
-    classDef failure fill:#f8e3e3,color:#b13e3e
-    classDef operation fill:#e8f4f0,color:#1c7e6f
-```
+![Auto-generated pipeline diagram — full type travel, typed error edges, async markers](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/Pipelines_AdminCheckout.svg)
 
 *[`[ResultFlow]`](resultflow) — one attribute, live Mermaid diagram of your pipeline. Type travel, async markers, named error edges — generated from your code.*
 

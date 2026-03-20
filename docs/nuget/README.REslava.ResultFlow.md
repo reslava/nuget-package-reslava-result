@@ -48,24 +48,15 @@ string diagram = Generated.ResultFlow.UserService_Flows.RegisterAsync;
 // Paste into mermaid.live, GitHub, Notion, VS Code, or your wiki
 ```
 
-## Generated Diagram Example
+## Generated Diagram Examples
 
-```
-flowchart LR
-    N0_EnsureAsync["EnsureAsync"]:::gatekeeper
-    N0_EnsureAsync -->|pass| N1_BindAsync
-    N0_EnsureAsync -->|fail| F0["Failure"]:::failure
-    N1_BindAsync["BindAsync"]:::transform
-    N1_BindAsync -->|ok| N2_TapAsync
-    N1_BindAsync -->|fail| F1["Failure"]:::failure
-    N2_TapAsync["TapAsync"]:::sideeffect
-    N2_TapAsync --> N3_MapAsync
-    N3_MapAsync["MapAsync"]:::transform
-    classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
-    classDef transform fill:#e3f0e8,color:#2f7a5c
-    classDef sideeffect fill:#fff4d9,color:#b8882c
-    classDef failure fill:#f8e3e3,color:#b13e3e
-```
+**Pipeline** — guard, transforms, side effects, success/failure paths:
+
+![Auto-generated pipeline diagram](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/Pipelines_PlaceOrder.svg)
+
+**Node type legend** — all node types with colors and shapes:
+
+![Node type legend](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/Legend.svg)
 
 Each operation is color-coded by semantic role:
 - **Lavender** — gatekeepers (`Ensure`) — can fail validation
