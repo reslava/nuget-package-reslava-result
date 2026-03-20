@@ -277,6 +277,11 @@ tagline: Know exactly what you're getting.
 | Diagram frontmatter title | Every `[ResultFlow]` diagram opens with `---\ntitle: MethodName\n---`; renders as a native heading above the diagram in VS Code preview, GitHub, and all Mermaid viewers; both packages | v1.47.1 | — |
 | `ENTRY_ROOT` root entry node | Chain seed call (e.g. `FindUser`) rendered as amber `ENTRY_ROOT["Method<br/>→ Type"]:::operation ==>` before the first pipeline step; async calls get `⚡`; both packages | v1.47.1 | — |
 | Code action: insert/refresh parity | `REslava.ResultFlow` code action now replaces existing diagram comment in-place (was inserting duplicates); shows "Refresh" title when block exists; CRLF-normalised content; both packages now fully equivalent | v1.47.1 | — |
+| Async suffix strip | Node labels and frontmatter title strip `Async` suffix — `⚡` already signals async; `FindProductAsync ⚡` → `FindProduct⚡`; both packages | v1.47.2 | — |
+| `:::bind` / `:::map` classDef split | `Bind`/`Or`/`MapError` → `:::bind` (thick dark-green border); `Map` → `:::map` (plain green); subgraph borders keep `:::transform`; both packages | v1.47.2 | — |
+| Title type annotation | Frontmatter title includes output type: `PlaceOrder⚡ → ⟨Order⟩`; non-generic: `→ ⟨⟩`; `Result<T,TError>` shows T only; both packages | v1.47.2 | — |
+| `Legend` constant | One `Legend` Mermaid mini-diagram per `*_Flows` class; horizontal row showing all 9 node types with shapes and colors; access via `OrderService_Flows.Legend`; both packages | v1.47.2 | `### 🗺️ Node Type Legend — Legend constant` |
+| `PipelineNode.PredicateText` + Gatekeeper tooltip | `string?` property set when `Ensure`/`Filter` first arg is a lambda; renderer wraps label in `<span title='p.Stock > 0'>Ensure</span>`; visible on hover in VS Code, silently dropped on GitHub; both packages | v1.47.2 | — |
 
 ---
 
