@@ -24,6 +24,7 @@
 - **Async patterns** — `WhenAll` (typed tuples), `Retry` (exponential backoff), `Timeout`
 - **JSON serialization** — `System.Text.Json` converters for `Result<T>`, `OneOf`, `Maybe<T>`
 - **Native Validation DSL** — 19 fluent extension methods (`NotEmpty`, `MaxLength`, `EmailAddress`, `Range`, `Positive`, ...) on `ValidatorRuleBuilder<T>` with auto-inferred field names
+- **Pipeline visualization** — `[ResultFlow]` auto-generates Mermaid diagrams from your code (separate package)
 - **Roslyn safety analyzers** — catch unsafe `.Value` access at compile time (separate package)
 - **ASP.NET integration** — auto-generate Minimal API + MVC endpoints with domain error mapping (separate package)
 

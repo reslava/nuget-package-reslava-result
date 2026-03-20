@@ -214,6 +214,10 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     SourceLine = sourceLine,
                 };
 
+                // Gatekeeper predicate text — shown as <span title='...'> tooltip in Mermaid
+                if (kind == NodeKind.Gatekeeper && firstArg != null)
+                    node.PredicateText = TryExtractPredicateText(firstArg);
+
                 // Cross-method tracing: follow Bind/BindAsync lambdas into same-project methods.
                 // Syntax-only: look up by name; skip if 0 or 2+ matches (ambiguous).
                 if (kind == NodeKind.TransformWithRisk && remainingDepth > 0
@@ -531,6 +535,20 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     return memberAccess.Name.Identifier.ValueText;
             }
 
+            return null;
+        }
+
+        /// <summary>
+        /// Extracts the lambda body as a source text string for Gatekeeper (Ensure/Filter) nodes.
+        /// e.g. <c>.Ensure(p =&gt; p.Stock &gt; 0, ...)</c> → <c>"p.Stock &gt; 0"</c>.
+        /// Returns null when the first argument is not a simple or parenthesized lambda.
+        /// </summary>
+        private static string? TryExtractPredicateText(ArgumentSyntax arg)
+        {
+            if (arg.Expression is SimpleLambdaExpressionSyntax simple)
+                return simple.Body.ToString().Trim();
+            if (arg.Expression is ParenthesizedLambdaExpressionSyntax paren)
+                return paren.Body.ToString().Trim();
             return null;
         }
     }

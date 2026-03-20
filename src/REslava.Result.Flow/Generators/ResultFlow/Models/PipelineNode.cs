@@ -77,6 +77,14 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Models
         public string? ClassName { get; set; }
 
         /// <summary>
+        /// For Gatekeeper nodes (Ensure, Filter): the predicate lambda body as a source text string,
+        /// e.g. <c>"p.Stock &gt; 0"</c> from <c>.Ensure(p =&gt; p.Stock &gt; 0, ...)</c>.
+        /// Null for all other node kinds or when the predicate is not a simple lambda expression.
+        /// Rendered as a Mermaid <c>&lt;span title='...'&gt;</c> tooltip — visible on hover in VS Code.
+        /// </summary>
+        public string? PredicateText { get; set; }
+
+        /// <summary>
         /// Typed error-branch labels for Match/MatchAsync, extracted from lambda parameter types
         /// via the semantic model. Count &gt; 0 means typed N-branch fan-out; null or empty means
         /// generic 2-branch (ok/fail). Null for all other NodeKinds.

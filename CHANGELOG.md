@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.47.2] - 2026-03-20
+
+### ✨ Added
+
+#### REslava.Result.Flow + REslava.ResultFlow — Diagram Clarity & Readability
+
+- **Async suffix strip** — node labels and diagram titles no longer repeat `Async`; the `⚡` marker already signals async, so `FindProductAsync ⚡` → `FindProduct⚡`; both packages
+- **Bind vs Map visual distinction** — `Bind`/`Or`/`OrElse`/`MapError` nodes emit `:::bind` (thick dark-green border `stroke:#1a5c3c,stroke-width:3px`); `Map`/`MapAsync` nodes emit `:::map` (plain green); previously both used `:::transform`; subgraph borders still use `:::transform`; both packages
+- **Title type annotation** — diagram frontmatter title now includes the output type: `PlaceOrder⚡ → ⟨Order⟩`; non-generic pipelines render `→ ⟨⟩`; `Result<T,TError>` shows only `T` (value side); both packages
+- **`Legend` constant** — one `Legend` Mermaid mini-diagram per `*_Flows` class (not per method); shows all 9 node types with their shapes and colors in a horizontal row; access via `OrderService_Flows.Legend`; both packages
+- **Gatekeeper predicate tooltip** — `Ensure`/`Filter` node labels wrap in `<span title='predicate'>` when the first argument is a lambda expression (e.g. `p => p.Stock > 0`); tooltip visible on hover in VS Code Markdown Preview / Mermaid.js; silently dropped on GitHub (node still renders); both packages
+
+### Stats
+- Tests: 4,648 passing (floor: >4,500)
+- Features: 197 across 15 categories
+
+---
+
 ## [1.47.1] - 2026-03-18
 
 ### ✨ Added

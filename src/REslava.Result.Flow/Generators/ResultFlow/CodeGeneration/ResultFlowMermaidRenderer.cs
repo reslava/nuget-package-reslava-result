@@ -45,7 +45,10 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             {
                 var seedType = visible[0].InputType;
                 var seedIsAsync = seedMethodName.EndsWith("Async");
-                var seedDisplayName = seedIsAsync ? seedMethodName + " \u26a1" : seedMethodName;
+                var rawSeed = (seedIsAsync && seedMethodName.EndsWith("Async"))
+                    ? seedMethodName.Substring(0, seedMethodName.Length - 5)
+                    : seedMethodName;
+                var seedDisplayName = seedIsAsync ? rawSeed + "\u26a1" : rawSeed;
                 var seedLabel = seedType != null
                     ? $"{seedDisplayName}<br/>\u2192 {seedType}"
                     : seedDisplayName;
@@ -78,8 +81,13 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             var sb = new StringBuilder();
             if (methodTitle != null)
             {
+                var titleIsAsync = methodTitle.EndsWith("Async");
+                var cleanTitle = titleIsAsync ? methodTitle.Substring(0, methodTitle.Length - 5) : methodTitle;
+                var titleName = titleIsAsync ? cleanTitle + "\u26a1" : cleanTitle;
+                var outputType = visible.Count > 0 ? visible[visible.Count - 1].OutputType : null;
+                var typeAnnotation = " \u2192 \u27e8" + (outputType ?? "") + "\u27e9";
                 sb.AppendLine("---");
-                sb.AppendLine($"title: {methodTitle}");
+                sb.AppendLine($"title: {titleName}{typeAnnotation}");
                 sb.AppendLine("---");
             }
             sb.AppendLine("flowchart LR");
@@ -216,25 +224,30 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 switch (node.Kind)
                 {
                     case NodeKind.Gatekeeper:
-                        lines.Add($"{indent}{nodeId}[\"{label}\"]:::gatekeeper");
+                    {
+                        var gatekeeperLabel = node.PredicateText != null
+                            ? "<span title='" + node.PredicateText.Replace("'", "&#39;") + "'>" + label + "</span>"
+                            : label;
+                        lines.Add($"{indent}{nodeId}[\"{gatekeeperLabel}\"]:::gatekeeper");
                         if (hasNext) lines.Add($"{indent}{nodeId} -->|pass| {resolvedNextId}");
                         EmitErrorEdges(lines, nodeId, node, ref anyErrorEdges,
                             fallbackEdge: $"{indent}{nodeId} -->|fail| FAIL", indent: indent);
                         TryAddClass(declaredClasses, classDefs, "gatekeeper", "fill:#e3e9fa,color:#3f5c9a");
                         break;
+                    }
 
                     case NodeKind.TransformWithRisk:
-                        lines.Add($"{indent}{nodeId}[\"{label}\"]:::transform");
+                        lines.Add($"{indent}{nodeId}[\"{label}\"]:::bind");
                         if (hasNext) lines.Add($"{indent}{nodeId} -->|ok| {resolvedNextId}");
                         EmitErrorEdges(lines, nodeId, node, ref anyErrorEdges,
                             fallbackEdge: $"{indent}{nodeId} -->|fail| FAIL", indent: indent);
-                        TryAddClass(declaredClasses, classDefs, "transform", "fill:#e3f0e8,color:#2f7a5c");
+                        TryAddClass(declaredClasses, classDefs, "bind", "fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px");
                         break;
 
                     case NodeKind.PureTransform:
-                        lines.Add($"{indent}{nodeId}[\"{label}\"]:::transform");
+                        lines.Add($"{indent}{nodeId}[\"{label}\"]:::map");
                         if (hasNext) lines.Add($"{indent}{nodeId} --> {resolvedNextId}");
-                        TryAddClass(declaredClasses, classDefs, "transform", "fill:#e3f0e8,color:#2f7a5c");
+                        TryAddClass(declaredClasses, classDefs, "map", "fill:#e3f0e8,color:#2f7a5c");
                         break;
 
                     case NodeKind.SideEffectSuccess:
@@ -304,7 +317,10 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
 
         private static string BuildLabel(PipelineNode node)
         {
-            var baseName = node.IsAsync ? node.MethodName + " \u26a1" : node.MethodName;
+            var rawName = (node.IsAsync && node.MethodName.EndsWith("Async"))
+                ? node.MethodName.Substring(0, node.MethodName.Length - 5)
+                : node.MethodName;
+            var baseName = node.IsAsync ? rawName + "\u26a1" : rawName;
 
             if (node.OutputType == null)
                 return baseName;

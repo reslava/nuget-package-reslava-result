@@ -21,6 +21,33 @@ public class ResultFlowGeneratorTests
     }
 
     // ───────────────────────────────────────────────────────────────────────
+    // 1b. Ensure with lambda predicate → tooltip span in node label
+    // ───────────────────────────────────────────────────────────────────────
+    [TestMethod]
+    public void ResultFlow_Ensure_LambdaPredicate_Should_Generate_Tooltip()
+    {
+        var source = CreateSource("UserService", "RegisterAsync",
+            "GetUser(cmd).Ensure(x => x.IsActive)");
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("span title="),  "Ensure lambda predicate should emit <span title=...> tooltip");
+        Assert.IsTrue(output.Contains("x.IsActive"),   "Tooltip should contain predicate body text");
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // 1c. Ensure with method-group predicate → no tooltip (not a lambda)
+    // ───────────────────────────────────────────────────────────────────────
+    [TestMethod]
+    public void ResultFlow_Ensure_MethodGroupPredicate_Should_Not_Generate_Tooltip()
+    {
+        var source = CreateSource("UserService", "RegisterAsync",
+            "GetUser(cmd).Ensure(IsValid)");
+        var output = RunGenerator(source);
+
+        Assert.IsFalse(output.Contains("span title="), "Method-group predicate should not emit tooltip");
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
     // 2. Bind + Map → TransformWithRisk has fail edge, PureTransform does not
     // ───────────────────────────────────────────────────────────────────────
     [TestMethod]
@@ -50,7 +77,7 @@ public class ResultFlowGeneratorTests
 
         Assert.IsTrue(output.Contains("Tap"),          "Should contain Tap node");
         Assert.IsTrue(output.Contains("sideeffect"),   "Should apply sideeffect class");
-        Assert.IsFalse(output.Contains("fail"),        "Tap should not have fail edge");
+        Assert.IsFalse(output.Contains("|fail|"),      "Tap should not have fail edge");
     }
 
     // ───────────────────────────────────────────────────────────────────────
@@ -101,7 +128,8 @@ public class ResultFlowGeneratorTests
         Assert.IsTrue(output.Contains("MapAsync"),     "Should have Map node");
         Assert.IsTrue(output.Contains("Match"),        "Should have Match terminal");
         Assert.IsTrue(output.Contains("gatekeeper"),   "Should have gatekeeper class");
-        Assert.IsTrue(output.Contains("transform"),    "Should have transform class");
+        Assert.IsTrue(output.Contains("bind"),         "Should have bind class (TransformWithRisk)");
+        Assert.IsTrue(output.Contains("map"),          "Should have map class (PureTransform)");
         Assert.IsTrue(output.Contains("sideeffect"),   "Should have sideeffect class");
         Assert.IsTrue(output.Contains("terminal"),     "Should have terminal class");
     }
@@ -226,7 +254,7 @@ namespace TestNamespace
         var output = RunGenerator(source);
 
         Assert.IsTrue(output.Contains("Then"),      "Should render Then node");
-        Assert.IsTrue(output.Contains("transform"), "Then should use transform class");
+        Assert.IsTrue(output.Contains("bind"),      "Then should use bind class (TransformWithRisk)");
         Assert.IsTrue(output.Contains("fail"),      "Then should have a fail edge (TransformWithRisk)");
     }
 
@@ -293,7 +321,7 @@ namespace TestNamespace
         var (output, _) = RunGeneratorWithConfig(source, config);
 
         Assert.IsTrue(output.Contains("Chain"),     "Should render Chain node");
-        Assert.IsTrue(output.Contains("transform"), "Chain should use transform class (bind → TransformWithRisk)");
+        Assert.IsTrue(output.Contains("bind"),      "Chain should use bind class (bind → TransformWithRisk)");
         Assert.IsTrue(output.Contains("fail"),      "Chain should have a fail edge (TransformWithRisk)");
     }
 
@@ -308,7 +336,7 @@ namespace TestNamespace
         var source = CreateSource("Svc", "Process", "GetResult(cmd).Bind(Handle)");
         var (output, _) = RunGeneratorWithConfig(source, config);
 
-        Assert.IsTrue(output.Contains("transform"),   "Bind still uses transform class");
+        Assert.IsTrue(output.Contains("map"),         "Bind reclassified as PureTransform uses map class");
         Assert.IsFalse(output.Contains("|fail|"),     "Bind reclassified as map should have no fail edge");
     }
 
@@ -324,7 +352,7 @@ namespace TestNamespace
 
         Assert.IsTrue(diagnostics.Any(d => d.Id == "REF003"), "Should emit REF003 for malformed JSON");
         Assert.IsTrue(output.Contains("Bind"),     "Should still generate diagram (fallback to convention)");
-        Assert.IsTrue(output.Contains("transform"), "Bind should still use transform class");
+        Assert.IsTrue(output.Contains("bind"),      "Bind should still use bind class (fallback to convention)");
     }
 
     // ── RF-1: Async step annotation (⚡ suffix) ──────────────────────────────
@@ -337,7 +365,7 @@ namespace TestNamespace
         var source = CreateSource("Svc", "Process", "GetResult(cmd).BindAsync(Handle)");
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("BindAsync \u26a1"), "BindAsync label should contain ⚡");
+        Assert.IsTrue(output.Contains("Bind\u26a1"), "BindAsync label should strip suffix and contain ⚡");
     }
 
     // ───────────────────────────────────────────────────────────────────────
@@ -349,7 +377,7 @@ namespace TestNamespace
         var source = CreateSource("Svc", "Process", "GetResult(cmd).EnsureAsync(IsValid)");
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("EnsureAsync \u26a1"), "EnsureAsync label should contain ⚡");
+        Assert.IsTrue(output.Contains("Ensure\u26a1"), "EnsureAsync label should strip suffix and contain ⚡");
     }
 
     // ───────────────────────────────────────────────────────────────────────
@@ -361,7 +389,7 @@ namespace TestNamespace
         var source = CreateSource("Svc", "Process", "GetResult(cmd).Bind(Handle).MapAsync(ToDto)");
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("MapAsync \u26a1"), "MapAsync label should contain ⚡");
+        Assert.IsTrue(output.Contains("Map\u26a1"), "MapAsync label should strip suffix and contain ⚡");
     }
 
     // ───────────────────────────────────────────────────────────────────────
@@ -373,7 +401,7 @@ namespace TestNamespace
         var source = CreateSource("Svc", "Process", "GetResult(cmd).Bind(Handle).TapAsync(Log)");
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("TapAsync \u26a1"), "TapAsync label should contain ⚡");
+        Assert.IsTrue(output.Contains("Tap\u26a1"), "TapAsync label should strip suffix and contain ⚡");
     }
 
     // ───────────────────────────────────────────────────────────────────────
@@ -385,7 +413,7 @@ namespace TestNamespace
         var source = CreateSource("Svc", "Process", "GetResult(cmd).Bind(Handle)");
         var output = RunGenerator(source);
 
-        Assert.IsFalse(output.Contains("Bind \u26a1"), "Sync Bind label should not contain ⚡");
+        Assert.IsFalse(output.Contains("Bind\u26a1"), "Sync Bind label should not contain ⚡");
     }
 
     // ───────────────────────────────────────────────────────────────────────
@@ -399,7 +427,7 @@ namespace TestNamespace
         var output = RunGenerator(source);
 
         Assert.IsTrue(output.Contains("\"Bind\""),             "Sync Bind should have no ⚡");
-        Assert.IsTrue(output.Contains("\"BindAsync \u26a1\""), "BindAsync should have ⚡");
+        Assert.IsTrue(output.Contains("\"Bind\u26a1\""), "BindAsync should have ⚡ with no Async suffix");
     }
 
     // ── RF-2: Success Type Travel ─────────────────────────────────────────────
@@ -533,7 +561,7 @@ namespace TestNamespace
         var source = CreateSource("UserService", "RegisterAsync", "GetUser(cmd).Bind(SaveUser)");
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("title: RegisterAsync"), "Frontmatter title should contain method name");
+        Assert.IsTrue(output.Contains("title: Register\u26a1"), "Frontmatter title should strip Async suffix and add ⚡");
         Assert.IsTrue(output.Contains("---"), "Frontmatter delimiters should be present");
     }
 

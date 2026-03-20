@@ -22,8 +22,10 @@ public class ResultFlowChainExtractorGapTests
 
         Assert.IsTrue(output.Contains("DoThing"),
             "Lambda body method 'DoThing' should replace 'Bind' as the node label");
-        Assert.IsFalse(output.Contains("\"Bind\""),
-            "Outer 'Bind' name should be replaced — only 'DoThing' should appear as a node");
+        // Note: Legend constant always contains "Bind" as an example node, so we
+        // verify the pipeline-specific node ID has 'DoThing', not 'Bind'.
+        Assert.IsFalse(output.Contains("N0_Bind["),
+            "Outer 'Bind' node ID should not appear — only 'DoThing' node");
     }
 
     [TestMethod]
@@ -35,8 +37,10 @@ public class ResultFlowChainExtractorGapTests
 
         Assert.IsTrue(output.Contains("Transform"),
             "'Transform' extracted from lambda body");
-        Assert.IsFalse(output.Contains("\"Map\""),
-            "'Map' label replaced by 'Transform'");
+        // Note: Legend constant always contains "Map" as an example node, so we
+        // verify the pipeline-specific node ID has 'Transform', not 'Map'.
+        Assert.IsFalse(output.Contains("N1_Map["),
+            "Pipeline 'Map' node ID should not appear — renamed to 'Transform'");
     }
 
     [TestMethod]
@@ -83,10 +87,12 @@ public class ResultFlowChainExtractorGapTests
             "GetResult(cmd).Bind(x => DoThing(x)).Map(ToDto)");
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("fail"),
-            "Bind kind (TransformWithRisk) must be preserved — fail edge must exist");
-        Assert.IsTrue(output.Contains("transform"),
-            "Bind kind (TransformWithRisk) gives 'transform' CSS class");
+        // ResultFlow (syntax-only) wraps edge labels in quotes: -->|"fail"| → |""fail""| in verbatim string.
+        // Check for the fail node (F0["Failure"]) as a proxy for fail-edge presence.
+        Assert.IsTrue(output.Contains("F0["),
+            "Bind kind (TransformWithRisk) must be preserved — fail node F0 must exist");
+        Assert.IsTrue(output.Contains("bind"),
+            "Bind kind (TransformWithRisk) gives 'bind' CSS class");
     }
 
     // ── Gap 2 — Async LINQ recognition ───────────────────────────────────────
@@ -100,8 +106,8 @@ public class ResultFlowChainExtractorGapTests
 
         Assert.IsTrue(output.Contains("SelectAsync"),
             "SelectAsync should appear as a pipeline node");
-        Assert.IsTrue(output.Contains("transform"),
-            "SelectAsync maps to PureTransform");
+        Assert.IsTrue(output.Contains("map"),
+            "SelectAsync maps to PureTransform (map class)");
     }
 
     [TestMethod]
@@ -128,8 +134,8 @@ public class ResultFlowChainExtractorGapTests
 
         Assert.IsTrue(output.Contains("SelectMany"),
             "SelectMany should appear as a pipeline node");
-        Assert.IsTrue(output.Contains("transform"),
-            "SelectMany maps to TransformWithRisk");
+        Assert.IsTrue(output.Contains("bind"),
+            "SelectMany maps to TransformWithRisk (bind class)");
         Assert.IsTrue(output.Contains("fail"),
             "TransformWithRisk has fail edge");
     }

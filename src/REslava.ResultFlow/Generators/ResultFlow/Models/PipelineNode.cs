@@ -80,6 +80,14 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Models
         /// </summary>
         public string? ClassName { get; set; }
 
+        /// <summary>
+        /// For Gatekeeper nodes (Ensure, Filter): the predicate lambda body as a source text string,
+        /// e.g. <c>"p.Stock &gt; 0"</c> from <c>.Ensure(p =&gt; p.Stock &gt; 0, ...)</c>.
+        /// Null for all other node kinds or when the predicate is not a simple lambda expression.
+        /// Rendered as a Mermaid <c>&lt;span title='...'&gt;</c> tooltip — visible on hover in VS Code.
+        /// </summary>
+        public string? PredicateText { get; set; }
+
         public PipelineNode(string methodName, NodeKind kind)
         {
             MethodName = methodName;

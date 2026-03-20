@@ -26,6 +26,17 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             sb.AppendLine($"    internal static class {className}_Flows");
             sb.AppendLine("    {");
 
+            // ── Legend — emitted once per class ──────────────────────────────
+            var legendMermaid = BuildLegendMermaid();
+            var escapedLegend = legendMermaid.Replace("\"", "\"\"");
+            sb.AppendLine("        /// <summary>");
+            sb.AppendLine("        /// Mermaid legend for all node types used in ResultFlow diagrams.");
+            sb.AppendLine("        /// Paste into any Mermaid renderer to see the color/shape reference.");
+            sb.AppendLine("        /// </summary>");
+            sb.Append($"        public const string Legend = @\"{escapedLegend.Trim()}");
+            sb.AppendLine("\";");
+            sb.AppendLine();
+
             foreach (var (methodName, mermaid, layerView, stats, errorSurface) in diagrams)
             {
                 // ── Pipeline diagram ─────────────────────────────────────────
@@ -94,6 +105,34 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             sb.AppendLine("}");
 
             return SourceText.From(sb.ToString(), Encoding.UTF8);
+        }
+
+        private static string BuildLegendMermaid()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("flowchart LR");
+            // S[ ]:::entry is invisible; ==> shows the thick entry arrow into Entry node.
+            // ~~~ links are invisible (no line/arrow) and force horizontal LR placement.
+            sb.AppendLine("    S[ ]:::entry ==> E[\"Entry\"]:::operation");
+            sb.AppendLine("    E ~~~ B[\"Bind\"]:::bind");
+            sb.AppendLine("    B ~~~ M[\"Map\"]:::map");
+            sb.AppendLine("    M ~~~ G[\"Guard\"]:::gatekeeper");
+            sb.AppendLine("    G ~~~ T[\"Tap\"]:::sideeffect");
+            sb.AppendLine("    T ~~~ X{{\"Match\"}}:::terminal");
+            sb.AppendLine("    X ~~~ SUC([success]):::success");
+            sb.AppendLine("    X ~~~ F([fail]):::failure");
+            sb.AppendLine("    F ~~~ A[\"\u26a1 = async\"]:::note");
+            sb.AppendLine("    classDef entry      fill:none,stroke:none");
+            sb.AppendLine("    classDef operation  fill:#fef0e3,color:#b86a1c");
+            sb.AppendLine("    classDef bind       fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px");
+            sb.AppendLine("    classDef map        fill:#e3f0e8,color:#2f7a5c");
+            sb.AppendLine("    classDef gatekeeper fill:#e3e9fa,color:#3f5c9a");
+            sb.AppendLine("    classDef sideeffect fill:#fff4d9,color:#b8882c");
+            sb.AppendLine("    classDef terminal   fill:#f2e3f5,color:#8a4f9e");
+            sb.AppendLine("    classDef success    fill:#e6f6ea,color:#1c7e4f");
+            sb.AppendLine("    classDef failure    fill:#f8e3e3,color:#b13e3e");
+            sb.AppendLine("    classDef note       fill:#f5f5f5,color:#555555,stroke:#cccccc");
+            return sb.ToString().TrimEnd();
         }
 
         private static string BuildSidecarMarkdown(string methodName, string mermaid)

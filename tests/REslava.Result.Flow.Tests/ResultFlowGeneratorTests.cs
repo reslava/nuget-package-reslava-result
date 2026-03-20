@@ -58,6 +58,36 @@ public class ResultFlowGeneratorTests
         Assert.IsTrue(output.Contains("User"), "Should contain User type");
     }
 
+    // 3b. Ensure with lambda predicate → tooltip span in node label
+    [TestMethod]
+    public void TypeTravel_Ensure_LambdaPredicate_Should_Generate_Tooltip()
+    {
+        var source = CreateSource("UserService", "Register",
+            "CreateUser().Ensure(u => u != null, u => new ValidationError(\"invalid\"))",
+            extraMethods: @"
+        static Result<User> CreateUser() => Result<User>.Ok(new User());");
+
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("span title="), "Ensure lambda predicate should emit <span title=...> tooltip");
+        Assert.IsTrue(output.Contains("u != null"),   "Tooltip should contain predicate body text");
+    }
+
+    // 3c. Ensure with method-group predicate → no tooltip
+    [TestMethod]
+    public void TypeTravel_Ensure_MethodGroupPredicate_Should_Not_Generate_Tooltip()
+    {
+        var source = CreateSource("UserService", "Register",
+            "CreateUser().Ensure(IsValid, u => new ValidationError(\"invalid\"))",
+            extraMethods: @"
+        static Result<User> CreateUser() => Result<User>.Ok(new User());
+        static bool IsValid(User u) => true;");
+
+        var output = RunGenerator(source);
+
+        Assert.IsFalse(output.Contains("span title="), "Method-group predicate should not emit tooltip");
+    }
+
     // 4. Tap → label shows type (type-preserving side-effect)
     [TestMethod]
     public void TypeTravel_Tap_ShowsTypeOnly()
