@@ -24,7 +24,7 @@ Each method shows its full set of generated views: pipeline flow, architecture l
 
 ```mermaid
 ---
-title: ConfirmOrder
+title: ConfirmOrder → ⟨⟩
 ---
 flowchart LR
     ENTRY_ROOT["BuildOrder<br/>→ Order"]:::operation ==> N0_Match
@@ -54,7 +54,7 @@ flowchart LR
 
 ```mermaid
 ---
-title: PlaceOrderCross
+title: PlaceOrderCross → ⟨Order⟩
 ---
 flowchart LR
     ENTRY_ROOT["FindUser<br/>→ User"]:::operation ==> sg_N0_ValidateUser
@@ -63,25 +63,27 @@ flowchart LR
         ENTRY_N0_ValidateUser[ ] ==> N0_ValidateUser_0_Ok
         N0_ValidateUser_0_Ok["Ok<br/>User"]:::operation
         N0_ValidateUser_0_Ok --> N0_ValidateUser_1_Bind
-        N0_ValidateUser_1_Bind["Bind<br/>User"]:::transform
+        N0_ValidateUser_1_Bind["Bind<br/>User"]:::bind
         N0_ValidateUser_1_Bind -->|ok| N0_ValidateUser_2_Bind
         N0_ValidateUser_1_Bind -->|UserInactiveError| FAIL
-        N0_ValidateUser_2_Bind["Bind<br/>User"]:::transform
+        N0_ValidateUser_2_Bind["Bind<br/>User"]:::bind
         N0_ValidateUser_2_Bind -->|UnauthorizedRoleError| FAIL
     end
     sg_N0_ValidateUser -->|ok| N1_FindProduct
     sg_N0_ValidateUser -->|fail| FAIL
-    N1_FindProduct["FindProduct<br/>User → Product"]:::transform
+    N1_FindProduct["FindProduct<br/>User → Product"]:::bind
     N1_FindProduct -->|ok| N2_Map
     N1_FindProduct -->|fail| FAIL
-    N2_Map["Map<br/>Product → Order"]:::transform
+    N2_Map["Map<br/>Product → Order"]:::map
     N2_Map -->|ok| SUCCESS
     SUCCESS([success]):::success
     FAIL([fail])
     FAIL:::failure
     classDef operation fill:#fef0e3,color:#b86a1c
     classDef entry fill:none,stroke:none
+    classDef bind fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px
     classDef transform fill:#e3f0e8,color:#2f7a5c
+    classDef map fill:#e3f0e8,color:#2f7a5c
     classDef success fill:#e6f6ea,color:#1c7e4f
     classDef failure fill:#f8e3e3,color:#b13e3e
 %% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
@@ -187,18 +189,18 @@ flowchart TD
 
 ```mermaid
 ---
-title: ValidateOrder
+title: ValidateOrder → ⟨Order⟩
 ---
 flowchart LR
     N0_Ok["Ok<br/>Order"]:::operation
     N0_Ok --> N1_Ensure
-    N1_Ensure["Ensure<br/>Order"]:::gatekeeper
+    N1_Ensure["<span title='o.Amount > 0'>Ensure<br/>Order</span>"]:::gatekeeper
     N1_Ensure -->|pass| N2_Ensure
     N1_Ensure -->|fail| FAIL
-    N2_Ensure["Ensure<br/>Order"]:::gatekeeper
+    N2_Ensure["<span title='o.Amount < 5_000'>Ensure<br/>Order</span>"]:::gatekeeper
     N2_Ensure -->|pass| N3_Ensure
     N2_Ensure -->|fail| FAIL
-    N3_Ensure["Ensure<br/>Order"]:::gatekeeper
+    N3_Ensure["<span title='GetUserRole(o.UserId) == &quot;Admin&quot;'>Ensure<br/>Order</span>"]:::gatekeeper
     N3_Ensure -->|fail| FAIL
     N3_Ensure -->|ok| SUCCESS
     SUCCESS([success]):::success
@@ -225,21 +227,21 @@ flowchart LR
 
 ```mermaid
 ---
-title: PlaceOrder
+title: PlaceOrder → ⟨Order⟩
 ---
 flowchart LR
     ENTRY_ROOT["FindUser<br/>→ User"]:::operation ==> N0_FindProduct
-    N0_FindProduct["FindProduct<br/>User → Product"]:::transform
+    N0_FindProduct["FindProduct<br/>User → Product"]:::bind
     N0_FindProduct -->|ok| N1_BuildOrder
     N0_FindProduct -->|fail| FAIL
-    N1_BuildOrder["BuildOrder<br/>Product → Order"]:::transform
+    N1_BuildOrder["BuildOrder<br/>Product → Order"]:::bind
     N1_BuildOrder -->|fail| FAIL
     N1_BuildOrder -->|ok| SUCCESS
     SUCCESS([success]):::success
     FAIL([fail])
     FAIL:::failure
     classDef operation fill:#fef0e3,color:#b86a1c
-    classDef transform fill:#e3f0e8,color:#2f7a5c
+    classDef bind fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px
     classDef success fill:#e6f6ea,color:#1c7e4f
     classDef failure fill:#f8e3e3,color:#b13e3e
 %% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
@@ -257,23 +259,24 @@ flowchart LR
 
 ```mermaid
 ---
-title: ProcessCheckout
+title: ProcessCheckout → ⟨String⟩
 ---
 flowchart LR
     ENTRY_ROOT["FindUser<br/>→ User"]:::operation ==> N0_FindProduct
-    N0_FindProduct["FindProduct<br/>User → Product"]:::transform
+    N0_FindProduct["FindProduct<br/>User → Product"]:::bind
     N0_FindProduct -->|ok| N1_BuildOrder
     N0_FindProduct -->|fail| FAIL
-    N1_BuildOrder["BuildOrder<br/>Product → Order"]:::transform
+    N1_BuildOrder["BuildOrder<br/>Product → Order"]:::bind
     N1_BuildOrder -->|ok| N2_Map
     N1_BuildOrder -->|fail| FAIL
-    N2_Map["Map<br/>Order → String"]:::transform
+    N2_Map["Map<br/>Order → String"]:::map
     N2_Map -->|ok| SUCCESS
     SUCCESS([success]):::success
     FAIL([fail])
     FAIL:::failure
     classDef operation fill:#fef0e3,color:#b86a1c
-    classDef transform fill:#e3f0e8,color:#2f7a5c
+    classDef bind fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px
+    classDef map fill:#e3f0e8,color:#2f7a5c
     classDef success fill:#e6f6ea,color:#1c7e4f
     classDef failure fill:#f8e3e3,color:#b13e3e
 %% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
@@ -292,27 +295,28 @@ flowchart LR
 
 ```mermaid
 ---
-title: PlaceOrderAsync
+title: PlaceOrder⚡ → ⟨Order⟩
 ---
 flowchart LR
-    ENTRY_ROOT["FindUserAsync ⚡<br/>→ User"]:::operation ==> N0_FindProductAsync
-    N0_FindProductAsync["FindProductAsync ⚡<br/>User → Product"]:::transform
+    ENTRY_ROOT["FindUser⚡<br/>→ User"]:::operation ==> N0_FindProductAsync
+    N0_FindProductAsync["FindProduct⚡<br/>User → Product"]:::bind
     N0_FindProductAsync -->|ok| N1_EnsureAsync
     N0_FindProductAsync -->|fail| FAIL
-    N1_EnsureAsync["EnsureAsync ⚡<br/>Product"]:::gatekeeper
+    N1_EnsureAsync["<span title='p.Stock > 0'>Ensure⚡<br/>Product</span>"]:::gatekeeper
     N1_EnsureAsync -->|pass| N2_MapAsync
     N1_EnsureAsync -->|fail| FAIL
-    N2_MapAsync["MapAsync ⚡<br/>Product → Order"]:::transform
+    N2_MapAsync["Map⚡<br/>Product → Order"]:::map
     N2_MapAsync --> N3_SaveOrderAsync
-    N3_SaveOrderAsync["SaveOrderAsync ⚡<br/>Order"]:::transform
+    N3_SaveOrderAsync["SaveOrder⚡<br/>Order"]:::bind
     N3_SaveOrderAsync -->|fail| FAIL
     N3_SaveOrderAsync -->|ok| SUCCESS
     SUCCESS([success]):::success
     FAIL([fail])
     FAIL:::failure
     classDef operation fill:#fef0e3,color:#b86a1c
-    classDef transform fill:#e3f0e8,color:#2f7a5c
+    classDef bind fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px
     classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
+    classDef map fill:#e3f0e8,color:#2f7a5c
     classDef success fill:#e6f6ea,color:#1c7e4f
     classDef failure fill:#f8e3e3,color:#b13e3e
 %% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
@@ -332,36 +336,37 @@ flowchart LR
 
 ```mermaid
 ---
-title: AdminCheckout
+title: AdminCheckout → ⟨String⟩
 ---
 flowchart LR
-    ENTRY_ROOT["FindUserAsync ⚡<br/>→ User"]:::operation ==> N0_EnsureAsync
-    N0_EnsureAsync["EnsureAsync ⚡<br/>User"]:::gatekeeper
+    ENTRY_ROOT["FindUser⚡<br/>→ User"]:::operation ==> N0_EnsureAsync
+    N0_EnsureAsync["<span title='u.Role == &quot;Admin&quot;'>Ensure⚡<br/>User</span>"]:::gatekeeper
     N0_EnsureAsync -->|pass| N1_FindProductAsync
     N0_EnsureAsync -->|fail| FAIL
-    N1_FindProductAsync["FindProductAsync ⚡<br/>User → Product"]:::transform
+    N1_FindProductAsync["FindProduct⚡<br/>User → Product"]:::bind
     N1_FindProductAsync -->|ok| N2_EnsureAsync
     N1_FindProductAsync -->|fail| FAIL
-    N2_EnsureAsync["EnsureAsync ⚡<br/>Product"]:::gatekeeper
+    N2_EnsureAsync["<span title='p.Stock > 0'>Ensure⚡<br/>Product</span>"]:::gatekeeper
     N2_EnsureAsync -->|pass| N3_MapAsync
     N2_EnsureAsync -->|fail| FAIL
-    N3_MapAsync["MapAsync ⚡<br/>Product → Order"]:::transform
+    N3_MapAsync["Map⚡<br/>Product → Order"]:::map
     N3_MapAsync --> N4_SaveOrderAsync
-    N4_SaveOrderAsync["SaveOrderAsync ⚡<br/>Order"]:::transform
+    N4_SaveOrderAsync["SaveOrder⚡<br/>Order"]:::bind
     N4_SaveOrderAsync -->|ok| N5_Log
     N4_SaveOrderAsync -->|fail| FAIL
     N5_Log["Log<br/>Order"]:::sideeffect
     N5_Log --> N6_Log
     N6_Log["Log<br/>Order"]:::sideeffect
     N6_Log --> N7_MapAsync
-    N7_MapAsync["MapAsync ⚡<br/>Order → String"]:::transform
+    N7_MapAsync["Map⚡<br/>Order → String"]:::map
     N7_MapAsync -->|ok| SUCCESS
     SUCCESS([success]):::success
     FAIL([fail])
     FAIL:::failure
     classDef operation fill:#fef0e3,color:#b86a1c
     classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
-    classDef transform fill:#e3f0e8,color:#2f7a5c
+    classDef bind fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px
+    classDef map fill:#e3f0e8,color:#2f7a5c
     classDef sideeffect fill:#fff4d9,color:#b8882c
     classDef success fill:#e6f6ea,color:#1c7e4f
     classDef failure fill:#f8e3e3,color:#b13e3e

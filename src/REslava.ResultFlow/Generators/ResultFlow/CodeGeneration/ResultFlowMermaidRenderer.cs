@@ -205,7 +205,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     {
                         var fId = $"F{failureCounter++}";
                         var gatekeeperLabel = node.PredicateText != null
-                            ? "<span title='" + node.PredicateText.Replace("'", "&#39;") + "'>" + label + "</span>"
+                            ? "<span title='" + node.PredicateText.Replace("\"", "&quot;").Replace("'", "&#39;") + "'>" + label + "</span>"
                             : label;
                         lines.Add($"{indent}{nodeId}[\"{gatekeeperLabel}\"]:::gatekeeper");
                         if (hasNext) lines.Add($"{indent}{nodeId} -->|pass| {resolvedNextId}");

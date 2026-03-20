@@ -32,6 +32,8 @@ SUFFIX_META = {
     "_ErrorPropagation":("Error Propagation","Error types grouped by the architectural layer they originate from"),
 }
 SKIP_SUFFIXES = {"_Sidecar"}
+# Exact constant names that are per-class (not per-method) and should not appear as diagrams
+SKIP_NAMES = {"Legend"}
 
 # Suffix sort order for display
 SUFFIX_ORDER = ["", "_LayerView", "_Stats", "_ErrorSurface", "_ErrorPropagation"]
@@ -74,11 +76,12 @@ def extract_constants(cs_file: Path) -> dict[str, str]:
             first_content = m.group(2)  # content on same line as opening @"
 
             # Determine suffix
-            skip = False
-            for s in SKIP_SUFFIXES:
-                if name.endswith(s):
-                    skip = True
-                    break
+            skip = name in SKIP_NAMES
+            if not skip:
+                for s in SKIP_SUFFIXES:
+                    if name.endswith(s):
+                        skip = True
+                        break
 
             # Collect lines until closing `";`
             content_lines = []
