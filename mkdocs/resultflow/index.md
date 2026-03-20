@@ -78,13 +78,13 @@ dotnet add package REslava.ResultFlow
 
     `Bind` lambdas that call same-project methods are automatically expanded as Mermaid `subgraph` blocks — one diagram across multiple methods. `MaxDepth` controls recursion depth; cycle guard prevents infinite loops.
 
-    [](cross-method-pipeline-tracing--maxdepth)
+    [](cross-method-pipeline-tracing--maxdepth-v1.45.0)
 
 -   :material-layers-triple: __Domain Boundary Diagrams — `_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation`__
 
     Apply `[DomainBoundary("LayerName")]` to a class or method and get four additional constants: architecture view, pipeline stats, fail-edges only, and errors grouped by layer.
 
-    [](domain-boundary-diagrams--_layerview-_stats-_errorsurface-_errorpropagation-v1450)
+    [](domain-boundary-diagrams--_layerview-_stats-_errorsurface-_errorpropagation-v1.45.0)
 
 
 </div>
