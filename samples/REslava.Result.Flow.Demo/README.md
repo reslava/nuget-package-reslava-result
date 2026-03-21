@@ -23,18 +23,23 @@ dotnet run
 | 9 | Domain boundary diagrams — `[DomainBoundary]` triggers `_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation` | v1.45.0 |
 | 10 | Match multi-branch fan-out — hexagon + typed N-branch `-->|TypeName| FAIL` edges | v1.46.0 |
 | 11 | Architectural Flow Catalog — all generated diagrams published to MkDocs via `scripts/generate_flow_catalog.py` | v1.47.0 |
+| 12 | SVG Single Source of Truth — all diagram showcases use committed SVGs; `scripts/svg.sh` regenerates on change | v1.47.3 |
+| 13 | Dark theme — `[ResultFlow(Theme = ResultFlowTheme.Dark)]` emits a dark-palette Mermaid diagram | v1.47.4 |
 
 ---
 
 ## NodeKind colour reference
 
-| NodeKind | `classDef` | Colour | Role |
+| NodeKind | `classDef` | Light colour | Role |
 |---|---|---|---|
-| Root / entry | `operation` | amber `#fef0e3` | First step / unclassified entry point |
-| `Bind`, `Map`, `Or` | `transform` | green `#e3f0e8` | Success-path transforms |
+| Root / entry | `operation` | amber `#faf0e3` | First step / unclassified entry point |
+| `Bind`, `Or`, `OrElse`, `MapError` | `bind` | green `#e3f0e8` + thick border | Success-path transforms (produces a value) |
+| `Map` | `map` | green `#e3f0e8` | Pure transforms (no fail edge) |
+| Subgraph wrapper | `transform` | green `#e3f0e8` | Used only for cross-method subgraph border |
 | `Ensure`, `Filter` | `gatekeeper` | blue `#e3e9fa` | Conditional pass/fail |
 | `Tap`, `TapOnFailure` | `sideeffect` | yellow `#fff4d9` | Side-effects |
 | `Match` | `terminal` | purple `#f2e3f5` | Pipeline endpoint |
+| `SUCCESS` node | `success` | teal `#e8f4f0` | Ok terminal |
 | `FAIL` node | `failure` | red `#f8e3e3` | Error sink |
 
 ---

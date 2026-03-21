@@ -76,7 +76,7 @@ public class ResultFlowCrossMethodTests
 
         var output = RunGenerator(source);
 
-        Assert.IsFalse(output.Contains("subgraph"), "MaxDepth=0 should disable subgraph expansion");
+        Assert.IsFalse(output.Contains("subgraph sg_"), "MaxDepth=0 should disable subgraph expansion");
         Assert.IsTrue(output.Contains("Validate"),   "Validate still shown as leaf node label (Gap 1)");
     }
 
@@ -111,7 +111,7 @@ public class ResultFlowCrossMethodTests
 
         var output = RunGenerator(source);
 
-        Assert.IsFalse(output.Contains("subgraph"), "Method group Bind should not expand into subgraph");
+        Assert.IsFalse(output.Contains("subgraph sg_"), "Method group Bind should not expand into subgraph");
         // Method group: Gap 1 does not apply — node label stays "Bind" (outer pipeline method name)
         Assert.IsTrue(output.Contains("Bind"),       "Bind node still rendered");
     }

@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.47.4] - 2026-03-21
+
+### ✨ Added
+
+#### Dark Theme — `[ResultFlow(Theme = ResultFlowTheme.Dark)]`
+
+- **`ResultFlowTheme` enum** — `Light = 0` (default), `Dark = 1`; `Theme` named property on `[ResultFlow]`; both packages
+- **Dark `classDef` palette** — full node colour set for `operation`, `bind`, `map`, `gatekeeper`, `sideeffect`, `terminal`, `success`, `failure`, `note`, `subgraphStyle`; matched to MkDocs slate colour scheme; both packages
+- **`MermaidInitDark`** — new init constant with `themeVariables`: `primaryTextColor: #fff` (front-matter title), `titleColor: #fff` (subgraph labels), `edgeLabelBackground: #2a2a2a` (edge label pills); emitted instead of `MermaidInit` when `darkTheme = true`; both packages
+- **Dark aux diagrams** — `_LayerView`, `_ErrorSurface`, `_ErrorPropagation` all accept `darkTheme` and emit the dark palette; depth-indexed layer classDefs (`Layer0_Style`..`Layer4_Style`) centralized in `ResultFlowThemes.cs`; both packages
+- **Layer color centralization** — `Layer{n}_Style` classDefs live entirely in `ResultFlowThemes.Light` / `ResultFlowThemes.Dark`; renderers emit only `class Layer{depth} Layer{depth}_Style` assignment lines — zero hardcoded colour strings outside the themes file; both packages
+- **Depth-indexed layer subgraphs** — `LayerViewRenderer` and `ErrorPropagationRenderer` rewritten to use `Layer{depth}["ActualName"]` IDs; inner nodes keep their `NodeKind` classDef (`:::bind`, `:::gatekeeper`, etc.); 2-colour alternating palette (even = blue-lavender, odd = mint)
+- **`FulfillmentService` demo** — new `[DomainBoundary("Application")]` class with `[ResultFlow(MaxDepth = 2, Theme = Dark)]` calling `WarehouseService` (Domain); generates dark `FulfillOrder`, `FulfillOrder_LayerView`, `FulfillOrder_ErrorSurface`, `FulfillOrder_ErrorPropagation`
+- **MkDocs dark catalog** — `mkdocs/demo/flow-catalog-dark.md` with `force-dark-mode: true` frontmatter; `mkdocs/demo/index.md` updated with Light / Dark catalog buttons
+
+### Stats
+- Tests: 4,648 passing (floor: >4,500)
+- Features: 197 across 15 categories
+
+---
+
 ## [1.47.3] - 2026-03-20
 
 ### ✨ Added

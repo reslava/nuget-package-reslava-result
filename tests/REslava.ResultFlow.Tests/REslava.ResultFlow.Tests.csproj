@@ -46,6 +46,7 @@
     <Compile Include="ResultFlowErrorSurfaceTests.cs" />
     <Compile Include="ResultFlowLayerDetectionTests.cs" />
     <Compile Include="ResultFlowMultiBranchTests.cs" />
+    <Compile Include="ResultFlowThemeTests.cs" />
   </ItemGroup>
 
   <!-- Prevent double compilation of generated files -->

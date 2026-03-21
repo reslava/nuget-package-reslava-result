@@ -12,6 +12,15 @@ using System;
 
 namespace REslava.Result.Flow
 {
+    /// <summary>Diagram colour theme for <see cref=""ResultFlowAttribute""/>.</summary>
+    public enum ResultFlowTheme
+    {
+        /// <summary>Pastel light palette (default).</summary>
+        Light = 0,
+        /// <summary>Dark palette matched to the MkDocs slate colour scheme.</summary>
+        Dark = 1,
+    }
+
     /// <summary>
     /// Marks a method for automatic Mermaid flow diagram generation with full type travel.
     /// Apply to methods that use fluent Result&lt;T&gt; pipeline chains (Bind, Map, Ensure, Tap, Match).
@@ -26,6 +35,11 @@ namespace REslava.Result.Flow
         /// 0 disables cross-method tracing. Default: 2.
         /// </summary>
         public int MaxDepth { get; set; } = 2;
+
+        /// <summary>
+        /// Colour theme for the generated Mermaid diagram. Default: <see cref=""ResultFlowTheme.Light""/>.
+        /// </summary>
+        public ResultFlowTheme Theme { get; set; } = ResultFlowTheme.Light;
     }
 }";
             return SourceText.From(source, Encoding.UTF8);

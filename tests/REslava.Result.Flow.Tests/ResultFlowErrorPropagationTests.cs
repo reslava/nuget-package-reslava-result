@@ -50,7 +50,7 @@ public class ResultFlowErrorPropagationTests
         var source = CreateLayerSource();
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("subgraph Domain"),
+        Assert.IsTrue(output.Contains("\"Domain\""),
             "_ErrorPropagation must emit a Domain subgraph");
     }
 
@@ -95,8 +95,8 @@ public class ResultFlowErrorPropagationTests
         var output = RunGenerator(source);
 
         Assert.IsTrue(output.Contains("PlaceOrder_ErrorPropagation"), "_ErrorPropagation must be emitted");
-        Assert.IsTrue(output.Contains("subgraph Application"), "Application subgraph expected");
-        Assert.IsTrue(output.Contains("subgraph Domain"), "Domain subgraph expected");
+        Assert.IsTrue(output.Contains("\"Application\""), "Application subgraph expected");
+        Assert.IsTrue(output.Contains("\"Domain\""), "Domain subgraph expected");
     }
 
     // ── 9. Not emitted when layer detected but no errors ─────────────────────

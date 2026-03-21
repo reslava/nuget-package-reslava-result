@@ -14,7 +14,8 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             IReadOnlyList<PipelineNode> nodes,
             string? methodTitle = null,
             string? seedMethodName = null,
-            string? linkMode = null)
+            string? linkMode = null,
+            bool darkTheme = false)
         {
             var visible = FilterVisible(nodes);
             if (visible.Count == 0)
@@ -24,8 +25,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             AssignNodeIds(visible, prefix: "N");
 
             var lines = new List<string>();
-            var classDefs = new List<string>();
-            var declaredClasses = new HashSet<string>();
+            var subgraphIds = new List<string>();
             int failureCounter = 0;
 
             // Entry node: the chain seed call (e.g. FindUser) as an :::operation node with ==> arrow
@@ -45,10 +45,9 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     ? $"sg_{firstNode.NodeId}"
                     : firstNode.NodeId!;
                 lines.Add($"    ENTRY_ROOT[\"{seedLabel}\"]:::operation ==> {firstConnectId}");
-                TryAddClass(declaredClasses, classDefs, "operation", "fill:#fef0e3,color:#b86a1c");
             }
 
-            RenderNodes(visible, lines, classDefs, declaredClasses, ref failureCounter, indent: "    ");
+            RenderNodes(visible, lines, subgraphIds, ref failureCounter, indent: "    ");
 
             // SUCCESS terminal: connect the last top-level node's happy path to SUCCESS
             string? lastConnectId = GetLastTopLevelConnectId(visible);
@@ -56,7 +55,6 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             {
                 lines.Add($"    {lastConnectId} -->|ok| SUCCESS");
                 lines.Add("    SUCCESS([success]):::success");
-                TryAddClass(declaredClasses, classDefs, "success", "fill:#e6f6ea,color:#1c7e4f");
             }
 
             var sb = new StringBuilder();
@@ -71,11 +69,17 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                 sb.AppendLine($"title: {titleName}{typeAnnotation}");
                 sb.AppendLine("---");
             }
+            sb.AppendLine(darkTheme ? ResultFlowThemes.MermaidInitDark : ResultFlowThemes.MermaidInit);
             sb.AppendLine("flowchart LR");
             foreach (var line in lines)
                 sb.AppendLine(line);
-            foreach (var classDef in classDefs)
-                sb.AppendLine(classDef);
+
+            // Emit full theme block (classDefs + linkStyle)
+            sb.AppendLine(darkTheme ? ResultFlowThemes.Dark : ResultFlowThemes.Light);
+
+            // Assign subgraphStyle to each subgraph by ID (one line per ID)
+            foreach (var sgId in subgraphIds)
+                sb.AppendLine($"class {sgId} subgraphStyle");
 
             // Click directives — emitted when linkMode is "vscode" and source location is available
             if (!string.IsNullOrEmpty(linkMode) && linkMode != "none")
@@ -133,8 +137,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
         private static void RenderNodes(
             IReadOnlyList<PipelineNode> nodes,
             List<string> lines,
-            List<string> classDefs,
-            HashSet<string> declaredClasses,
+            List<string> subgraphIds,
             ref int failureCounter,
             string indent)
         {
@@ -149,6 +152,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                 if (node.SubNodes != null && node.SubNodes.Count > 0)
                 {
                     var sgId = $"sg_{nodeId}";
+                    subgraphIds.Add(sgId);
                     var subVisible = FilterVisible(node.SubNodes);
                     AssignNodeIds(subVisible, prefix: $"{nodeId}_");
 
@@ -164,10 +168,9 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                             : subVisible[0].NodeId!;
                         lines.Add($"{innerIndent}{entryId}[ ]:::entry");
                         lines.Add($"{innerIndent}{entryId}[ ] ==> {firstConnectId}");
-                        TryAddClass(declaredClasses, classDefs, "entry", "fill:none,stroke:none");
                     }
 
-                    RenderNodes(subVisible, lines, classDefs, declaredClasses, ref failureCounter,
+                    RenderNodes(subVisible, lines, subgraphIds, ref failureCounter,
                         indent: indent + "    ");
                     lines.Add($"{indent}end");
 
@@ -183,8 +186,6 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     // Fallback failure edge for the subgraph wrapper
                     var fId = $"F{failureCounter++}";
                     lines.Add($"{indent}{sgId} -->|\"{FailLabel(node)}\"| {fId}[\"Failure\"]:::failure");
-                    TryAddClass(declaredClasses, classDefs, "failure", "fill:#f8e3e3,color:#b13e3e");
-                    TryAddClass(declaredClasses, classDefs, "transform", "fill:#e3f0e8,color:#2f7a5c");
                     continue;
                 }
 
@@ -210,8 +211,6 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                         lines.Add($"{indent}{nodeId}[\"{gatekeeperLabel}\"]:::gatekeeper");
                         if (hasNext) lines.Add($"{indent}{nodeId} -->|pass| {resolvedNextId}");
                         lines.Add($"{indent}{nodeId} -->|\"{FailLabel(node)}\"| {fId}[\"Failure\"]:::failure");
-                        TryAddClass(declaredClasses, classDefs, "gatekeeper", "fill:#e3e9fa,color:#3f5c9a");
-                        TryAddClass(declaredClasses, classDefs, "failure",    "fill:#f8e3e3,color:#b13e3e");
                         break;
                     }
                     case NodeKind.TransformWithRisk:
@@ -220,14 +219,11 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                         lines.Add($"{indent}{nodeId}[\"{label}\"]:::bind");
                         if (hasNext) lines.Add($"{indent}{nodeId} -->|ok| {resolvedNextId}");
                         lines.Add($"{indent}{nodeId} -->|\"{FailLabel(node)}\"| {fId}[\"Failure\"]:::failure");
-                        TryAddClass(declaredClasses, classDefs, "bind",    "fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px");
-                        TryAddClass(declaredClasses, classDefs, "failure", "fill:#f8e3e3,color:#b13e3e");
                         break;
                     }
                     case NodeKind.PureTransform:
                         lines.Add($"{indent}{nodeId}[\"{label}\"]:::map");
                         if (hasNext) lines.Add($"{indent}{nodeId} --> {resolvedNextId}");
-                        TryAddClass(declaredClasses, classDefs, "map", "fill:#e3f0e8,color:#2f7a5c");
                         break;
 
                     case NodeKind.SideEffectSuccess:
@@ -235,7 +231,6 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     case NodeKind.SideEffectBoth:
                         lines.Add($"{indent}{nodeId}[\"{label}\"]:::sideeffect");
                         if (hasNext) lines.Add($"{indent}{nodeId} --> {resolvedNextId}");
-                        TryAddClass(declaredClasses, classDefs, "sideeffect", "fill:#fff4d9,color:#b8882c");
                         break;
 
                     case NodeKind.Terminal:
@@ -244,17 +239,13 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                         lines.Add($"{indent}{nodeId}{{{{\"{label}\"}}}}:::terminal");
                         lines.Add($"{indent}{nodeId} -->|ok| SUCCESS");
                         lines.Add($"{indent}SUCCESS([success]):::success");
-                        TryAddClass(declaredClasses, classDefs, "success", "fill:#e6f6ea,color:#1c7e4f");
                         lines.Add($"{indent}{nodeId} -->|fail| {fId}[\"Failure\"]:::failure");
-                        TryAddClass(declaredClasses, classDefs, "terminal", "fill:#f2e3f5,color:#8a4f9e");
-                        TryAddClass(declaredClasses, classDefs, "failure", "fill:#f8e3e3,color:#b13e3e");
                         break;
                     }
 
                     default: // Unknown
                         lines.Add($"{indent}{nodeId}[\"{label}\"]:::operation");
                         if (hasNext) lines.Add($"{indent}{nodeId} --> {resolvedNextId}");
-                        TryAddClass(declaredClasses, classDefs, "operation", "fill:#fef0e3,color:#b86a1c");
                         break;
                 }
             }
@@ -262,11 +253,6 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
 
         /// <summary>
         /// Builds the Mermaid node label, appending a type-travel secondary line when type info is available.
-        /// <list type="bullet">
-        ///   <item><description>OutputType known, differs from InputType → <c>MethodName&lt;br/&gt;InputType → OutputType</c></description></item>
-        ///   <item><description>OutputType known, same as InputType (or no input) → <c>MethodName&lt;br/&gt;OutputType</c></description></item>
-        ///   <item><description>OutputType null → <c>MethodName</c> (current behavior, no regression)</description></item>
-        /// </list>
         /// </summary>
         private static string BuildLabel(PipelineNode node)
         {
@@ -280,42 +266,26 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
 
             string typeLabel;
             if (node.InputType != null && node.InputType != node.OutputType)
-                typeLabel = node.InputType + " \u2192 " + node.OutputType; // e.g. "User → UserDto"
+                typeLabel = node.InputType + " \u2192 " + node.OutputType;
             else
-                typeLabel = node.OutputType; // e.g. "User"
+                typeLabel = node.OutputType;
 
             return baseName + "<br/>" + typeLabel;
         }
 
         /// <summary>
         /// Returns the failure edge label.
-        /// <list type="bullet">
-        ///   <item><description>Type-read mode: <c>ErrorType</c> is set — use it (HTML-escaped).</description></item>
-        ///   <item><description>Body-scan mode: <c>ErrorHint</c> was syntactically extracted from a step
-        ///         argument (e.g. <c>new NotFoundError(…)</c> or <c>ValidationError.Field(…)</c>) — use it.</description></item>
-        ///   <item><description>Neither: plain <c>"fail"</c>.</description></item>
-        /// </list>
         /// </summary>
         private static string FailLabel(PipelineNode node)
         {
-            // Type-read mode wins: semantic type from the generic return type
             if (node.ErrorType != null)
             {
                 var escaped = node.ErrorType.Replace("<", "&lt;").Replace(">", "&gt;");
                 return "fail: " + escaped;
             }
-
-            // Body-scan fallback: syntactically extracted from the step's error argument
             if (node.ErrorHint != null)
                 return "fail: " + node.ErrorHint;
-
             return "fail";
-        }
-
-        private static void TryAddClass(HashSet<string> declared, List<string> classDefs, string name, string style)
-        {
-            if (declared.Add(name))
-                classDefs.Add($"    classDef {name} {style}");
         }
 
         private static string? BuildClickUrl(string? sourceFile, int? sourceLine, string? linkMode)

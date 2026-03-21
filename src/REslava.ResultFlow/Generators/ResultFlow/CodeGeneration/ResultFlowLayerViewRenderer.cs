@@ -7,6 +7,8 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
     /// <summary>
     /// Renders a <c>{Method}_LayerView</c> Mermaid diagram (<c>flowchart TD</c>) from a pipeline model.
     /// Shows one node per traced method, grouped by architectural layer and class.
+    /// Layer subgraph containers are styled by depth index (<c>Layer0_Style</c>, <c>Layer1_Style</c>, …)
+    /// so that any layer name works — no name-to-color switch needed.
     /// Returns null when no layer information is available (nothing to group).
     /// </summary>
     internal static class ResultFlowLayerViewRenderer
@@ -17,7 +19,8 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             string rootClassName,
             string? rootLayer,
             string? operationName = null,
-            string? linkMode = null)
+            string? linkMode = null,
+            bool darkTheme = false)
         {
             // Collect direct subgraph nodes (depth-1 cross-method calls)
             var subMethods = CollectSubMethods(nodes);
@@ -36,15 +39,16 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                 sb.AppendLine("---");
             }
 
+            sb.AppendLine(ResultFlowThemes.MermaidInit);
             sb.AppendLine("flowchart TD");
             sb.AppendLine();
 
-            // ── Build layer → class → [(nodeId, methodName)] map ─────────────
+            // ── Build layer → class → [(nodeId, methodName, classDefName)] map ──
             string rootNodeId = $"N_{rootMethodName}";
             string rootLayerKey = rootLayer ?? "unknown";
 
-            var layerMap = new Dictionary<string, Dictionary<string, List<(string nodeId, string methodName)>>>();
-            AddToLayerMap(layerMap, rootLayerKey, rootClassName, rootNodeId, rootMethodName);
+            var layerMap = new Dictionary<string, Dictionary<string, List<(string nodeId, string methodName, string classDefName)>>>();
+            AddToLayerMap(layerMap, rootLayerKey, rootClassName, rootNodeId, rootMethodName, "operation");
 
             foreach (var sub in subMethods)
             {
@@ -52,33 +56,32 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                 string subClass = sub.ClassName ?? sub.SubGraphName ?? sub.MethodName;
                 string subNodeId = $"N_{sub.SubGraphName ?? sub.MethodName}";
                 string subMethodName = sub.SubGraphName ?? sub.MethodName;
-                AddToLayerMap(layerMap, subLayer, subClass, subNodeId, subMethodName);
+                AddToLayerMap(layerMap, subLayer, subClass, subNodeId, subMethodName, KindToClassDef(sub.Kind));
             }
 
-            // ── Emit subgraphs (Presentation → Application → Domain → Infrastructure → unknown) ──
+            // ── Emit layer subgraphs — depth index drives ID and style ───────────
             var orderedLayers = GetOrderedLayers(layerMap);
-            var emittedClassDefs = new HashSet<string>();
 
-            foreach (var layer in orderedLayers)
+            for (int depth = 0; depth < orderedLayers.Count; depth++)
             {
+                string layer = orderedLayers[depth];
+                string layerId = $"Layer{depth}";
                 var classMap = layerMap[layer];
-                string classDefName = GetLayerClassDef(layer);
 
-                sb.AppendLine($"  subgraph {SanitizeId(layer)}[\"{layer}\"]");
+                sb.AppendLine($"  subgraph {layerId}[\"{layer}\"]");
                 foreach (var kv in classMap)
                 {
-                    sb.AppendLine($"    subgraph {SanitizeId(kv.Key)}[\"{kv.Key}\"]");
-                    foreach (var (nodeId, methodName) in kv.Value)
+                    string classSubgraphId = $"L{depth}_{SanitizeId(kv.Key)}";
+                    sb.AppendLine($"    subgraph {classSubgraphId}[\"{kv.Key}\"]");
+                    foreach (var (nodeId, methodName, classDefName) in kv.Value)
                         sb.AppendLine($"      {nodeId}[\"{methodName}\"]:::{classDefName}");
                     sb.AppendLine("    end");
                 }
                 sb.AppendLine("  end");
                 sb.AppendLine();
-
-                emittedClassDefs.Add(classDefName);
             }
 
-            // ── Emit edges (fan-out: root → each sub-method) ─────────────────
+            // ── Emit edges (fan-out: root → each sub-method) ─────────────────────
             bool anyErrorEdges = false;
 
             foreach (var sub in subMethods)
@@ -105,12 +108,12 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
 
             sb.AppendLine();
 
-            // ── Terminals ─────────────────────────────────────────────────────
+            // ── Terminals ─────────────────────────────────────────────────────────
             if (anyErrorEdges)
                 sb.AppendLine("  FAIL([fail]):::failure");
             sb.AppendLine("  SUCCESS([success]):::success");
 
-            // ── Click directives (when linkMode set) ──────────────────────────
+            // ── Click directives (when linkMode set) ──────────────────────────────
             if (!string.IsNullOrEmpty(linkMode) && linkMode != "none")
             {
                 foreach (var sub in subMethods)
@@ -124,26 +127,29 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
 
             sb.AppendLine();
 
-            // ── classDef styles ───────────────────────────────────────────────
-            foreach (var layer in orderedLayers)
-            {
-                var classDefName = GetLayerClassDef(layer);
-                if (emittedClassDefs.Remove(classDefName))
-                    sb.AppendLine($"  classDef {classDefName} {GetLayerStyle(layer)}");
-            }
-            if (anyErrorEdges)
-                sb.AppendLine("  classDef failure fill:#f8e3e3,color:#b13e3e");
-            sb.AppendLine("  classDef success fill:#e6f6ea,color:#1c7e4f");
+            // ── Full theme block (includes all classDefs — operation, bind, failure, success, Layer*_Style) ──
+            sb.AppendLine(darkTheme ? ResultFlowThemes.Dark : ResultFlowThemes.Light);
 
-            // Apply layer colors to outer subgraph containers via 'class' directive
-            sb.AppendLine();
-            foreach (var layer in orderedLayers)
-                sb.AppendLine($"  class {SanitizeId(layer)} {GetLayerClassDef(layer)}");
+            // ── Apply depth-indexed style to each layer subgraph container ────────
+            for (int depth = 0; depth < orderedLayers.Count; depth++)
+                sb.AppendLine($"  class Layer{depth} Layer{depth}_Style");
 
             return sb.ToString().TrimEnd();
         }
 
-        // ── Helpers ───────────────────────────────────────────────────────────
+        // ── Helpers ───────────────────────────────────────────────────────────────
+
+        private static string KindToClassDef(NodeKind kind) => kind switch
+        {
+            NodeKind.TransformWithRisk  => "bind",
+            NodeKind.PureTransform      => "map",
+            NodeKind.Gatekeeper         => "gatekeeper",
+            NodeKind.SideEffectSuccess
+            or NodeKind.SideEffectFailure
+            or NodeKind.SideEffectBoth  => "sideeffect",
+            NodeKind.Terminal           => "terminal",
+            _                           => "operation"
+        };
 
         private static List<PipelineNode> CollectSubMethods(IReadOnlyList<PipelineNode> nodes)
         {
@@ -163,18 +169,18 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
         }
 
         private static void AddToLayerMap(
-            Dictionary<string, Dictionary<string, List<(string, string)>>> map,
-            string layer, string className, string nodeId, string methodName)
+            Dictionary<string, Dictionary<string, List<(string nodeId, string methodName, string classDefName)>>> map,
+            string layer, string className, string nodeId, string methodName, string classDefName)
         {
             if (!map.TryGetValue(layer, out var classMap))
-                map[layer] = classMap = new Dictionary<string, List<(string, string)>>();
+                map[layer] = classMap = new Dictionary<string, List<(string, string, string)>>();
             if (!classMap.TryGetValue(className, out var methods))
-                classMap[className] = methods = new List<(string, string)>();
-            methods.Add((nodeId, methodName));
+                classMap[className] = methods = new List<(string, string, string)>();
+            methods.Add((nodeId, methodName, classDefName));
         }
 
         private static List<string> GetOrderedLayers(
-            Dictionary<string, Dictionary<string, List<(string, string)>>> map)
+            Dictionary<string, Dictionary<string, List<(string, string, string)>>> map)
         {
             var order = new[] { "Presentation", "Application", "Domain", "Infrastructure" };
             var result = new List<string>();
@@ -214,24 +220,6 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                         result.Add(err);
             return new List<string>(result);
         }
-
-        private static string GetLayerClassDef(string layer) => layer switch
-        {
-            "Presentation"   => "layerPres",
-            "Application"    => "layerApp",
-            "Domain"         => "layerDomain",
-            "Infrastructure" => "layerInfra",
-            _                => "layerUnknown"
-        };
-
-        private static string GetLayerStyle(string layer) => layer switch
-        {
-            "Presentation"   => "fill:#eef4ff,color:#2b4c7e",
-            "Application"    => "fill:#e8f7ee,color:#1e6f43",
-            "Domain"         => "fill:#fff6e5,color:#a36b00",
-            "Infrastructure" => "fill:#f4e8ff,color:#6a3fa0",
-            _                => "fill:#f5f5f5,color:#555555"
-        };
 
         private static string SanitizeId(string name) =>
             name.Replace(".", "_").Replace("<", "_").Replace(">", "_").Replace(" ", "_");

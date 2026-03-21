@@ -11,7 +11,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
     /// </summary>
     internal static class ResultFlowErrorSurfaceRenderer
     {
-        public static string? Render(IReadOnlyList<PipelineNode> nodes)
+        public static string? Render(IReadOnlyList<PipelineNode> nodes, bool darkTheme = false)
         {
             var failEdges = new List<(string nodeLabel, string errorLabel)>();
             Collect(nodes, failEdges);
@@ -20,6 +20,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 return null;
 
             var sb = new StringBuilder();
+            sb.AppendLine(ResultFlowThemes.MermaidInit);
             sb.AppendLine("flowchart LR");
 
             for (int i = 0; i < failEdges.Count; i++)
@@ -31,7 +32,12 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             sb.AppendLine();
             sb.AppendLine("  FAIL([fail]):::failure");
             sb.AppendLine();
-            sb.Append("  classDef failure fill:#f8e3e3,color:#b13e3e");
+            sb.AppendLine(darkTheme
+                ? "  classDef failure fill:#3a1f1f,color:#f2b8b8"
+                : "  classDef failure fill:#f8e3e3,color:#b13e3e");
+            sb.Append(darkTheme
+                ? "  linkStyle default stroke:#666,stroke-width:1.5px"
+                : "  linkStyle default stroke:#888,stroke-width:1.5px");
 
             return sb.ToString();
         }

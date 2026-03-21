@@ -57,6 +57,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                         var attr = method.AttributeLists
                             .SelectMany(al => al.Attributes)
                             .FirstOrDefault(a => a.Name.ToString().Contains(AttributeShortName));
+                        var darkTheme = false;
                         if (attr?.ArgumentList != null)
                         {
                             foreach (var arg in attr.ArgumentList.Arguments)
@@ -65,9 +66,14 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                                     arg.Expression is LiteralExpressionSyntax lit &&
                                     int.TryParse(lit.Token.ValueText, out var d))
                                     maxDepth = d;
+
+                                if (arg.NameEquals?.Name.Identifier.ValueText == "Theme" &&
+                                    arg.Expression is MemberAccessExpressionSyntax mem &&
+                                    mem.Name.Identifier.ValueText == "Dark")
+                                    darkTheme = true;
                             }
                         }
-                        return (Method: method, MaxDepth: maxDepth);
+                        return (Method: method, MaxDepth: maxDepth, DarkTheme: darkTheme);
                     })
                 .Where(t => t.Method != null);
 
@@ -115,7 +121,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                     var className = typeDecl.Identifier.ValueText;
                     var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface)>();
 
-                    foreach (var (methodDecl, maxDepth) in group)
+                    foreach (var (methodDecl, maxDepth, darkTheme) in group)
                     {
                         var semanticModel = compilation.GetSemanticModel(methodDecl.SyntaxTree);
                         var chain = ResultFlowChainExtractor.Extract(
@@ -132,14 +138,14 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
 
                         var methodName = methodDecl.Identifier.ValueText;
                         var seedMethodName = ResultFlowChainExtractor.TryGetSeedMethodName(methodDecl);
-                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, linkMode: linkMode);
+                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, linkMode: linkMode, darkTheme: darkTheme);
 
                         // Detect root method layer for LayerView / Stats
                         var containingNs = ResultFlowChainExtractor.GetContainingNamespace(methodDecl);
                         var rootLayer = LayerDetector.Detect(methodDecl, containingNs);
-                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, linkMode: linkMode);
+                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, linkMode: linkMode, darkTheme: darkTheme);
                         var stats = layerView != null ? ResultFlowStatsRenderer.Render(chain, rootLayer) : null;
-                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain) : null;
+                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain, darkTheme: darkTheme) : null;
 
                         diagrams.Add((methodName, mermaid, layerView, stats, errorSurface));
                     }

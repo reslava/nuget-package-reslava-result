@@ -80,6 +80,7 @@
     <Compile Include="Generators\ResultFlow\Models\NodeKind.cs" />
     <Compile Include="Generators\ResultFlow\Models\PipelineNode.cs" />
     <Compile Include="Generators\ResultFlow\CodeGeneration\ResultTypeExtractor.cs" />
+    <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowThemes.cs" />
     <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowChainExtractor.cs" />
     <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowMermaidRenderer.cs" />
     <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowLayerViewRenderer.cs" />

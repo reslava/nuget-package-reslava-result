@@ -14,7 +14,8 @@ cd samples/REslava.Result.Flow.Demo
 dotnet run
 ```
 
-[→ See all generated diagrams from the demo](flow-catalog){ .md-button }
+[→ Light theme catalog](flow-catalog){ .md-button }
+[→ Dark theme catalog](flow-catalog-dark){ .md-button }
 
 ---
 
@@ -33,6 +34,7 @@ dotnet run
 | 9 | Domain boundary diagrams — `[DomainBoundary]` triggers `_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation` | v1.45.0 |
 | 10 | Match multi-branch fan-out — hexagon + typed N-branch `-->|TypeName| FAIL` edges | v1.46.0 |
 | 11 | Architectural Flow Catalog — all generated diagrams published to MkDocs via `scripts/generate_flow_catalog.py` | v1.47.0 |
+| 12 | Dark theme — `[ResultFlow(Theme = ResultFlowTheme.Dark)]` emits full dark `classDef` palette for all diagram types | v1.47.4 |
 
 ---
 

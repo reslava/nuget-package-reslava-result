@@ -48,6 +48,7 @@
     <Compile Include="ResultFlowErrorPropagationTests.cs" />
     <Compile Include="ResultFlowLayerDetectionTests.cs" />
     <Compile Include="ResultFlowMultiBranchTests.cs" />
+    <Compile Include="ResultFlowThemeTests.cs" />
   </ItemGroup>
 
   <ItemGroup>

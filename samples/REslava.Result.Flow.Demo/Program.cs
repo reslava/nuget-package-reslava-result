@@ -29,6 +29,7 @@
 //  10. Match multi-branch fan-out — hexagon shape + typed N-branch FAIL edges
 //  11. InventoryService.CheckStock — cross-method Infrastructure → Domain layer view
 //  12. InventoryService.ReserveStock — cross-method with Ensure gate before subgraph
+//  13. Dark theme — [ResultFlow(Theme = ResultFlowTheme.Dark)] on WarehouseService + InventoryService.ReserveStock
 // =============================================================================
 using Generated.ResultFlow;
 using REslava.Result;
@@ -127,6 +128,25 @@ Console.WriteLine(sep2);
 Print("12a. ReserveStock — pipeline (Ensure → subgraph → Map)", InventoryService_Flows.ReserveStock);
 Print("12b. ReserveStock _LayerView  — architecture layers",     InventoryService_Flows.ReserveStock_LayerView);
 
+// ── 13. Dark theme ─────────────────────────────────────────────────────────────
+//
+// [ResultFlow(Theme = ResultFlowTheme.Dark)] emits a Mermaid diagram with the dark
+// classDef palette (matched to the MkDocs slate colour scheme) instead of the default
+// pastel light palette.  The diagram structure is identical — only node fill/text
+// colours and arrow stroke colour change.
+//
+// FulfillmentService [DomainBoundary("Application")] calls WarehouseService [DomainBoundary("Domain")].
+// Because both classes have [DomainBoundary], the generator emits dark-themed
+// _LayerView, _ErrorSurface and _ErrorPropagation constants alongside the pipeline diagram.
+Console.WriteLine();
+Console.WriteLine("  13. Dark theme — dark classDef palette + dark linkStyle");
+Console.WriteLine(sep2);
+Print("13a. WarehouseService.ReserveStock — dark (flat pipeline)",                  WarehouseService_Flows.ReserveStock);
+Print("13b. FulfillmentService.FulfillOrder — dark cross-method pipeline",           FulfillmentService_Flows.FulfillOrder);
+Print("13c. FulfillOrder _LayerView  — dark Application → Domain architecture",     FulfillmentService_Flows.FulfillOrder_LayerView);
+Print("13d. FulfillOrder _ErrorSurface  — dark fail-edges only",                    FulfillmentService_Flows.FulfillOrder_ErrorSurface);
+Print("13e. FulfillOrder _ErrorPropagation — dark errors grouped by layer",         FulfillmentService_Flows.FulfillOrder_ErrorPropagation);
+
 Console.WriteLine();
 Console.WriteLine(sep2);
 Console.WriteLine("  Runtime verification");
@@ -171,6 +191,12 @@ Run("CheckStock (product not found)           ", InventoryService.CheckStock(99,
 Run("CheckStock (insufficient stock)          ", InventoryService.CheckStock(8, 5));
 Run("ReserveStock (success)                   ", InventoryService.ReserveStock(7, 10));
 Run("ReserveStock (out of stock gate)         ", InventoryService.ReserveStock(8, 5));
+
+Console.WriteLine();
+Console.WriteLine("  FulfillmentService (dark theme):");
+Run("FulfillOrder (success)                   ", FulfillmentService.FulfillOrder(7, 10));
+Run("FulfillOrder (product not found)         ", FulfillmentService.FulfillOrder(99, 10));
+Run("FulfillOrder (insufficient stock)        ", FulfillmentService.FulfillOrder(8, 5));
 
 Console.WriteLine();
 
@@ -724,6 +750,8 @@ static class WarehouseService
     // Pure domain check: returns the product with updated stock count, or fails.
     // Uses .Bind() (fluent API) so the generator can trace into this method when
     // InventoryService.CheckStock/ReserveStock call it with MaxDepth = 2.
+    // [ResultFlow(Theme = ResultFlowTheme.Dark)] — showcases dark classDef palette.
+    [ResultFlow(Theme = ResultFlowTheme.Dark)]
     public static Result<Product> ReserveStock(Product p, int quantity) =>
         Result<Product>.Ok(p)
             .Bind(x => x.Stock >= quantity
@@ -766,6 +794,44 @@ static class InventoryService
         FindProduct(productId)
             .Ensure(p => p.Stock > 0,
                 $"Product {productId} is out of stock")
+            .Bind(p => WarehouseService.ReserveStock(p, quantity))
+            .Map(p  => new StockReservation(p.Id, quantity, p.Price));
+
+}
+
+// =============================================================================
+// Section 13 — FulfillmentService (dark theme + cross-method + DomainBoundary)
+//
+// [DomainBoundary("Application")] on FulfillmentService + [DomainBoundary("Domain")]
+// on WarehouseService → two distinct layers → generates dark-themed _LayerView,
+// _ErrorSurface, _ErrorPropagation constants alongside the dark pipeline diagram.
+//
+// Layer0 (Application) and Layer1 (Domain) use alternating depth-indexed colors
+// from ResultFlowThemes.Dark (Layer0_Style / Layer1_Style).
+// =============================================================================
+
+[DomainBoundary("Application")]
+static class FulfillmentService
+{
+    private static readonly Dictionary<int, Product> _catalog = new()
+    {
+        [7]  = new Product(7,  "Widget", 29.99m, 100),
+        [8]  = new Product(8,  "Gadget", 49.99m, 0),
+    };
+
+    private static Result<Product> FindProduct(int id) =>
+        _catalog.TryGetValue(id, out var p)
+            ? Result<Product>.Ok(p)
+            : Result<Product>.Fail(new ProductNotFoundError(id));
+
+    // ── §13: FulfillOrder — Application → Domain cross-method, dark theme ────
+    //
+    // Calls WarehouseService.ReserveStock (Domain layer) via Bind.
+    // [ResultFlow(MaxDepth = 2, Theme = Dark)] traces into WarehouseService and
+    // emits dark-palette constants including dark _LayerView and _ErrorPropagation.
+    [ResultFlow(MaxDepth = 2, Theme = ResultFlowTheme.Dark)]
+    public static Result<StockReservation> FulfillOrder(int productId, int quantity) =>
+        FindProduct(productId)
             .Bind(p => WarehouseService.ReserveStock(p, quantity))
             .Map(p  => new StockReservation(p.Id, quantity, p.Price));
 }

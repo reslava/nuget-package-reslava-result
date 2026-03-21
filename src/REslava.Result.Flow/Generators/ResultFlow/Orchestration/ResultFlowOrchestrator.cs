@@ -43,6 +43,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                         var attr = method.AttributeLists
                             .SelectMany(al => al.Attributes)
                             .FirstOrDefault(a => a.Name.ToString().Contains(AttributeShortName));
+                        var darkTheme = false;
                         if (attr?.ArgumentList != null)
                         {
                             foreach (var arg in attr.ArgumentList.Arguments)
@@ -51,9 +52,14 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                                     arg.Expression is LiteralExpressionSyntax lit &&
                                     int.TryParse(lit.Token.ValueText, out var d))
                                     maxDepth = d;
+
+                                if (arg.NameEquals?.Name.Identifier.ValueText == "Theme" &&
+                                    arg.Expression is MemberAccessExpressionSyntax mem &&
+                                    mem.Name.Identifier.ValueText == "Dark")
+                                    darkTheme = true;
                             }
                         }
-                        return (Method: method, MaxDepth: maxDepth);
+                        return (Method: method, MaxDepth: maxDepth, DarkTheme: darkTheme);
                     })
                 .Where(t => t.Method != null);
 
@@ -92,7 +98,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                     var className = typeDecl.Identifier.ValueText;
                     var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? errorPropagation)>();
 
-                    foreach (var (methodDecl, maxDepth) in group)
+                    foreach (var (methodDecl, maxDepth, darkTheme) in group)
                     {
                         var semanticModel = compilation.GetSemanticModel(methodDecl.SyntaxTree);
 
@@ -116,17 +122,17 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                         var (opName, corrId) = ResultFlowChainExtractor.TryExtractContextHints(methodDecl);
                         var methodName = methodDecl.Identifier.ValueText;
                         var seedMethodName = ResultFlowChainExtractor.TryGetSeedMethodName(methodDecl);
-                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, operationName: opName, correlationId: corrId, linkMode: linkMode);
+                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, operationName: opName, correlationId: corrId, linkMode: linkMode, darkTheme: darkTheme);
 
                         // Detect root method layer for LayerView / Stats
                         string? rootLayer = null;
                         var rootSymbol = semanticModel.GetDeclaredSymbol(methodDecl) as Microsoft.CodeAnalysis.IMethodSymbol;
                         if (rootSymbol != null)
                             rootLayer = LayerDetector.Detect(rootSymbol);
-                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, opName, linkMode);
+                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, opName, linkMode, darkTheme: darkTheme);
                         var stats = layerView != null ? ResultFlowStatsRenderer.Render(chain, rootLayer) : null;
-                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain) : null;
-                        var errorPropagation = layerView != null ? ResultFlowErrorPropagationRenderer.Render(chain, rootLayer) : null;
+                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain, darkTheme: darkTheme) : null;
+                        var errorPropagation = layerView != null ? ResultFlowErrorPropagationRenderer.Render(chain, rootLayer, darkTheme: darkTheme) : null;
 
                         diagrams.Add((methodName, mermaid, layerView, stats, errorSurface, errorPropagation));
                     }

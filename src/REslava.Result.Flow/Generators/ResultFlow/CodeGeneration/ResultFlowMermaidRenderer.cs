@@ -19,7 +19,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             string? seedMethodName = null,
             string? operationName = null,
             string? correlationId = null,
-            string? linkMode = null)
+            string? linkMode = null,
+            bool darkTheme = false)
         {
             // Filter invisible nodes
             var visible = new List<PipelineNode>();
@@ -36,8 +37,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             AssignNodeIds(visible, prefix: "N");
 
             var lines = new List<string>();
-            var classDefs = new List<string>();
-            var declaredClasses = new HashSet<string>();
+            var subgraphIds = new List<string>();
             bool anyErrorEdges = false;
 
             // Entry node: the chain seed call (e.g. FindUser) as an :::operation node with ==> arrow
@@ -57,10 +57,9 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                     ? $"sg_{firstNode.NodeId}"
                     : firstNode.NodeId!;
                 lines.Add($"    ENTRY_ROOT[\"{seedLabel}\"]:::operation ==> {firstConnectId}");
-                TryAddClass(declaredClasses, classDefs, "operation", "fill:#fef0e3,color:#b86a1c");
             }
 
-            RenderNodes(visible, lines, classDefs, declaredClasses, ref anyErrorEdges, indent: "    ");
+            RenderNodes(visible, lines, subgraphIds, ref anyErrorEdges, indent: "    ");
 
             // SUCCESS terminal: connect the last top-level node's happy path to SUCCESS
             string? lastConnectId = GetLastTopLevelConnectId(visible);
@@ -68,13 +67,11 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             {
                 lines.Add($"    {lastConnectId} -->|ok| SUCCESS");
                 lines.Add("    SUCCESS([success]):::success");
-                TryAddClass(declaredClasses, classDefs, "success", "fill:#e6f6ea,color:#1c7e4f");
             }
 
             if (anyErrorEdges)
             {
                 lines.Add("    FAIL([fail])");
-                TryAddClass(declaredClasses, classDefs, "failure", "fill:#f8e3e3,color:#b13e3e");
                 lines.Add("    FAIL:::failure");
             }
 
@@ -90,11 +87,17 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 sb.AppendLine($"title: {titleName}{typeAnnotation}");
                 sb.AppendLine("---");
             }
+            sb.AppendLine(darkTheme ? ResultFlowThemes.MermaidInitDark : ResultFlowThemes.MermaidInit);
             sb.AppendLine("flowchart LR");
             foreach (var line in lines)
                 sb.AppendLine(line);
-            foreach (var classDef in classDefs)
-                sb.AppendLine(classDef);
+
+            // Emit full theme block (classDefs + linkStyle)
+            sb.AppendLine(darkTheme ? ResultFlowThemes.Dark : ResultFlowThemes.Light);
+
+            // Assign subgraphStyle to each subgraph by ID (one line per ID)
+            foreach (var sgId in subgraphIds)
+                sb.AppendLine($"class {sgId} subgraphStyle");
 
             // Correlation table: maps diagram NodeId → pipeline step name.
             // At runtime, set error.Metadata = error.Metadata with { NodeId = "<id>", PipelineStep = "<name>" }
@@ -151,8 +154,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
         private static void RenderNodes(
             IReadOnlyList<PipelineNode> nodes,
             List<string> lines,
-            List<string> classDefs,
-            HashSet<string> declaredClasses,
+            List<string> subgraphIds,
             ref bool anyErrorEdges,
             string indent)
         {
@@ -167,6 +169,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 if (node.SubNodes != null && node.SubNodes.Count > 0)
                 {
                     var sgId = $"sg_{nodeId}";
+                    subgraphIds.Add(sgId);
                     var subVisible = FilterVisible(node.SubNodes);
 
                     // Assign sub-node IDs with depth-qualified prefix so they are globally unique
@@ -184,10 +187,9 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                             : subVisible[0].NodeId!;
                         lines.Add($"{innerIndent}{entryId}[ ]:::entry");
                         lines.Add($"{innerIndent}{entryId}[ ] ==> {firstConnectId}");
-                        TryAddClass(declaredClasses, classDefs, "entry", "fill:none,stroke:none");
                     }
 
-                    RenderNodes(subVisible, lines, classDefs, declaredClasses, ref anyErrorEdges,
+                    RenderNodes(subVisible, lines, subgraphIds, ref anyErrorEdges,
                         indent: indent + "    ");
                     lines.Add($"{indent}end");
 
@@ -205,7 +207,6 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                     // Error edges from the Bind wrapper itself (if any) still go to outer FAIL
                     EmitErrorEdges(lines, sgId, node, ref anyErrorEdges,
                         fallbackEdge: $"{indent}{sgId} -->|fail| FAIL", indent: indent);
-                    TryAddClass(declaredClasses, classDefs, "transform", "fill:#e3f0e8,color:#2f7a5c");
                     continue;
                 }
 
@@ -232,7 +233,6 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                         if (hasNext) lines.Add($"{indent}{nodeId} -->|pass| {resolvedNextId}");
                         EmitErrorEdges(lines, nodeId, node, ref anyErrorEdges,
                             fallbackEdge: $"{indent}{nodeId} -->|fail| FAIL", indent: indent);
-                        TryAddClass(declaredClasses, classDefs, "gatekeeper", "fill:#e3e9fa,color:#3f5c9a");
                         break;
                     }
 
@@ -241,13 +241,11 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                         if (hasNext) lines.Add($"{indent}{nodeId} -->|ok| {resolvedNextId}");
                         EmitErrorEdges(lines, nodeId, node, ref anyErrorEdges,
                             fallbackEdge: $"{indent}{nodeId} -->|fail| FAIL", indent: indent);
-                        TryAddClass(declaredClasses, classDefs, "bind", "fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px");
                         break;
 
                     case NodeKind.PureTransform:
                         lines.Add($"{indent}{nodeId}[\"{label}\"]:::map");
                         if (hasNext) lines.Add($"{indent}{nodeId} --> {resolvedNextId}");
-                        TryAddClass(declaredClasses, classDefs, "map", "fill:#e3f0e8,color:#2f7a5c");
                         break;
 
                     case NodeKind.SideEffectSuccess:
@@ -255,14 +253,12 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                     case NodeKind.SideEffectBoth:
                         lines.Add($"{indent}{nodeId}[\"{label}\"]:::sideeffect");
                         if (hasNext) lines.Add($"{indent}{nodeId} --> {resolvedNextId}");
-                        TryAddClass(declaredClasses, classDefs, "sideeffect", "fill:#fff4d9,color:#b8882c");
                         break;
 
                     case NodeKind.Terminal:
                         lines.Add($"{indent}{nodeId}{{{{\"{label}\"}}}}:::terminal");
                         lines.Add($"{indent}{nodeId} -->|ok| SUCCESS");
                         lines.Add($"{indent}SUCCESS([success]):::success");
-                        TryAddClass(declaredClasses, classDefs, "success", "fill:#e6f6ea,color:#1c7e4f");
                         if (node.MatchBranchLabels != null && node.MatchBranchLabels.Count > 0)
                         {
                             foreach (var branch in node.MatchBranchLabels)
@@ -276,14 +272,12 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                             lines.Add($"{indent}{nodeId} -->|fail| FAIL");
                             anyErrorEdges = true;
                         }
-                        TryAddClass(declaredClasses, classDefs, "terminal", "fill:#f2e3f5,color:#8a4f9e");
                         break;
 
                     default: // Unknown — entry point or unrecognised operation
                         lines.Add($"{indent}{nodeId}[\"{label}\"]:::operation");
                         if (hasNext) lines.Add($"{indent}{nodeId} --> {resolvedNextId}");
                         EmitErrorEdges(lines, nodeId, node, ref anyErrorEdges, fallbackEdge: null, indent: indent);
-                        TryAddClass(declaredClasses, classDefs, "operation", "fill:#fef0e3,color:#b86a1c");
                         break;
                 }
             }
@@ -354,12 +348,6 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 lines.Add(fallbackEdge);
                 anyErrorEdges = true;
             }
-        }
-
-        private static void TryAddClass(HashSet<string> declared, List<string> classDefs, string name, string style)
-        {
-            if (declared.Add(name))
-                classDefs.Add($"    classDef {name} {style}");
         }
 
         /// <summary>
