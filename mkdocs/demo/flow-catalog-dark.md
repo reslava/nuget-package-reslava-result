@@ -1,7 +1,6 @@
 ---
 title: Dark Theme Flow Catalog
 description: Dark-themed pipeline and architecture diagrams from the REslava.Result.Flow.Demo project — showcasing [ResultFlow(Theme = ResultFlowTheme.Dark)] output.
-force-dark-mode: true
 ---
 
 # 🌙 Dark Theme Flow Catalog
