@@ -285,6 +285,13 @@ tagline: Know exactly what you're getting.
 | Legend Guard tooltip + note update | `Legend` constant Guard node uses `<span title='hover shows condition'>Guard</span>`; note updated to `⚡ = async \| Guard: condition shown on hover`; makes tooltip self-documenting in the legend; both packages | v1.47.3 | `### 3.11. Node Type Legend` |
 | `scripts/svg.sh` — SVG pipeline orchestrator | New local script: build Demo → export `.mmd` → convert to `.svg`; re-run whenever generator rendering changes; `images/*.mmd` transient (gitignored); local only (mmdc/Puppeteer not in CI) | v1.47.3 | — |
 | `generate_flow_catalog.py --export-mmd DIR` | New export mode: `{ClassName}_{ConstantName}.mmd` naming avoids collisions; `Legend.mmd` exported once; auto TD→450/LR→900 width via `SVGO_WIDTH` env var; Stats/Sidecar skipped | v1.47.3 | — |
+| `ResultFlowTheme` enum | New enum: `Light = 0` (default), `Dark = 1`; emitted by the attribute generator in both packages; attribute usage: `[ResultFlow(Theme = ResultFlowTheme.Dark)]` | v1.47.4 | — |
+| `ResultFlowThemes.cs` — Single Source of Truth | New internal static class in both generator packages; contains `MermaidInit`, `MermaidInitDark`, `Light` classDef block, `Dark` classDef block, `Layer0_Style`…`Layer4_Style` per theme — renderers emit zero hardcoded colour strings | v1.47.4 | — |
+| `MermaidInitDark` — dark Mermaid init | Dark diagrams emit `%%{init: {'themeVariables': {'primaryTextColor': '#fff', 'titleColor': '#fff', 'edgeLabelBackground': '#2a2a2a'}}}%%`; fixes black title text and subgraph labels invisible on dark backgrounds; both packages | v1.47.4 | — |
+| Dark classDef palette | Full dark colour set for all 9 node kinds matching MkDocs slate scheme; e.g. `operation` → `#3a2b1f`/`#f2c2a0`, `bind` → `#1f3a2d`/`#9fe0c0`, `failure` → `#3a1f1f`/`#f2b8b8`; both packages | v1.47.4 | — |
+| Depth-indexed layer subgraphs | `_LayerView` and `_ErrorPropagation` renderers emit `subgraph Layer{depth}["ActualLayerName"]` IDs; `class Layer{depth} Layer{depth}_Style` directives for theming; no more hardcoded layer colour strings in renderers; both packages | v1.47.4 | — |
+| `Layer{n}_Style` classDefs (0–4) | 5 depth-indexed layer classDefs in both Light and Dark themes; alternating 2-colour: even = blue-lavender, odd = mint; applied via `class Layer{depth} Layer{depth}_Style` after subgraph emit | v1.47.4 | — |
+| `FulfillmentService` dark demo | New demo class in `REslava.Result.Flow.Demo`: `[DomainBoundary("Application")]` + `[ResultFlow(MaxDepth=2, Theme=Dark)]`; calls `WarehouseService.ReserveStock` (Domain) — Application→Domain cross-layer dark theme showcase | v1.47.4 | — |
 
 ---
 
@@ -313,7 +320,7 @@ tagline: Know exactly what you're getting.
 
 ## Summary
 
-!!! new "**v1.47.3** — 206 features across 15 categories."
+!!! new "**v1.47.4** — 213 features across 15 categories."
 
 
 | Category | Total Features |
@@ -330,10 +337,10 @@ tagline: Know exactly what you're getting.
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
-| ResultFlow | 50 |
+| ResultFlow | 57 |
 | OpenTelemetry | 3 |
 | ResultContext | 6 |
-| **Total** | **206** |
+| **Total** | **213** |
 
 ---
 

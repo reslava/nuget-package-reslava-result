@@ -3,7 +3,7 @@ title: Architectural Flow Catalog
 description: Live pipeline and architecture diagrams auto-generated from the REslava.Result.Flow.Demo project — see exactly what ResultFlow produces for real application code.
 ---
 
-# 🗺️ Architectural Flow Catalog
+# 🗺️ Architectural Flow Catalog (Light Theme)
 
 > **See ResultFlow in action on real code.** Every diagram on this page is auto-generated from the [`REslava.Result.Flow.Demo`](https://github.com/reslava/nuget-package-reslava-result/tree/main/samples/REslava.Result.Flow.Demo) project — the same output you get when you annotate your own methods with `[ResultFlow]`.
 
