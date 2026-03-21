@@ -14,7 +14,7 @@ cd samples/REslava.Result.Flow.Demo
 dotnet run
 ```
 
-[→ Light theme catalog](flow-catalog){ .md-button }
+[→ Light theme catalog](flow-catalog-light){ .md-button }
 [→ Dark theme catalog](flow-catalog-dark){ .md-button }
 
 ---
