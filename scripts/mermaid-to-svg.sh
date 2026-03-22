@@ -28,4 +28,8 @@ for mmd_file in *.mmd; do
 
   # Optimise with SVGO (reads SVGO_WIDTH from env via svgo.config.js)
   svgo "$svg_file" -o "$svg_file" --config "$CONFIG"
+
+  # Also emit PNG for NuGet README images (raw.githubusercontent.com URLs work; SVG does not)
+  png_file="${mmd_file%.mmd}.png"
+  mmdc -i "$mmd_file" -o "$png_file" --width "$SVGO_WIDTH" --backgroundColor transparent
 done

@@ -47,6 +47,6 @@ bash "$REPO_ROOT/scripts/mermaid-to-svg.sh"
 
 echo ""
 echo "══════════════════════════════════════════════════════════"
-echo "  Done. SVGs written to $IMAGES_DIR"
-echo "  Commit images/*.svg before tagging the release."
+echo "  Done. SVGs + PNGs written to $IMAGES_DIR"
+echo "  Commit images/*.svg and images/*.png before tagging the release."
 echo "══════════════════════════════════════════════════════════"

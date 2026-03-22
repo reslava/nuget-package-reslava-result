@@ -58,6 +58,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                             .SelectMany(al => al.Attributes)
                             .FirstOrDefault(a => a.Name.ToString().Contains(AttributeShortName));
                         var darkTheme = false;
+                        var themeExplicitlySet = false;
                         if (attr?.ArgumentList != null)
                         {
                             foreach (var arg in attr.ArgumentList.Arguments)
@@ -70,10 +71,13 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                                 if (arg.NameEquals?.Name.Identifier.ValueText == "Theme" &&
                                     arg.Expression is MemberAccessExpressionSyntax mem &&
                                     mem.Name.Identifier.ValueText == "Dark")
+                                {
                                     darkTheme = true;
+                                    themeExplicitlySet = true;
+                                }
                             }
                         }
-                        return (Method: method, MaxDepth: maxDepth, DarkTheme: darkTheme);
+                        return (Method: method, MaxDepth: maxDepth, DarkTheme: darkTheme, ThemeExplicitlySet: themeExplicitlySet);
                     })
                 .Where(t => t.Method != null);
 
@@ -82,20 +86,28 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                 .Where(f => string.Equals(Path.GetFileName(f.Path), ConfigFileName, System.StringComparison.OrdinalIgnoreCase))
                 .Collect();
 
+            // Stage 2c: read ResultFlowDefaultTheme build property
+            var defaultThemeProvider = context.AnalyzerConfigOptionsProvider.Select((options, _) =>
+            {
+                options.GlobalOptions.TryGetValue("build_property.ResultFlowDefaultTheme", out var theme);
+                return string.Equals(theme?.Trim(), "Dark", System.StringComparison.OrdinalIgnoreCase);
+            });
+
             var compilationAndMethods = context.CompilationProvider.Combine(annotatedMethods.Collect());
-            var withConfig = compilationAndMethods.Combine(configFile);
+            var withConfig = compilationAndMethods.Combine(configFile).Combine(defaultThemeProvider);
 
             // Stage 3: Group by containing class, extract chain, render Mermaid, emit constants
             context.RegisterSourceOutput(withConfig, (spc, source) =>
             {
-                var methods = source.Left.Right;
+                var defaultDarkTheme = source.Right;
+                var methods = source.Left.Left.Right;
                 if (!methods.Any()) return;
 
 
                 // Load custom mappings and linkMode from resultflow.json (if present)
                 IReadOnlyDictionary<string, NodeKind>? customMappings = null;
                 string linkMode = string.Empty;
-                var configAdditionalText = source.Right.FirstOrDefault();
+                var configAdditionalText = source.Left.Right.FirstOrDefault();
                 if (configAdditionalText != null)
                 {
                     var configText = configAdditionalText.GetText()?.ToString();
@@ -111,7 +123,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                     }
                 }
 
-                var compilation = source.Left.Left;
+                var compilation = source.Left.Left.Left;
 
                 foreach (var group in methods.GroupBy(t => t.Method.Parent))
                 {
@@ -121,8 +133,9 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                     var className = typeDecl.Identifier.ValueText;
                     var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface)>();
 
-                    foreach (var (methodDecl, maxDepth, darkTheme) in group)
+                    foreach (var (methodDecl, maxDepth, darkTheme, themeExplicitlySet) in group)
                     {
+                        var effectiveDarkTheme = themeExplicitlySet ? darkTheme : defaultDarkTheme;
                         var semanticModel = compilation.GetSemanticModel(methodDecl.SyntaxTree);
                         var chain = ResultFlowChainExtractor.Extract(
                             methodDecl, semanticModel, customMappings,
@@ -138,14 +151,14 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
 
                         var methodName = methodDecl.Identifier.ValueText;
                         var seedMethodName = ResultFlowChainExtractor.TryGetSeedMethodName(methodDecl);
-                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, linkMode: linkMode, darkTheme: darkTheme);
+                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, linkMode: linkMode, darkTheme: effectiveDarkTheme);
 
                         // Detect root method layer for LayerView / Stats
                         var containingNs = ResultFlowChainExtractor.GetContainingNamespace(methodDecl);
                         var rootLayer = LayerDetector.Detect(methodDecl, containingNs);
-                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, linkMode: linkMode, darkTheme: darkTheme);
+                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, linkMode: linkMode, darkTheme: effectiveDarkTheme);
                         var stats = layerView != null ? ResultFlowStatsRenderer.Render(chain, rootLayer) : null;
-                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain, darkTheme: darkTheme) : null;
+                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain, darkTheme: effectiveDarkTheme) : null;
 
                         diagrams.Add((methodName, mermaid, layerView, stats, errorSurface));
                     }

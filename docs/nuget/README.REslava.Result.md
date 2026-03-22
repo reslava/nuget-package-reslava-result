@@ -8,9 +8,9 @@
 [![Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/reslava/nuget-package-reslava-result/blob/main/LICENSE)
 
-![Auto-generated pipeline diagram — success path, typed error edges, async steps](images/Pipelines_AdminCheckout.svg)
+![Auto-generated pipeline diagram — success path, typed error edges, async steps](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/Pipelines_AdminCheckout.png)
 
-![Architecture layer view — Domain / Application / Infrastructure boundaries, auto-detected from namespaces](images/OrderService_PlaceOrderCross_LayerView.svg)
+![Architecture layer view — Domain / Application / Infrastructure boundaries, auto-detected from namespaces](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/OrderService_PlaceOrderCross_LayerView.png)
 
 → [Full documentation and diagram gallery on GitHub](https://github.com/reslava/nuget-package-reslava-result)
 
@@ -24,7 +24,7 @@
 - **Async patterns** — `WhenAll` (typed tuples), `Retry` (exponential backoff), `Timeout`
 - **JSON serialization** — `System.Text.Json` converters for `Result<T>`, `OneOf`, `Maybe<T>`
 - **Native Validation DSL** — 19 fluent extension methods (`NotEmpty`, `MaxLength`, `EmailAddress`, `Range`, `Positive`, ...) on `ValidatorRuleBuilder<T>` with auto-inferred field names
-- **Pipeline visualization** — `[ResultFlow]` auto-generates Mermaid diagrams from your code (separate package)
+- **Pipeline visualization** — `[ResultFlow]` auto-generates Mermaid diagrams from your code (separate package); install **REslava.Result Extensions** from the VS Code Marketplace for `▶ Open diagram preview` CodeLens
 - **Roslyn safety analyzers** — catch unsafe `.Value` access at compile time (separate package)
 - **ASP.NET integration** — auto-generate Minimal API + MVC endpoints with domain error mapping (separate package)
 

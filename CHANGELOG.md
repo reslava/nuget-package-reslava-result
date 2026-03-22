@@ -4,6 +4,37 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.48.0] - 2026-03-22
+
+### ✨ Added
+
+#### CodeLens — Diagram Preview (REslava.Result Extensions VSIX)
+
+- **`src/REslava.Result.Flow.VSix/`** — new VS Code extension project (`reslava-result-extensions`); activation `onLanguage:csharp`; command `reslava._previewMethod`; TypeScript + `tsc` build
+- **`ResultFlowCodeLensProvider`** — emits `▶ Open diagram preview` CodeLens above every `[ResultFlow]`-annotated method; always visible, no cursor required
+- **4-step fallback chain** (`diagramResolver.ts`): (1) scan workspace for `*_Flows.g.cs` → extract Mermaid constant; (2) auto-run "Insert diagram as comment" Roslyn code action via `vscode.executeCodeActionProvider` + `applyEdit`; (3) scan existing `` /* ```mermaid...``` */ `` comment in source; (4) information message "Diagram not ready yet — try again in a moment"
+- **`openMarkdownPreview`** — writes temp `.md` to `%TEMP%/REslava.ResultFlow/{Class}_{Method}.md`; opens via `markdown.showPreviewToSide`; file watcher on temp dir for Option A bridge
+
+#### `ResultFlowDefaultTheme` MSBuild Property
+
+- **`build_property.ResultFlowDefaultTheme`** — both generator packages read the value via `AnalyzerConfigOptionsProvider.GlobalOptions`; accepted values: `Light` (default) / `Dark` (case-insensitive); method-level `[ResultFlow(Theme = ...)]` always overrides
+- **Priority chain**: method attribute → `<ResultFlowDefaultTheme>` in `Directory.Build.props` → built-in `Light` default
+
+#### NuGet README PNG Images
+
+- **`mermaid-to-svg.sh`** — extended to emit `.png` alongside `.svg` (`mmdc --backgroundColor transparent`); 27 PNGs generated; `svg.sh` done message updated
+- **NuGet READMEs updated** — `REslava.Result` and `REslava.Result.Flow` now reference `https://raw.githubusercontent.com/.../main/images/X.png`; local SVG `<None Pack>` entries removed from both `.csproj` files
+
+### 🧪 Tests
+
+- **`ResultFlowDefaultThemeTests`** (×2) — 6 tests per package verifying `build_property.ResultFlowDefaultTheme = Dark` picked up; method attribute wins; case-insensitive; `TestAnalyzerConfigOptionsProvider` + `WithUpdatedAnalyzerConfigOptions` pattern; both `REslava.Result.Flow.Tests` and `REslava.ResultFlow.Tests`
+
+### Stats
+- Tests: 4,688 passing (floor: >4,500)
+- Features: 200 across 15 categories
+
+---
+
 ## [1.47.5] - 2026-03-22
 
 ### 🔧 Fixed

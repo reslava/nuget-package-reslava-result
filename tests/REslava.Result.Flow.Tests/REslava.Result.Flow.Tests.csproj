@@ -49,6 +49,7 @@
     <Compile Include="ResultFlowLayerDetectionTests.cs" />
     <Compile Include="ResultFlowMultiBranchTests.cs" />
     <Compile Include="ResultFlowThemeTests.cs" />
+    <Compile Include="ResultFlowDefaultThemeTests.cs" />
   </ItemGroup>
 
   <ItemGroup>

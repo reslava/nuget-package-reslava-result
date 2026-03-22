@@ -44,13 +44,6 @@
   <ItemGroup>
     <None Include="..\..\docs\nuget\README.REslava.Result.Flow.md" Pack="true" PackagePath="\" />
     <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
-    <!-- NuGet blocks external SVGs — images must be packaged locally for README rendering -->
-    <None Include="..\..\images\OrderService_PlaceOrderCross.svg" Pack="true" PackagePath="images\" />
-    <None Include="..\..\images\OrderService_PlaceOrderCross_LayerView.svg" Pack="true" PackagePath="images\" />
-    <None Include="..\..\images\OrderService_PlaceOrderCross_ErrorPropagation.svg" Pack="true" PackagePath="images\" />
-    <None Include="..\..\images\MatchDemo_ConfirmOrder.svg" Pack="true" PackagePath="images\" />
-    <None Include="..\..\images\Legend.svg" Pack="true" PackagePath="images\" />
-    <None Include="..\..\images\FulfillmentService_FulfillOrder.svg" Pack="true" PackagePath="images\" />
   </ItemGroup>
 
   <!-- Package Dependencies -->

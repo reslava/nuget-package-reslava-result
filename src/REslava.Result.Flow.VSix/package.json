@@ -1,0 +1,35 @@
+{
+  "name": "reslava-result-extensions",
+  "displayName": "REslava.Result Extensions",
+  "description": "CodeLens and diagram preview for [ResultFlow] pipelines",
+  "version": "1.0.0",
+  "publisher": "reslava",
+  "engines": { "vscode": "^1.78.0" },
+  "categories": ["Other"],
+  "activationEvents": ["onLanguage:csharp"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "reslava.openDiagramPreview",
+        "title": "REslava: Open Diagram Preview"
+      },
+      {
+        "command": "reslava._previewMethod",
+        "title": "REslava: Open Diagram Preview (CodeLens)"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "vscode:prepublish": "npm run compile",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.78.0",
+    "@types/node": "^18.0.0",
+    "typescript": "^5.0.0",
+    "@vscode/vsce": "^2.0.0"
+  }
+}

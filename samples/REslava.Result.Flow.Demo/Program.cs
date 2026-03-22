@@ -829,6 +829,9 @@ static class FulfillmentService
     // Calls WarehouseService.ReserveStock (Domain layer) via Bind.
     // [ResultFlow(MaxDepth = 2, Theme = Dark)] traces into WarehouseService and
     // emits dark-palette constants including dark _LayerView and _ErrorPropagation.
+    //
+    // CodeLens UX (REslava.Result Extensions — VS Code Marketplace):
+    //   ▶ Open diagram preview    ← always visible above this method; click to open rendered diagram
     [ResultFlow(MaxDepth = 2, Theme = ResultFlowTheme.Dark)]
     public static Result<StockReservation> FulfillOrder(int productId, int quantity) =>
         FindProduct(productId)

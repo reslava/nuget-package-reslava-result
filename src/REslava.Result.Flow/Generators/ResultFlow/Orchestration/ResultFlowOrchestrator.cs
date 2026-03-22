@@ -44,6 +44,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                             .SelectMany(al => al.Attributes)
                             .FirstOrDefault(a => a.Name.ToString().Contains(AttributeShortName));
                         var darkTheme = false;
+                        var themeExplicitlySet = false;
                         if (attr?.ArgumentList != null)
                         {
                             foreach (var arg in attr.ArgumentList.Arguments)
@@ -56,10 +57,13 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                                 if (arg.NameEquals?.Name.Identifier.ValueText == "Theme" &&
                                     arg.Expression is MemberAccessExpressionSyntax mem &&
                                     mem.Name.Identifier.ValueText == "Dark")
+                                {
                                     darkTheme = true;
+                                    themeExplicitlySet = true;
+                                }
                             }
                         }
-                        return (Method: method, MaxDepth: maxDepth, DarkTheme: darkTheme);
+                        return (Method: method, MaxDepth: maxDepth, DarkTheme: darkTheme, ThemeExplicitlySet: themeExplicitlySet);
                     })
                 .Where(t => t.Method != null);
 
@@ -71,20 +75,24 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                 return (Compilation: compilation, ResultBase: resultBase, IError: iError);
             });
 
-            // Stage 3b: read ResultFlowLinkMode build property ("vscode" | "github" | "none" | "")
-            var linkModeProvider = context.AnalyzerConfigOptionsProvider.Select((options, _) =>
+            // Stage 3b: read build properties (LinkMode + DefaultTheme)
+            var buildPropsProvider = context.AnalyzerConfigOptionsProvider.Select((options, _) =>
             {
                 options.GlobalOptions.TryGetValue("build_property.ResultFlowLinkMode", out var mode);
-                return (mode ?? string.Empty).Trim().ToLowerInvariant();
+                options.GlobalOptions.TryGetValue("build_property.ResultFlowDefaultTheme", out var theme);
+                var defaultDark = string.Equals(theme?.Trim(), "Dark", System.StringComparison.OrdinalIgnoreCase);
+                return (LinkMode: (mode ?? string.Empty).Trim().ToLowerInvariant(), DefaultDarkTheme: defaultDark);
             });
 
             // Stage 4: combine
-            var combined = compilationWithSymbols.Combine(annotatedMethods.Collect()).Combine(linkModeProvider);
+            var combined = compilationWithSymbols.Combine(annotatedMethods.Collect()).Combine(buildPropsProvider);
 
             // Stage 5: generate
             context.RegisterSourceOutput(combined, (spc, source) =>
             {
-                var ((compWithSymbols, methods), linkMode) = source;
+                var ((compWithSymbols, methods), buildProps) = source;
+                var linkMode = buildProps.LinkMode;
+                var defaultDarkTheme = buildProps.DefaultDarkTheme;
                 if (!methods.Any()) return;
 
                 var compilation = compWithSymbols.Compilation;
@@ -98,7 +106,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                     var className = typeDecl.Identifier.ValueText;
                     var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? errorPropagation)>();
 
-                    foreach (var (methodDecl, maxDepth, darkTheme) in group)
+                    foreach (var (methodDecl, maxDepth, darkTheme, themeExplicitlySet) in group)
                     {
                         var semanticModel = compilation.GetSemanticModel(methodDecl.SyntaxTree);
 
@@ -119,20 +127,21 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                             continue;
                         }
 
+                        var effectiveDarkTheme = themeExplicitlySet ? darkTheme : defaultDarkTheme;
                         var (opName, corrId) = ResultFlowChainExtractor.TryExtractContextHints(methodDecl);
                         var methodName = methodDecl.Identifier.ValueText;
                         var seedMethodName = ResultFlowChainExtractor.TryGetSeedMethodName(methodDecl);
-                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, operationName: opName, correlationId: corrId, linkMode: linkMode, darkTheme: darkTheme);
+                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, operationName: opName, correlationId: corrId, linkMode: linkMode, darkTheme: effectiveDarkTheme);
 
                         // Detect root method layer for LayerView / Stats
                         string? rootLayer = null;
                         var rootSymbol = semanticModel.GetDeclaredSymbol(methodDecl) as Microsoft.CodeAnalysis.IMethodSymbol;
                         if (rootSymbol != null)
                             rootLayer = LayerDetector.Detect(rootSymbol);
-                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, opName, linkMode, darkTheme: darkTheme);
+                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, opName, linkMode, darkTheme: effectiveDarkTheme);
                         var stats = layerView != null ? ResultFlowStatsRenderer.Render(chain, rootLayer) : null;
-                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain, darkTheme: darkTheme) : null;
-                        var errorPropagation = layerView != null ? ResultFlowErrorPropagationRenderer.Render(chain, rootLayer, darkTheme: darkTheme) : null;
+                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain, darkTheme: effectiveDarkTheme) : null;
+                        var errorPropagation = layerView != null ? ResultFlowErrorPropagationRenderer.Render(chain, rootLayer, darkTheme: effectiveDarkTheme) : null;
 
                         diagrams.Add((methodName, mermaid, layerView, stats, errorSurface, errorPropagation));
                     }
