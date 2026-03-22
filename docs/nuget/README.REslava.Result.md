@@ -8,9 +8,9 @@
 [![Downloads](https://img.shields.io/nuget/dt/REslava.Result)](https://www.nuget.org/packages/REslava.Result)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/reslava/nuget-package-reslava-result/blob/main/LICENSE)
 
-![Auto-generated pipeline diagram — success path, typed error edges, async steps](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/Pipelines_AdminCheckout.svg)
+![Auto-generated pipeline diagram — success path, typed error edges, async steps](images/Pipelines_AdminCheckout.svg)
 
-![Architecture layer view — Domain / Application / Infrastructure boundaries, auto-detected from namespaces](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/OrderService_PlaceOrderCross_LayerView.svg)
+![Architecture layer view — Domain / Application / Infrastructure boundaries, auto-detected from namespaces](images/OrderService_PlaceOrderCross_LayerView.svg)
 
 → [Full documentation and diagram gallery on GitHub](https://github.com/reslava/nuget-package-reslava-result)
 
