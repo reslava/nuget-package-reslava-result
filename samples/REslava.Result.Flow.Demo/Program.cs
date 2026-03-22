@@ -251,36 +251,6 @@ static class Pipelines
     // inside lambda bodies (FindUser, FindProduct, BuildOrder).
     //
     // Type Travel:  every Ensure keeps Result<Order> → label shows just "Order"
-    /*
-```mermaid
----
-title: ValidateOrder → ⟨Order⟩
----
-flowchart LR
-    N0_Ok["Ok<br/>Order"]:::operation
-    N0_Ok --> N1_Ensure
-    N1_Ensure["<span title='o.Amount > 0'>Ensure<br/>Order</span>"]:::gatekeeper
-    N1_Ensure -->|pass| N2_Ensure
-    N1_Ensure -->|fail| FAIL
-    N2_Ensure["<span title='o.Amount < 5_000'>Ensure<br/>Order</span>"]:::gatekeeper
-    N2_Ensure -->|pass| N3_Ensure
-    N2_Ensure -->|fail| FAIL
-    N3_Ensure["<span title='GetUserRole(o.UserId) == "Admin"'>Ensure<br/>Order</span>"]:::gatekeeper
-    N3_Ensure -->|fail| FAIL
-    N3_Ensure -->|ok| SUCCESS
-    SUCCESS([success]):::success
-    FAIL([fail])
-    FAIL:::failure
-    classDef operation fill:#fef0e3,color:#b86a1c
-    classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
-    classDef success fill:#e6f6ea,color:#1c7e4f
-    classDef failure fill:#f8e3e3,color:#b13e3e
-%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
-%%   N0_Ok → Ok
-%%   N1_Ensure → Ensure
-%%   N2_Ensure → Ensure
-%%   N3_Ensure → Ensure
-```*/
     [ResultFlow]
     public static Result<Order> ValidateOrder(Order order) =>
         Result<Order>.Ok(order)
@@ -301,30 +271,6 @@ flowchart LR
     //   FindUser(userId)            → Result<User>     (entry node)
     //   .Bind(FindProduct)          → Result<Product>  label: "Bind<br/>User → Product"
     //   .Bind(u,p → BuildOrder)     → Result<Order>    label: "Bind<br/>Product → Order"
-    /*
-```mermaid
----
-title: PlaceOrder → ⟨Order⟩
----
-flowchart LR
-    ENTRY_ROOT["FindUser<br/>→ User"]:::operation ==> N0_FindProduct
-    N0_FindProduct["FindProduct<br/>User → Product"]:::bind
-    N0_FindProduct -->|ok| N1_BuildOrder
-    N0_FindProduct -->|fail| FAIL
-    N1_BuildOrder["BuildOrder<br/>Product → Order"]:::bind
-    N1_BuildOrder -->|fail| FAIL
-    N1_BuildOrder -->|ok| SUCCESS
-    SUCCESS([success]):::success
-    FAIL([fail])
-    FAIL:::failure
-    classDef operation fill:#fef0e3,color:#b86a1c
-    classDef bind fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px
-    classDef success fill:#e6f6ea,color:#1c7e4f
-    classDef failure fill:#f8e3e3,color:#b13e3e
-%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
-%%   N0_FindProduct → FindProduct
-%%   N1_BuildOrder → BuildOrder
-```*/
     [ResultFlow]
     public static Result<Order> PlaceOrder(int userId, int productId) =>
         FindUser(userId)
@@ -341,34 +287,6 @@ flowchart LR
     //
     // Typed errors appear on the two Bind edges:
     //   ProductNotFoundError, then no additional error on Map (pure transform)
-    /*
-```mermaid
----
-title: ProcessCheckout → ⟨String⟩
----
-flowchart LR
-    ENTRY_ROOT["FindUser<br/>→ User"]:::operation ==> N0_FindProduct
-    N0_FindProduct["FindProduct<br/>User → Product"]:::bind
-    N0_FindProduct -->|ok| N1_BuildOrder
-    N0_FindProduct -->|fail| FAIL
-    N1_BuildOrder["BuildOrder<br/>Product → Order"]:::bind
-    N1_BuildOrder -->|ok| N2_Map
-    N1_BuildOrder -->|fail| FAIL
-    N2_Map["Map<br/>Order → String"]:::map
-    N2_Map -->|ok| SUCCESS
-    SUCCESS([success]):::success
-    FAIL([fail])
-    FAIL:::failure
-    classDef operation fill:#fef0e3,color:#b86a1c
-    classDef bind fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px
-    classDef map fill:#e3f0e8,color:#2f7a5c
-    classDef success fill:#e6f6ea,color:#1c7e4f
-    classDef failure fill:#f8e3e3,color:#b13e3e
-%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
-%%   N0_FindProduct → FindProduct
-%%   N1_BuildOrder → BuildOrder
-%%   N2_Map → Map
-```*/
     [ResultFlow]
     public static Result<string> ProcessCheckout(int userId, int productId) =>
         FindUser(userId)
@@ -388,39 +306,6 @@ flowchart LR
     //   EnsureAsync     → Result<Product>   "EnsureAsync⚡<br/>Product"
     //   MapAsync        → Result<Order>     "MapAsync⚡<br/>Product → Order"
     //   BindAsync       → Result<Order>     "BindAsync⚡<br/>Order"
-    /*
-```mermaid
----
-title: PlaceOrder⚡ → ⟨Order⟩
----
-flowchart LR
-    ENTRY_ROOT["FindUser⚡<br/>→ User"]:::operation ==> N0_FindProductAsync
-    N0_FindProductAsync["FindProduct⚡<br/>User → Product"]:::bind
-    N0_FindProductAsync -->|ok| N1_EnsureAsync
-    N0_FindProductAsync -->|fail| FAIL
-    N1_EnsureAsync["<span title='p.Stock > 0'>Ensure⚡<br/>Product</span>"]:::gatekeeper
-    N1_EnsureAsync -->|pass| N2_MapAsync
-    N1_EnsureAsync -->|fail| FAIL
-    N2_MapAsync["Map⚡<br/>Product → Order"]:::map
-    N2_MapAsync --> N3_SaveOrderAsync
-    N3_SaveOrderAsync["SaveOrder⚡<br/>Order"]:::bind
-    N3_SaveOrderAsync -->|fail| FAIL
-    N3_SaveOrderAsync -->|ok| SUCCESS
-    SUCCESS([success]):::success
-    FAIL([fail])
-    FAIL:::failure
-    classDef operation fill:#fef0e3,color:#b86a1c
-    classDef bind fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px
-    classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
-    classDef map fill:#e3f0e8,color:#2f7a5c
-    classDef success fill:#e6f6ea,color:#1c7e4f
-    classDef failure fill:#f8e3e3,color:#b13e3e
-%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
-%%   N0_FindProductAsync → FindProductAsync
-%%   N1_EnsureAsync → EnsureAsync
-%%   N2_MapAsync → MapAsync
-%%   N3_SaveOrderAsync → SaveOrderAsync
-```*/
     [ResultFlow]
     public static async Task<Result<Order>> PlaceOrderAsync(
         int userId, int productId, CancellationToken ct) =>
@@ -443,53 +328,6 @@ flowchart LR
     //   TapAsync       SideEffectSuccess
     //   TapOnFailure   SideEffectFailure
     //   MapAsync       PureTransform                             Order → string
-    /*
-```mermaid
----
-title: AdminCheckout → ⟨String⟩
----
-flowchart LR
-    ENTRY_ROOT["FindUser⚡<br/>→ User"]:::operation ==> N0_EnsureAsync
-    N0_EnsureAsync["<span title='u.Role == "Admin"'>Ensure⚡<br/>User</span>"]:::gatekeeper
-    N0_EnsureAsync -->|pass| N1_FindProductAsync
-    N0_EnsureAsync -->|fail| FAIL
-    N1_FindProductAsync["FindProduct⚡<br/>User → Product"]:::bind
-    N1_FindProductAsync -->|ok| N2_EnsureAsync
-    N1_FindProductAsync -->|fail| FAIL
-    N2_EnsureAsync["<span title='p.Stock > 0'>Ensure⚡<br/>Product</span>"]:::gatekeeper
-    N2_EnsureAsync -->|pass| N3_MapAsync
-    N2_EnsureAsync -->|fail| FAIL
-    N3_MapAsync["Map⚡<br/>Product → Order"]:::map
-    N3_MapAsync --> N4_SaveOrderAsync
-    N4_SaveOrderAsync["SaveOrder⚡<br/>Order"]:::bind
-    N4_SaveOrderAsync -->|ok| N5_Log
-    N4_SaveOrderAsync -->|fail| FAIL
-    N5_Log["Log<br/>Order"]:::sideeffect
-    N5_Log --> N6_Log
-    N6_Log["Log<br/>Order"]:::sideeffect
-    N6_Log --> N7_MapAsync
-    N7_MapAsync["Map⚡<br/>Order → String"]:::map
-    N7_MapAsync -->|ok| SUCCESS
-    SUCCESS([success]):::success
-    FAIL([fail])
-    FAIL:::failure
-    classDef operation fill:#fef0e3,color:#b86a1c
-    classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
-    classDef bind fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px
-    classDef map fill:#e3f0e8,color:#2f7a5c
-    classDef sideeffect fill:#fff4d9,color:#b8882c
-    classDef success fill:#e6f6ea,color:#1c7e4f
-    classDef failure fill:#f8e3e3,color:#b13e3e
-%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
-%%   N0_EnsureAsync → EnsureAsync
-%%   N1_FindProductAsync → FindProductAsync
-%%   N2_EnsureAsync → EnsureAsync
-%%   N3_MapAsync → MapAsync
-%%   N4_SaveOrderAsync → SaveOrderAsync
-%%   N5_Log → Log
-%%   N6_Log → Log
-%%   N7_MapAsync → MapAsync
-```*/
     [ResultFlow]
     public static async Task<Result<string>> AdminCheckout(
         int userId, int productId, CancellationToken ct) =>
@@ -688,26 +526,6 @@ static class MatchDemo
     // For typed N-branch fan-out (-->|UserNotFoundError| FAIL etc.), the generator
     // reads explicit lambda parameter type annotations — available when a multi-arg
     // Match overload for Result<T, ErrorsOf<T1..Tn>> is used.
-    /*
-```mermaid
----
-title: ConfirmOrder → ⟨⟩
----
-flowchart LR
-    ENTRY_ROOT["BuildOrder<br/>→ Order"]:::operation ==> N0_Match
-    N0_Match{{"Match"}}:::terminal
-    N0_Match -->|ok| SUCCESS
-    SUCCESS([success]):::success
-    N0_Match -->|fail| FAIL
-    FAIL([fail])
-    FAIL:::failure
-    classDef operation fill:#fef0e3,color:#b86a1c
-    classDef success fill:#e6f6ea,color:#1c7e4f
-    classDef terminal fill:#f2e3f5,color:#8a4f9e
-    classDef failure fill:#f8e3e3,color:#b13e3e
-%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
-%%   N0_Match → Match
-```*/
     [ResultFlow]
     public static string ConfirmOrder(int userId, int productId) =>
         BuildOrder(userId, productId).Match(
@@ -832,6 +650,52 @@ static class FulfillmentService
     //
     // CodeLens UX (REslava.Result Extensions — VS Code Marketplace):
     //   ▶ Open diagram preview    ← always visible above this method; click to open rendered diagram
+    /*
+```mermaid
+---
+title: FulfillOrder → ⟨StockReservation⟩
+---
+%%{init: {'theme': 'base', 'flowchart': {'scale': 1}}}%%
+flowchart LR
+    ENTRY_ROOT["FindProduct<br/>→ Product"]:::operation ==> sg_N0_ReserveStock
+    subgraph sg_N0_ReserveStock["ReserveStock"]
+        ENTRY_N0_ReserveStock[ ]:::entry
+        ENTRY_N0_ReserveStock[ ] ==> N0_ReserveStock_0_Ok
+        N0_ReserveStock_0_Ok["Ok<br/>Product"]:::operation
+        N0_ReserveStock_0_Ok --> N0_ReserveStock_1_Bind
+        N0_ReserveStock_1_Bind["Bind<br/>Product"]:::bind
+        N0_ReserveStock_1_Bind -->|InsufficientStockError| FAIL
+    end
+    sg_N0_ReserveStock -->|ok| N1_Map
+    sg_N0_ReserveStock -->|fail| FAIL
+    N1_Map["Map<br/>Product → StockReservation"]:::map
+    N1_Map -->|ok| SUCCESS
+    SUCCESS([success]):::success
+    FAIL([fail])
+    FAIL:::failure
+classDef entry      fill:none,stroke:none
+classDef operation  fill:#faf0e3,color:#b45f2b
+classDef bind       fill:#e3f0e8,color:#2f7a5c,stroke:#1a5c3c,stroke-width:3px
+classDef map        fill:#e3f0e8,color:#2f7a5c
+classDef transform  fill:#e3f0e8,color:#2f7a5c
+classDef gatekeeper fill:#e3e9fa,color:#3f5c9a
+classDef sideeffect fill:#fff4d9,color:#b8882c
+classDef terminal   fill:#f2e3f5,color:#8a4f9e
+classDef success    fill:#e8f4f0,color:#1c7e6f
+classDef failure    fill:#f8e3e3,color:#b13e3e
+classDef note       fill:#f5f5f5,color:#555555,stroke:#cccccc
+classDef subgraphStyle fill:#ffffde,stroke:#aa3,stroke-width:1px
+linkStyle default stroke:#888,stroke-width:1.5px
+classDef Layer0_Style fill:#eff4ff,color:#2b4c7e,stroke:#c0d0f0,stroke-width:1px
+classDef Layer1_Style fill:#f0f8f0,color:#1e6f43,stroke:#b8d8c0,stroke-width:1px
+classDef Layer2_Style fill:#eff4ff,color:#2b4c7e,stroke:#c0d0f0,stroke-width:1px
+classDef Layer3_Style fill:#f0f8f0,color:#1e6f43,stroke:#b8d8c0,stroke-width:1px
+classDef Layer4_Style fill:#eff4ff,color:#2b4c7e,stroke:#c0d0f0,stroke-width:1px
+class sg_N0_ReserveStock subgraphStyle
+%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---
+%%   N0_ReserveStock → ReserveStock
+%%   N1_Map → Map
+```*/
     [ResultFlow(MaxDepth = 2, Theme = ResultFlowTheme.Dark)]
     public static Result<StockReservation> FulfillOrder(int productId, int quantity) =>
         FindProduct(productId)

@@ -3,7 +3,8 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { ResultFlowCodeLensProvider } from './codelensProvider';
-import { openPreviewForMethod, openMarkdownPreview } from './diagramResolver';
+import { openPreviewForMethod, openMarkdownPreview, wasJustWrittenByUs } from './diagramResolver';
+import { registerGutterDecorator } from './gutterDecorator';
 
 const TEMP_DIR = path.join(os.tmpdir(), 'REslava.ResultFlow');
 
@@ -32,6 +33,9 @@ export function activate(context: vscode.ExtensionContext): void {
         )
     );
 
+    // Gutter icon — orange R beside every [ResultFlow] line
+    registerGutterDecorator(context);
+
     // Option A bridge: watch temp folder for .md files written by external tools
     startTempFolderWatcher(context);
 }
@@ -45,7 +49,7 @@ function startTempFolderWatcher(context: vscode.ExtensionContext): void {
 
         const filePath = path.join(TEMP_DIR, filename);
         setTimeout(() => {
-            if (fs.existsSync(filePath)) {
+            if (fs.existsSync(filePath) && !wasJustWrittenByUs(filePath)) {
                 openMarkdownPreview(filePath);
             }
         }, 150);

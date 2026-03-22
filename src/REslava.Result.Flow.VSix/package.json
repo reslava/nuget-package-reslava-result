@@ -4,6 +4,8 @@
   "description": "CodeLens and diagram preview for [ResultFlow] pipelines",
   "version": "1.0.0",
   "publisher": "reslava",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/reslava/nuget-package-reslava-result" },
   "engines": { "vscode": "^1.78.0" },
   "categories": ["Other"],
   "activationEvents": ["onLanguage:csharp"],

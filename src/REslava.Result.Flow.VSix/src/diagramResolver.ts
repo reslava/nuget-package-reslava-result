@@ -6,40 +6,46 @@ import * as path from 'path';
 // ─── Entry point (called by command on CodeLens click) ───────────────────────
 
 export async function openPreviewForMethod(uri: vscode.Uri, atLine: number): Promise<void> {
-    const document = await vscode.workspace.openTextDocument(uri);
-    const methodName = resolveMethodName(document, atLine);
-    const className  = resolveClassName(document, atLine);
-    const tempPath   = buildTempPath(className, methodName);
+    try {
+        const document = await vscode.workspace.openTextDocument(uri);
+        const methodName = resolveMethodName(document, atLine);
+        const className  = resolveClassName(document, atLine);
+        const tempPath   = buildTempPath(className, methodName);
 
-    // Step 1 — generated *_Flows.g.cs
-    const fromGenerated = await findDiagramInGeneratedFile(className, methodName);
-    if (fromGenerated) {
-        writeSidecar(tempPath, methodName, fromGenerated);
-        openMarkdownPreview(tempPath);
-        return;
+        // Step 1 — generated *_Flows.g.cs
+        const fromGenerated = await findDiagramInGeneratedFile(className, methodName);
+        if (fromGenerated) {
+            writeSidecar(tempPath, methodName, fromGenerated);
+            openMarkdownPreview(tempPath);
+            return;
+        }
+
+        // Step 2 — auto-run "Insert diagram as comment" code action (Roslyn)
+        const fromCodeAction = await tryInsertViaCodeAction(document, atLine);
+        if (fromCodeAction) {
+            writeSidecar(tempPath, methodName, fromCodeAction);
+            openMarkdownPreview(tempPath);
+            return;
+        }
+
+        // Step 3 — existing /*```mermaid...```*/ comment already in source
+        const updatedDoc = await vscode.workspace.openTextDocument(uri); // re-read after possible edit
+        const fromComment = extractFromExistingComment(updatedDoc, atLine);
+        if (fromComment) {
+            writeSidecar(tempPath, methodName, fromComment);
+            openMarkdownPreview(tempPath);
+            return;
+        }
+
+        // Step 4 — not ready yet
+        vscode.window.showInformationMessage(
+            'REslava: diagram not ready yet — build the project or try again in a moment.'
+        );
+    } catch (err) {
+        vscode.window.showInformationMessage(
+            'REslava: diagram not ready yet — VS Code is still loading, please try again in a moment.'
+        );
     }
-
-    // Step 2 — auto-run "Insert diagram as comment" code action (Roslyn)
-    const fromCodeAction = await tryInsertViaCodeAction(document, atLine);
-    if (fromCodeAction) {
-        writeSidecar(tempPath, methodName, fromCodeAction);
-        openMarkdownPreview(tempPath);
-        return;
-    }
-
-    // Step 3 — existing /*```mermaid...```*/ comment already in source
-    const updatedDoc = await vscode.workspace.openTextDocument(uri); // re-read after possible edit
-    const fromComment = extractFromExistingComment(updatedDoc, atLine);
-    if (fromComment) {
-        writeSidecar(tempPath, methodName, fromComment);
-        openMarkdownPreview(tempPath);
-        return;
-    }
-
-    // Step 4 — not ready yet
-    vscode.window.showInformationMessage(
-        'REslava: diagram not ready yet — build the project or try again in a moment.'
-    );
 }
 
 export function openMarkdownPreview(filePath: string): void {
@@ -110,17 +116,27 @@ function extractFromExistingComment(
     nearLine: number
 ): string | null {
     const text = document.getText();
-    // Match block comments containing a mermaid fence
-    const commentRegex = /\/\*\s*\n```mermaid\n([\s\S]*?)```\s*\*\//g;
+    // \s* after /* swallows the newline (handles both LF and CRLF)
+    const commentRegex = /\/\*\s*```mermaid[\r\n]+([\s\S]*?)```\s*\*\//g;
     let match: RegExpExecArray | null;
 
     while ((match = commentRegex.exec(text)) !== null) {
-        const matchLine = document.positionAt(match.index).line;
-        if (Math.abs(matchLine - nearLine) < 40) {
+        // Check proximity by END of comment — closing ```*/ is always just
+        // 1-2 lines above [ResultFlow], regardless of how long the diagram is
+        const endLine = document.positionAt(match.index + match[0].length).line;
+        if (endLine <= nearLine && nearLine - endLine <= 10) {
             return match[1].trim();
         }
     }
     return null;
+}
+
+// ─── Internal write guard (prevents watcher from re-opening our own writes) ──
+
+const _justWritten = new Set<string>();
+
+export function wasJustWrittenByUs(filePath: string): boolean {
+    return _justWritten.has(filePath);
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -137,7 +153,11 @@ function resolveMethodName(document: vscode.TextDocument, fromLine: number): str
 
 function resolveClassName(document: vscode.TextDocument, fromLine: number): string {
     for (let i = fromLine; i >= 0; i--) {
-        const m = document.lineAt(i).text.match(/class\s+(\w+)/);
+        // After the class name, C# requires : { < ( or end-of-line.
+        // Mermaid "class Foo subgraphStyle" has a plain word after the name — skip it.
+        const m = document.lineAt(i).text.match(
+            /(?:^|[\w\s]*?)class\s+(\w+)(?:\s*[:({<]|\s*$)/
+        );
         if (m) { return m[1]; }
     }
     return 'Unknown';
@@ -150,6 +170,8 @@ function buildTempPath(className: string, methodName: string): string {
 }
 
 function writeSidecar(tempPath: string, methodName: string, diagram: string): void {
+    _justWritten.add(tempPath);
+    setTimeout(() => _justWritten.delete(tempPath), 1000);
     const content = `# Pipeline \u2014 ${methodName}\n\n\`\`\`mermaid\n${diagram.trim()}\n\`\`\`\n`;
     fs.writeFileSync(tempPath, content, 'utf8');
 }
