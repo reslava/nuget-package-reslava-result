@@ -1094,6 +1094,8 @@ Install **REslava.Result Extensions** from the VS Code Marketplace to get a `▶
 public Result<Order> PlaceOrder(...)
 ```
 
+![CodeLens and gutter icon in action](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/src/REslava.Result.Flow.VSix/images/screenshot.png)
+
 **How it works — 4-step fallback chain:**
 
 1. Looks for `*_Flows.g.cs` in the workspace → extracts the Mermaid constant → opens preview ✅
@@ -1103,7 +1105,7 @@ public Result<Order> PlaceOrder(...)
 
 The VSIX is a **separate install** from the NuGet packages — install both independently:
 - NuGet: `dotnet add package REslava.Result.Flow`
-- VS Code Marketplace: search **REslava.Result Extensions**
+- VS Code Marketplace: [REslava.Result Extensions](https://marketplace.visualstudio.com/items?itemName=reslava.reslava-result-extensions)
 
 > The VSIX does not ship inside the NuGet package. `Ctrl+.` lightbulb keeps the existing **Insert / Refresh diagram** actions (REF002) unchanged.
 

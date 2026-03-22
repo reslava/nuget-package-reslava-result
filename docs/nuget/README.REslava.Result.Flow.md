@@ -87,7 +87,7 @@ The `` ```mermaid `` fence makes the diagram render inline in VS Code, GitHub, R
 
 ## Diagram Preview — CodeLens (v1.48.0)
 
-Install **REslava.Result Extensions** from the VS Code Marketplace to get a `▶ Open diagram preview` CodeLens above every `[ResultFlow]` method — always visible, opens the rendered diagram in a side panel with one click.
+Install [REslava.Result Extensions](https://marketplace.visualstudio.com/items?itemName=reslava.reslava-result-extensions) from the VS Code Marketplace to get a `▶ Open diagram preview` CodeLens above every `[ResultFlow]` method — always visible, opens the rendered diagram in a side panel with one click.
 
 ```
 [ResultFlow]
@@ -95,7 +95,7 @@ Install **REslava.Result Extensions** from the VS Code Marketplace to get a `▶
 public Result<Order> PlaceOrder(...)
 ```
 
-The extension is a separate install — search **REslava.Result Extensions** in the VS Code Marketplace.
+The extension is a separate install — [REslava.Result Extensions](https://marketplace.visualstudio.com/items?itemName=reslava.reslava-result-extensions) on the VS Code Marketplace.
 
 ## Solution-Wide Default Theme (v1.48.0)
 
