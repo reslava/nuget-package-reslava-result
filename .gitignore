@@ -173,4 +173,4 @@ samples/REslava.Result.Flow.Demo/*.ResultFlow.md
 images/*.mmd
 
 # Benchmarks (raw BDN output — commit only processed results to mkdocs/)
-benchmarks/BenchmarkDotNet.Artifacts/src/REslava.Result.Flow.VSix/*.vsix
+src/REslava.Result.Flow.VSix/*.vsix
