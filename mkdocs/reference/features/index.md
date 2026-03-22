@@ -292,6 +292,9 @@ tagline: Know exactly what you're getting.
 | Depth-indexed layer subgraphs | `_LayerView` and `_ErrorPropagation` renderers emit `subgraph Layer{depth}["ActualLayerName"]` IDs; `class Layer{depth} Layer{depth}_Style` directives for theming; no more hardcoded layer colour strings in renderers; both packages | v1.47.4 | — |
 | `Layer{n}_Style` classDefs (0–4) | 5 depth-indexed layer classDefs in both Light and Dark themes; alternating 2-colour: even = blue-lavender, odd = mint; applied via `class Layer{depth} Layer{depth}_Style` after subgraph emit | v1.47.4 | — |
 | `FulfillmentService` dark demo | New demo class in `REslava.Result.Flow.Demo`: `[DomainBoundary("Application")]` + `[ResultFlow(MaxDepth=2, Theme=Dark)]`; calls `WarehouseService.ReserveStock` (Domain) — Application→Domain cross-layer dark theme showcase | v1.47.4 | — |
+| `ResultFlowDefaultTheme` MSBuild property | `<ResultFlowDefaultTheme>Dark</ResultFlowDefaultTheme>` in `Directory.Build.props`; solution-wide default; method-level `Theme` attribute wins; case-insensitive; both packages | v1.48.0 | [§3.17](../../README.md#317--solution-wide-default-theme--directorybuildprops-v1480) |
+| CodeLens `▶ Open diagram preview` | VS Code extension `reslava.reslava-result-extensions` (Marketplace v1.0.0); 4-step fallback chain; orange R gutter icon on `[ResultFlow]` lines | v1.48.0 | [§3.16](../../README.md#316-️-codelens--diagram-preview-v1480) |
+| NuGet README images → transparent PNGs | `mermaid-to-svg.sh` emits `.png` with `--backgroundColor transparent`; 27 PNGs at `images/*.png`; NuGet READMEs use `raw.githubusercontent.com` URLs | v1.48.0 | — |
 
 ---
 
@@ -320,7 +323,7 @@ tagline: Know exactly what you're getting.
 
 ## Summary
 
-!!! new "**v1.47.4** — 213 features across 15 categories."
+!!! new "**v1.48.0** — 216 features across 15 categories."
 
 
 | Category | Total Features |
@@ -337,10 +340,10 @@ tagline: Know exactly what you're getting.
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
-| ResultFlow | 57 |
+| ResultFlow | 60 |
 | OpenTelemetry | 3 |
 | ResultContext | 6 |
-| **Total** | **213** |
+| **Total** | **216** |
 
 ---
 
