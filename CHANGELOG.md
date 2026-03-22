@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.47.5] - 2026-03-22
+
+### 🔧 Fixed
+
+- **NuGet README images** — NuGet.org blocks external `raw.githubusercontent.com` URLs; `REslava.Result` and `REslava.Result.Flow` now pack the showcase SVGs locally inside the `.nupkg` (`images\` folder) and reference them with relative paths — diagrams render correctly on NuGet.org
+
+---
+
 ## [1.47.4] - 2026-03-21
 
 ### ✨ Added
