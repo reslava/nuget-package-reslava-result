@@ -2,10 +2,11 @@
   "name": "reslava-result-extensions",
   "displayName": "REslava.Result Extensions",
   "description": "CodeLens and diagram preview for [ResultFlow] pipelines",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "reslava",
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/reslava/nuget-package-reslava-result" },
+  "icon": "images/icon.png",
   "engines": { "vscode": "^1.78.0" },
   "categories": ["Other"],
   "activationEvents": ["onLanguage:csharp"],
@@ -32,6 +33,6 @@
     "@types/vscode": "^1.78.0",
     "@types/node": "^18.0.0",
     "typescript": "^5.0.0",
-    "@vscode/vsce": "^2.0.0"
+    "@vscode/vsce": "^3.0.0"
   }
 }

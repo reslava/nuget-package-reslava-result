@@ -15,7 +15,7 @@ Click it to open the Mermaid flowchart for that pipeline in a side panel.
 ### Orange R gutter icon
 A branded gutter icon marks every `[ResultFlow]` attribute line so pipelines are visible at a glance while scrolling.
 
-![CodeLens and gutter icon in action](images/screenshot.png)
+![CodeLens and gutter icon in action](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/src/REslava.Result.Flow.VSix/images/screenshot.png)
 
 ---
 
