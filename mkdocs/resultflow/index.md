@@ -44,6 +44,12 @@ dotnet add package REslava.ResultFlow
 
     [](pipeline-visualization--resultflow)
 
+-   :material-eye: __CodeLens — Diagram Preview in VS Code__
+
+    `▶ Open diagram preview` appears above every `[ResultFlow]` method. One click opens a live Mermaid preview — no browser, no copy-paste. Requires the **REslava.Result Extensions** VS Code extension.
+
+    [](codelens--diagram-preview-v1.48.0)
+
 -   :material-wrench: __Code Action — Insert Diagram as Comment__
 
     One click inserts the generated Mermaid diagram directly above the method — no build required. Renders inline in VS Code, GitHub, and Rider.
