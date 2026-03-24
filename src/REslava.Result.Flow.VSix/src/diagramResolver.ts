@@ -1,7 +1,32 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { showWebviewPanel } from './webviewPanel';
+import { showWebviewPanel, refreshWebviewPanel, isPanelOpen } from './webviewPanel';
+
+// ─── Auto-refresh on save ────────────────────────────────────────────────────
+//
+// Called by the onDidSaveTextDocument listener (extension.ts).
+// For each [ResultFlow] method in the saved document, if a panel is already
+// open, re-reads the generated *_Flows.g.cs and posts an update to the panel.
+// No-op for methods whose panel has not been opened yet.
+
+export function refreshDiagramsForDocument(document: vscode.TextDocument): void {
+    const lines = document.getText().split('\n');
+    for (let i = 0; i < lines.length; i++) {
+        if (!/^\s*\[ResultFlow[(\]]/.test(lines[i])) { continue; }
+
+        const className  = resolveClassName(document, i);
+        const methodName = resolveMethodName(document, i);
+
+        // Only hit the disk if the panel is already open
+        if (!isPanelOpen(methodName)) { continue; }
+
+        const diagram = findDiagramInGeneratedFile(className, methodName);
+        if (diagram) {
+            refreshWebviewPanel(methodName, diagram);
+        }
+    }
+}
 
 // ─── Entry point (called by command on CodeLens click) ───────────────────────
 

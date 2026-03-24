@@ -30,6 +30,11 @@ Each panel includes a toolbar with four buttons:
 | **SVG** | Export the diagram as an SVG file |
 | **PNG** | Export the diagram as a 2× high-DPI PNG file |
 
+### Auto-refresh on save
+Open diagram panels refresh automatically when you save a C# file — no need to click CodeLens again.
+The extension re-reads the generated `*_Flows.g.cs` after each save and updates any open panel silently.
+A 500 ms debounce absorbs format-on-save double-saves. If the project has not been built yet, the open panel is left unchanged.
+
 ### Orange R gutter icon
 A branded gutter icon marks every `[ResultFlow]` attribute line so pipelines are visible at a glance while scrolling.
 

@@ -48,10 +48,15 @@ export function showWebviewPanel(
     panels.set(methodName, panel);
 }
 
-// Posts a diagram update to an already-open panel (used by plan #4 auto-refresh).
+// Posts a diagram update to an already-open panel (used by auto-refresh on save).
 // No-op if the panel is not open.
 export function refreshWebviewPanel(methodName: string, diagram: string): void {
     panels.get(methodName)?.webview.postMessage({ command: 'update', diagram });
+}
+
+// Returns true if a panel for the given method is currently open.
+export function isPanelOpen(methodName: string): boolean {
+    return panels.has(methodName);
 }
 
 // Returns 'dark' if the diagram's %%{init}%% contains themeVariables, otherwise 'light'.
