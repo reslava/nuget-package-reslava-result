@@ -1,0 +1,7 @@
+<Project>
+  <!-- Expose MSBuild properties to the generator via AnalyzerConfigOptionsProvider -->
+  <ItemGroup>
+    <CompilerVisibleProperty Include="ResultFlowLinkMode" />
+    <CompilerVisibleProperty Include="ResultFlowDefaultTheme" />
+  </ItemGroup>
+</Project>

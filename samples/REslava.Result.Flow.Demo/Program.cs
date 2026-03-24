@@ -250,7 +250,7 @@ static class Pipelines
     // Typed error edges appear on Bind nodes where IError subclasses are created
     // inside lambda bodies (FindUser, FindProduct, BuildOrder).
     //
-    // Type Travel:  every Ensure keeps Result<Order> → label shows just "Order"
+    // Type Travel:  every Ensure keeps Result<Order> → label shows just "Order"    
     [ResultFlow]
     public static Result<Order> ValidateOrder(Order order) =>
         Result<Order>.Ok(order)
@@ -650,6 +650,7 @@ static class FulfillmentService
     //
     // CodeLens UX (REslava.Result Extensions — VS Code Marketplace):
     //   ▶ Open diagram preview    ← always visible above this method; click to open rendered diagram
+    
     /*
 ```mermaid
 ---

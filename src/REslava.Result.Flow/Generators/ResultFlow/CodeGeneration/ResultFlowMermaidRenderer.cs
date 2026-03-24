@@ -227,7 +227,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                     case NodeKind.Gatekeeper:
                     {
                         var gatekeeperLabel = node.PredicateText != null
-                            ? "<span title='" + node.PredicateText.Replace("\"", "&quot;").Replace("'", "&#39;") + "'>" + label + "</span>"
+                            ? "<span title='" + node.PredicateText.Replace("\"", "\u201c").Replace("'", "\u2019") + "'>" + label + "</span>"
                             : label;
                         lines.Add($"{indent}{nodeId}[\"{gatekeeperLabel}\"]:::gatekeeper");
                         if (hasNext) lines.Add($"{indent}{nodeId} -->|pass| {resolvedNextId}");

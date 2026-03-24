@@ -295,6 +295,8 @@ tagline: Know exactly what you're getting.
 | `ResultFlowDefaultTheme` MSBuild property | `<ResultFlowDefaultTheme>Dark</ResultFlowDefaultTheme>` in `Directory.Build.props`; solution-wide default; method-level `Theme` attribute wins; case-insensitive; both packages | v1.48.0 | [§3.17](../../README.md#317--solution-wide-default-theme--directorybuildprops-v1480) |
 | CodeLens `▶ Open diagram preview` | VS Code extension `reslava.reslava-result-extensions` (Marketplace v1.0.0); 4-step fallback chain; orange R gutter icon on `[ResultFlow]` lines | v1.48.0 | [§3.16](../../README.md#316-️-codelens--diagram-preview-v1480) |
 | NuGet README images → transparent PNGs | `mermaid-to-svg.sh` emits `.png` with `--backgroundColor transparent`; 27 PNGs at `images/*.png`; NuGet READMEs use `raw.githubusercontent.com` URLs | v1.48.0 | — |
+| VSIX v1.1.0 — WebviewPanel renderer | Replaces sidecar `.md` preview; custom `vscode.WebviewPanel` with bundled Mermaid v10.9.5 (offline); one-panel-per-method; vscode:// node-click navigation; theme-aware background | v1.49.0 | — |
+| VSIX v1.1.0 — toolbar | Source panel (Mermaid DSL + Copy); Legend panel (node colour swatches + hints); SVG export; PNG export (2× canvas) | v1.49.0 | — |
 
 ---
 
@@ -323,7 +325,7 @@ tagline: Know exactly what you're getting.
 
 ## Summary
 
-!!! new "**v1.48.0** — 216 features across 15 categories."
+!!! new "**v1.49.0** — 218 features across 15 categories."
 
 
 | Category | Total Features |

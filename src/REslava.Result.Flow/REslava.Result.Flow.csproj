@@ -46,6 +46,12 @@
     <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
+  <!-- MSBuild props: expose CompilerVisibleProperty so the generator can read build properties -->
+  <ItemGroup>
+    <None Include="build\REslava.Result.Flow.props" Pack="true" PackagePath="build\" />
+    <None Include="buildTransitive\REslava.Result.Flow.props" Pack="true" PackagePath="buildTransitive\" />
+  </ItemGroup>
+
   <!-- Package Dependencies -->
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.12.0-beta1.25218.8">

@@ -4,6 +4,40 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.49.0] - 2026-03-24
+
+### ✨ Added
+
+#### VSIX v1.1.0 — WebviewPanel Renderer
+
+- **`vscode.WebviewPanel`** — replaces sidecar `.md` + `markdown.showPreviewToSide`; diagram renders in a dedicated side panel with bundled Mermaid v10.9.5 (fully offline, no CDN, no external dependencies)
+- **One-panel-per-method** — each `[ResultFlow]` method gets its own panel; rapid clicks reveal the existing panel instead of opening duplicates (`reveal(existing.viewColumn)`)
+- **Node-click navigation** — clicking any diagram node (when `ResultFlowLinkMode=vscode`) navigates VS Code to that exact line in source; Windows `C:/` paths parsed right-to-left to handle drive letters correctly
+
+#### VSIX v1.1.0 — Toolbar
+
+- **Source panel** — collapsible; shows raw Mermaid DSL with Copy button
+- **Legend panel** — collapsible; node-kind colour swatches + hover/click interaction hints
+- **SVG export** — save dialog → writes raw SVG to disk
+- **PNG export** — SVG cloned with explicit pixel dimensions → base64 data URL → canvas 2× scale → save dialog; CSP includes `img-src data:`
+
+#### VSIX v1.1.0 — Theme & UX
+
+- **Theme-aware background** — detects light/dark via `themeVariables` presence in `%%{init}%%`; page background follows `ResultFlowDefaultTheme`
+- **Internal command hidden from palette** — `reslava._previewMethod` removed from `contributes.commands`; no longer appears in `Ctrl+Shift+P`
+
+### 🔧 Fixed
+
+- **`REslava.Result.Flow` build props** — new `build/REslava.Result.Flow.props` and `buildTransitive/REslava.Result.Flow.props` expose `ResultFlowLinkMode` + `ResultFlowDefaultTheme` as `CompilerVisibleProperty`; brings parity with `REslava.ResultFlow` which already had these
+- **MermaidRenderer — Gatekeeper tooltip quote escaping** — `"` replaced with `\u201c` (`"`) and `'` with `\u2019` (`'`) in predicate tooltip text; prevents Mermaid parse errors when predicates contain quotes or apostrophes; both `REslava.Result.Flow` and `REslava.ResultFlow`
+
+### Stats
+
+- Tests: 4,688 passing (floor: >4,500)
+- Features: 218 across 15 categories
+
+---
+
 ## [1.48.0] - 2026-03-22
 
 ### ✨ Added

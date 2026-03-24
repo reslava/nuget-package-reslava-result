@@ -2,27 +2,17 @@
   "name": "reslava-result-extensions",
   "displayName": "REslava.Result Extensions",
   "description": "CodeLens and diagram preview for [ResultFlow] pipelines",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "publisher": "reslava",
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/reslava/nuget-package-reslava-result" },
   "icon": "images/icon.png",
   "engines": { "vscode": "^1.78.0" },
-  "categories": ["Other"],
+  "categories": ["Visualization"],
+  "keywords": ["mermaid", "result", "csharp", "dotnet", "pipeline", "diagram", "flowchart", "codelens", "resultflow", "reslava"],
   "activationEvents": ["onLanguage:csharp"],
   "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "reslava.openDiagramPreview",
-        "title": "REslava: Open Diagram Preview"
-      },
-      {
-        "command": "reslava._previewMethod",
-        "title": "REslava: Open Diagram Preview (CodeLens)"
-      }
-    ]
-  },
+  "contributes": {},
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",

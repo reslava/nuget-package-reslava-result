@@ -1,30 +1,31 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as os from 'os';
 import * as path from 'path';
+import { showWebviewPanel } from './webviewPanel';
 
 // ─── Entry point (called by command on CodeLens click) ───────────────────────
 
-export async function openPreviewForMethod(uri: vscode.Uri, atLine: number): Promise<void> {
+export async function openPreviewForMethod(
+    uri: vscode.Uri,
+    atLine: number,
+    extensionUri: vscode.Uri
+): Promise<void> {
     try {
         const document = await vscode.workspace.openTextDocument(uri);
         const methodName = resolveMethodName(document, atLine);
         const className  = resolveClassName(document, atLine);
-        const tempPath   = buildTempPath(className, methodName);
 
-        // Step 1 — generated *_Flows.g.cs
-        const fromGenerated = await findDiagramInGeneratedFile(className, methodName);
+        // Step 1 — generated *_Flows.g.cs (primary source)
+        const fromGenerated = findDiagramInGeneratedFile(className, methodName);
         if (fromGenerated) {
-            writeSidecar(tempPath, methodName, fromGenerated);
-            openMarkdownPreview(tempPath);
+            showWebviewPanel(methodName, fromGenerated, extensionUri);
             return;
         }
 
         // Step 2 — auto-run "Insert diagram as comment" code action (Roslyn)
         const fromCodeAction = await tryInsertViaCodeAction(document, atLine);
         if (fromCodeAction) {
-            writeSidecar(tempPath, methodName, fromCodeAction);
-            openMarkdownPreview(tempPath);
+            showWebviewPanel(methodName, fromCodeAction, extensionUri);
             return;
         }
 
@@ -32,8 +33,7 @@ export async function openPreviewForMethod(uri: vscode.Uri, atLine: number): Pro
         const updatedDoc = await vscode.workspace.openTextDocument(uri); // re-read after possible edit
         const fromComment = extractFromExistingComment(updatedDoc, atLine);
         if (fromComment) {
-            writeSidecar(tempPath, methodName, fromComment);
-            openMarkdownPreview(tempPath);
+            showWebviewPanel(methodName, fromComment, extensionUri);
             return;
         }
 
@@ -41,36 +41,74 @@ export async function openPreviewForMethod(uri: vscode.Uri, atLine: number): Pro
         vscode.window.showInformationMessage(
             'REslava: diagram not ready yet — build the project or try again in a moment.'
         );
-    } catch (err) {
+    } catch {
         vscode.window.showInformationMessage(
             'REslava: diagram not ready yet — VS Code is still loading, please try again in a moment.'
         );
     }
 }
 
-export function openMarkdownPreview(filePath: string): void {
-    if (!fs.existsSync(filePath)) {
-        vscode.window.showErrorMessage(`REslava: diagram file not found: ${filePath}`);
-        return;
+// ─── Step 1: *_Flows.g.cs ────────────────────────────────────────────────────
+//
+// vscode.workspace.findFiles() is unreliable for files inside obj/ even with
+// null exclude: the VS Code file watcher may not index gitignored dirs.
+// We walk the workspace folder(s) directly using fs.readdirSync — a plain OS
+// call that bypasses all VS Code indexing and .gitignore logic entirely.
+
+function findDiagramInGeneratedFile(className: string, methodName: string): string | null {
+    const targetFile = `${className}_Flows.g.cs`;
+    const folders = vscode.workspace.workspaceFolders ?? [];
+    for (const folder of folders) {
+        const filePath = walkForObjFile(folder.uri.fsPath, targetFile);
+        if (filePath) {
+            const content = fs.readFileSync(filePath, 'utf8');
+            return extractDiagramConstant(content, methodName);
+        }
     }
-    vscode.commands.executeCommand('markdown.showPreviewToSide', vscode.Uri.file(filePath));
+    return null;
 }
 
-// ─── Step 1: *_Flows.g.cs ────────────────────────────────────────────────────
+// Directories to skip while walking the workspace (large, never contain generated files).
+const SKIP_DIRS = new Set([
+    'node_modules', '.git', 'bin', '.vs', '.idea', 'packages', '.cache', '.next', 'dist'
+]);
 
-async function findDiagramInGeneratedFile(
-    className: string,
-    methodName: string
-): Promise<string | null> {
-    const files = await vscode.workspace.findFiles(
-        `**/${className}_Flows.g.cs`,
-        '**/node_modules/**',
-        1
-    );
-    if (files.length === 0) { return null; }
+// Two-phase walk: traverse workspace looking for 'obj' dirs, then search inside each.
+function walkForObjFile(dir: string, targetFile: string): string | null {
+    let entries: fs.Dirent[];
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+    catch { return null; }
 
-    const content = fs.readFileSync(files[0].fsPath, 'utf8');
-    return extractDiagramConstant(content, methodName);
+    for (const entry of entries) {
+        if (!entry.isDirectory()) { continue; }
+        const fullPath = path.join(dir, entry.name);
+        if (entry.name === 'obj') {
+            const found = findInDirRecursive(fullPath, targetFile);
+            if (found) { return found; }
+        } else if (!SKIP_DIRS.has(entry.name)) {
+            const found = walkForObjFile(fullPath, targetFile);
+            if (found) { return found; }
+        }
+    }
+    return null;
+}
+
+// Simple recursive file search inside a known directory.
+function findInDirRecursive(dir: string, targetFile: string): string | null {
+    let entries: fs.Dirent[];
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+    catch { return null; }
+
+    for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            const found = findInDirRecursive(fullPath, targetFile);
+            if (found) { return found; }
+        } else if (entry.name === targetFile) {
+            return fullPath;
+        }
+    }
+    return null;
 }
 
 // ─── Step 2: auto-run "Insert diagram as comment" code action ────────────────
@@ -103,10 +141,18 @@ async function tryInsertViaCodeAction(
     const applied = await vscode.workspace.applyEdit(insertAction.edit);
     if (!applied) { return null; }
 
-    // Re-read document and scan for the freshly-inserted comment
-    // The comment is inserted above [ResultFlow], so search within ±30 lines
+    // The edit inserts N lines above [ResultFlow], shifting it down to atLine+N.
+    // Re-read the document and find the NEW position of [ResultFlow] before searching
+    // for the comment — the proximity check uses nearLine, which must be the updated line.
     const updated = await vscode.workspace.openTextDocument(document.uri);
-    return extractFromExistingComment(updated, atLine);
+    let newAtLine = atLine;
+    for (let i = atLine; i < Math.min(atLine + 150, updated.lineCount); i++) {
+        if (/^\s*\[ResultFlow\b/.test(updated.lineAt(i).text)) {
+            newAtLine = i;
+            break;
+        }
+    }
+    return extractFromExistingComment(updated, newAtLine);
 }
 
 // ─── Step 3: existing /*```mermaid...```*/ in source ────────────────────────
@@ -129,14 +175,6 @@ function extractFromExistingComment(
         }
     }
     return null;
-}
-
-// ─── Internal write guard (prevents watcher from re-opening our own writes) ──
-
-const _justWritten = new Set<string>();
-
-export function wasJustWrittenByUs(filePath: string): boolean {
-    return _justWritten.has(filePath);
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -163,20 +201,8 @@ function resolveClassName(document: vscode.TextDocument, fromLine: number): stri
     return 'Unknown';
 }
 
-function buildTempPath(className: string, methodName: string): string {
-    const dir = path.join(os.tmpdir(), 'REslava.ResultFlow');
-    fs.mkdirSync(dir, { recursive: true });
-    return path.join(dir, `${className}_${methodName}.md`);
-}
-
-function writeSidecar(tempPath: string, methodName: string, diagram: string): void {
-    _justWritten.add(tempPath);
-    setTimeout(() => _justWritten.delete(tempPath), 1000);
-    const content = `# Pipeline \u2014 ${methodName}\n\n\`\`\`mermaid\n${diagram.trim()}\n\`\`\`\n`;
-    fs.writeFileSync(tempPath, content, 'utf8');
-}
-
 // Extracts the diagram string from: public const string MethodName = @"...";
+// or the triple-quoted raw string form used in .g.cs files.
 function extractDiagramConstant(fileContent: string, methodName: string): string | null {
     const regex = new RegExp(
         `public\\s+const\\s+string\\s+${methodName}\\s*=\\s*@?"([^"]*(?:""[^"]*)*)"`,

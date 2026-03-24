@@ -104,6 +104,20 @@ Register it as an `AdditionalFile` in your `.csproj`:
 
 Supported keys: `bind`, `map`, `tap`, `tapOnFailure`, `gatekeeper`, `terminal`.
 
+## Diagram Preview — VS Code Extension (v1.1.0)
+
+Install **[REslava.Result Extensions](https://marketplace.visualstudio.com/items?itemName=reslava.reslava-result-extensions)** from the VS Code Marketplace to get a `▶ Open diagram preview` CodeLens above every `[ResultFlow]` method.
+
+One click opens the rendered Mermaid diagram in a **dedicated side panel** — bundled renderer, works fully offline.
+
+![REslava.Result Extensions — CodeLens, diagram panel, Source/Legend/SVG/PNG toolbar](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/src/REslava.Result.Flow.VSix/images/screenshot.png)
+
+**Panel features:**
+- Click any node to navigate to that line in your source (requires `<ResultFlowLinkMode>vscode</ResultFlowLinkMode>` in your `.csproj`)
+- **Source** button — view and copy the raw Mermaid DSL
+- **Legend** button — node colour guide and interaction hints
+- **SVG** / **PNG** buttons — export the diagram to disk (PNG at 2× for high-DPI screens)
+
 ## Code Action
 
 The companion analyzer detects `[ResultFlow]` methods that are missing the diagram as a developer comment. A **single-click code fix** inserts the generated Mermaid diagram directly above the method body — so the diagram lives next to the code that produced it.

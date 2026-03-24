@@ -85,17 +85,20 @@ public async Task<Result<UserDto>> RegisterAsync(RegisterCommand cmd) => ...
 
 The `` ```mermaid `` fence makes the diagram render inline in VS Code, GitHub, Rider, and other Markdown-aware IDEs.
 
-## Diagram Preview — CodeLens (v1.48.0)
+## Diagram Preview — VS Code Extension (v1.1.0)
 
-Install [REslava.Result Extensions](https://marketplace.visualstudio.com/items?itemName=reslava.reslava-result-extensions) from the VS Code Marketplace to get a `▶ Open diagram preview` CodeLens above every `[ResultFlow]` method — always visible, opens the rendered diagram in a side panel with one click.
+Install **[REslava.Result Extensions](https://marketplace.visualstudio.com/items?itemName=reslava.reslava-result-extensions)** from the VS Code Marketplace to get a `▶ Open diagram preview` CodeLens above every `[ResultFlow]` method.
 
-```
-[ResultFlow]
-▶ Open diagram preview
-public Result<Order> PlaceOrder(...)
-```
+One click opens the rendered Mermaid diagram in a **dedicated side panel** — bundled renderer, works fully offline.
 
-The extension is a separate install — [REslava.Result Extensions](https://marketplace.visualstudio.com/items?itemName=reslava.reslava-result-extensions) on the VS Code Marketplace.
+![REslava.Result Extensions — CodeLens, diagram panel, Source/Legend/SVG/PNG toolbar](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/src/REslava.Result.Flow.VSix/images/screenshot.png)
+
+**Panel features:**
+- Click any node to navigate to that line in your source (requires `<ResultFlowLinkMode>vscode</ResultFlowLinkMode>` in your `.csproj`)
+- **Source** button — view and copy the raw Mermaid DSL
+- **Legend** button — node colour guide and interaction hints
+- **SVG** / **PNG** buttons — export the diagram to disk (PNG at 2× for high-DPI screens)
+- Light and dark background follows your `ResultFlowDefaultTheme` MSBuild property
 
 ## Solution-Wide Default Theme (v1.48.0)
 

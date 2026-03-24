@@ -8,4 +8,9 @@
   <ItemGroup>
     <Analyzer Include="$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\REslava.ResultFlow.dll" />
   </ItemGroup>
+
+  <!-- Expose MSBuild properties to the generator via AnalyzerConfigOptionsProvider -->
+  <ItemGroup>
+    <CompilerVisibleProperty Include="ResultFlowDefaultTheme" />
+  </ItemGroup>
 </Project>
