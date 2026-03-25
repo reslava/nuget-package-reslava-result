@@ -28,17 +28,23 @@ export function refreshDiagramsForDocument(document: vscode.TextDocument): void 
     }
 }
 
-// ─── Entry point (called by command on CodeLens click) ───────────────────────
+// ─── Entry point (called by command on CodeLens click or sidebar tree click) ──
+//
+// knownClassName / knownMethodName: when passed from the sidebar tree provider
+// (which already has these from the registry), text-parsing is skipped entirely
+// and step 1 goes straight to findDiagramInGeneratedFile.
 
 export async function openPreviewForMethod(
     uri: vscode.Uri,
     atLine: number,
-    extensionUri: vscode.Uri
+    extensionUri: vscode.Uri,
+    knownClassName?: string,
+    knownMethodName?: string
 ): Promise<void> {
     try {
-        const document = await vscode.workspace.openTextDocument(uri);
-        const methodName = resolveMethodName(document, atLine);
-        const className  = resolveClassName(document, atLine);
+        const document   = await vscode.workspace.openTextDocument(uri);
+        const methodName = knownMethodName ?? resolveMethodName(document, atLine);
+        const className  = knownClassName  ?? resolveClassName(document, atLine);
 
         // Step 1 — generated *_Flows.g.cs (primary source)
         const fromGenerated = findDiagramInGeneratedFile(className, methodName);

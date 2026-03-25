@@ -60,7 +60,9 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
             });
         }
 
-        // ── Transform: collect a method model if its return type implements IResultBase ──
+        // ── Transform: collect a method model if its return type implements IResultBase
+        //              OR the method has a [ResultFlow] attribute (e.g. Match-terminal pipelines
+        //              where the declared return type is non-Result, like string or void). ──
 
         private static MethodRegistryModel? GetMethodModelIfResultBase(
             GeneratorSyntaxContext ctx,
@@ -70,6 +72,10 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
 
             var symbol = ctx.SemanticModel.GetDeclaredSymbol(method, ct) as IMethodSymbol;
             if (symbol == null) return null;
+
+            // Check for [ResultFlow] attribute at syntax level early — needed for filter below
+            var hasDiagram = method.AttributeLists.SelectMany(al => al.Attributes)
+                .Any(a => a.Name.ToString().Contains(AttributeShortName));
 
             // Resolve IResultBase from compilation (cached internally by Roslyn)
             var resultBase = ctx.SemanticModel.Compilation
@@ -83,23 +89,32 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                 asyncType.TypeArguments.Length == 1)
                 returnType = asyncType.TypeArguments[0];
 
-            if (!ResultTypeExtractor.ImplementsInterface(returnType, resultBase)) return null;
+            var implementsResultBase = ResultTypeExtractor.ImplementsInterface(returnType, resultBase);
 
-            // Inner type T from Result<T>; "Unit" for non-generic Result
-            var innerType = "Unit";
-            if (returnType is INamedTypeSymbol namedReturn && namedReturn.TypeArguments.Length >= 1)
-                innerType = namedReturn.TypeArguments[0].Name;
+            // Include if: return type is Result-based OR method has [ResultFlow] attribute
+            // (e.g. ConfirmOrder returns string via .Match() but still has [ResultFlow])
+            if (!implementsResultBase && !hasDiagram) return null;
 
-            // Source location (0-based line)
+            // Inner type T from Result<T>; use raw type name for non-Result returns; "Unit" for non-generic Result
+            string innerType;
+            if (implementsResultBase)
+            {
+                innerType = "Unit";
+                if (returnType is INamedTypeSymbol namedReturn && namedReturn.TypeArguments.Length >= 1)
+                    innerType = namedReturn.TypeArguments[0].Name;
+            }
+            else
+            {
+                // Non-Result return (e.g. string from Match-terminal) — use the type name directly
+                innerType = returnType.Name;
+            }
+
+            // Source location — stored as 1-based so VSIX can do (sourceLine - 1) to get 0-based
             var span = method.GetLocation().GetLineSpan();
-            var sourceLine = span.StartLinePosition.Line;
+            var sourceLine = span.StartLinePosition.Line + 1;
 
             // Class name from syntax parent
             var className = (method.Parent as TypeDeclarationSyntax)?.Identifier.ValueText ?? "Unknown";
-
-            // Check for [ResultFlow] attribute at syntax level
-            var hasDiagram = method.AttributeLists.SelectMany(al => al.Attributes)
-                .Any(a => a.Name.ToString().Contains(AttributeShortName));
 
             // MaxDepth from [ResultFlow] args
             var maxDepth = 2;

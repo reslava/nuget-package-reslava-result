@@ -53,7 +53,7 @@ export class ResultFlowTreeProvider
         this.cache.clear();
         this.fileToProject.clear();
 
-        const csprojUris = await vscode.workspace.findFiles('**/*.csproj', '{**/obj/**,**/bin/**}');
+        const csprojUris = await vscode.workspace.findFiles('**/*.csproj', '{**/obj/**,**/bin/**,**/node_modules/**}');
         const projects   = csprojUris.map(u => ({ fsPath: u.fsPath, dir: path.dirname(u.fsPath) }));
 
         const csFiles = await vscode.workspace.findFiles(
@@ -99,17 +99,20 @@ export class ResultFlowTreeProvider
         this._onDidChangeTreeData.fire();
     }
 
-    // Phase D: stats for treeView.message
+    // Phase D: stats for treeView.message — only count projects visible in the tree
     getStats(): { projects: number; pipelines: number; nodes: number } {
+        let projects  = 0;
         let pipelines = 0;
         let nodes     = 0;
         for (const entry of this.cache.values()) {
+            if (entry.node.classes.length === 0) { continue; }
+            projects++;
             for (const cls of entry.node.classes) {
                 pipelines += cls.methods.length;
                 for (const m of cls.methods) { nodes += m.nodeCount ?? 0; }
             }
         }
-        return { projects: this.cache.size, pipelines, nodes };
+        return { projects, pipelines, nodes };
     }
 
     private scanFileIntoProject(filePath: string, projectPath: string): void {
@@ -134,7 +137,7 @@ export class ResultFlowTreeProvider
                     const resolved = resolveMethodInfo(lines, i + 1);
                     if (resolved && !currentClass.methods.some(m => m.methodName === resolved.name)) {
                         currentClass.methods.push(
-                            new MethodNode(resolved.name, vscode.Uri.file(filePath), i, resolved.isAsync)
+                            new MethodNode(resolved.name, vscode.Uri.file(filePath), i, resolved.isAsync, currentClass.className)
                         );
                     }
                 }
@@ -176,7 +179,7 @@ export class ResultFlowTreeProvider
             if (!methodInfoMap) { continue; }
             for (const method of cls.methods) {
                 const info = methodInfoMap.get(method.methodName);
-                if (info) { method.applyRegistryInfo(info); }
+                if (info) { method.applyRegistryInfo(info, cls.className); }
             }
         }
     }
@@ -225,25 +228,28 @@ export class ClassNode extends vscode.TreeItem {
 }
 
 export class MethodNode extends vscode.TreeItem {
-    nodeCount: number | null = null;
+    nodeCount: number | null  = null;
+    sourceLine: number | null = null;  // 0-based, for goToSource command
 
     constructor(
         readonly methodName: string,
         readonly uri: vscode.Uri,
         lineNumber: number,
-        isAsync: boolean = false
+        isAsync: boolean = false,
+        readonly className: string = ''
     ) {
         super(methodName + (isAsync ? '⚡' : ''), vscode.TreeItemCollapsibleState.None);
-        this.iconPath = new vscode.ThemeIcon('symbol-method');
+        this.iconPath    = new vscode.ThemeIcon('symbol-method');
+        this.contextValue = 'reslavaMethod';
         this.command  = {
             command:   'reslava._previewMethod',
             title:     'Open Diagram Preview',
-            arguments: [uri, lineNumber]
+            arguments: [uri, lineNumber, className, methodName]
         };
         this.tooltip = 'Click to open diagram preview';
     }
 
-    applyRegistryInfo(info: RegistryMethodInfo): void {
+    applyRegistryInfo(info: RegistryMethodInfo, className: string): void {
         // Phase A: async label (registry is more reliable than source scan)
         if (info.isAsync && !this.label!.toString().includes('⚡')) {
             this.label = this.methodName + '⚡';
@@ -262,6 +268,9 @@ export class MethodNode extends vscode.TreeItem {
         // Phase B — nodeCount for stats
         this.nodeCount = info.nodeCount ?? null;
 
+        // Phase B — sourceLine (0-based) for goToSource
+        this.sourceLine = info.sourceLine - 1;
+
         // Phase B — tooltip: full details + errorTypes
         const kindLine  = info.nodeKindFlags?.length  ? `\n\nKinds: ${info.nodeKindFlags.join(', ')}`  : '';
         const errorLine = info.errorTypes?.length     ? `\n\nErrors: ${info.errorTypes.join(', ')}` : '';
@@ -271,11 +280,11 @@ export class MethodNode extends vscode.TreeItem {
             kindLine + errorLine
         );
 
-        // Phase B — command: use sourceLine from registry (1-indexed → 0-based)
+        // Phase B — command: pass className + methodName directly so preview skips text parsing
         this.command = {
             command:   'reslava._previewMethod',
             title:     'Open Diagram Preview',
-            arguments: [this.uri, info.sourceLine - 1]
+            arguments: [this.uri, info.sourceLine - 1, className, this.methodName]
         };
     }
 }

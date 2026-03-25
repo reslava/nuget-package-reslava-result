@@ -18,8 +18,8 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand(
             'reslava._previewMethod',
-            (uri: vscode.Uri, atLine: number) =>
-                openPreviewForMethod(uri, atLine, context.extensionUri)
+            (uri: vscode.Uri, atLine: number, className?: string, methodName?: string) =>
+                openPreviewForMethod(uri, atLine, context.extensionUri, className, methodName)
         )
     );
 
@@ -47,6 +47,15 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('reslava.refreshFlowCatalog', () => {
             treeProvider.scanWorkspace();
+        })
+    );
+
+    // Go to source line for a method node (right-click → Go to Source)
+    context.subscriptions.push(
+        vscode.commands.registerCommand('reslava.goToSource', async (node: import('./resultFlowTreeProvider').MethodNode) => {
+            const line = node.sourceLine ?? 0;
+            const range = new vscode.Range(line, 0, line, 0);
+            await vscode.window.showTextDocument(node.uri, { selection: range, preserveFocus: false });
         })
     );
 

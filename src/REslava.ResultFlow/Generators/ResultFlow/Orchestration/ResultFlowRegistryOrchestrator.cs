@@ -18,12 +18,15 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                 !(o.GlobalOptions.TryGetValue("build_property.ResultFlowRegistry", out var v) &&
                   string.Equals(v?.Trim(), "false", System.StringComparison.OrdinalIgnoreCase)));
 
-            // Stage 2: collect methods where return type name heuristically contains "Result"
+            // Stage 2: collect methods where return type mentions "Result" OR method has [ResultFlow]
             // (syntax-only — no IResultBase semantic check, library-agnostic)
+            // The [ResultFlow] check catches Match-terminal pipelines that return non-Result types (e.g. string).
             var methodsProvider = context.SyntaxProvider
                 .CreateSyntaxProvider(
                     predicate: (n, _) => n is MethodDeclarationSyntax m &&
-                        ReturnTypeMentionsResult(m.ReturnType),
+                        (ReturnTypeMentionsResult(m.ReturnType) ||
+                         m.AttributeLists.SelectMany(al => al.Attributes)
+                             .Any(a => a.Name.ToString().Contains(AttributeShortName))),
                     transform: (ctx, _) => ExtractModel((MethodDeclarationSyntax)ctx.Node))
                 .Where(m => m != null);
 
@@ -78,7 +81,8 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
         private static MethodRegistryModel ExtractModel(MethodDeclarationSyntax method)
         {
             var className = (method.Parent as TypeDeclarationSyntax)?.Identifier.ValueText ?? "Unknown";
-            var sourceLine = method.GetLocation().GetLineSpan().StartLinePosition.Line;
+            // Stored as 1-based so VSIX can do (sourceLine - 1) to get the 0-based line
+            var sourceLine = method.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
 
             // Detect async wrapper (Task/ValueTask)
             var isAsync = IsWrappedInAsync(method.ReturnType);
@@ -147,8 +151,8 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                 result.TypeArgumentList.Arguments.Count == 1)
                 return result.TypeArgumentList.Arguments[0].ToString();
 
-            // Non-generic Result → Unit
-            return "Unit";
+            // Non-generic Result or non-Result return (e.g. string from Match-terminal) → type name
+            return typeSyntax.ToString();
         }
     }
 
