@@ -131,7 +131,13 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                         var (opName, corrId) = ResultFlowChainExtractor.TryExtractContextHints(methodDecl);
                         var methodName = methodDecl.Identifier.ValueText;
                         var seedMethodName = ResultFlowChainExtractor.TryGetSeedMethodName(methodDecl);
-                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, operationName: opName, correlationId: corrId, linkMode: linkMode, darkTheme: effectiveDarkTheme);
+
+                        // Entry source location — the [ResultFlow] method declaration itself
+                        var entrySpan = methodDecl.GetLocation().GetLineSpan();
+                        var entrySourceFile = entrySpan.Path;
+                        var entrySourceLine = entrySpan.StartLinePosition.Line + 1; // 1-based for vscode://
+
+                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, operationName: opName, correlationId: corrId, linkMode: linkMode, darkTheme: effectiveDarkTheme, entrySourceFile: entrySourceFile, entrySourceLine: entrySourceLine);
 
                         // Detect root method layer for LayerView / Stats
                         string? rootLayer = null;

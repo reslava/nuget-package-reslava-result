@@ -1,24 +1,59 @@
 import * as vscode from 'vscode';
 
-// One panel per [ResultFlow] method — keyed by methodName.
+// Multiple mode: one panel per method, keyed by methodName.
 const panels = new Map<string, vscode.WebviewPanel>();
+// Single mode: one shared panel for all methods.
+let singlePanel: vscode.WebviewPanel | undefined;
+
+function getMode(): 'single' | 'multiple' {
+    return vscode.workspace.getConfiguration('reslava')
+        .get<string>('diagramWindowMode', 'single') === 'multiple' ? 'multiple' : 'single';
+}
+
+// Sends a message to all currently open panels (used to sync mode button label on toggle).
+export function notifyAllPanels(message: object): void {
+    singlePanel?.webview.postMessage(message);
+    for (const p of panels.values()) { p.webview.postMessage(message); }
+}
 
 // Creates or reveals the WebviewPanel for the given method.
-// If already open, reveals it and posts a diagram update.
 export function showWebviewPanel(
     methodName: string,
     diagram: string,
     extensionUri: vscode.Uri
 ): void {
+    const mode = getMode();
+
+    if (mode === 'single') {
+        if (singlePanel) {
+            singlePanel.title = `Pipeline: ${methodName}`;
+            singlePanel.reveal(singlePanel.viewColumn ?? vscode.ViewColumn.Beside);
+            singlePanel.webview.postMessage({ command: 'update', diagram, methodName });
+            return;
+        }
+        singlePanel = createPanel(methodName, diagram, extensionUri, mode);
+        singlePanel.onDidDispose(() => { singlePanel = undefined; });
+        return;
+    }
+
+    // Multiple mode
     const existing = panels.get(methodName);
     if (existing) {
-        // Reveal in the same column it already occupies — ViewColumn.Beside would reposition
-        // the panel beside the current active editor, which creates a new column on every click.
         existing.reveal(existing.viewColumn ?? vscode.ViewColumn.Beside);
         existing.webview.postMessage({ command: 'update', diagram });
         return;
     }
+    const panel = createPanel(methodName, diagram, extensionUri, mode);
+    panel.onDidDispose(() => panels.delete(methodName));
+    panels.set(methodName, panel);
+}
 
+function createPanel(
+    methodName: string,
+    diagram: string,
+    extensionUri: vscode.Uri,
+    mode: 'single' | 'multiple'
+): vscode.WebviewPanel {
     const panel = vscode.window.createWebviewPanel(
         'reslava.resultFlow',
         `Pipeline: ${methodName}`,
@@ -26,12 +61,10 @@ export function showWebviewPanel(
         {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'media')],
-            retainContextWhenHidden: true   // keeps rendered SVG across panel switches
+            retainContextWhenHidden: true
         }
     );
-
-    panel.webview.html = buildHtml(diagram, methodName, panel.webview, extensionUri);
-
+    panel.webview.html = buildHtml(diagram, methodName, panel.webview, extensionUri, mode);
     panel.webview.onDidReceiveMessage(async (msg) => {
         if (msg.command === 'navigate') {
             await navigateToVscodeUri(msg.href);
@@ -41,11 +74,11 @@ export function showWebviewPanel(
             await exportFile(methodName, msg.data, 'png');
         } else if (msg.command === 'pngError') {
             vscode.window.showErrorMessage(`PNG export failed: ${msg.message}`);
+        } else if (msg.command === 'toggleWindowMode') {
+            await vscode.commands.executeCommand('reslava.toggleDiagramWindowMode');
         }
     });
-
-    panel.onDidDispose(() => panels.delete(methodName));
-    panels.set(methodName, panel);
+    return panel;
 }
 
 // Posts a diagram update to an already-open panel (used by auto-refresh on save).
@@ -70,7 +103,8 @@ function buildHtml(
     diagram: string,
     methodName: string,
     webview: vscode.Webview,
-    extensionUri: vscode.Uri
+    extensionUri: vscode.Uri,
+    mode: 'single' | 'multiple' = 'single'
 ): string {
     const mermaidUri = webview.asWebviewUri(
         vscode.Uri.joinPath(extensionUri, 'media', 'mermaid.min.js')
@@ -189,6 +223,7 @@ function buildHtml(
     <button class="tb-btn" id="btn-legend">Legend</button>
     <button class="tb-btn" id="btn-svg"    title="Export as SVG">SVG</button>
     <button class="tb-btn" id="btn-png"    title="Export as PNG (2x)">PNG</button>
+    <button class="tb-btn" id="btn-mode"   title="Toggle single/multiple window mode">${mode === 'single' ? 'Single' : 'Multi'}</button>
   </div>
   <div id="diagram-scroll">
     <div class="mermaid"></div>
@@ -323,10 +358,22 @@ function buildHtml(
       img.src = 'data:image/svg+xml;base64,' + b64;
     });
 
-    // ── Plan #4 auto-refresh ─────────────────────────────────────────────────
+    // ── Mode toggle ──────────────────────────────────────────────────────────
+    document.getElementById('btn-mode').addEventListener('click', () => {
+      vscode.postMessage({ command: 'toggleWindowMode' });
+    });
+
+    // ── Plan #4 auto-refresh + mode sync ─────────────────────────────────────
     window.addEventListener('message', async event => {
       const msg = event.data;
-      if (msg.command === 'update') { await renderDiagram(msg.diagram); }
+      if (msg.command === 'update') {
+        if (msg.methodName) {
+          document.querySelector('.method-name').textContent = '▶ ' + msg.methodName;
+        }
+        await renderDiagram(msg.diagram);
+      } else if (msg.command === 'windowModeChanged') {
+        document.getElementById('btn-mode').textContent = msg.mode === 'single' ? 'Single' : 'Multi';
+      }
     });
 
     await renderDiagram(diagram);

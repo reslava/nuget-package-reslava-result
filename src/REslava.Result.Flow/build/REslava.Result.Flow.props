@@ -3,5 +3,6 @@
   <ItemGroup>
     <CompilerVisibleProperty Include="ResultFlowLinkMode" />
     <CompilerVisibleProperty Include="ResultFlowDefaultTheme" />
+    <CompilerVisibleProperty Include="ResultFlowRegistry" />
   </ItemGroup>
 </Project>

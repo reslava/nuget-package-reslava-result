@@ -88,7 +88,9 @@
 
     <!-- ResultFlow Generator - [ResultFlow] attribute → Mermaid diagram constants -->
     <Compile Include="Generators\ResultFlow\ResultFlowGenerator.cs" />
+    <Compile Include="Generators\ResultFlow\ResultFlowRegistryGenerator.cs" />
     <Compile Include="Generators\ResultFlow\Orchestration\ResultFlowOrchestrator.cs" />
+    <Compile Include="Generators\ResultFlow\Orchestration\ResultFlowRegistryOrchestrator.cs" />
     <Compile Include="Generators\ResultFlow\Attributes\ResultFlowAttributeGenerator.cs" />
     <Compile Include="Generators\ResultFlow\Models\NodeKind.cs" />
     <Compile Include="Generators\ResultFlow\Models\PipelineNode.cs" />
@@ -101,6 +103,7 @@
     <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowStatsRenderer.cs" />
     <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowErrorSurfaceRenderer.cs" />
     <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowCodeGenerator.cs" />
+    <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowRegistryCodeGenerator.cs" />
     <Compile Include="Generators\ResultFlow\LayerDetector.cs" />
   </ItemGroup>
 

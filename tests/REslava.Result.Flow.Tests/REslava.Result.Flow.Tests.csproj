@@ -50,6 +50,7 @@
     <Compile Include="ResultFlowMultiBranchTests.cs" />
     <Compile Include="ResultFlowThemeTests.cs" />
     <Compile Include="ResultFlowDefaultThemeTests.cs" />
+    <Compile Include="ResultFlowRegistryGeneratorTests.cs" />
   </ItemGroup>
 
   <ItemGroup>

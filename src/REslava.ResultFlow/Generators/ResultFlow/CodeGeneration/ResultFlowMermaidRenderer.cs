@@ -15,7 +15,9 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             string? methodTitle = null,
             string? seedMethodName = null,
             string? linkMode = null,
-            bool darkTheme = false)
+            bool darkTheme = false,
+            string? entrySourceFile = null,
+            int? entrySourceLine = null)
         {
             var visible = FilterVisible(nodes);
             if (visible.Count == 0)
@@ -84,6 +86,11 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             // Click directives — emitted when linkMode is "vscode" and source location is available
             if (!string.IsNullOrEmpty(linkMode) && linkMode != "none")
             {
+                // ENTRY_ROOT click — navigates to the [ResultFlow] method declaration
+                var entryUrl = BuildClickUrl(entrySourceFile, entrySourceLine, linkMode);
+                if (entryUrl != null && seedMethodName != null)
+                    sb.AppendLine($"    click ENTRY_ROOT \"{entryUrl}\" \"Go to {seedMethodName}\"");
+
                 foreach (var n in visible)
                 {
                     var url = BuildClickUrl(n.SourceFile, n.SourceLine, linkMode);

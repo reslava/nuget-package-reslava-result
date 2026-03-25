@@ -2,26 +2,44 @@
 
 VS Code companion for the [REslava.Result](https://www.nuget.org/packages/REslava.Result) NuGet library.
 
-Adds **CodeLens** and a **gutter icon** to every `[ResultFlow]` method — click once to open a live Mermaid pipeline diagram in a dedicated side panel.
+Adds a **Flow Catalog sidebar**, **CodeLens**, and a **gutter icon** to every `[ResultFlow]` method — browse all pipelines across your workspace, click any method to open a live Mermaid diagram.
+
+![Flow Catalog sidebar, diagram panel, and toolbar](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/src/REslava.Result.Flow.VSix/images/screenshot.png)
 
 ---
 
 ## Features
 
+### ⚡ Flow Catalog sidebar
+A dedicated activity bar panel lists every `[ResultFlow]` method across your entire workspace, grouped by project and class — no need to navigate to a source file first.
+
+- **Project nodes** turn green when the project has been built (registry found), red when a build is needed
+- **Method nodes** show `⚡` for async methods, return type, and node count as inline description
+- **Hover a method** to see the full tooltip: return type, node count, node kinds, and error types
+- **Click a method** to open its diagram preview instantly
+- **Right-click a project** → **Build Project** runs `dotnet build --no-incremental` and auto-refreshes the tree when done
+- **↺ button** in the panel header manually refreshes the full workspace scan
+- **Stats bar** above the tree shows total projects · pipelines · nodes
+
 ### ▶ Open diagram preview — CodeLens
 A `▶ Open diagram preview` CodeLens appears above every method decorated with `[ResultFlow]`.
 Click it to open the pipeline flowchart in a **WebviewPanel** beside your editor.
 
-- One panel per method — rapid double-clicks reveal the existing panel instead of opening a duplicate
 - Light and dark themes follow your `ResultFlowDefaultTheme` MSBuild property
 - Works fully offline — Mermaid renderer is bundled, no internet connection required
+
+### Single / multiple window mode
+Control whether clicking a pipeline reuses one shared panel or opens a new one per method.
+
+- Toggle with the **⊞** button in the sidebar toolbar or the **Single / Multi** button in the diagram panel toolbar
+- Persists across sessions via the `reslava.diagramWindowMode` VS Code setting (`single` by default)
 
 ### Click nodes to navigate to source
 When `ResultFlowLinkMode=vscode` is set in your `.csproj`, every node in the diagram is clickable.
 Clicking a node navigates VS Code to the exact line of that method call in your source file.
 
-### Toolbar
-Each panel includes a toolbar with four buttons:
+### Diagram toolbar
+Each panel includes a toolbar:
 
 | Button | Action |
 |---|---|
@@ -29,16 +47,15 @@ Each panel includes a toolbar with four buttons:
 | **Legend** | Toggle the node-kind colour legend + interaction hints |
 | **SVG** | Export the diagram as an SVG file |
 | **PNG** | Export the diagram as a 2× high-DPI PNG file |
+| **Single / Multi** | Toggle single/multiple window mode |
 
 ### Auto-refresh on save
-Open diagram panels refresh automatically when you save a C# file — no need to click CodeLens again.
+Open diagram panels refresh automatically when you save a C# file.
 The extension re-reads the generated `*_Flows.g.cs` after each save and updates any open panel silently.
-A 500 ms debounce absorbs format-on-save double-saves. If the project has not been built yet, the open panel is left unchanged.
+A 500 ms debounce absorbs format-on-save double-saves.
 
 ### Orange R gutter icon
 A branded gutter icon marks every `[ResultFlow]` attribute line so pipelines are visible at a glance while scrolling.
-
-![CodeLens, diagram panel, and toolbar in action](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/src/REslava.Result.Flow.VSix/images/screenshot.png)
 
 ---
 

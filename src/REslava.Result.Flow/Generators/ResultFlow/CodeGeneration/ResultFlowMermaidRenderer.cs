@@ -20,7 +20,9 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             string? operationName = null,
             string? correlationId = null,
             string? linkMode = null,
-            bool darkTheme = false)
+            bool darkTheme = false,
+            string? entrySourceFile = null,
+            int? entrySourceLine = null)
         {
             // Filter invisible nodes
             var visible = new List<PipelineNode>();
@@ -121,6 +123,11 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             // Click directives — emitted when linkMode is "vscode" or "github" and source location is available
             if (!string.IsNullOrEmpty(linkMode) && linkMode != "none")
             {
+                // ENTRY_ROOT click — navigates to the [ResultFlow] method declaration
+                var entryUrl = BuildClickUrl(entrySourceFile, entrySourceLine, linkMode);
+                if (entryUrl != null && seedMethodName != null)
+                    sb.AppendLine($"    click ENTRY_ROOT \"{entryUrl}\" \"Go to {seedMethodName}\"");
+
                 foreach (var n in visible)
                 {
                     var url = BuildClickUrl(n.SourceFile, n.SourceLine, linkMode);

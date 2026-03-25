@@ -86,25 +86,28 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                 .Where(f => string.Equals(Path.GetFileName(f.Path), ConfigFileName, System.StringComparison.OrdinalIgnoreCase))
                 .Collect();
 
-            // Stage 2c: read ResultFlowDefaultTheme build property
-            var defaultThemeProvider = context.AnalyzerConfigOptionsProvider.Select((options, _) =>
+            // Stage 2c: read build properties (DefaultTheme + LinkMode)
+            var buildPropsProvider = context.AnalyzerConfigOptionsProvider.Select((options, _) =>
             {
                 options.GlobalOptions.TryGetValue("build_property.ResultFlowDefaultTheme", out var theme);
-                return string.Equals(theme?.Trim(), "Dark", System.StringComparison.OrdinalIgnoreCase);
+                options.GlobalOptions.TryGetValue("build_property.ResultFlowLinkMode", out var mode);
+                var defaultDark = string.Equals(theme?.Trim(), "Dark", System.StringComparison.OrdinalIgnoreCase);
+                var linkModeFromProps = (mode ?? string.Empty).Trim().ToLowerInvariant();
+                return (DefaultDarkTheme: defaultDark, LinkModeFromProps: linkModeFromProps);
             });
 
             var compilationAndMethods = context.CompilationProvider.Combine(annotatedMethods.Collect());
-            var withConfig = compilationAndMethods.Combine(configFile).Combine(defaultThemeProvider);
+            var withConfig = compilationAndMethods.Combine(configFile).Combine(buildPropsProvider);
 
             // Stage 3: Group by containing class, extract chain, render Mermaid, emit constants
             context.RegisterSourceOutput(withConfig, (spc, source) =>
             {
-                var defaultDarkTheme = source.Right;
+                var (defaultDarkTheme, linkModeFromProps) = source.Right;
                 var methods = source.Left.Left.Right;
                 if (!methods.Any()) return;
 
-
-                // Load custom mappings and linkMode from resultflow.json (if present)
+                // Load custom mappings and linkMode from resultflow.json (if present).
+                // JSON config linkMode takes precedence over the MSBuild property.
                 IReadOnlyDictionary<string, NodeKind>? customMappings = null;
                 string linkMode = string.Empty;
                 var configAdditionalText = source.Left.Right.FirstOrDefault();
@@ -122,6 +125,9 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                         linkMode = configLinkMode ?? string.Empty;
                     }
                 }
+                // Fall back to MSBuild property when JSON config does not specify linkMode
+                if (string.IsNullOrEmpty(linkMode))
+                    linkMode = linkModeFromProps;
 
                 var compilation = source.Left.Left.Left;
 
@@ -151,7 +157,13 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
 
                         var methodName = methodDecl.Identifier.ValueText;
                         var seedMethodName = ResultFlowChainExtractor.TryGetSeedMethodName(methodDecl);
-                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, linkMode: linkMode, darkTheme: effectiveDarkTheme);
+
+                        // Entry source location — the [ResultFlow] method declaration itself
+                        var entrySpan = methodDecl.GetLocation().GetLineSpan();
+                        var entrySourceFile = entrySpan.Path;
+                        var entrySourceLine = entrySpan.StartLinePosition.Line + 1; // 1-based for vscode://
+
+                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, linkMode: linkMode, darkTheme: effectiveDarkTheme, entrySourceFile: entrySourceFile, entrySourceLine: entrySourceLine);
 
                         // Detect root method layer for LayerView / Stats
                         var containingNs = ResultFlowChainExtractor.GetContainingNamespace(methodDecl);

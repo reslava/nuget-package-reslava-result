@@ -4,6 +4,44 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.50.0] - 2026-03-25
+
+### ✨ Added
+
+#### Pipeline Registry Generator (`ResultFlowRegistryGenerator`)
+
+- **`ResultFlowRegistryGenerator`** — new always-on Roslyn incremental generator in both `REslava.Result.Flow` and `REslava.ResultFlow`; for every source class with at least one `[ResultFlow]` method it emits `{ClassName}_PipelineRegistry.g.cs` alongside the existing `*_Flows.g.cs`
+- **`_Methods`** — `public const string _Methods` JSON array listing all pipeline method names in the class (e.g. `"[\"PlaceOrder\",\"CancelOrder\"]"`)
+- **`{MethodName}_Info`** — `public const string {MethodName}_Info` JSON object with per-method metadata: `returnType`, `nodeCount`, `nodeKinds` (array), `errorTypes` (array), `hasDiagram`, `sourceLine`
+- **`ResultFlowRegistry=false`** — opt-out MSBuild property; when set, the registry generator is skipped for that project while `[ResultFlow]` diagram generation continues unchanged
+
+#### VSIX v1.2.0 — ⚡ Flow Catalog Sidebar
+
+- **`viewsContainers.activitybar`** — new `reslavaResultFlow` activity bar entry with monochrome R-in-circle icon (`images/icon-sidebar.svg`)
+- **`ResultFlowTreeProvider`** — `TreeDataProvider<ProjectNode | ClassNode | MethodNode>` implementation; three-level tree: project → class → method
+- **Workspace scan** — finds all `*.csproj` + `*.cs` files; maps each `.cs` to its deepest-ancestor project directory; deduplicates class/method nodes to prevent false positives from test string literals
+- **Registry enrichment** — walks `obj/**/*_PipelineRegistry.g.cs` per project; parses `{MethodName}_Info` JSON; enriches method nodes with icon, description (`returnType · N nodes`), full MarkdownString tooltip, and sourceLine navigation command
+- **Project build status** — project nodes display a green `package` icon when registry files exist, red when a build is needed; tooltip shows path and build hint
+- **Stats bar** — `treeView.message` updated after every scan: `{N} projects · {P} pipelines · {K} nodes`
+- **`reslava.buildProject`** — new command; runs `dotnet build --no-incremental` on the selected project via VS Code Tasks API (`vscode.tasks.executeTask`); auto-refreshes the tree on `onDidEndTaskProcess`
+- **`reslava.refreshFlowCatalog`** — manual full workspace rescan; wired to `↺` button in panel title
+- **`reslava.toggleDiagramWindowMode`** — new command; cycles `single` ↔ `multiple` via `workspaceState` config; wired to `⊞` button in panel title and diagram panel toolbar
+
+#### VSIX v1.2.0 — Single / Multiple Window Mode
+
+- **`reslava.diagramWindowMode`** — new VS Code setting (`enum: single | multiple`, default `single`); persists across sessions
+- **Single mode** — all pipeline previews reuse one shared `singlePanel`; title updates to the current method; HTML baked once and panel content replaced on navigation
+- **Multiple mode** — original one-panel-per-method behaviour; each method tracked in `panels` map by `ClassName.MethodName` key
+- **`notifyAllPanels(message)`** — helper sends messages to both `singlePanel` and all `panels` map entries; used by `onDidChangeConfiguration` to sync the Single/Multi toolbar button when the setting changes externally
+- **`onDidSaveTextDocument`** — calls both `refreshDiagramsForDocument` (panel refresh) and `treeProvider.refresh(doc.uri)` (sidebar re-scan) on every C# file save
+
+### Stats
+
+- Tests: 4,688 passing (floor: >4,500)
+- Features: 222 across 15 categories
+
+---
+
 ## [1.49.0] - 2026-03-24
 
 ### ✨ Added

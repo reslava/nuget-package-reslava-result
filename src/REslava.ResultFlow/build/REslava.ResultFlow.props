@@ -12,5 +12,6 @@
   <!-- Expose MSBuild properties to the generator via AnalyzerConfigOptionsProvider -->
   <ItemGroup>
     <CompilerVisibleProperty Include="ResultFlowDefaultTheme" />
+    <CompilerVisibleProperty Include="ResultFlowRegistry" />
   </ItemGroup>
 </Project>

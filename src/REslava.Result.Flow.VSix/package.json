@@ -2,7 +2,7 @@
   "name": "reslava-result-extensions",
   "displayName": "REslava.Result Extensions",
   "description": "CodeLens and diagram preview for [ResultFlow] pipelines",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "publisher": "reslava",
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/reslava/nuget-package-reslava-result" },
@@ -12,7 +12,78 @@
   "keywords": ["mermaid", "result", "csharp", "dotnet", "pipeline", "diagram", "flowchart", "codelens", "resultflow", "reslava"],
   "activationEvents": ["onLanguage:csharp"],
   "main": "./out/extension.js",
-  "contributes": {},
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "reslavaResultFlow",
+          "title": "REslava Result Flow",
+          "icon": "images/icon-sidebar.svg"
+        }
+      ]
+    },
+    "views": {
+      "reslavaResultFlow": [
+        {
+          "id": "reslavaResultFlowExplorer",
+          "name": "⚡ Flow Catalog"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "REslava Result Flow",
+      "properties": {
+        "reslava.diagramWindowMode": {
+          "type": "string",
+          "enum": ["single", "multiple"],
+          "enumDescriptions": [
+            "Reuse a single diagram panel for all pipelines",
+            "Open a new panel for each pipeline"
+          ],
+          "default": "single",
+          "markdownDescription": "Controls whether clicking a pipeline opens a new panel (`multiple`) or reuses the existing one (`single`)."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "reslava.refreshFlowCatalog",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "reslava.toggleDiagramWindowMode",
+        "title": "Toggle Single/Multiple Window Mode",
+        "icon": "$(split-horizontal)"
+      },
+      {
+        "command": "reslava.buildProject",
+        "title": "Build Project",
+        "icon": "$(play)"
+      }
+    ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "reslava.buildProject",
+          "when": "view == reslavaResultFlowExplorer && viewItem == reslavaProject",
+          "group": "1"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "reslava.refreshFlowCatalog",
+          "when": "view == reslavaResultFlowExplorer",
+          "group": "navigation"
+        },
+        {
+          "command": "reslava.toggleDiagramWindowMode",
+          "when": "view == reslavaResultFlowExplorer",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",

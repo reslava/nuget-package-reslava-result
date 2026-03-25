@@ -297,6 +297,10 @@ tagline: Know exactly what you're getting.
 | NuGet README images → transparent PNGs | `mermaid-to-svg.sh` emits `.png` with `--backgroundColor transparent`; 27 PNGs at `images/*.png`; NuGet READMEs use `raw.githubusercontent.com` URLs | v1.48.0 | — |
 | VSIX v1.1.0 — WebviewPanel renderer | Replaces sidecar `.md` preview; custom `vscode.WebviewPanel` with bundled Mermaid v10.9.5 (offline); one-panel-per-method; vscode:// node-click navigation; theme-aware background | v1.49.0 | — |
 | VSIX v1.1.0 — toolbar | Source panel (Mermaid DSL + Copy); Legend panel (node colour swatches + hints); SVG export; PNG export (2× canvas) | v1.49.0 | — |
+| `ResultFlowRegistryGenerator` — `_PipelineRegistry.g.cs` | Always-on incremental generator (both packages); emits `_Methods` + `{MethodName}_Info` JSON constants per class; fields: `sourceLine`, `returnType`, `returnTypeFullName`, `isAsync`, `hasDiagram`, `nodeCount`, `errorTypes`, `nodeKindFlags`; opt-out via `ResultFlowRegistry=false` | v1.50.0 | — |
+| `ResultFlowRegistry=false` MSBuild property | Suppresses all `_PipelineRegistry.g.cs` generation for both packages | v1.50.0 | — |
+| VSIX v1.2.0 — Flow Catalog sidebar | `⚡ Flow Catalog` activity bar panel; groups all `[ResultFlow]` methods by project and class; green/red project build status; method `⚡` async labels, return type, node count; error types tooltip; `reslava.buildProject` with auto-refresh; stats bar | v1.50.0 | — |
+| VSIX v1.2.0 — single/multiple window mode | `reslava.diagramWindowMode` VS Code setting (`"single"` default); sidebar toolbar + webview toolbar toggle buttons | v1.50.0 | — |
 
 ---
 
@@ -325,7 +329,7 @@ tagline: Know exactly what you're getting.
 
 ## Summary
 
-!!! new "**v1.49.0** — 218 features across 15 categories."
+!!! new "**v1.50.0** — 222 features across 15 categories."
 
 
 | Category | Total Features |
@@ -342,10 +346,10 @@ tagline: Know exactly what you're getting.
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
-| ResultFlow | 60 |
+| ResultFlow | 64 |
 | OpenTelemetry | 3 |
 | ResultContext | 6 |
-| **Total** | **216** |
+| **Total** | **222** |
 
 ---
 
