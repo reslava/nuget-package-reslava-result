@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.50.1] - 2026-03-26
+
+### 🐛 Fixed
+
+- **Registry generator — non-Result return types** — both `REslava.Result.Flow` and `REslava.ResultFlow` registry generators now include `[ResultFlow]`-decorated methods regardless of return type; previously Match-terminal pipelines returning non-`Result` types (e.g. `string`) were silently excluded from `_PipelineRegistry.g.cs`
+- **Registry generator — `sourceLine` off-by-one** — `sourceLine` in `{MethodName}_Info` JSON is now stored as 1-based (Roslyn `StartLinePosition.Line + 1`); previously stored as 0-based, causing VSIX "Go to Source" to navigate one line above the method declaration
+- **VSIX v1.2.1 — sidebar stats** — stats bar now counts only projects that have at least one `[ResultFlow]` method visible in the tree; previously `cache.size` counted every `.csproj` found in the workspace, inflating the project count
+
+### Stats
+
+- 4,688 tests (unchanged)
+
 ## [1.50.0] - 2026-03-25
 
 ### ✨ Added
