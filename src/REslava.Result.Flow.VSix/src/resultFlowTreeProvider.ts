@@ -6,7 +6,7 @@ const RESULT_FLOW_ATTR = /^\s*\[ResultFlow[(\]]/;
 const CLASS_DECL       = /(?:^|[\w\s]*?)class\s+(\w+)(?:\s*[:({<]|\s*$)/;
 const METHOD_DECL      = /(?:public|private|protected|internal|async|static|\s)+\S+\s+(\w+)\s*[(<]/;
 
-export type FlowTreeNode = ProjectNode | ClassNode | MethodNode;
+export type FlowTreeNode = ProjectNode | NamespaceNode | ClassNode | MethodNode | ErrorNode | LoadingPlaceholderItem | EmptyStateItem;
 
 interface RegistryMethodInfo {
     sourceLine:         number;
@@ -17,6 +17,8 @@ interface RegistryMethodInfo {
     nodeCount?:         number;
     errorTypes?:        string[];
     nodeKindFlags?:     string[];
+    namespace?:         string;
+    pipelineId?:        string;
 }
 
 interface ProjectEntry {
@@ -34,24 +36,50 @@ export class ResultFlowTreeProvider
 
     private cache         = new Map<string, ProjectEntry>();
     private fileToProject = new Map<string, string>();
+    private _isBuilding   = false;
+    private _hasScanned   = false;
 
     getTreeItem(node: FlowTreeNode): vscode.TreeItem { return node; }
 
     getChildren(node?: FlowTreeNode): FlowTreeNode[] {
         if (!node) {
-            return [...this.cache.values()]
+            const projects = [...this.cache.values()]
                 .map(e => e.node)
                 .filter(p => p.classes.length > 0)
                 .sort((a, b) => a.projectName.localeCompare(b.projectName));
+            if (this._isBuilding && projects.length === 0) {
+                return [new LoadingPlaceholderItem()];
+            }
+            if (this._hasScanned && projects.length === 0) {
+                return [new EmptyStateItem()];
+            }
+            return projects;
         }
-        if (node instanceof ProjectNode) { return node.classes; }
-        if (node instanceof ClassNode)   { return node.methods; }
+        if (node instanceof ProjectNode) {
+            // Show namespace level when at least one class has a real namespace
+            const hasNamespaces = node.namespaces.some(n => n.namespaceName !== '');
+            return hasNamespaces ? node.namespaces : node.classes;
+        }
+        if (node instanceof NamespaceNode) { return node.classes; }
+        if (node instanceof ClassNode)     { return node.methods; }
+        if (node instanceof MethodNode)    { return node.errorChildren; }
         return [];
     }
 
+    /** Shows / hides the spinner on all cached project nodes. Call before long operations. */
+    setAllLoading(loading: boolean): void {
+        for (const entry of this.cache.values()) {
+            entry.node.setLoading(loading);
+        }
+        this._onDidChangeTreeData.fire(undefined);
+    }
+
     async scanWorkspace(): Promise<void> {
+        this._isBuilding = true;
+        this.setAllLoading(true);   // spinner on existing nodes while we rebuild
         this.cache.clear();
         this.fileToProject.clear();
+        this._onDidChangeTreeData.fire(undefined);  // show LoadingPlaceholderItem while cache is empty
 
         const csprojUris = await vscode.workspace.findFiles('**/*.csproj', '{**/obj/**,**/bin/**,**/node_modules/**}');
         const projects   = csprojUris.map(u => ({ fsPath: u.fsPath, dir: path.dirname(u.fsPath) }));
@@ -84,10 +112,14 @@ export class ResultFlowTreeProvider
             this.enrichFromRegistry(projectPath, entry);
         }
 
-        this._onDidChangeTreeData.fire();
+        this._isBuilding = false;
+        this._hasScanned = true;
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     refresh(uri?: vscode.Uri): void {
+        this._isBuilding = true;
+        this.setAllLoading(true);   // spinner while re-scanning; enrichFromRegistry restores icon
         if (uri) {
             const projectPath = this.fileToProject.get(uri.fsPath);
             if (projectPath) {
@@ -96,7 +128,8 @@ export class ResultFlowTreeProvider
                 if (entry) { this.enrichFromRegistry(projectPath, entry); }
             }
         }
-        this._onDidChangeTreeData.fire();
+        this._isBuilding = false;
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     // Phase D: stats for treeView.message — only count projects visible in the tree
@@ -179,16 +212,25 @@ export class ResultFlowTreeProvider
             if (!methodInfoMap) { continue; }
             for (const method of cls.methods) {
                 const info = methodInfoMap.get(method.methodName);
-                if (info) { method.applyRegistryInfo(info, cls.className); }
+                if (info) {
+                    method.applyRegistryInfo(info, cls.className);
+                    // Seed namespace from first method that has one
+                    if (!cls.namespace && info.namespace) { cls.namespace = info.namespace; }
+                }
             }
         }
+
+        entry.node.buildNamespaces();
     }
 }
 
 // ─── Tree items ───────────────────────────────────────────────────────────────
 
 export class ProjectNode extends vscode.TreeItem {
-    classes: ClassNode[] = [];
+    classes: ClassNode[]       = [];
+    namespaces: NamespaceNode[] = [];
+    private _hasRegistry = false;
+
     constructor(
         readonly projectName: string,
         readonly projectPath: string,
@@ -197,10 +239,35 @@ export class ProjectNode extends vscode.TreeItem {
         super(projectName, vscode.TreeItemCollapsibleState.Expanded);
         this.description  = relDir;
         this.contextValue = 'reslavaProject';
-        this.iconPath     = new vscode.ThemeIcon('package');
+        this.iconPath     = new vscode.ThemeIcon('loading~spin');
+    }
+
+    buildNamespaces(): void {
+        const map = new Map<string, ClassNode[]>();
+        for (const cls of this.classes) {
+            const key = truncateNamespace(cls.namespace);
+            if (!map.has(key)) { map.set(key, []); }
+            map.get(key)!.push(cls);
+        }
+        this.namespaces = [...map.entries()]
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map(([ns, classes]) => {
+                const node = new NamespaceNode(ns);
+                node.classes.push(...classes);
+                return node;
+            });
+    }
+
+    setLoading(loading: boolean): void {
+        if (loading) {
+            this.iconPath = new vscode.ThemeIcon('loading~spin');
+        } else {
+            this.setHasRegistry(this._hasRegistry);
+        }
     }
 
     setHasRegistry(has: boolean): void {
+        this._hasRegistry = has;
         if (has) {
             this.iconPath = new vscode.ThemeIcon('package',
                 new vscode.ThemeColor('testing.iconPassed'));
@@ -214,14 +281,24 @@ export class ProjectNode extends vscode.TreeItem {
     }
 }
 
+export class NamespaceNode extends vscode.TreeItem {
+    readonly classes: ClassNode[] = [];
+    constructor(readonly namespaceName: string) {
+        super(namespaceName || '(root)', vscode.TreeItemCollapsibleState.Expanded);
+        this.iconPath     = new vscode.ThemeIcon('symbol-namespace');
+        this.contextValue = 'reslavaNamespace';
+    }
+}
+
 export class ClassNode extends vscode.TreeItem {
     readonly methods: MethodNode[] = [];
+    namespace: string = '';
     constructor(
         readonly className: string,
         readonly filePath: string,
         relativePath: string
     ) {
-        super(className, vscode.TreeItemCollapsibleState.Expanded);
+        super(className, vscode.TreeItemCollapsibleState.Collapsed);
         this.description = relativePath;
         this.iconPath    = new vscode.ThemeIcon('symbol-class');
     }
@@ -230,6 +307,7 @@ export class ClassNode extends vscode.TreeItem {
 export class MethodNode extends vscode.TreeItem {
     nodeCount: number | null  = null;
     sourceLine: number | null = null;  // 0-based, for goToSource command
+    errorChildren: ErrorNode[] = [];
 
     constructor(
         readonly methodName: string,
@@ -255,15 +333,40 @@ export class MethodNode extends vscode.TreeItem {
             this.label = this.methodName + '⚡';
         }
 
-        // Phase B — icon by hasDiagram
-        this.iconPath = info.hasDiagram
-            ? new vscode.ThemeIcon('pass-filled', new vscode.ThemeColor('testing.iconPassed'))
-            : new vscode.ThemeIcon('circle-outline');
+        // Phase B — health icon
+        // ✅ green  — diagram present + error types declared
+        // ⚠️ amber  — diagram present, Bind/Gatekeeper nodes present, no declared error types
+        // ⚪ grey   — diagram present, no fail-able paths (Terminal/Map/Tap only)
+        // ❌ red    — no diagram
+        const canFail = info.nodeKindFlags?.some(k => k === 'Bind' || k === 'Gatekeeper') ?? false;
+        if (!info.hasDiagram) {
+            this.iconPath = new vscode.ThemeIcon('circle-slash',
+                new vscode.ThemeColor('testing.iconFailed'));
+        } else if ((info.errorTypes?.length ?? 0) > 0) {
+            this.iconPath = new vscode.ThemeIcon('pass-filled',
+                new vscode.ThemeColor('testing.iconPassed'));
+        } else if (canFail) {
+            this.iconPath = new vscode.ThemeIcon('warning',
+                new vscode.ThemeColor('testing.iconQueued'));
+        } else {
+            // No fail-able paths — Terminal/Map/Tap only
+            this.iconPath = new vscode.ThemeIcon('pass-filled',
+                new vscode.ThemeColor('testing.iconSkipped'));
+        }
 
-        // Phase B — description: returnType + nodeCount
+        // Phase B — error children (expand method node when errors present)
+        if ((info.errorTypes?.length ?? 0) > 0) {
+            this.errorChildren = info.errorTypes!.map(e => new ErrorNode(e));
+            this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+        }
+
+        // Phase B — description: returnType + nodeCount + error badge
+        const errorBadge = (info.errorTypes?.length ?? 0) > 0
+            ? ` · ${info.errorTypes!.length} error${info.errorTypes!.length > 1 ? 's' : ''}`
+            : '';
         this.description = info.nodeCount !== undefined
-            ? `${info.returnType} · ${info.nodeCount} nodes`
-            : info.returnType;
+            ? `${info.returnType} · ${info.nodeCount} nodes${errorBadge}`
+            : `${info.returnType}${errorBadge}`;
 
         // Phase B — nodeCount for stats
         this.nodeCount = info.nodeCount ?? null;
@@ -271,13 +374,20 @@ export class MethodNode extends vscode.TreeItem {
         // Phase B — sourceLine (0-based) for goToSource
         this.sourceLine = info.sourceLine - 1;
 
-        // Phase B — tooltip: full details + errorTypes
-        const kindLine  = info.nodeKindFlags?.length  ? `\n\nKinds: ${info.nodeKindFlags.join(', ')}`  : '';
-        const errorLine = info.errorTypes?.length     ? `\n\nErrors: ${info.errorTypes.join(', ')}` : '';
+        // Phase B — tooltip: health state + full details
+        const healthLine = !info.hasDiagram
+            ? '\n\n❌ No diagram — build the project to generate it.'
+            : (info.errorTypes?.length ?? 0) > 0
+                ? ''
+                : canFail
+                    ? '\n\n⚠️ Pipeline can fail but no error types are declared in the registry.'
+                    : '\n\n⚪ No fail-able paths detected (Terminal/Map/Tap only).';
+        const kindLine  = info.nodeKindFlags?.length ? `\n\nKinds: ${info.nodeKindFlags.join(', ')}` : '';
+        const errorLine = info.errorTypes?.length    ? `\n\nErrors: ${info.errorTypes.join(', ')}`   : '';
         this.tooltip = new vscode.MarkdownString(
             `**${this.methodName}**  \n→ \`${info.returnTypeFullName}\`` +
             (info.nodeCount !== undefined ? `  \n${info.nodeCount} nodes` : '') +
-            kindLine + errorLine
+            healthLine + kindLine + errorLine
         );
 
         // Phase B — command: pass className + methodName directly so preview skips text parsing
@@ -285,6 +395,51 @@ export class MethodNode extends vscode.TreeItem {
             command:   'reslava._previewMethod',
             title:     'Open Diagram Preview',
             arguments: [this.uri, info.sourceLine - 1, className, this.methodName]
+        };
+    }
+}
+
+export class LoadingPlaceholderItem extends vscode.TreeItem {
+    constructor() {
+        super('Loading pipelines\u2026', vscode.TreeItemCollapsibleState.None);
+        this.iconPath     = new vscode.ThemeIcon('loading~spin');
+        this.contextValue = 'reslavaLoading';
+    }
+}
+
+export class EmptyStateItem extends vscode.TreeItem {
+    constructor() {
+        super('No pipelines \u2014 install REslava.Result.Flow', vscode.TreeItemCollapsibleState.None);
+        this.description  = 'or REslava.ResultFlow';
+        this.tooltip      = new vscode.MarkdownString(
+            'Add `[ResultFlow]` to your pipeline methods and build the project.\n\n' +
+            '**Track A** (REslava.Result users): `dotnet add package REslava.Result.Flow`\n\n' +
+            '**Track B** (any Result library): `dotnet add package REslava.ResultFlow`\n\n' +
+            '[See REslava.Result.Flow.Demo \u2192](https://github.com/reslava/nuget-package-reslava-result/tree/main/samples/REslava.Result.Flow.Demo)'
+        );
+        this.tooltip.isTrusted = true;
+        this.iconPath     = new vscode.ThemeIcon('info');
+        this.contextValue = 'reslavaEmpty';
+        this.command      = {
+            command:   'reslava.openDemo',
+            title:     'Open Demo on GitHub',
+            arguments: []
+        };
+    }
+}
+
+export class ErrorNode extends vscode.TreeItem {
+    constructor(readonly errorTypeName: string) {
+        super(errorTypeName, vscode.TreeItemCollapsibleState.None);
+        this.iconPath     = new vscode.ThemeIcon('warning',
+            new vscode.ThemeColor('testing.iconQueued'));  // amber
+        this.contextValue = 'reslavaError';
+        this.tooltip      = `Go to definition of ${errorTypeName}`;
+        // Opens workspace symbol search pre-filtered to this type name
+        this.command = {
+            command:   'workbench.action.quickOpen',
+            title:     'Go to Error Type',
+            arguments: ['#' + errorTypeName]
         };
     }
 }
@@ -339,6 +494,12 @@ function parseRegistryContent(content: string): Map<string, RegistryMethodInfo> 
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function truncateNamespace(ns: string): string {
+    if (!ns) { return ''; }
+    const parts = ns.split('.');
+    return parts.length <= 2 ? ns : parts.slice(0, 2).join('.');
+}
 
 function findOwnerProject(
     csPath: string,

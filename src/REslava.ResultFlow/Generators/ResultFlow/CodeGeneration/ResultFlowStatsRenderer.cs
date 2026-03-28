@@ -11,7 +11,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
     /// </summary>
     internal static class ResultFlowStatsRenderer
     {
-        public static string Render(IReadOnlyList<PipelineNode> nodes, string? rootLayer)
+        public static string Render(IReadOnlyList<PipelineNode> nodes, string? rootLayer, string? pipelineId = null)
         {
             int stepCount = 0;
             int asyncCount = 0;
@@ -24,6 +24,8 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             var sb = new StringBuilder();
             sb.AppendLine("| Property        | Value                                    |");
             sb.AppendLine("|-----------------|------------------------------------------|");
+            if (pipelineId != null)
+                sb.AppendLine($"| Pipeline ID     | {pipelineId,-40} |");
             sb.AppendLine($"| Steps           | {stepCount,-40} |");
             sb.AppendLine($"| Async steps     | {asyncCount,-40} |");
             sb.AppendLine($"| Possible errors | {(errors.Count > 0 ? string.Join(", ", errors) : "none"),-40} |");

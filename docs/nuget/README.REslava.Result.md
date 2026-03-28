@@ -52,6 +52,28 @@ return result.Match(
     onFailure: errors => Results.BadRequest(errors));
 ```
 
+## Pipeline Visualization — Choose Your Track
+
+| | Track A | Track B |
+|---|---|---|
+| **Use when** | Using REslava.Result | Any other Result library (ErrorOr, LanguageExt, FluentResults, custom) |
+| **Install** | `REslava.Result` + `REslava.Result.Flow` | `REslava.ResultFlow` |
+| **Analysis** | Full semantic — typed error edges, type travel, FAIL annotation, body scanning | Syntax-only — library-agnostic, convention file |
+| **Diagram constants** | `_Diagram` · `_TypeFlow` · `_LayerView` · `_Stats` · `_ErrorSurface` · `_ErrorPropagation` | `_Diagram` · `_TypeFlow` |
+
+**Track A (recommended with REslava.Result):**
+```bash
+dotnet add package REslava.Result
+dotnet add package REslava.Result.Flow
+```
+
+**Track B (library-agnostic):**
+```bash
+dotnet add package REslava.ResultFlow
+```
+
+**VS Code extension (both tracks):** Install [REslava.Result Extensions](https://marketplace.visualstudio.com/items?itemName=reslava.reslava-result-extensions) for the Flow Catalog sidebar and `▶ Open diagram preview` CodeLens.
+
 ## Quick Start
 
 ```bash

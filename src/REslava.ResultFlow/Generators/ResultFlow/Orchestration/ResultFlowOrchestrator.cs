@@ -137,7 +137,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                     if (!(group.Key is TypeDeclarationSyntax typeDecl)) continue;
 
                     var className = typeDecl.Identifier.ValueText;
-                    var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface)>();
+                    var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? typeFlow)>();
 
                     foreach (var (methodDecl, maxDepth, darkTheme, themeExplicitlySet) in group)
                     {
@@ -163,16 +163,24 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                         var entrySourceFile = entrySpan.Path;
                         var entrySourceLine = entrySpan.StartLinePosition.Line + 1; // 1-based for vscode://
 
-                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, linkMode: linkMode, darkTheme: effectiveDarkTheme, entrySourceFile: entrySourceFile, entrySourceLine: entrySourceLine);
+                        // Compute pipelineId (syntax-only) so diagram node IDs match registry _Info nodeIds
+                        var containingNs = ResultFlowChainExtractor.GetContainingNamespace(methodDecl);
+                        var pipelineId = ShortHash.Compute(
+                            containingNs,
+                            className,
+                            methodName,
+                            string.Join(",", methodDecl.ParameterList.Parameters.Select(p => p.Type?.ToString() ?? "")));
+
+                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, linkMode: linkMode, darkTheme: effectiveDarkTheme, entrySourceFile: entrySourceFile, entrySourceLine: entrySourceLine, pipelineId: pipelineId);
+                        var typeFlow = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, linkMode: linkMode, darkTheme: effectiveDarkTheme, entrySourceFile: entrySourceFile, entrySourceLine: entrySourceLine, pipelineId: pipelineId, typeLabels: true);
 
                         // Detect root method layer for LayerView / Stats
-                        var containingNs = ResultFlowChainExtractor.GetContainingNamespace(methodDecl);
                         var rootLayer = LayerDetector.Detect(methodDecl, containingNs);
-                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, linkMode: linkMode, darkTheme: effectiveDarkTheme);
-                        var stats = layerView != null ? ResultFlowStatsRenderer.Render(chain, rootLayer) : null;
-                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain, darkTheme: effectiveDarkTheme) : null;
+                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, linkMode: linkMode, darkTheme: effectiveDarkTheme, pipelineId: pipelineId);
+                        var stats = layerView != null ? ResultFlowStatsRenderer.Render(chain, rootLayer, pipelineId: pipelineId) : null;
+                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain, darkTheme: effectiveDarkTheme, pipelineId: pipelineId) : null;
 
-                        diagrams.Add((methodName, mermaid, layerView, stats, errorSurface));
+                        diagrams.Add((methodName, mermaid, layerView, stats, errorSurface, typeFlow));
                     }
 
                     if (diagrams.Count > 0)

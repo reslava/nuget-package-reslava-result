@@ -51,6 +51,8 @@
     <Compile Include="ResultFlowThemeTests.cs" />
     <Compile Include="ResultFlowDefaultThemeTests.cs" />
     <Compile Include="ResultFlowRegistryGeneratorTests.cs" />
+    <Compile Include="PipelineMetadataTests.cs" />
+    <Compile Include="TypeFlowTests.cs" />
   </ItemGroup>
 
   <ItemGroup>

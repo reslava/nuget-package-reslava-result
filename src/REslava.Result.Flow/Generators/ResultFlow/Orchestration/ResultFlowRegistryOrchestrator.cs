@@ -116,6 +116,18 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
             // Class name from syntax parent
             var className = (method.Parent as TypeDeclarationSyntax)?.Identifier.ValueText ?? "Unknown";
 
+            // Namespace
+            var ns = symbol.ContainingNamespace?.IsGlobalNamespace == true
+                ? ""
+                : (symbol.ContainingNamespace?.ToDisplayString() ?? "");
+
+            // PipelineId — deterministic hash of fully-qualified method signature + assembly name
+            var pipelineId = ShortHash.Compute(
+                symbol.ContainingType.ToDisplayString(),
+                symbol.ContainingAssembly?.Name ?? "",
+                symbol.Name,
+                string.Join(",", symbol.Parameters.Select(p => p.Type.ToDisplayString())));
+
             // MaxDepth from [ResultFlow] args
             var maxDepth = 2;
             if (hasDiagram)
@@ -136,15 +148,17 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
 
             return new MethodRegistryModel
             {
-                ClassName         = className,
-                MethodName        = symbol.Name,
-                SourceLine        = sourceLine,
-                ReturnType        = innerType,
+                ClassName          = className,
+                MethodName         = symbol.Name,
+                SourceLine         = sourceLine,
+                ReturnType         = innerType,
                 ReturnTypeFullName = symbol.ReturnType.ToDisplayString(),
-                IsAsync           = isAsync,
-                HasDiagram        = hasDiagram,
-                Syntax            = method,
-                MaxDepth          = maxDepth,
+                IsAsync            = isAsync,
+                HasDiagram         = hasDiagram,
+                Syntax             = method,
+                MaxDepth           = maxDepth,
+                PipelineId         = pipelineId,
+                Namespace          = ns,
             };
         }
     }
@@ -162,5 +176,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
         public bool   HasDiagram         { get; set; }
         public MethodDeclarationSyntax? Syntax { get; set; }
         public int    MaxDepth           { get; set; } = 2;
+        public string PipelineId         { get; set; } = "";
+        public string Namespace          { get; set; } = "";
     }
 }

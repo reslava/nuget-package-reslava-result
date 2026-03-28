@@ -6,7 +6,7 @@ namespace REslava.Result.Flow.Tests;
 
 /// <summary>
 /// Phase 3 tests for Block 3 (diagram delivery):
-/// #9 Clickable Mermaid nodes (click directives) and #8 Sidecar markdown constant.
+/// #9 Clickable Mermaid nodes (click directives).
 /// </summary>
 [TestClass]
 public class ResultFlowDiagramDeliveryTests
@@ -88,50 +88,4 @@ public class ResultFlowDiagramDeliveryTests
             "Backslashes must be converted to forward slashes in VS Code URI");
     }
 
-    // ── #8 Sidecar markdown constant ─────────────────────────────────────────
-
-    [TestMethod]
-    public void SidecarConstant_AlwaysGeneratedInOutput()
-    {
-        var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? errorPropagation)> { ("Process", "flowchart LR\n    N0_Process[\"Process\"]:::operation", null, null, null, null) };
-        var output = ResultFlowCodeGenerator.Generate("OrderService", diagrams).ToString();
-
-        Assert.IsTrue(output.Contains("Process_Sidecar"), "Sidecar constant must be generated");
-    }
-
-    [TestMethod]
-    public void SidecarConstant_ContainsMermaidFencedBlock()
-    {
-        var mermaid = "flowchart LR\n    N0_Op[\"Op\"]:::operation";
-        var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? errorPropagation)> { ("Op", mermaid, null, null, null, null) };
-        var output = ResultFlowCodeGenerator.Generate("MyService", diagrams).ToString();
-
-        Assert.IsTrue(output.Contains("```mermaid"), "Sidecar must contain mermaid fenced block");
-        Assert.IsTrue(output.Contains("# Pipeline"), "Sidecar must have a heading");
-    }
-
-    [TestMethod]
-    public void SidecarConstant_ContainsDiagramContent()
-    {
-        var mermaid = "flowchart LR\n    N0_FindUser[\"FindUser\"]:::operation";
-        var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? errorPropagation)> { ("FindUser", mermaid, null, null, null, null) };
-        var output = ResultFlowCodeGenerator.Generate("UserService", diagrams).ToString();
-
-        // The sidecar constant should contain the diagram content
-        Assert.IsTrue(output.Contains("FindUser_Sidecar"), "Sidecar constant name");
-        Assert.IsTrue(output.Contains("N0_FindUser"), "Sidecar must embed the diagram content");
-    }
-
-    [TestMethod]
-    public void DiagramConstant_UnaffectedBySidecarAddition()
-    {
-        // The original diagram constant must still be present alongside the sidecar
-        var mermaid = "flowchart LR\n    N0_Op[\"Op\"]:::operation";
-        var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? errorPropagation)> { ("Op", mermaid, null, null, null, null) };
-        var output = ResultFlowCodeGenerator.Generate("Service", diagrams).ToString();
-
-        // Both constants present
-        Assert.IsTrue(output.Contains("public const string Op ="), "Original diagram constant must still exist");
-        Assert.IsTrue(output.Contains("public const string Op_Sidecar ="), "Sidecar constant alongside it");
-    }
 }

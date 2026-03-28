@@ -18,7 +18,7 @@ public class ResultFlowLayerViewTests
 
         var output = RunGenerator(source);
 
-        Assert.IsFalse(output.Contains("_LayerView"), "No layer detected → _LayerView constant must not be emitted");
+        Assert.IsFalse(output.Contains("_LayerView ="), "No layer detected → _LayerView constant must not be emitted");
     }
 
     // ── 2. Domain layer → _LayerView emitted ─────────────────────────────────

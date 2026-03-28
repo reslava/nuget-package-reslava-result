@@ -2,7 +2,7 @@
   "name": "reslava-result-extensions",
   "displayName": "REslava.Result Extensions",
   "description": "CodeLens and diagram preview for [ResultFlow] pipelines",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "publisher": "reslava",
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/reslava/nuget-package-reslava-result" },
@@ -65,6 +65,64 @@
         "command": "reslava.goToSource",
         "title": "Go to Source",
         "icon": "$(go-to-file)"
+      },
+      {
+        "command": "reslava.installTrackA",
+        "title": "REslava: Install Track A (REslava.Result + REslava.Result.Flow)"
+      },
+      {
+        "command": "reslava.installTrackB",
+        "title": "REslava: Install Track B (REslava.ResultFlow)"
+      },
+      {
+        "command": "reslava.openDemo",
+        "title": "REslava: Open Demo on GitHub"
+      }
+    ],
+    "walkthroughs": [
+      {
+        "id": "reslava.gettingStarted",
+        "title": "Get started with REslava.Result Extensions",
+        "description": "Visualize your .NET Result pipelines in 3 steps.",
+        "steps": [
+          {
+            "id": "reslava.installPackage",
+            "title": "Install a ResultFlow NuGet package",
+            "description": "Choose your track:\n\n**Track A** — REslava.Result users:\n```\ndotnet add package REslava.Result\ndotnet add package REslava.Result.Flow\n```\n[Open terminal — Track A](command:reslava.installTrackA)\n\n**Track B** — Any other Result library (ErrorOr, LanguageExt, FluentResults):\n```\ndotnet add package REslava.ResultFlow\n```\n[Open terminal — Track B](command:reslava.installTrackB)\n\nWant to see a complete working example? **[REslava.Result.Flow.Demo](https://github.com/reslava/nuget-package-reslava-result/tree/main/samples/REslava.Result.Flow.Demo)** — a runnable sample covering every ResultFlow feature.\n[Open Demo on GitHub](command:reslava.openDemo)",
+            "media": {
+              "image": "images/icon.png",
+              "altText": "Install a ResultFlow NuGet package"
+            },
+            "completionEvents": [
+              "onCommand:reslava.installTrackA",
+              "onCommand:reslava.installTrackB"
+            ]
+          },
+          {
+            "id": "reslava.addAttribute",
+            "title": "Add [ResultFlow] to a pipeline method",
+            "description": "Annotate any fluent Result method:\n```csharp\n[ResultFlow]\npublic Result<UserDto> Register(RegisterCommand cmd) =>\n    CreateUser(cmd)\n        .Ensure(IsValid, new ValidationError(\"invalid\"))\n        .Bind(SaveUser)\n        .Map(ToDto);\n```\nThen **build your project** to generate the diagram constants.\n\nBuild from the terminal:\n```\ndotnet build\n```\n[Refresh Flow Catalog](command:reslava.refreshFlowCatalog)",
+            "media": {
+              "image": "images/icon.png",
+              "altText": "Add [ResultFlow] attribute and build"
+            },
+            "completionEvents": [
+              "onCommand:reslava.refreshFlowCatalog"
+            ]
+          },
+          {
+            "id": "reslava.openDiagram",
+            "title": "Open a diagram preview",
+            "description": "Click **▶ Open diagram preview** above any `[ResultFlow]` method, or browse the **⚡ Flow Catalog** in the Activity Bar sidebar.\n\nThe sidebar shows every pipeline grouped by project and class — click any method to open its diagram instantly.",
+            "media": {
+              "image": "images/icon.png",
+              "altText": "Open diagram preview"
+            },
+            "completionEvents": [
+              "onCommand:reslava._previewMethod"
+            ]
+          }
+        ]
       }
     ],
     "menus": {

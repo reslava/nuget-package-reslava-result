@@ -104,7 +104,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                     if (!(group.Key is TypeDeclarationSyntax typeDecl)) continue;
 
                     var className = typeDecl.Identifier.ValueText;
-                    var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? errorPropagation)>();
+                    var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? errorPropagation, string? typeFlow)>();
 
                     foreach (var (methodDecl, maxDepth, darkTheme, themeExplicitlySet) in group)
                     {
@@ -137,19 +137,29 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                         var entrySourceFile = entrySpan.Path;
                         var entrySourceLine = entrySpan.StartLinePosition.Line + 1; // 1-based for vscode://
 
-                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, operationName: opName, correlationId: corrId, linkMode: linkMode, darkTheme: effectiveDarkTheme, entrySourceFile: entrySourceFile, entrySourceLine: entrySourceLine);
-
-                        // Detect root method layer for LayerView / Stats
+                        // Compute pipelineId so diagram node IDs match registry _Info nodeIds
                         string? rootLayer = null;
                         var rootSymbol = semanticModel.GetDeclaredSymbol(methodDecl) as Microsoft.CodeAnalysis.IMethodSymbol;
+                        var pipelineId = rootSymbol != null
+                            ? ShortHash.Compute(
+                                rootSymbol.ContainingType.ToDisplayString(),
+                                rootSymbol.ContainingAssembly?.Name ?? "",
+                                rootSymbol.Name,
+                                string.Join(",", rootSymbol.Parameters.Select(p => p.Type.ToDisplayString())))
+                            : ShortHash.Compute(className, methodName);
+
+                        var mermaid = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, operationName: opName, correlationId: corrId, linkMode: linkMode, darkTheme: effectiveDarkTheme, entrySourceFile: entrySourceFile, entrySourceLine: entrySourceLine, pipelineId: pipelineId);
+                        var typeFlow = ResultFlowMermaidRenderer.Render(chain, methodTitle: methodName, seedMethodName: seedMethodName, operationName: opName, correlationId: corrId, linkMode: linkMode, darkTheme: effectiveDarkTheme, entrySourceFile: entrySourceFile, entrySourceLine: entrySourceLine, pipelineId: pipelineId, typeLabels: true);
+
+                        // Detect root method layer for LayerView / Stats
                         if (rootSymbol != null)
                             rootLayer = LayerDetector.Detect(rootSymbol);
-                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, opName, linkMode, darkTheme: effectiveDarkTheme);
-                        var stats = layerView != null ? ResultFlowStatsRenderer.Render(chain, rootLayer) : null;
-                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain, darkTheme: effectiveDarkTheme) : null;
-                        var errorPropagation = layerView != null ? ResultFlowErrorPropagationRenderer.Render(chain, rootLayer, darkTheme: effectiveDarkTheme) : null;
+                        var layerView = ResultFlowLayerViewRenderer.Render(chain, methodName, className, rootLayer, opName, linkMode, darkTheme: effectiveDarkTheme, pipelineId: pipelineId);
+                        var stats = layerView != null ? ResultFlowStatsRenderer.Render(chain, rootLayer, pipelineId: pipelineId) : null;
+                        var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain, darkTheme: effectiveDarkTheme, pipelineId: pipelineId) : null;
+                        var errorPropagation = layerView != null ? ResultFlowErrorPropagationRenderer.Render(chain, rootLayer, darkTheme: effectiveDarkTheme, pipelineId: pipelineId) : null;
 
-                        diagrams.Add((methodName, mermaid, layerView, stats, errorSurface, errorPropagation));
+                        diagrams.Add((methodName, mermaid, layerView, stats, errorSurface, errorPropagation, typeFlow));
                     }
 
                     if (diagrams.Count > 0)

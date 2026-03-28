@@ -39,8 +39,6 @@
     <!-- CRITICAL: Source Generator Configuration -->
     <!-- This tells NuGet this is a development-only dependency -->
     <DevelopmentDependency>true</DevelopmentDependency>
-    <!-- Suppress dependency on .NET Standard 2.0 -->
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
   </PropertyGroup>
 
   <!-- Include README and icon in package -->
@@ -51,18 +49,21 @@
     <Content Include="MapToProblemDetailsAttribute.cs" Pack="true" PackagePath="content" />
   </ItemGroup>
 
-  <!-- Package Dependencies -->
-  <!-- CRITICAL: Core package is needed at compile time for the generator -->
+  <!-- Runtime dependency — consumers of this package also need REslava.Result -->
   <ItemGroup>
-    <PackageReference Include="REslava.Result.SourceGenerators.Core" Version="1.9.0" PrivateAssets="all" GeneratePathProperty="true" />
+    <ProjectReference Include="..\REslava.Result\REslava.Result.csproj" />
+  </ItemGroup>
+
+  <!-- Package Dependencies -->
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.12.0-beta1.25218.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.0.4" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- CRITICAL: Package this as a Source Generator -->

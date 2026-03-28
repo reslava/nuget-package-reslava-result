@@ -14,7 +14,7 @@ public class ResultFlowErrorPropagationTests
         var source = CreateNoLayerSource();
         var output = RunGenerator(source);
 
-        Assert.IsFalse(output.Contains("_ErrorPropagation"),
+        Assert.IsFalse(output.Contains("_ErrorPropagation ="),
             "_ErrorPropagation must not be emitted when no layer is detected");
     }
 
@@ -107,7 +107,7 @@ public class ResultFlowErrorPropagationTests
         var output = RunGenerator(source);
 
         Assert.IsTrue(output.Contains("PlaceOrder_LayerView"), "_LayerView must be emitted (prerequisite)");
-        Assert.IsFalse(output.Contains("_ErrorPropagation"),
+        Assert.IsFalse(output.Contains("_ErrorPropagation ="),
             "_ErrorPropagation must not be emitted when no errors found in any layer");
     }
 

@@ -11,7 +11,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
     /// </summary>
     internal static class ResultFlowErrorSurfaceRenderer
     {
-        public static string? Render(IReadOnlyList<PipelineNode> nodes, bool darkTheme = false)
+        public static string? Render(IReadOnlyList<PipelineNode> nodes, bool darkTheme = false, string? pipelineId = null)
         {
             var failEdges = new List<(string nodeLabel, string errorLabel)>();
             Collect(nodes, failEdges);
@@ -22,6 +22,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             var sb = new StringBuilder();
             sb.AppendLine(ResultFlowThemes.MermaidInit);
             sb.AppendLine("flowchart LR");
+            if (pipelineId != null)
+                sb.AppendLine($"%% pipelineId: {pipelineId}");
 
             for (int i = 0; i < failEdges.Count; i++)
             {

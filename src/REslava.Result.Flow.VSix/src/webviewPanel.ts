@@ -20,18 +20,24 @@ export function notifyAllPanels(message: object): void {
 export function showWebviewPanel(
     methodName: string,
     diagram: string,
-    extensionUri: vscode.Uri
+    extensionUri: vscode.Uri,
+    typeFlow:         string | null = null,
+    layerView:        string | null = null,
+    stats:            string | null = null,
+    errorSurface:     string | null = null,
+    errorPropagation: string | null = null
 ): void {
     const mode = getMode();
+    const extra = { typeFlow, layerView, stats, errorSurface, errorPropagation };
 
     if (mode === 'single') {
         if (singlePanel) {
             singlePanel.title = `Pipeline: ${methodName}`;
             singlePanel.reveal(singlePanel.viewColumn ?? vscode.ViewColumn.Beside);
-            singlePanel.webview.postMessage({ command: 'update', diagram, methodName });
+            singlePanel.webview.postMessage({ command: 'update', diagram, methodName, ...extra });
             return;
         }
-        singlePanel = createPanel(methodName, diagram, extensionUri, mode);
+        singlePanel = createPanel(methodName, diagram, extensionUri, mode, extra);
         singlePanel.onDidDispose(() => { singlePanel = undefined; });
         return;
     }
@@ -40,19 +46,28 @@ export function showWebviewPanel(
     const existing = panels.get(methodName);
     if (existing) {
         existing.reveal(existing.viewColumn ?? vscode.ViewColumn.Beside);
-        existing.webview.postMessage({ command: 'update', diagram });
+        existing.webview.postMessage({ command: 'update', diagram, ...extra });
         return;
     }
-    const panel = createPanel(methodName, diagram, extensionUri, mode);
+    const panel = createPanel(methodName, diagram, extensionUri, mode, extra);
     panel.onDidDispose(() => panels.delete(methodName));
     panels.set(methodName, panel);
+}
+
+interface ExtraViews {
+    typeFlow?:         string | null;
+    layerView?:        string | null;
+    stats?:            string | null;
+    errorSurface?:     string | null;
+    errorPropagation?: string | null;
 }
 
 function createPanel(
     methodName: string,
     diagram: string,
     extensionUri: vscode.Uri,
-    mode: 'single' | 'multiple'
+    mode: 'single' | 'multiple',
+    extra: ExtraViews = {}
 ): vscode.WebviewPanel {
     const panel = vscode.window.createWebviewPanel(
         'reslava.resultFlow',
@@ -64,7 +79,7 @@ function createPanel(
             retainContextWhenHidden: true
         }
     );
-    panel.webview.html = buildHtml(diagram, methodName, panel.webview, extensionUri, mode);
+    panel.webview.html = buildHtml(diagram, methodName, panel.webview, extensionUri, mode, extra);
     panel.webview.onDidReceiveMessage(async (msg) => {
         if (msg.command === 'navigate') {
             await navigateToVscodeUri(msg.href);
@@ -83,8 +98,18 @@ function createPanel(
 
 // Posts a diagram update to an already-open panel (used by auto-refresh on save).
 // No-op if the panel is not open.
-export function refreshWebviewPanel(methodName: string, diagram: string): void {
-    panels.get(methodName)?.webview.postMessage({ command: 'update', diagram });
+export function refreshWebviewPanel(
+    methodName: string,
+    diagram: string,
+    typeFlow:         string | null = null,
+    layerView:        string | null = null,
+    stats:            string | null = null,
+    errorSurface:     string | null = null,
+    errorPropagation: string | null = null
+): void {
+    const msg = { command: 'update', diagram, typeFlow, layerView, stats, errorSurface, errorPropagation };
+    singlePanel?.webview.postMessage(msg);
+    panels.get(methodName)?.webview.postMessage(msg);
 }
 
 // Returns true if a panel for the given method is currently open.
@@ -104,14 +129,22 @@ function buildHtml(
     methodName: string,
     webview: vscode.Webview,
     extensionUri: vscode.Uri,
-    mode: 'single' | 'multiple' = 'single'
+    mode: 'single' | 'multiple' = 'single',
+    extra: ExtraViews = {}
 ): string {
+    const { typeFlow = null, layerView = null, stats = null,
+            errorSurface = null, errorPropagation = null } = extra;
     const mermaidUri = webview.asWebviewUri(
         vscode.Uri.joinPath(extensionUri, 'media', 'mermaid.min.js')
     );
     const nonce = getNonce();
-    // JSON.stringify escapes the diagram string safely for embedding in JavaScript.
-    const diagramJson = JSON.stringify(diagram);
+    // JSON.stringify escapes both strings safely for embedding in JavaScript.
+    const diagramJson      = JSON.stringify(diagram);
+    const typeFlowJson     = JSON.stringify(typeFlow);
+    const layerViewJson    = JSON.stringify(layerView);
+    const statsJson        = JSON.stringify(stats);
+    const errorSurfaceJson = JSON.stringify(errorSurface);
+    const errorPropJson    = JSON.stringify(errorPropagation);
 
     const isDark = detectTheme(diagram) === 'dark';
     // Page background follows ResultFlowDefaultTheme — white for light, dark for dark.
@@ -221,6 +254,11 @@ function buildHtml(
   <div class="toolbar">
     <button class="tb-btn" id="btn-source">Source</button>
     <button class="tb-btn" id="btn-legend">Legend</button>
+    <button class="tb-btn" id="btn-types"     title="Type-flow view"${typeFlow     ? '' : ' disabled style="opacity:0.4;cursor:default"'}>Types</button>
+    <button class="tb-btn" id="btn-layer"     title="Layer view"${layerView        ? '' : ' disabled style="opacity:0.4;cursor:default"'}>Layer</button>
+    <button class="tb-btn" id="btn-errors"    title="Error surface"${errorSurface  ? '' : ' disabled style="opacity:0.4;cursor:default"'}>Errors</button>
+    <button class="tb-btn" id="btn-errorprop" title="Error propagation"${errorPropagation ? '' : ' disabled style="opacity:0.4;cursor:default"'}>Prop</button>
+    <button class="tb-btn" id="btn-stats"     title="Pipeline statistics"${stats   ? '' : ' disabled style="opacity:0.4;cursor:default"'}>Stats</button>
     <button class="tb-btn" id="btn-svg"    title="Export as SVG">SVG</button>
     <button class="tb-btn" id="btn-png"    title="Export as PNG (2x)">PNG</button>
     <button class="tb-btn" id="btn-mode"   title="Toggle single/multiple window mode">${mode === 'single' ? 'Single' : 'Multi'}</button>
@@ -237,6 +275,10 @@ function buildHtml(
     <pre id="source-pre"></pre>
   </div>
 
+  <div id="stats-panel" class="cpanel">
+    <pre id="stats-pre" style="font-size:12px;font-family:monospace;white-space:pre-wrap;margin:0"></pre>
+  </div>
+
   <div id="legend-panel" class="cpanel">
     <div class="legend-grid">
       ${sw(P.op)}<span class="legend-label">Root — pipeline entry point</span>
@@ -249,13 +291,24 @@ function buildHtml(
     </div>
     <div class="legend-hints">
       &#x1F5B1; <b>Hover</b> a Gatekeeper node to see its predicate<br>
-      &#x1F5B1; <b>Click</b> any node to navigate to that line in source
+      &#x1F5B1; <b>Click</b> any node to navigate to that line in source<br>
+      &#x26A1; = async &nbsp;|&nbsp; FAIL: 1&#x2013;3 errors inline &nbsp;|&nbsp; 4+ as &#x2139;&#xFE0F; tooltip
+    </div>
+    <div class="legend-hints" style="margin-top:6px">
+      <b>Constants:</b> _Diagram &nbsp;&#xB7;&nbsp; _TypeFlow &nbsp;&#xB7;&nbsp; _LayerView &nbsp;&#xB7;&nbsp; _Stats &nbsp;&#xB7;&nbsp; _ErrorSurface &nbsp;&#xB7;&nbsp; _ErrorPropagation
     </div>
   </div>
 
   <script nonce="${nonce}">
   (async function () {
-    const diagram = ${diagramJson};
+    let diagram      = ${diagramJson};
+    let typeFlow     = ${typeFlowJson};
+    let layerView    = ${layerViewJson};
+    let stats        = ${statsJson};
+    let errorSurface = ${errorSurfaceJson};
+    let errorProp    = ${errorPropJson};
+    let currentView  = 'diagram'; // 'diagram' | 'typeflow' | 'layer' | 'errors' | 'errorprop'
+
     const el      = document.querySelector('.mermaid');
     const vscode  = acquireVsCodeApi();
 
@@ -270,8 +323,6 @@ function buildHtml(
     }
 
     // ── Toolbar panel toggles ────────────────────────────────────────────────
-    // getComputedStyle reads the actual CSS value — panel.style.display is ''
-    // (empty) until set via JS, so checking it directly would always be falsy.
     function togglePanel(panelId, btnId) {
       const panel = document.getElementById(panelId);
       const btn   = document.getElementById(btnId);
@@ -283,6 +334,48 @@ function buildHtml(
       togglePanel('source-panel', 'btn-source'));
     document.getElementById('btn-legend').addEventListener('click', () =>
       togglePanel('legend-panel', 'btn-legend'));
+    document.getElementById('btn-stats').addEventListener('click', () => {
+      if (!stats) { return; }
+      document.getElementById('stats-pre').textContent = stats;
+      togglePanel('stats-panel', 'btn-stats');
+    });
+
+    // ── Diagram view switching (radio: only one active at a time) ────────────
+    const VIEW_MAP = {
+      'btn-types':     () => typeFlow,
+      'btn-layer':     () => layerView,
+      'btn-errors':    () => errorSurface,
+      'btn-errorprop': () => errorProp,
+    };
+    const VIEW_KEYS = {
+      'btn-types': 'typeflow', 'btn-layer': 'layer',
+      'btn-errors': 'errors',  'btn-errorprop': 'errorprop'
+    };
+
+    function clearViewBtns() {
+      Object.keys(VIEW_MAP).forEach(id => document.getElementById(id)?.classList.remove('active'));
+    }
+
+    async function activateView(btnId) {
+      const content = VIEW_MAP[btnId]?.();
+      if (!content) { return; }
+      const viewKey = VIEW_KEYS[btnId];
+      if (currentView === viewKey) {
+        // toggle off → back to main diagram
+        currentView = 'diagram';
+        clearViewBtns();
+        await renderDiagram(diagram);
+      } else {
+        currentView = viewKey;
+        clearViewBtns();
+        document.getElementById(btnId).classList.add('active');
+        await renderDiagram(content);
+      }
+    }
+
+    Object.keys(VIEW_MAP).forEach(btnId => {
+      document.getElementById(btnId)?.addEventListener('click', () => activateView(btnId));
+    });
 
     // ── Copy source ───────────────────────────────────────────────────────────
     document.getElementById('btn-copy').addEventListener('click', () => {
@@ -370,7 +463,25 @@ function buildHtml(
         if (msg.methodName) {
           document.querySelector('.method-name').textContent = '▶ ' + msg.methodName;
         }
-        await renderDiagram(msg.diagram);
+        // Reset to main diagram view and update all constants
+        currentView      = 'diagram';
+        diagram          = msg.diagram;
+        typeFlow         = msg.typeFlow         ?? null;
+        layerView        = msg.layerView        ?? null;
+        stats            = msg.stats            ?? null;
+        errorSurface     = msg.errorSurface     ?? null;
+        errorProp        = msg.errorPropagation ?? null;
+        clearViewBtns();
+        // Sync disabled states for view buttons
+        const viewBtnStates = {
+          'btn-types': typeFlow, 'btn-layer': layerView,
+          'btn-errors': errorSurface, 'btn-errorprop': errorProp, 'btn-stats': stats
+        };
+        Object.entries(viewBtnStates).forEach(([id, val]) => {
+          const b = document.getElementById(id);
+          if (b) { b.disabled = !val; b.style.opacity = val ? '' : '0.4'; b.style.cursor = val ? '' : 'default'; }
+        });
+        await renderDiagram(diagram);
       } else if (msg.command === 'windowModeChanged') {
         document.getElementById('btn-mode').textContent = msg.mode === 'single' ? 'Single' : 'Multi';
       }

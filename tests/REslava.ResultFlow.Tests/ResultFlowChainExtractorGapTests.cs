@@ -104,8 +104,9 @@ public class ResultFlowChainExtractorGapTests
             "GetResult(cmd).SelectAsync(ToDto)");
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("SelectAsync"),
-            "SelectAsync should appear as a pipeline node");
+        // "Async" suffix stripped in labels → rendered as "Select⚡"
+        Assert.IsTrue(output.Contains("Select\u26a1"),
+            "SelectAsync should appear as a pipeline node (rendered as Select⚡)");
         Assert.IsTrue(output.Contains("map"),
             "SelectAsync maps to PureTransform (map class)");
     }
@@ -117,8 +118,9 @@ public class ResultFlowChainExtractorGapTests
             "GetResult(cmd).WhereAsync(IsValid)");
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("WhereAsync"),
-            "WhereAsync should appear as a pipeline node");
+        // "Async" suffix stripped in labels → rendered as "Where⚡"
+        Assert.IsTrue(output.Contains("Where\u26a1"),
+            "WhereAsync should appear as a pipeline node (rendered as Where⚡)");
         Assert.IsTrue(output.Contains("gatekeeper"),
             "WhereAsync maps to Gatekeeper");
         Assert.IsTrue(output.Contains("fail"),
@@ -147,9 +149,9 @@ public class ResultFlowChainExtractorGapTests
             "GetResult(cmd).Bind(Handle).SelectAsync(ToDto).WhereAsync(IsValid)");
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("Bind"),        "Bind node present");
-        Assert.IsTrue(output.Contains("SelectAsync"), "SelectAsync node present");
-        Assert.IsTrue(output.Contains("WhereAsync"),  "WhereAsync node present");
+        Assert.IsTrue(output.Contains("Bind"),          "Bind node present");
+        Assert.IsTrue(output.Contains("Select\u26a1"), "SelectAsync node present (rendered as Select⚡)");
+        Assert.IsTrue(output.Contains("Where\u26a1"),  "WhereAsync node present (rendered as Where⚡)");
     }
 
     // ── Gap 3 — Variable-assignment chain root ────────────────────────────────
@@ -252,8 +254,8 @@ namespace TestNamespace
 }";
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("Handle"),   "Lambda body 'Handle' extracted (Gap 1)");
-        Assert.IsTrue(output.Contains("MapAsync"), "Async step present");
+        Assert.IsTrue(output.Contains("Handle"),         "Lambda body 'Handle' extracted (Gap 1)");
+        Assert.IsTrue(output.Contains("Map\u26a1"),      "Async step present (MapAsync rendered as Map⚡)");
         Assert.IsTrue(output.Contains("fail"),     "Fail edge from Bind kind");
         Assert.IsTrue(output.Contains("flowchart"),"Diagram generated (Gap 3)");
     }

@@ -84,6 +84,16 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
             // Stored as 1-based so VSIX can do (sourceLine - 1) to get the 0-based line
             var sourceLine = method.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
 
+            // Namespace — walk syntax parent chain
+            var ns = GetNamespaceFromSyntax(method);
+
+            // PipelineId — deterministic hash from syntax-level identity
+            var pipelineId = ShortHash.Compute(
+                ns,
+                className,
+                method.Identifier.ValueText,
+                string.Join(",", method.ParameterList.Parameters.Select(p => p.Type?.ToString() ?? "")));
+
             // Detect async wrapper (Task/ValueTask)
             var isAsync = IsWrappedInAsync(method.ReturnType);
 
@@ -123,7 +133,24 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                 HasDiagram         = hasDiagram,
                 Syntax             = method,
                 MaxDepth           = maxDepth,
+                PipelineId         = pipelineId,
+                Namespace          = ns,
             };
+        }
+
+        private static string GetNamespaceFromSyntax(MethodDeclarationSyntax method)
+        {
+            var parts = new System.Collections.Generic.List<string>();
+            var current = method.Parent?.Parent;
+            while (current != null)
+            {
+                if (current is Microsoft.CodeAnalysis.CSharp.Syntax.NamespaceDeclarationSyntax ns)
+                    parts.Insert(0, ns.Name.ToString());
+                else if (current is Microsoft.CodeAnalysis.CSharp.Syntax.FileScopedNamespaceDeclarationSyntax fns)
+                    parts.Insert(0, fns.Name.ToString());
+                current = current.Parent;
+            }
+            return string.Join(".", parts);
         }
 
         private static bool IsWrappedInAsync(TypeSyntax typeSyntax)
@@ -169,5 +196,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
         public bool   HasDiagram         { get; set; }
         public MethodDeclarationSyntax? Syntax { get; set; }
         public int    MaxDepth           { get; set; } = 2;
+        public string PipelineId         { get; set; } = "";
+        public string Namespace          { get; set; } = "";
     }
 }

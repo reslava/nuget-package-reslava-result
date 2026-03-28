@@ -152,10 +152,11 @@ public class ResultFlowCrossMethodTests
         var output = RunGenerator(source);
 
         Assert.IsTrue(output.Contains("subgraph"), "First level (Validate) should expand into subgraph");
-        // Each subgraph appears twice: once in the diagram constant, once in the _Sidecar constant.
-        // 1 subgraph × 2 = 2 occurrences of "subgraph sg_". DeepCheck expanding would give 4.
-        var sgCount = CountOccurrences(output, "subgraph sg_");
-        Assert.IsTrue(sgCount <= 2, $"Expected ≤2 'subgraph sg_' occurrences (1 subgraph × sidecar), got {sgCount}");
+        // Exactly 1 subgraph in the diagram — DeepCheck expanding would give 2+.
+        // Deduplicate lines: _Diagram and _TypeFlow emit identical content; collapsing prevents false doubling.
+        var deduped = string.Join("\n", output.Split('\n').Distinct());
+        var sgCount = CountOccurrences(deduped, "subgraph sg_");
+        Assert.AreEqual(1, sgCount, $"Expected exactly 1 'subgraph sg_' occurrence, got {sgCount}");
     }
 
     // ── 9. Cross-class qualified call (x => SomeClass.Method(x)) expands ────

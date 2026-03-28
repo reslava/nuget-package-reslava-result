@@ -41,6 +41,22 @@ Build Railway-Oriented pipelines with strongly typed errors and automatically ge
 
     [→ ResultFlow](resultflow){ .md-button }
 
+!!! info "⚡ Quick start — Pipeline Visualization"
+    Choose your track based on which Result library you use:
+
+    | | Track A | Track B |
+    |---|---|---|
+    | **Use when** | Using REslava.Result | Any other Result library — ErrorOr, LanguageExt, FluentResults, or custom |
+    | **Install** | `REslava.Result` + `REslava.Result.Flow` | `REslava.ResultFlow` |
+    | **Analysis** | Full semantic — typed error edges, type travel, FAIL annotation, body scanning | Syntax-only — library-agnostic, convention file |
+    | **Diagram constants** | `_Diagram` · `_TypeFlow` · `_LayerView` · `_Stats` · `_ErrorSurface` · `_ErrorPropagation` | `_Diagram` · `_TypeFlow` |
+
+    **Track A:**  `dotnet add package REslava.Result` + `dotnet add package REslava.Result.Flow`
+
+    **Track B:**  `dotnet add package REslava.ResultFlow`
+
+    **VS Code extension (both tracks):** [REslava.Result Extensions](https://marketplace.visualstudio.com/items?itemName=reslava.reslava-result-extensions) — Flow Catalog sidebar + `▶ Open diagram preview` CodeLens.
+
 !!! note "📚 New to functional programming? Start with the progressive tutorial series."
     9 self-contained lessons that teach **functional & railway-oriented programming** step by step — from plain C# exceptions all the way to async pipelines and ASP.NET. Each lesson is a standalone `dotnet run`, no setup required.
 

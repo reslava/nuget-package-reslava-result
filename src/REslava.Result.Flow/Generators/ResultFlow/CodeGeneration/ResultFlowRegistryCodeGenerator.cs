@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using REslava.Result.Flow.Generators.ResultFlow.Models;
 using REslava.Result.Flow.Generators.ResultFlow.Orchestration;
@@ -53,16 +54,29 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
 
                     if (chain != null)
                     {
-                        var nodeCount   = chain.Count(n => n.Kind != NodeKind.Invisible);
-                        var errorTypes  = chain.SelectMany(n => CollectErrors(n)).Distinct().ToList();
-                        var kindFlags   = chain
-                            .Where(n => n.Kind != NodeKind.Invisible)
+                        var visibleNodes = chain.Where(n => n.Kind != NodeKind.Invisible).ToList();
+                        var nodeCount    = visibleNodes.Count;
+                        var chainErrors  = chain.SelectMany(n => CollectErrors(n));
+                        // Depth-2 body scan: catches errors in seed methods and Match-terminal
+                        // pipelines where the chain walker cannot reach the errors.
+                        var bodyErrors   = ScanBodyForErrors(
+                            method.Syntax,
+                            semanticModel,
+                            compilation,
+                            iErrorSymbol,
+                            remainingDepth: 2,
+                            visited: new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal));
+                        var errorTypes   = chainErrors.Concat(bodyErrors).Distinct().ToList();
+                        var kindFlags    = visibleNodes
                             .Select(n => KindToFlag(n.Kind))
                             .Where(f => f != null)
                             .Distinct()
                             .ToList();
+                        var nodeIds = visibleNodes
+                            .Select((n, i) => ShortHash.Compute(method.PipelineId, n.MethodName, i.ToString()))
+                            .ToList();
 
-                        infoJson = BuildFullInfo(method, nodeCount, errorTypes, kindFlags!);
+                        infoJson = BuildFullInfo(method, nodeCount, errorTypes, kindFlags!, nodeIds);
                     }
                     else
                     {
@@ -93,17 +107,22 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             MethodRegistryModel method,
             int nodeCount,
             IReadOnlyList<string> errorTypes,
-            IReadOnlyList<string> kindFlags)
+            IReadOnlyList<string> kindFlags,
+            IReadOnlyList<string> nodeIds)
         {
-            var errorArr = ToJsonArray(errorTypes);
-            var kindArr  = ToJsonArray(kindFlags);
+            var errorArr  = ToJsonArray(errorTypes);
+            var kindArr   = ToJsonArray(kindFlags);
+            var nodeIdArr = ToJsonArray(nodeIds);
             return
-                $"{{\"sourceLine\":{method.SourceLine}," +
+                $"{{\"pipelineId\":\"{method.PipelineId}\"," +
+                $"\"namespace\":\"{EscapeJson(method.Namespace)}\"," +
+                $"\"sourceLine\":{method.SourceLine}," +
                 $"\"returnType\":\"{method.ReturnType}\"," +
                 $"\"returnTypeFullName\":\"{EscapeJson(method.ReturnTypeFullName)}\"," +
                 $"\"isAsync\":{BoolStr(method.IsAsync)}," +
                 $"\"hasDiagram\":true," +
                 $"\"nodeCount\":{nodeCount}," +
+                $"\"nodeIds\":{nodeIdArr}," +
                 $"\"errorTypes\":{errorArr}," +
                 $"\"nodeKindFlags\":{kindArr}}}";
         }
@@ -111,7 +130,9 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
         private static string BuildMinimalInfo(MethodRegistryModel method, bool hasDiagram)
         {
             return
-                $"{{\"sourceLine\":{method.SourceLine}," +
+                $"{{\"pipelineId\":\"{method.PipelineId}\"," +
+                $"\"namespace\":\"{EscapeJson(method.Namespace)}\"," +
+                $"\"sourceLine\":{method.SourceLine}," +
                 $"\"returnType\":\"{method.ReturnType}\"," +
                 $"\"returnTypeFullName\":\"{EscapeJson(method.ReturnTypeFullName)}\"," +
                 $"\"isAsync\":{BoolStr(method.IsAsync)}," +
@@ -131,6 +152,48 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 foreach (var sub in node.SubNodes)
                     foreach (var e in CollectErrors(sub))
                         yield return e;
+        }
+
+        /// <summary>
+        /// Depth-2 body scan: finds all <c>new XxxError(...)</c> instantiations where the type
+        /// implements <c>IError</c>, then recurses into called methods up to
+        /// <paramref name="remainingDepth"/> levels. Catches errors in seed methods and
+        /// Match-terminal pipelines that the chain walker cannot reach.
+        /// </summary>
+        private static IEnumerable<string> ScanBodyForErrors(
+            MethodDeclarationSyntax method,
+            SemanticModel semanticModel,
+            Compilation compilation,
+            INamedTypeSymbol iErrorSymbol,
+            int remainingDepth,
+            System.Collections.Generic.HashSet<string> visited)
+        {
+            // Use file path + method name as cycle-guard key
+            var key = method.SyntaxTree.FilePath + "|" + method.Identifier.ValueText;
+            if (!visited.Add(key)) yield break;
+
+            // Scan for `new XxxError(...)` whose type implements IError
+            foreach (var creation in method.DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
+            {
+                var typeSymbol = semanticModel.GetTypeInfo(creation).Type as INamedTypeSymbol;
+                if (typeSymbol != null && ResultTypeExtractor.ImplementsInterface(typeSymbol, iErrorSymbol))
+                    yield return typeSymbol.Name;
+            }
+
+            if (remainingDepth <= 0) yield break;
+
+            // Descend into called methods that have a local source declaration
+            foreach (var invocation in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
+            {
+                if (!(semanticModel.GetSymbolInfo(invocation).Symbol is IMethodSymbol calledSymbol)) continue;
+                var syntaxRef = calledSymbol.DeclaringSyntaxReferences.FirstOrDefault();
+                if (syntaxRef == null) continue;
+                var calledDecl = syntaxRef.GetSyntax() as MethodDeclarationSyntax;
+                if (calledDecl == null) continue;
+                var calledModel = compilation.GetSemanticModel(calledDecl.SyntaxTree);
+                foreach (var e in ScanBodyForErrors(calledDecl, calledModel, compilation, iErrorSymbol, remainingDepth - 1, visited))
+                    yield return e;
+            }
         }
 
         /// <summary>

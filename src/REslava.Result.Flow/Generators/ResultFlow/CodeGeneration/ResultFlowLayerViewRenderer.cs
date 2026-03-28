@@ -20,7 +20,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             string? rootLayer,
             string? operationName = null,
             string? linkMode = null,
-            bool darkTheme = false)
+            bool darkTheme = false,
+            string? pipelineId = null)
         {
             // Collect direct subgraph nodes (depth-1 cross-method calls)
             var subMethods = CollectSubMethods(nodes);
@@ -41,6 +42,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
 
             sb.AppendLine(ResultFlowThemes.MermaidInit);
             sb.AppendLine("flowchart TD");
+            if (pipelineId != null)
+                sb.AppendLine($"%% pipelineId: {pipelineId}");
             sb.AppendLine();
 
             // ── Build layer → class → [(nodeId, methodName, classDefName)] map ──

@@ -170,10 +170,12 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
                 if (op != null && kind != NodeKind.PureTransform && kind != NodeKind.Invisible && iErrorSymbol != null)
                     possibleErrors = ResultTypeExtractor.GetPossibleErrors(op, compilation, iErrorSymbol);
 
-                // Source location for clickable Mermaid nodes
+                // Source location for clickable Mermaid nodes — use the method name token
+                // (MemberAccess.Name) so vertical fluent chains point to the correct line,
+                // not the start of the whole invocation expression.
                 string? sourceFile = null;
                 int? sourceLine = null;
-                var loc = invSyntax.GetLocation().GetLineSpan();
+                var loc = memberAccess.Name.GetLocation().GetLineSpan();
                 if (loc.IsValid && !string.IsNullOrEmpty(loc.Path))
                 {
                     sourceFile = loc.Path;

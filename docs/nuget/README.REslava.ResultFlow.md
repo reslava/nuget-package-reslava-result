@@ -1,12 +1,12 @@
 # REslava.ResultFlow
 
-**Library-agnostic** source generator for automatic Mermaid pipeline diagrams — works with any fluent Result library.
+**Track B — Library-agnostic** source generator for automatic Mermaid pipeline diagrams — works with any fluent Result library.
 
 Add `[ResultFlow]` to any fluent method → the diagram is **injected as a comment** by the IDE code action (no build needed), or accessed as a `const string` after build. Zero runtime overhead. Zero manual maintenance.
 
-Ships with a **built-in convention dictionary** pre-configured for **REslava.Result**, **ErrorOr**, **LanguageExt**, and **FluentResults**. Any other library can be supported by adding a `resultflow.json` file to your project.
+Ships with a **built-in convention dictionary** pre-configured for **REslava.Result**, **ErrorOr**, **LanguageExt**, and **FluentResults**. Any other library can be supported by adding a `resultflow.json` file to your project. Generates `_Diagram` and `_TypeFlow` constants.
 
-> Using **REslava.Result**? Consider [`REslava.Result.Flow`](https://www.nuget.org/packages/REslava.Result.Flow) for richer diagrams with typed error edges and full semantic analysis.
+> Using **REslava.Result**? Use **Track A** — [`REslava.Result.Flow`](https://www.nuget.org/packages/REslava.Result.Flow) — for richer diagrams: typed error edges from body scanning, full type travel, and the complete constant set (`_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation`).
 
 ## Installation
 

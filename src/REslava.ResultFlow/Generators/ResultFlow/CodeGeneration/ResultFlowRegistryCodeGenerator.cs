@@ -41,7 +41,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                 string infoJson;
                 if (method.HasDiagram && method.Syntax != null)
                 {
-                    // Run syntax chain extractor for nodeCount
+                    // Run syntax chain extractor for nodeCount + nodeIds
                     var semanticModel = compilation.GetSemanticModel(method.Syntax.SyntaxTree);
                     var chain = ResultFlowChainExtractor.Extract(
                         method.Syntax,
@@ -50,11 +50,15 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                         maxDepth: method.MaxDepth,
                         compilation: compilation);
 
-                    var nodeCount = chain != null
-                        ? chain.Count(n => n.Kind != NodeKind.Invisible)
-                        : 0;
+                    var visibleNodes = chain != null
+                        ? chain.Where(n => n.Kind != NodeKind.Invisible).ToList()
+                        : new System.Collections.Generic.List<PipelineNode>();
+                    var nodeCount = visibleNodes.Count;
+                    var nodeIds   = visibleNodes
+                        .Select((n, i) => ShortHash.Compute(method.PipelineId, n.MethodName, i.ToString()))
+                        .ToList();
 
-                    infoJson = BuildFullInfo(method, nodeCount);
+                    infoJson = BuildFullInfo(method, nodeCount, nodeIds);
                 }
                 else
                 {
@@ -75,15 +79,19 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
 
         // ── JSON builders ─────────────────────────────────────────────────────
 
-        private static string BuildFullInfo(MethodRegistryModel method, int nodeCount)
+        private static string BuildFullInfo(MethodRegistryModel method, int nodeCount, IReadOnlyList<string> nodeIds)
         {
+            var nodeIdArr = ToJsonArray(nodeIds);
             return
-                $"{{\"sourceLine\":{method.SourceLine}," +
+                $"{{\"pipelineId\":\"{method.PipelineId}\"," +
+                $"\"namespace\":\"{EscapeJson(method.Namespace)}\"," +
+                $"\"sourceLine\":{method.SourceLine}," +
                 $"\"returnType\":\"{method.ReturnType}\"," +
                 $"\"returnTypeFullName\":\"{EscapeJson(method.ReturnTypeFullName)}\"," +
                 $"\"isAsync\":{BoolStr(method.IsAsync)}," +
                 $"\"hasDiagram\":true," +
                 $"\"nodeCount\":{nodeCount}," +
+                $"\"nodeIds\":{nodeIdArr}," +
                 $"\"errorTypes\":[]," +
                 $"\"nodeKindFlags\":[]}}";
         }
@@ -91,11 +99,19 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
         private static string BuildMinimalInfo(MethodRegistryModel method)
         {
             return
-                $"{{\"sourceLine\":{method.SourceLine}," +
+                $"{{\"pipelineId\":\"{method.PipelineId}\"," +
+                $"\"namespace\":\"{EscapeJson(method.Namespace)}\"," +
+                $"\"sourceLine\":{method.SourceLine}," +
                 $"\"returnType\":\"{method.ReturnType}\"," +
                 $"\"returnTypeFullName\":\"{EscapeJson(method.ReturnTypeFullName)}\"," +
                 $"\"isAsync\":{BoolStr(method.IsAsync)}," +
                 $"\"hasDiagram\":false}}";
+        }
+
+        private static string ToJsonArray(IReadOnlyList<string> items)
+        {
+            if (items.Count == 0) return "[]";
+            return "[" + string.Join(",", items.Select(s => $"\"{EscapeJson(s)}\"")) + "]";
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────

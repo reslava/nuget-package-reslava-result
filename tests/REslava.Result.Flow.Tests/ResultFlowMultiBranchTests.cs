@@ -81,7 +81,7 @@ public class ResultFlowMultiBranchTests
         // Both typed edges point to FAIL — shared terminal appears once
         Assert.IsTrue(output.Contains("|ValidationError| FAIL"), "ValidationError must point to FAIL");
         Assert.IsTrue(output.Contains("|InventoryError| FAIL"), "InventoryError must point to FAIL");
-        Assert.IsTrue(output.Contains("FAIL([fail])"), "Shared FAIL terminal must be emitted");
+        Assert.IsTrue(output.Contains("FAIL("), "Shared FAIL terminal must be emitted");
     }
 
     // ── 9. Generic fallback when Match has 2 args (no typed N-branch) ─────────

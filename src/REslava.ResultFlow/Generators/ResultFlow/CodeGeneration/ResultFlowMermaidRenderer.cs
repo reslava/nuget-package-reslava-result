@@ -17,14 +17,16 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             string? linkMode = null,
             bool darkTheme = false,
             string? entrySourceFile = null,
-            int? entrySourceLine = null)
+            int? entrySourceLine = null,
+            string? pipelineId = null,
+            bool typeLabels = false)
         {
             var visible = FilterVisible(nodes);
             if (visible.Count == 0)
                 return "flowchart LR";
 
-            // Assign top-level node IDs
-            AssignNodeIds(visible, prefix: "N");
+            // Assign top-level node IDs — scope key matches registry _Info nodeIds
+            AssignNodeIds(visible, scopeKey: pipelineId ?? "pipeline");
 
             var lines = new List<string>();
             var subgraphIds = new List<string>();
@@ -49,7 +51,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                 lines.Add($"    ENTRY_ROOT[\"{seedLabel}\"]:::operation ==> {firstConnectId}");
             }
 
-            RenderNodes(visible, lines, subgraphIds, ref failureCounter, indent: "    ");
+            RenderNodes(visible, lines, subgraphIds, ref failureCounter, indent: "    ", typeLabels: typeLabels);
 
             // SUCCESS terminal: connect the last top-level node's happy path to SUCCESS
             string? lastConnectId = GetLastTopLevelConnectId(visible);
@@ -73,6 +75,8 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             }
             sb.AppendLine(darkTheme ? ResultFlowThemes.MermaidInitDark : ResultFlowThemes.MermaidInit);
             sb.AppendLine("flowchart LR");
+            if (pipelineId != null)
+                sb.AppendLine($"%% pipelineId: {pipelineId}");
             foreach (var line in lines)
                 sb.AppendLine(line);
 
@@ -104,10 +108,10 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
 
         // ── Node ID assignment ────────────────────────────────────────────────
 
-        private static void AssignNodeIds(IReadOnlyList<PipelineNode> nodes, string prefix)
+        private static void AssignNodeIds(IReadOnlyList<PipelineNode> nodes, string scopeKey)
         {
             for (int i = 0; i < nodes.Count; i++)
-                nodes[i].NodeId = $"{prefix}{i}_{nodes[i].MethodName}";
+                nodes[i].NodeId = ShortHash.Compute(scopeKey, nodes[i].MethodName, i.ToString());
         }
 
         /// <summary>
@@ -146,8 +150,16 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
             List<string> lines,
             List<string> subgraphIds,
             ref int failureCounter,
-            string indent)
+            string indent,
+            bool typeLabels = false)
         {
+            string SuccessLabel(PipelineNode n, string fallback) =>
+                typeLabels && n.OutputType != null ? $"\"{n.OutputType}\"" : fallback;
+            string TypeEdge(string from, string to, PipelineNode n, string ind) =>
+                typeLabels && n.OutputType != null
+                    ? $"{ind}{from} -->|\"{n.OutputType}\"| {to}"
+                    : $"{ind}{from} --> {to}";
+
             for (int i = 0; i < nodes.Count; i++)
             {
                 var node = nodes[i];
@@ -161,7 +173,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     var sgId = $"sg_{nodeId}";
                     subgraphIds.Add(sgId);
                     var subVisible = FilterVisible(node.SubNodes);
-                    AssignNodeIds(subVisible, prefix: $"{nodeId}_");
+                    AssignNodeIds(subVisible, scopeKey: nodeId);
 
                     lines.Add($"{indent}subgraph {sgId}[\"{node.SubGraphName ?? node.MethodName}\"]");
 
@@ -178,7 +190,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     }
 
                     RenderNodes(subVisible, lines, subgraphIds, ref failureCounter,
-                        indent: indent + "    ");
+                        indent: indent + "    ", typeLabels: typeLabels);
                     lines.Add($"{indent}end");
 
                     if (hasNext)
@@ -187,7 +199,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                         var nextConnectId = (nextNode.SubNodes != null && nextNode.SubNodes.Count > 0)
                             ? $"sg_{nextNode.NodeId}"
                             : nextNode.NodeId!;
-                        lines.Add($"{indent}{sgId} -->|ok| {nextConnectId}");
+                        lines.Add($"{indent}{sgId} -->|{SuccessLabel(node, "ok")}| {nextConnectId}");
                     }
 
                     // Fallback failure edge for the subgraph wrapper
@@ -213,10 +225,10 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     {
                         var fId = $"F{failureCounter++}";
                         var gatekeeperLabel = node.PredicateText != null
-                            ? "<span title='" + node.PredicateText.Replace("\"", "\u201c").Replace("'", "\u2019") + "'>" + label + "</span>"
+                            ? "<span title='" + node.PredicateText.Replace("\"", "\u201c").Replace("'", "\u2019") + "'>ℹ️" + label + "</span>"
                             : label;
                         lines.Add($"{indent}{nodeId}[\"{gatekeeperLabel}\"]:::gatekeeper");
-                        if (hasNext) lines.Add($"{indent}{nodeId} -->|pass| {resolvedNextId}");
+                        if (hasNext) lines.Add($"{indent}{nodeId} -->|{SuccessLabel(node, "pass")}| {resolvedNextId}");
                         lines.Add($"{indent}{nodeId} -->|\"{FailLabel(node)}\"| {fId}[\"Failure\"]:::failure");
                         break;
                     }
@@ -224,20 +236,20 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     {
                         var fId = $"F{failureCounter++}";
                         lines.Add($"{indent}{nodeId}[\"{label}\"]:::bind");
-                        if (hasNext) lines.Add($"{indent}{nodeId} -->|ok| {resolvedNextId}");
+                        if (hasNext) lines.Add($"{indent}{nodeId} -->|{SuccessLabel(node, "ok")}| {resolvedNextId}");
                         lines.Add($"{indent}{nodeId} -->|\"{FailLabel(node)}\"| {fId}[\"Failure\"]:::failure");
                         break;
                     }
                     case NodeKind.PureTransform:
                         lines.Add($"{indent}{nodeId}[\"{label}\"]:::map");
-                        if (hasNext) lines.Add($"{indent}{nodeId} --> {resolvedNextId}");
+                        if (hasNext) lines.Add(TypeEdge(nodeId, resolvedNextId, node, indent));
                         break;
 
                     case NodeKind.SideEffectSuccess:
                     case NodeKind.SideEffectFailure:
                     case NodeKind.SideEffectBoth:
                         lines.Add($"{indent}{nodeId}[\"{label}\"]:::sideeffect");
-                        if (hasNext) lines.Add($"{indent}{nodeId} --> {resolvedNextId}");
+                        if (hasNext) lines.Add(TypeEdge(nodeId, resolvedNextId, node, indent));
                         break;
 
                     case NodeKind.Terminal:
@@ -252,7 +264,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
 
                     default: // Unknown
                         lines.Add($"{indent}{nodeId}[\"{label}\"]:::operation");
-                        if (hasNext) lines.Add($"{indent}{nodeId} --> {resolvedNextId}");
+                        if (hasNext) lines.Add(TypeEdge(nodeId, resolvedNextId, node, indent));
                         break;
                 }
             }

@@ -63,10 +63,23 @@ A branded gutter icon marks every `[ResultFlow]` attribute line so pipelines are
 
 Install one of the two ResultFlow NuGet packages in your project:
 
-| Package | Description |
-|---|---|
-| [REslava.Result.Flow](https://www.nuget.org/packages/REslava.Result.Flow) | Full semantic analysis — requires `REslava.Result` |
-| [REslava.ResultFlow](https://www.nuget.org/packages/REslava.ResultFlow) | Syntax-only, library-agnostic |
+| | Track A | Track B |
+|---|---|---|
+| **Package** | [REslava.Result.Flow](https://www.nuget.org/packages/REslava.Result.Flow) | [REslava.ResultFlow](https://www.nuget.org/packages/REslava.ResultFlow) |
+| **Use when** | Using REslava.Result | Any other Result library (ErrorOr, LanguageExt, FluentResults, custom) |
+| **Analysis** | Full semantic — typed error edges, type travel, FAIL annotation, body scanning | Syntax-only — library-agnostic, convention file |
+| **Diagram constants** | `_Diagram` · `_TypeFlow` · `_LayerView` · `_Stats` · `_ErrorSurface` · `_ErrorPropagation` | `_Diagram` · `_TypeFlow` |
+
+**Track A:**
+```bash
+dotnet add package REslava.Result
+dotnet add package REslava.Result.Flow
+```
+
+**Track B:**
+```bash
+dotnet add package REslava.ResultFlow
+```
 
 Both packages generate `*_Flows.g.cs` files at build time. The extension reads these files to render the diagram — **build your project at least once** to generate them.
 

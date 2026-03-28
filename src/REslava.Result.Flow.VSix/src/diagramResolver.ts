@@ -3,6 +3,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { showWebviewPanel, refreshWebviewPanel, isPanelOpen } from './webviewPanel';
 
+interface DiagramResult {
+    diagram:          string;
+    typeFlow:         string | null;
+    layerView:        string | null;
+    stats:            string | null;
+    errorSurface:     string | null;
+    errorPropagation: string | null;
+}
+
 // ─── Auto-refresh on save ────────────────────────────────────────────────────
 //
 // Called by the onDidSaveTextDocument listener (extension.ts).
@@ -21,9 +30,12 @@ export function refreshDiagramsForDocument(document: vscode.TextDocument): void 
         // Only hit the disk if the panel is already open
         if (!isPanelOpen(methodName)) { continue; }
 
-        const diagram = findDiagramInGeneratedFile(className, methodName);
-        if (diagram) {
-            refreshWebviewPanel(methodName, diagram);
+        const result = findDiagramInGeneratedFile(className, methodName);
+        if (result) {
+            refreshWebviewPanel(
+                methodName, result.diagram, result.typeFlow,
+                result.layerView, result.stats, result.errorSurface, result.errorPropagation
+            );
         }
     }
 }
@@ -49,7 +61,11 @@ export async function openPreviewForMethod(
         // Step 1 — generated *_Flows.g.cs (primary source)
         const fromGenerated = findDiagramInGeneratedFile(className, methodName);
         if (fromGenerated) {
-            showWebviewPanel(methodName, fromGenerated, extensionUri);
+            showWebviewPanel(
+                methodName, fromGenerated.diagram, extensionUri,
+                fromGenerated.typeFlow, fromGenerated.layerView,
+                fromGenerated.stats, fromGenerated.errorSurface, fromGenerated.errorPropagation
+            );
             return;
         }
 
@@ -86,14 +102,23 @@ export async function openPreviewForMethod(
 // We walk the workspace folder(s) directly using fs.readdirSync — a plain OS
 // call that bypasses all VS Code indexing and .gitignore logic entirely.
 
-function findDiagramInGeneratedFile(className: string, methodName: string): string | null {
+function findDiagramInGeneratedFile(className: string, methodName: string): DiagramResult | null {
     const targetFile = `${className}_Flows.g.cs`;
     const folders = vscode.workspace.workspaceFolders ?? [];
     for (const folder of folders) {
         const filePath = walkForObjFile(folder.uri.fsPath, targetFile);
         if (filePath) {
             const content = fs.readFileSync(filePath, 'utf8');
-            return extractDiagramConstant(content, methodName);
+            const diagram = extractDiagramConstant(content, methodName);
+            if (!diagram) { return null; }
+            return {
+                diagram,
+                typeFlow:         extractDiagramConstant(content, `${methodName}_TypeFlow`),
+                layerView:        extractDiagramConstant(content, `${methodName}_LayerView`),
+                stats:            extractDiagramConstant(content, `${methodName}_Stats`),
+                errorSurface:     extractDiagramConstant(content, `${methodName}_ErrorSurface`),
+                errorPropagation: extractDiagramConstant(content, `${methodName}_ErrorPropagation`),
+            };
         }
     }
     return null;

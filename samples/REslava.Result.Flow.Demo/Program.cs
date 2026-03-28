@@ -22,15 +22,19 @@
 //   4. Async pipeline — ⚡ markers + type travel + typed errors
 //   5. Full pipeline — all node kinds, type travel end-to-end
 //   6. Cross-method tracing — [ResultFlow(MaxDepth = 2)] expands Bind into subgraph
-//   7. Sidecar constant — writes PlaceOrderCross.ResultFlow.md to disk
-//   8. Clickable nodes — ResultFlowLinkMode = vscode
-//   9. Domain boundary diagrams — [DomainBoundary] triggers _LayerView, _Stats,
+//   7. Clickable nodes — ResultFlowLinkMode = vscode
+//   8. Domain boundary diagrams — [DomainBoundary] triggers _LayerView, _Stats,
 //      _ErrorSurface, _ErrorPropagation alongside the existing _Diagram constant
-//  10. Match multi-branch fan-out — hexagon shape + typed N-branch FAIL edges
-//  11. InventoryService.CheckStock — cross-method Infrastructure → Domain layer view
-//  12. InventoryService.ReserveStock — cross-method with Ensure gate before subgraph
-//  13. Dark theme — [ResultFlow(Theme = ResultFlowTheme.Dark)] on WarehouseService + InventoryService.ReserveStock
+//   9. Match multi-branch fan-out — hexagon shape + typed N-branch FAIL edges
+//  10. InventoryService.CheckStock — cross-method Infrastructure → Domain layer view
+//  11. InventoryService.ReserveStock — cross-method with Ensure gate before subgraph
+//  12. Dark theme — [ResultFlow(Theme = ResultFlowTheme.Dark)] on WarehouseService + InventoryService.ReserveStock
+//  13. _TypeFlow constant — same nodes as _Diagram but success edges carry the Result<T> type name
+//  14. Namespace-aware _LayerView — Demo.Pipelines.Pipelines [DomainBoundary("Application")] +
+//      UserService [DomainBoundary("Domain")] → _LayerView, _Stats, _ErrorSurface, _ErrorPropagation
 // =============================================================================
+using Demo.MatchDemo;
+using Demo.Pipelines;
 using Generated.ResultFlow;
 using REslava.Result;
 using REslava.Result.AdvancedPatterns;
@@ -59,17 +63,9 @@ Print("4. Async pipeline — ⚡ labels + typed errors",              Pipelines_
 Print("5. Full pipeline — all node kinds",                          Pipelines_Flows.AdminCheckout);
 Print("6. Cross-method tracing — MaxDepth = 2, subgraph expanded", OrderService_Flows.PlaceOrderCross);
 
-// ── 7. Sidecar constant ───────────────────────────────────────────────────────
+// ── 7. Clickable nodes ────────────────────────────────────────────────────────
 Console.WriteLine();
-Console.WriteLine("  7. Sidecar constant — written to PlaceOrderCross.ResultFlow.md");
-Console.WriteLine(sep);
-File.WriteAllText("PlaceOrderCross.ResultFlow.md", OrderService_Flows.PlaceOrderCross_Sidecar);
-Console.WriteLine("     ↳ Wrote PlaceOrderCross.ResultFlow.md");
-Console.WriteLine("       Open in VS Code (Ctrl+Shift+V) to preview the diagram.");
-
-// ── 8. Clickable nodes ────────────────────────────────────────────────────────
-Console.WriteLine();
-Console.WriteLine("  8. Clickable nodes — ResultFlowLinkMode = vscode");
+Console.WriteLine("  7. Clickable nodes — ResultFlowLinkMode = vscode");
 Console.WriteLine(sep);
 Console.WriteLine("     Add to .csproj:");
 Console.WriteLine("       <ResultFlowLinkMode>vscode</ResultFlowLinkMode>");
@@ -77,7 +73,7 @@ Console.WriteLine("     Each node becomes:");
 Console.WriteLine("       click N0_FindUser \"vscode://file/{path}:{line}\" \"Go to FindUser\"");
 Console.WriteLine("     Click in VS Code Mermaid preview → jumps directly to that source line.");
 
-// ── 9. Domain boundary diagrams ───────────────────────────────────────────────
+// ── 8. Domain boundary diagrams ───────────────────────────────────────────────
 //
 // [DomainBoundary("Application")] on OrderService class  → rootLayer = "Application"
 // [DomainBoundary("Domain")]      on UserService class   → ValidateUser subgraph Layer = "Domain"
@@ -91,14 +87,14 @@ Console.WriteLine("     Click in VS Code Mermaid preview → jumps directly to t
 //   _ErrorPropagation  — flowchart TD, errors grouped by the layer they originate from
 //
 Console.WriteLine();
-Console.WriteLine("  9. Domain boundary diagrams — [DomainBoundary] + layer-aware constants");
+Console.WriteLine("  8. Domain boundary diagrams — [DomainBoundary] + layer-aware constants");
 Console.WriteLine(sep2);
-Print("9a. _LayerView        — architecture (Application → Domain)", OrderService_Flows.PlaceOrderCross_LayerView);
-Print("9b. _Stats            — pipeline statistics",                 OrderService_Flows.PlaceOrderCross_Stats);
-Print("9c. _ErrorSurface     — fail-edges only",                     OrderService_Flows.PlaceOrderCross_ErrorSurface);
-Print("9d. _ErrorPropagation — errors grouped by layer",             OrderService_Flows.PlaceOrderCross_ErrorPropagation);
+Print("8a. _LayerView        — architecture (Application → Domain)", OrderService_Flows.PlaceOrderCross_LayerView);
+Print("8b. _Stats            — pipeline statistics",                 OrderService_Flows.PlaceOrderCross_Stats);
+Print("8c. _ErrorSurface     — fail-edges only",                     OrderService_Flows.PlaceOrderCross_ErrorSurface);
+Print("8d. _ErrorPropagation — errors grouped by layer",             OrderService_Flows.PlaceOrderCross_ErrorPropagation);
 
-// ── 10. Match multi-branch fan-out ────────────────────────────────────────────
+// ── 9. Match multi-branch fan-out ─────────────────────────────────────────────
 //
 // ConfirmOrder ends with .Match(3 explicitly-typed lambdas).
 // REslava.Result.Flow extracts each lambda's explicit parameter type annotation
@@ -110,25 +106,25 @@ Print("9d. _ErrorPropagation — errors grouped by layer",             OrderServ
 //   N1_Match -->|UserNotFoundError| FAIL
 //   N1_Match -->|ProductNotFoundError| FAIL
 //
-Print("10. Match — hexagon + typed N-branch fan-out (v1.46.0)", MatchDemo_Flows.ConfirmOrder);
+Print("9. Match — hexagon + typed N-branch fan-out (v1.46.0)", MatchDemo_Flows.ConfirmOrder);
 
-// ── 11. InventoryService — cross-method Infrastructure → Domain ───────────────
+// ── 10. InventoryService — cross-method Infrastructure → Domain ───────────────
 Console.WriteLine();
-Console.WriteLine("  11. InventoryService — cross-method Infrastructure → Domain layer view");
+Console.WriteLine("  10. InventoryService — cross-method Infrastructure → Domain layer view");
 Console.WriteLine(sep2);
-Print("11a. CheckStock — pipeline (Infrastructure → Domain)",            InventoryService_Flows.CheckStock);
-Print("11b. CheckStock _LayerView  — architecture (Infrastructure → Domain)", InventoryService_Flows.CheckStock_LayerView);
-Print("11c. CheckStock _ErrorSurface  — fail-edges only",                InventoryService_Flows.CheckStock_ErrorSurface);
-Print("11d. CheckStock _ErrorPropagation — errors by layer",             InventoryService_Flows.CheckStock_ErrorPropagation);
+Print("10a. CheckStock — pipeline (Infrastructure → Domain)",            InventoryService_Flows.CheckStock);
+Print("10b. CheckStock _LayerView  — architecture (Infrastructure → Domain)", InventoryService_Flows.CheckStock_LayerView);
+Print("10c. CheckStock _ErrorSurface  — fail-edges only",                InventoryService_Flows.CheckStock_ErrorSurface);
+Print("10d. CheckStock _ErrorPropagation — errors by layer",             InventoryService_Flows.CheckStock_ErrorPropagation);
 
-// ── 12. InventoryService.ReserveStock — Ensure gate before subgraph ────────────
+// ── 11. InventoryService.ReserveStock — Ensure gate before subgraph ────────────
 Console.WriteLine();
-Console.WriteLine("  12. ReserveStock — Ensure gate + cross-method subgraph");
+Console.WriteLine("  11. ReserveStock — Ensure gate + cross-method subgraph");
 Console.WriteLine(sep2);
-Print("12a. ReserveStock — pipeline (Ensure → subgraph → Map)", InventoryService_Flows.ReserveStock);
-Print("12b. ReserveStock _LayerView  — architecture layers",     InventoryService_Flows.ReserveStock_LayerView);
+Print("11a. ReserveStock — pipeline (Ensure → subgraph → Map)", InventoryService_Flows.ReserveStock);
+Print("11b. ReserveStock _LayerView  — architecture layers",     InventoryService_Flows.ReserveStock_LayerView);
 
-// ── 13. Dark theme ─────────────────────────────────────────────────────────────
+// ── 12. Dark theme ─────────────────────────────────────────────────────────────
 //
 // [ResultFlow(Theme = ResultFlowTheme.Dark)] emits a Mermaid diagram with the dark
 // classDef palette (matched to the MkDocs slate colour scheme) instead of the default
@@ -139,13 +135,43 @@ Print("12b. ReserveStock _LayerView  — architecture layers",     InventoryServ
 // Because both classes have [DomainBoundary], the generator emits dark-themed
 // _LayerView, _ErrorSurface and _ErrorPropagation constants alongside the pipeline diagram.
 Console.WriteLine();
-Console.WriteLine("  13. Dark theme — dark classDef palette + dark linkStyle");
+Console.WriteLine("  12. Dark theme — dark classDef palette + dark linkStyle");
 Console.WriteLine(sep2);
-Print("13a. WarehouseService.ReserveStock — dark (flat pipeline)",                  WarehouseService_Flows.ReserveStock);
-Print("13b. FulfillmentService.FulfillOrder — dark cross-method pipeline",           FulfillmentService_Flows.FulfillOrder);
-Print("13c. FulfillOrder _LayerView  — dark Application → Domain architecture",     FulfillmentService_Flows.FulfillOrder_LayerView);
-Print("13d. FulfillOrder _ErrorSurface  — dark fail-edges only",                    FulfillmentService_Flows.FulfillOrder_ErrorSurface);
-Print("13e. FulfillOrder _ErrorPropagation — dark errors grouped by layer",         FulfillmentService_Flows.FulfillOrder_ErrorPropagation);
+Print("12a. WarehouseService.ReserveStock — dark (flat pipeline)",                  WarehouseService_Flows.ReserveStock);
+Print("12b. FulfillmentService.FulfillOrder — dark cross-method pipeline",           FulfillmentService_Flows.FulfillOrder);
+Print("12c. FulfillOrder _LayerView  — dark Application → Domain architecture",     FulfillmentService_Flows.FulfillOrder_LayerView);
+Print("12d. FulfillOrder _ErrorSurface  — dark fail-edges only",                    FulfillmentService_Flows.FulfillOrder_ErrorSurface);
+Print("12e. FulfillOrder _ErrorPropagation — dark errors grouped by layer",         FulfillmentService_Flows.FulfillOrder_ErrorPropagation);
+
+// ── 13. _TypeFlow constant ────────────────────────────────────────────────────
+//
+// Every [ResultFlow] method also gets a {MethodName}_TypeFlow constant.
+// It renders the same pipeline but labels every success edge with the
+// Result<T> type that flows through it, making the static type journey visible:
+//
+//   PlaceOrder:
+//     _Diagram:   N0 -->|ok| N1 -->|ok| SUCCESS
+//     _TypeFlow:  N0 -->|Result<User>| N1 -->|Result<Order>| SUCCESS
+//
+// Useful for: type-level documentation, IDE hover previews, design reviews.
+// In the VSIX sidebar: the Types button swaps between _Diagram and _TypeFlow.
+//
+Print("13a. PlaceOrder _TypeFlow — typed edges (User → Order)",         Pipelines_Flows.PlaceOrder_TypeFlow);
+Print("13b. ProcessCheckout _TypeFlow — type journey (User→Product→Order→string)", Pipelines_Flows.ProcessCheckout_TypeFlow);
+
+// ── 14. Namespace-aware _LayerView (Demo.Pipelines) ──────────────────────────
+//
+// Pipelines [DomainBoundary("Application")] lives in the Demo.Pipelines namespace (v1.51.0).
+// ProcessOrder calls UserService [DomainBoundary("Domain")] with MaxDepth = 2.
+// Two distinct layers → all four boundary constants emitted alongside _Diagram.
+// The VSIX sidebar groups Pipelines under the "Demo.Pipelines" namespace node.
+Console.WriteLine();
+Console.WriteLine("  14. Namespace-aware layer diagrams — Demo.Pipelines.Pipelines");
+Console.WriteLine(sep2);
+Print("14a. ProcessOrder _LayerView        — Application → Domain",    Pipelines_Flows.ProcessOrder_LayerView);
+Print("14b. ProcessOrder _Stats            — pipeline statistics",      Pipelines_Flows.ProcessOrder_Stats);
+Print("14c. ProcessOrder _ErrorSurface     — fail-edges only",          Pipelines_Flows.ProcessOrder_ErrorSurface);
+Print("14d. ProcessOrder _ErrorPropagation — errors by layer",          Pipelines_Flows.ProcessOrder_ErrorPropagation);
 
 Console.WriteLine();
 Console.WriteLine(sep2);
@@ -191,6 +217,13 @@ Run("CheckStock (product not found)           ", InventoryService.CheckStock(99,
 Run("CheckStock (insufficient stock)          ", InventoryService.CheckStock(8, 5));
 Run("ReserveStock (success)                   ", InventoryService.ReserveStock(7, 10));
 Run("ReserveStock (out of stock gate)         ", InventoryService.ReserveStock(8, 5));
+
+Console.WriteLine();
+Console.WriteLine("  Namespace-aware ProcessOrder (Demo.Pipelines):");
+Run("ProcessOrder (success)                  ", Pipelines.ProcessOrder(42, 7));
+Run("ProcessOrder (user not found)           ", Pipelines.ProcessOrder(999, 7));
+Run("ProcessOrder (user inactive)            ", Pipelines.ProcessOrder(8, 7));
+Run("ProcessOrder (product not found)        ", Pipelines.ProcessOrder(42, 99));
 
 Console.WriteLine();
 Console.WriteLine("  FulfillmentService (dark theme):");
@@ -239,6 +272,9 @@ sealed class InsufficientStockError(string name, int available, int requested)
 // =============================================================================
 // Pipelines — [ResultFlow] from REslava.Result.Flow
 // =============================================================================
+namespace Demo.Pipelines
+{
+[DomainBoundary("Application")]
 static class Pipelines
 {
     // ─── 1. Guard chain — Ensure × 3 ────────────────────────────────────────
@@ -401,7 +437,21 @@ static class Pipelines
     }
 
     private static void Log(string msg) => Console.WriteLine($"    [LOG] {msg}");
+
+    // ─── 14. Namespace-aware _LayerView ──────────────────────────────────────
+    //
+    // Pipelines [DomainBoundary("Application")] is in Demo.Pipelines namespace.
+    // ProcessOrder calls UserService [DomainBoundary("Domain")] with MaxDepth = 2.
+    // Two distinct layers → generator emits _LayerView, _Stats, _ErrorSurface, _ErrorPropagation.
+    // VSIX sidebar groups Pipelines under "Demo.Pipelines" namespace node.
+    [ResultFlow(MaxDepth = 2)]
+    public static Result<Order> ProcessOrder(int userId, int productId) =>
+        FindUser(userId)
+            .Bind(u => UserService.ValidateUser(u))
+            .Bind(_ => FindProduct(productId))
+            .Map(p  => new Order(0, userId, p.Price));
 }
+} // namespace Demo.Pipelines
 
 // =============================================================================
 // Section 6 — Cross-method pipeline tracing (cross-class)
@@ -504,6 +554,8 @@ static class OrderService
 //
 // For plain Result<T> Match with 2 args, a generic -->|fail| FAIL is emitted instead.
 // =============================================================================
+namespace Demo.MatchDemo
+{
 static class MatchDemo
 {
     private static Result<User> LookupUser(int id) =>
@@ -543,6 +595,7 @@ static class MatchDemo
         [7] = new Product(7, "Widget", 29.99m, 100),
     };
 }
+} // namespace Demo.MatchDemo
 
 // =============================================================================
 // Section 11 & 12 — InventoryService + WarehouseService

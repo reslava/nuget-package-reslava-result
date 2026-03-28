@@ -4,6 +4,76 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.51.0] - 2026-03-27
+
+### ✨ Added
+
+#### Pipeline Identity — PipelineId, NodeId & Namespace
+
+- **`pipelineId`** — deterministic 8-hex-char FNV-1a hash of `(fullyQualifiedType, assembly, methodName, paramTypes)` added to every `{MethodName}_Info` JSON in `*_PipelineRegistry.g.cs`; stable across builds and refactors (both packages)
+- **`nodeIds`** — ordered JSON array of node identity hashes in `{MethodName}_Info`; each node hash = `ShortHash(pipelineId, type, method, params, index)`; order-aware and collision-safe (both packages)
+- **`namespace`** — fully qualified namespace of the containing class added to `{MethodName}_Info` (both packages)
+- **`ShortHash`** — new `internal static class ShortHash` in each generator project; FNV-1a 32-bit → 8 lowercase hex chars; deterministic across processes
+
+#### NodeId on Mermaid Diagram Nodes
+
+- **Deterministic node IDs** — Mermaid node IDs in `*_Flows.g.cs` now use `pipelineId`-derived identifiers (e.g. `N0_a1b2c3d4_3f9e`) instead of positional letters (`A`, `B`, `C`); enables runtime → diagram correlation via `ReasonMetadata.NodeId` (both packages)
+
+#### Node SourceLine Fix
+
+- **`MemberAccess.Name` location** — per-node `sourceLine` in `click` directives and registry `_Info` now uses `MemberAccessExpressionSyntax.Name.GetLocation()` instead of the full invocation location; fixes off-by-one on vertical fluent chains where the method name is on a different line than the opening `(` (both packages)
+
+#### `_TypeFlow` Constant
+
+- **`{MethodName}_TypeFlow`** — new generated constant per `[ResultFlow]` method in `*_Flows.g.cs`; same node structure as the main diagram but success edges carry the `Result<T>` type label (e.g. `-->|Result<Order>|` instead of `-->|ok|`); emitted by `ResultFlowMermaidRenderer` when `typeLabels: true` (both packages)
+
+#### VSIX v1.2.1 — Health Icon, Namespace Grouping & Loading Indicator
+
+- **Health icon** — per-method status badge in the Flow Catalog tree derived from registry `_Info`: ✅ has diagram + declared errors · ⚠️ has diagram, no errors · ❌ no diagram or registry missing
+- **Namespace grouping** — intermediate namespace nodes (top-two segments) between project root and class list; groups classes by namespace for large-workspace navigation
+- **Loading indicator** — project node shows `$(loading~spin)` while `dotnet build` is running; restores to status icon on `onDidEndTaskProcess`
+
+#### `errorTypes` Depth-2 Scan
+
+- **Depth-2 body scan** — when collecting `errorTypes` for registry `_Info` and diagram annotation, the generator now descends into directly-called `Result<T>` methods up to depth 2; catches errors in helpers like `.Bind(o => ValidateOrder(o))` where `ValidateOrder` internally calls `Result.Fail(new XxxError())`; unconditional, independent of `MaxDepth` (both packages)
+
+#### FAIL Node Error Annotation
+
+- **Inline label (1–3 errors)** — FAIL node label now displays error type names inline with `Error` suffix stripped: `FAIL(["fail\nNotFound\nValidation"])` (both packages)
+- **Tooltip (4+ errors)** — four or more distinct error types shown as `FAIL(["<span title='NotFound, Validation, ...'>ℹ️fail</span>"])` hover tooltip (both packages)
+- **`%% pipelineId:` comment** — `_Diagram` and `_TypeFlow` constants now emit `%% pipelineId: {id}` immediately after `flowchart LR`; enables tooling to correlate a rendered diagram to its registry `_Info` entry (both packages)
+
+#### Legend Update
+
+- **`Legend` constant** — updated `BuildLegendMermaid()` in both packages to include a second note row listing all generated constant types (`_Diagram · _TypeFlow (edge type labels) · _LayerView · _Stats · _ErrorSurface · _ErrorPropagation`) and FAIL annotation formats (`1–3 errors inline · 4+ as ℹ️ tooltip`)
+
+#### VSIX v1.2.2 — Error Children, Layer Tabs, Revised Health & Walkthrough
+
+- **Error children** — method nodes with `errorTypes` now expand to show each error type as an amber `$(warning)` child node; click navigates to the error class definition via workspace symbol search
+- **Revised health icon semantics** — ✅ when `errorTypes.length > 0` · ⚠️ when `Bind`/`Gatekeeper` present and `errorTypes` empty · ⚪ `Terminal`/`Map`/`Tap`-only pipeline · ❌ no diagram or registry
+- **Layer diagram tabs** — webview panel toolbar adds `_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation` tab buttons; tab hidden when constant absent from generated file
+- **First-run walkthrough** — VS Code `contributes.walkthroughs` entry with 3 steps: install NuGet package (Track A / Track B with links), add `[ResultFlow]`, open diagram
+- **Missing package detection** — `activate()` scans workspace `.csproj` files; if no ResultFlow package found, shows notification with "Install Track A", "Install Track B", "See Demo" buttons; single-project workspaces auto-select `.csproj`; multi-project shows Quick Pick
+- **Empty-state tree item** — shown after a completed scan when no pipelines found; tooltip includes Track A/B install instructions and link to `REslava.Result.Flow.Demo`
+
+#### Two-Track Package Messaging
+
+- **Two-track install table** — `README.md`, NuGet READMEs for `REslava.Result`, `REslava.Result.Flow`, `REslava.ResultFlow`, and the VSIX README all now present a Track A / Track B comparison table with explicit `dotnet add package` install blocks
+
+### 🐛 Fixed
+
+#### NuGet Transitive Dependency Fix
+
+- **`REslava.Result.Flow`** — removed `SuppressDependenciesWhenPacking=true`; added `ProjectReference` to `REslava.Result` (non-private); `REslava.Result` now appears as a transitive dependency in the package `.nuspec`
+- **`REslava.Result.Analyzers`** — same fix; `REslava.Result` now declared as transitive dependency
+- **`REslava.Result.AspNetCore`** — same fix; also removed stale `REslava.Result.SourceGenerators.Core` v1.9.0 reference; stray `MSTest.TestFramework` and `Microsoft.NET.Test.Sdk` refs marked `PrivateAssets="all"` to prevent leaking into consumer dependency trees
+
+### Stats
+
+- Tests: 4,704 passing (floor: >4,500)
+
+---
+
 ## [1.50.1] - 2026-03-26
 
 ### 🐛 Fixed

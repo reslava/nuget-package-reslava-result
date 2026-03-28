@@ -16,7 +16,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
         private static readonly string[] CanonicalOrder =
             { "Presentation", "Application", "Domain", "Infrastructure" };
 
-        public static string? Render(IReadOnlyList<PipelineNode> nodes, string? rootLayer, bool darkTheme = false)
+        public static string? Render(IReadOnlyList<PipelineNode> nodes, string? rootLayer, bool darkTheme = false, string? pipelineId = null)
         {
             // Guard: only emit when HasAnyLayer (same as _LayerView)
             if (!HasAnyLayer(rootLayer, nodes))
@@ -39,6 +39,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             var sb = new StringBuilder();
             sb.AppendLine(ResultFlowThemes.MermaidInit);
             sb.AppendLine("flowchart TD");
+            if (pipelineId != null)
+                sb.AppendLine($"%% pipelineId: {pipelineId}");
             sb.AppendLine();
 
             // ── Emit layer subgraphs — depth index drives ID and style ───────────

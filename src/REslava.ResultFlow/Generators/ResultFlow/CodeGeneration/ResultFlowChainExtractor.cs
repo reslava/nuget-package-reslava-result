@@ -194,10 +194,14 @@ namespace REslava.ResultFlow.Generators.ResultFlow.CodeGeneration
                     if (errorHint != null) break;
                 }
 
-                // Source location for clickable Mermaid nodes
+                // Source location for clickable Mermaid nodes — use the method name token
+                // (MemberAccess.Name) so vertical fluent chains point to the correct line,
+                // not the start of the whole invocation expression.
                 string? sourceFile = null;
                 int? sourceLine = null;
-                var loc = invocationNode.GetLocation().GetLineSpan();
+                var nameNode = (invocationNode.Expression as MemberAccessExpressionSyntax)?.Name
+                               ?? (SyntaxNode)invocationNode;
+                var loc = nameNode.GetLocation().GetLineSpan();
                 if (loc.IsValid && !string.IsNullOrEmpty(loc.Path))
                 {
                     sourceFile = loc.Path;

@@ -37,7 +37,6 @@
 
     <!-- CRITICAL: Source Generator Configuration -->
     <DevelopmentDependency>true</DevelopmentDependency>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
   </PropertyGroup>
 
   <!-- Include README and icon in package -->
@@ -50,6 +49,11 @@
   <ItemGroup>
     <None Include="build\REslava.Result.Flow.props" Pack="true" PackagePath="build\" />
     <None Include="buildTransitive\REslava.Result.Flow.props" Pack="true" PackagePath="buildTransitive\" />
+  </ItemGroup>
+
+  <!-- Runtime dependency — consumers of this package also need REslava.Result -->
+  <ItemGroup>
+    <ProjectReference Include="..\REslava.Result\REslava.Result.csproj" />
   </ItemGroup>
 
   <!-- Package Dependencies -->
@@ -80,6 +84,7 @@
     <Compile Include="Analyzers\ResultFlowDiagramAnalyzer.cs" />
     <Compile Include="Analyzers\ResultFlowInsertCommentFix.cs" />
     <Compile Include="Core\Interfaces\IGeneratorOrchestrator.cs" />
+    <Compile Include="Generators\ResultFlow\ShortHash.cs" />
     <Compile Include="Generators\ResultFlow\ResultFlowGenerator.cs" />
     <Compile Include="Generators\ResultFlow\ResultFlowRegistryGenerator.cs" />
     <Compile Include="Generators\ResultFlow\Orchestration\ResultFlowOrchestrator.cs" />

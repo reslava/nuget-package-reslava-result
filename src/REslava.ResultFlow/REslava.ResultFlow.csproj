@@ -87,6 +87,7 @@
     <Compile Include="Analyzers\ResultFlowInsertCommentFix.cs" />
 
     <!-- ResultFlow Generator - [ResultFlow] attribute → Mermaid diagram constants -->
+    <Compile Include="Generators\ResultFlow\ShortHash.cs" />
     <Compile Include="Generators\ResultFlow\ResultFlowGenerator.cs" />
     <Compile Include="Generators\ResultFlow\ResultFlowRegistryGenerator.cs" />
     <Compile Include="Generators\ResultFlow\Orchestration\ResultFlowOrchestrator.cs" />

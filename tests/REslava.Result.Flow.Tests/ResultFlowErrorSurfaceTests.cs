@@ -25,7 +25,7 @@ public class ResultFlowErrorSurfaceTests
         var source = CreateNoLayerSource();
         var output = RunGenerator(source);
 
-        Assert.IsFalse(output.Contains("_ErrorSurface"), "_ErrorSurface must not be emitted when no layer is detected");
+        Assert.IsFalse(output.Contains("_ErrorSurface ="), "_ErrorSurface must not be emitted when no layer is detected");
     }
 
     // ── 3. _ErrorSurface contains FAIL terminal ───────────────────────────────

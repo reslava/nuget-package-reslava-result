@@ -7,7 +7,7 @@ namespace REslava.ResultFlow.Tests;
 
 /// <summary>
 /// Phase 3 tests for Block 3 (diagram delivery):
-/// #9 Clickable Mermaid nodes (click directives) and #8 Sidecar markdown constant.
+/// #9 Clickable Mermaid nodes (click directives).
 /// </summary>
 [TestClass]
 public class ResultFlowDiagramDeliveryTests
@@ -86,39 +86,6 @@ public class ResultFlowDiagramDeliveryTests
 
         Assert.IsTrue(output.Contains("vscode://file/C:/src/Service.cs:42"),
             "Backslashes must be converted to forward slashes in VS Code URI");
-    }
-
-    // ── #8 Sidecar markdown constant ─────────────────────────────────────────
-
-    [TestMethod]
-    public void SidecarConstant_AlwaysGeneratedInOutput()
-    {
-        var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface)> { ("Process", "flowchart LR\n    N0_Process[\"Process\"]:::operation", null, null, null) };
-        var output = ResultFlowCodeGenerator.Generate("OrderService", diagrams).ToString();
-
-        Assert.IsTrue(output.Contains("Process_Sidecar"), "Sidecar constant must be generated");
-    }
-
-    [TestMethod]
-    public void SidecarConstant_ContainsMermaidFencedBlock()
-    {
-        var mermaid = "flowchart LR\n    N0_Op[\"Op\"]:::operation";
-        var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface)> { ("Op", mermaid, null, null, null) };
-        var output = ResultFlowCodeGenerator.Generate("MyService", diagrams).ToString();
-
-        Assert.IsTrue(output.Contains("```mermaid"), "Sidecar must contain mermaid fenced block");
-        Assert.IsTrue(output.Contains("# Pipeline"), "Sidecar must have a heading");
-    }
-
-    [TestMethod]
-    public void DiagramConstant_UnaffectedBySidecarAddition()
-    {
-        var mermaid = "flowchart LR\n    N0_Op[\"Op\"]:::operation";
-        var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface)> { ("Op", mermaid, null, null, null) };
-        var output = ResultFlowCodeGenerator.Generate("Service", diagrams).ToString();
-
-        Assert.IsTrue(output.Contains("public const string Op ="), "Original diagram constant must still exist");
-        Assert.IsTrue(output.Contains("public const string Op_Sidecar ="), "Sidecar constant alongside it");
     }
 
     // ── resultflow.json linkMode parsing ─────────────────────────────────────

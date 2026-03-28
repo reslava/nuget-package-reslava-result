@@ -57,9 +57,10 @@ public class ResultFlowGeneratorTests
             "await GetUser(cmd).BindAsync(SaveUser).MapAsync(ToDto)");
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("BindAsync"),   "Should contain BindAsync node");
-        Assert.IsTrue(output.Contains("MapAsync"),    "Should contain MapAsync node");
-        Assert.IsTrue(output.Contains("fail"),        "Bind should have fail edge");
+        // Node IDs are hashes; "Async" suffix stripped in labels → method appears as "Bind⚡" / "Map⚡"
+        Assert.IsTrue(output.Contains("Bind\u26a1"),  "Should contain Bind node (rendered as Bind⚡)");
+        Assert.IsTrue(output.Contains("Map\u26a1"),   "Should contain Map node (rendered as Map⚡)");
+        Assert.IsTrue(output.Contains("fail"),         "Bind should have fail edge");
 
         // MapAsync (PureTransform) should not have its own fail edge
         Assert.IsFalse(output.Contains("F1["), "MapAsync should not have a fail edge");
@@ -122,10 +123,11 @@ public class ResultFlowGeneratorTests
             "await GetUser(cmd).EnsureAsync(IsValid).BindAsync(SaveUser).TapAsync(SendEmail).MapAsync(ToDto).Match(ok => ok, err => null)");
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("EnsureAsync"),  "Should have Ensure node");
-        Assert.IsTrue(output.Contains("BindAsync"),    "Should have Bind node");
-        Assert.IsTrue(output.Contains("TapAsync"),     "Should have Tap node");
-        Assert.IsTrue(output.Contains("MapAsync"),     "Should have Map node");
+        // "Async" suffix stripped in labels → method appears as "Ensure⚡" / "Bind⚡" / etc.
+        Assert.IsTrue(output.Contains("Ensure\u26a1"),  "Should have Ensure node (rendered as Ensure⚡)");
+        Assert.IsTrue(output.Contains("Bind\u26a1"),    "Should have Bind node (rendered as Bind⚡)");
+        Assert.IsTrue(output.Contains("Tap\u26a1"),     "Should have Tap node (rendered as Tap⚡)");
+        Assert.IsTrue(output.Contains("Map\u26a1"),     "Should have Map node (rendered as Map⚡)");
         Assert.IsTrue(output.Contains("Match"),        "Should have Match terminal");
         Assert.IsTrue(output.Contains("gatekeeper"),   "Should have gatekeeper class");
         Assert.IsTrue(output.Contains("bind"),         "Should have bind class (TransformWithRisk)");
@@ -471,7 +473,8 @@ namespace TestNamespace
         Assert.IsTrue(output.Contains("<br/>"), "Type label present");
         Assert.IsTrue(output.Contains("User"),  "User type present");
         // Bind node itself should have no → (same-type); ENTRY_ROOT may contain → from seed label
-        var bindLine = System.Array.Find(output.Split('\n'), l => l.Contains("_Bind["));
+        // Node IDs are now hashes; find the Bind node line via :::bind classDef
+        var bindLine = System.Array.Find(output.Split('\n'), l => l.Contains(":::bind") && l.Contains("\"Bind"));
         Assert.IsNotNull(bindLine, "Bind node line should exist");
         Assert.IsFalse(bindLine!.Contains("\u2192"), "Bind node label should have no transition arrow for same-type Bind");
     }

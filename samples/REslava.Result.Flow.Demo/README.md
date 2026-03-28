@@ -18,13 +18,14 @@ dotnet run
 | 4 | Async pipeline — `⚡` step markers + typed errors | v1.38.0 |
 | 5 | Full pipeline — all NodeKinds end-to-end | v1.38.0 |
 | 6 | Cross-method tracing — `[ResultFlow(MaxDepth = 2)]` expands `Bind` into a `subgraph` | v1.45.0 |
-| 7 | Sidecar constant — writes `PlaceOrderCross.ResultFlow.md` to disk | v1.43.0 |
-| 8 | Clickable nodes — `ResultFlowLinkMode = vscode` | v1.43.0 |
-| 9 | Domain boundary diagrams — `[DomainBoundary]` triggers `_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation` | v1.45.0 |
-| 10 | Match multi-branch fan-out — hexagon + typed N-branch `-->|TypeName| FAIL` edges | v1.46.0 |
-| 11 | Architectural Flow Catalog — all generated diagrams published to MkDocs via `scripts/generate_flow_catalog.py` | v1.47.0 |
-| 12 | SVG Single Source of Truth — all diagram showcases use committed SVGs; `scripts/svg.sh` regenerates on change | v1.47.3 |
-| 13 | Dark theme — `[ResultFlow(Theme = ResultFlowTheme.Dark)]` emits a dark-palette Mermaid diagram | v1.47.4 |
+| 7 | Clickable nodes — `ResultFlowLinkMode = vscode` | v1.43.0 |
+| 8 | Domain boundary diagrams — `[DomainBoundary]` triggers `_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation` | v1.45.0 |
+| 9 | Match multi-branch fan-out — hexagon + typed N-branch `-->|TypeName| FAIL` edges | v1.46.0 |
+| 10 | Architectural Flow Catalog — all generated diagrams published to MkDocs via `scripts/generate_flow_catalog.py` | v1.47.0 |
+| 11 | SVG Single Source of Truth — all diagram showcases use committed SVGs; `scripts/svg.sh` regenerates on change | v1.47.3 |
+| 12 | Dark theme — `[ResultFlow(Theme = ResultFlowTheme.Dark)]` emits a dark-palette Mermaid diagram | v1.47.4 |
+| 13 | `_TypeFlow` constant — same nodes as `_Diagram` but success edges carry the `Result<T>` type name | v1.51.0 |
+| 14 | Namespace-aware `_LayerView` — `[DomainBoundary]` + explicit namespace in `Demo.Pipelines`; VSIX sidebar namespace grouping | v1.51.0 |
 
 ---
 
@@ -162,8 +163,8 @@ python scripts/generate_flow_catalog.py --project path/to/MyProject --output pat
 | **Cross-method tracing** | ✅ (syntax) | ✅ (semantic) |
 | **Sidecar constant** | ✅ | ✅ |
 | **Clickable nodes** | ✅ | ✅ |
-| **`_LayerView`** | ❌ | ✅ |
-| **`_Stats`** | ❌ | ✅ |
-| **`_ErrorSurface`** | ❌ | ✅ |
+| **`_LayerView`** | ✅ | ✅ |
+| **`_Stats`** | ✅ | ✅ |
+| **`_ErrorSurface`** | ✅ | ✅ |
 | **`_ErrorPropagation`** | ❌ | ✅ |
 | **Match typed N-branch** | ❌ (generic 2-branch) | ✅ |
