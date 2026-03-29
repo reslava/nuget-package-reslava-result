@@ -301,6 +301,20 @@ tagline: Know exactly what you're getting.
 | `ResultFlowRegistry=false` MSBuild property | Suppresses all `_PipelineRegistry.g.cs` generation for both packages | v1.50.0 | — |
 | VSIX v1.2.0 — Flow Catalog sidebar | `⚡ Flow Catalog` activity bar panel; groups all `[ResultFlow]` methods by project and class; green/red project build status; method `⚡` async labels, return type, node count; error types tooltip; `reslava.buildProject` with auto-refresh; stats bar | v1.50.0 | — |
 | VSIX v1.2.0 — single/multiple window mode | `reslava.diagramWindowMode` VS Code setting (`"single"` default); sidebar toolbar + webview toolbar toggle buttons | v1.50.0 | — |
+| `pipelineId` + `nodeIds` + `namespace` in `_Info` | Deterministic FNV-1a 8-hex `pipelineId`; `nodeIds` ordered array (format `"{pipelineId}_{4-hex}"`); `namespace` — all in registry `_Info` JSON; both packages | v1.51.0 | — |
+| `_TypeFlow` constant | Second Mermaid diagram per `[ResultFlow]` method; success edge labels carry `Result<T>` type names; `%% pipelineId:` comment; VSIX "Types" toolbar button; both packages | v1.51.0 | — |
+| `errorTypes` depth-2 scan | Unconditional depth-2 body descent into called `Result<T>` methods; catches errors in helpers/repositories; `Result.Flow` only | v1.51.0 | — |
+| FAIL node error annotation | 0 errors → `[fail]`; 1–3 → inline type names; 4+ → ℹ️ tooltip span; `Error` suffix stripped; both packages | v1.51.0 | — |
+| `%% pipelineId:` comment in Mermaid | After `flowchart LR` in `_Diagram` + `_TypeFlow`; inside subgraphs in `_LayerView`/`_ErrorSurface`/`_ErrorPropagation`; `pipelineId` column in `_Stats` | v1.51.0 | — |
+| Node `sourceLine` fix | `MemberAccessExpressionSyntax.Name.GetLocation()` — fixes off-by-one on vertical fluent chains; both packages | v1.51.0 | — |
+| VSIX v1.2.2 — health icons (revised) | ✅ errors found · ⚠️ risk paths, no errors · ⚪ terminal-only · ❌ no diagram | v1.51.0 | — |
+| VSIX v1.2.2 — namespace grouping | Tree groups classes under intermediate namespace nodes; uses `namespace` field from `_Info` | v1.51.0 | — |
+| VSIX v1.2.2 — loading spinner + empty state | `$(loading~spin)` during build; empty-state tree item with install instructions + demo link | v1.51.0 | — |
+| VSIX v1.2.2 — error children in sidebar | Expand method → one child per error type; click → navigate to error class definition | v1.51.0 | — |
+| VSIX v1.2.2 — layer diagram tabs | Webview toolbar tabs for all 6 constant types; absent tabs hidden | v1.51.0 | — |
+| VSIX v1.2.2 — first-run walkthrough + missing-package detection | VS Code walkthrough (Install → Attribute → Preview); `checkForResultFlowPackages()` with Track A/B install buttons; `findProjectForInstall()` Quick Pick | v1.51.0 | — |
+| Two-track messaging | Track A / Track B install table in README, NuGet READMEs, MkDocs, VSIX README | v1.51.0 | — |
+| NuGet transitive dependency fix | `REslava.Result.Flow`, `Analyzers`, `AspNetCore` now declare `REslava.Result` as proper NuGet transitive dependency | v1.51.0 | — |
 
 ---
 
@@ -329,7 +343,7 @@ tagline: Know exactly what you're getting.
 
 ## Summary
 
-!!! new "**v1.50.0** — 222 features across 15 categories."
+!!! new "**v1.51.0** — 237 features across 15 categories."
 
 
 | Category | Total Features |
@@ -346,10 +360,10 @@ tagline: Know exactly what you're getting.
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
-| ResultFlow | 64 |
+| ResultFlow | 79 |
 | OpenTelemetry | 3 |
 | ResultContext | 6 |
-| **Total** | **222** |
+| **Total** | **237** |
 
 ---
 
