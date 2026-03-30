@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { hasTraceForMethod } from './diagramResolver';
 
 const RESULT_FLOW_ATTR = /^\s*\[ResultFlow[(\]]/;
 const CLASS_DECL       = /(?:^|[\w\s]*?)class\s+(\w+)(?:\s*[:({<]|\s*$)/;
@@ -210,10 +211,11 @@ export class ResultFlowTreeProvider
         for (const cls of entry.node.classes) {
             const methodInfoMap = registryData.get(cls.className);
             if (!methodInfoMap) { continue; }
+            const classHasTrace = hasTraceForMethod(cls.className);
             for (const method of cls.methods) {
                 const info = methodInfoMap.get(method.methodName);
                 if (info) {
-                    method.applyRegistryInfo(info, cls.className);
+                    method.applyRegistryInfo(info, cls.className, classHasTrace);
                     // Seed namespace from first method that has one
                     if (!cls.namespace && info.namespace) { cls.namespace = info.namespace; }
                 }
@@ -307,6 +309,7 @@ export class ClassNode extends vscode.TreeItem {
 export class MethodNode extends vscode.TreeItem {
     nodeCount: number | null  = null;
     sourceLine: number | null = null;  // 0-based, for goToSource command
+    pipelineId: string | null = null;  // FNV-1a hash, for Live panel correlation
     errorChildren: ErrorNode[] = [];
 
     constructor(
@@ -327,7 +330,7 @@ export class MethodNode extends vscode.TreeItem {
         this.tooltip = 'Click to open diagram preview';
     }
 
-    applyRegistryInfo(info: RegistryMethodInfo, className: string): void {
+    applyRegistryInfo(info: RegistryMethodInfo, className: string, hasTrace: boolean = false): void {
         // Phase A: async label (registry is more reliable than source scan)
         if (info.isAsync && !this.label!.toString().includes('⚡')) {
             this.label = this.methodName + '⚡';
@@ -374,6 +377,9 @@ export class MethodNode extends vscode.TreeItem {
         // Phase B — sourceLine (0-based) for goToSource
         this.sourceLine = info.sourceLine - 1;
 
+        // pipelineId — FNV-1a hash for Live panel trace correlation
+        this.pipelineId = info.pipelineId ?? null;
+
         // Phase B — tooltip: health state + full details
         const healthLine = !info.hasDiagram
             ? '\n\n❌ No diagram — build the project to generate it.'
@@ -396,6 +402,9 @@ export class MethodNode extends vscode.TreeItem {
             title:     'Open Diagram Preview',
             arguments: [this.uri, info.sourceLine - 1, className, this.methodName]
         };
+
+        // Debug inline button: only shown for instance-method classes with _Traced generated
+        this.contextValue = hasTrace ? 'reslavaMethodTraceable' : 'reslavaMethod';
     }
 }
 

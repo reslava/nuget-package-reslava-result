@@ -25,7 +25,8 @@ export function showWebviewPanel(
     layerView:        string | null = null,
     stats:            string | null = null,
     errorSurface:     string | null = null,
-    errorPropagation: string | null = null
+    errorPropagation: string | null = null,
+    hasTrace:         boolean = false
 ): void {
     const mode = getMode();
     const extra = { typeFlow, layerView, stats, errorSurface, errorPropagation };
@@ -37,7 +38,7 @@ export function showWebviewPanel(
             singlePanel.webview.postMessage({ command: 'update', diagram, methodName, ...extra });
             return;
         }
-        singlePanel = createPanel(methodName, diagram, extensionUri, mode, extra);
+        singlePanel = createPanel(methodName, diagram, extensionUri, mode, extra, hasTrace);
         singlePanel.onDidDispose(() => { singlePanel = undefined; });
         return;
     }
@@ -49,7 +50,7 @@ export function showWebviewPanel(
         existing.webview.postMessage({ command: 'update', diagram, ...extra });
         return;
     }
-    const panel = createPanel(methodName, diagram, extensionUri, mode, extra);
+    const panel = createPanel(methodName, diagram, extensionUri, mode, extra, hasTrace);
     panel.onDidDispose(() => panels.delete(methodName));
     panels.set(methodName, panel);
 }
@@ -67,7 +68,8 @@ function createPanel(
     diagram: string,
     extensionUri: vscode.Uri,
     mode: 'single' | 'multiple',
-    extra: ExtraViews = {}
+    extra: ExtraViews = {},
+    hasTrace: boolean = false
 ): vscode.WebviewPanel {
     const panel = vscode.window.createWebviewPanel(
         'reslava.resultFlow',
@@ -79,7 +81,7 @@ function createPanel(
             retainContextWhenHidden: true
         }
     );
-    panel.webview.html = buildHtml(diagram, methodName, panel.webview, extensionUri, mode, extra);
+    panel.webview.html = buildHtml(diagram, methodName, panel.webview, extensionUri, mode, extra, hasTrace);
     panel.webview.onDidReceiveMessage(async (msg) => {
         if (msg.command === 'navigate') {
             await navigateToVscodeUri(msg.href);
@@ -91,6 +93,8 @@ function createPanel(
             vscode.window.showErrorMessage(`PNG export failed: ${msg.message}`);
         } else if (msg.command === 'toggleWindowMode') {
             await vscode.commands.executeCommand('reslava.toggleDiagramWindowMode');
+        } else if (msg.command === 'openLivePanel') {
+            await vscode.commands.executeCommand('resultflow.openLivePanel', msg.methodName);
         }
     });
     return panel;
@@ -130,7 +134,8 @@ function buildHtml(
     webview: vscode.Webview,
     extensionUri: vscode.Uri,
     mode: 'single' | 'multiple' = 'single',
-    extra: ExtraViews = {}
+    extra: ExtraViews = {},
+    hasTrace: boolean = false
 ): string {
     const { typeFlow = null, layerView = null, stats = null,
             errorSurface = null, errorPropagation = null } = extra;
@@ -203,12 +208,13 @@ function buildHtml(
     /* ── Toolbar ── */
     .toolbar { display:flex; gap:4px; margin-bottom:10px; }
     .tb-btn {
-      background:${btnBg}; color:${btnColor}; border:1px solid ${btnBdr};
+      background:transparent; color:var(--vscode-foreground); border:1px solid ${btnBdr};
       border-radius:3px; padding:2px 10px; cursor:pointer;
       font-size:11px; font-family:sans-serif; user-select:none;
     }
     .tb-btn:hover { opacity:0.8; }
-    .tb-btn.active { background:${isDark ? '#3a3a3a' : '#e0e8f0'}; }
+    .tb-btn.active { background:#3b82f6; color:#fff; border-color:#3b82f6; border-radius:4px; font-weight:600; }
+    .tb-sep { width:1px; background:${btnBdr}; align-self:stretch; margin:0 2px; }
 
     /* ── Diagram ── */
     #diagram-scroll { overflow:auto; width:100%; }
@@ -252,13 +258,16 @@ function buildHtml(
     <span class="brand">REslava.Result Extensions</span>
   </div>
   <div class="toolbar">
+    <button class="tb-btn" id="btn-types"     title="Type-flow view"${typeFlow     ? '' : ' disabled style="opacity:0.4;cursor:default"'}>➡️ Types</button>
+    ${hasTrace ? `<button class="tb-btn" id="btn-debug" title="Open Live panel for this pipeline">🔬 Debug</button>` : ''}
+    <button class="tb-btn" id="btn-layer"     title="Layer view"${layerView        ? '' : ' disabled style="opacity:0.4;cursor:default"'}>🏗️ Layer</button>
+    <button class="tb-btn" id="btn-errors"    title="Error surface"${errorSurface  ? '' : ' disabled style="opacity:0.4;cursor:default"'}>⚠️ Errors</button>
+    <button class="tb-btn" id="btn-errorprop" title="Error propagation"${errorPropagation ? '' : ' disabled style="opacity:0.4;cursor:default"'}>📡 Prop</button>
+    <button class="tb-btn" id="btn-stats"     title="Pipeline statistics"${stats   ? '' : ' disabled style="opacity:0.4;cursor:default"'}>📈 Stats</button>
+    <div class="tb-sep"></div>
     <button class="tb-btn" id="btn-source">Source</button>
     <button class="tb-btn" id="btn-legend">Legend</button>
-    <button class="tb-btn" id="btn-types"     title="Type-flow view"${typeFlow     ? '' : ' disabled style="opacity:0.4;cursor:default"'}>Types</button>
-    <button class="tb-btn" id="btn-layer"     title="Layer view"${layerView        ? '' : ' disabled style="opacity:0.4;cursor:default"'}>Layer</button>
-    <button class="tb-btn" id="btn-errors"    title="Error surface"${errorSurface  ? '' : ' disabled style="opacity:0.4;cursor:default"'}>Errors</button>
-    <button class="tb-btn" id="btn-errorprop" title="Error propagation"${errorPropagation ? '' : ' disabled style="opacity:0.4;cursor:default"'}>Prop</button>
-    <button class="tb-btn" id="btn-stats"     title="Pipeline statistics"${stats   ? '' : ' disabled style="opacity:0.4;cursor:default"'}>Stats</button>
+    <div class="tb-sep"></div>
     <button class="tb-btn" id="btn-svg"    title="Export as SVG">SVG</button>
     <button class="tb-btn" id="btn-png"    title="Export as PNG (2x)">PNG</button>
     <button class="tb-btn" id="btn-mode"   title="Toggle single/multiple window mode">${mode === 'single' ? 'Single' : 'Multi'}</button>
@@ -301,6 +310,7 @@ function buildHtml(
 
   <script nonce="${nonce}">
   (async function () {
+    const methodName = ${JSON.stringify(methodName)};
     let diagram      = ${diagramJson};
     let typeFlow     = ${typeFlowJson};
     let layerView    = ${layerViewJson};
@@ -454,6 +464,11 @@ function buildHtml(
     // ── Mode toggle ──────────────────────────────────────────────────────────
     document.getElementById('btn-mode').addEventListener('click', () => {
       vscode.postMessage({ command: 'toggleWindowMode' });
+    });
+
+    // ── Debug (Live panel) ────────────────────────────────────────────────────
+    document.getElementById('btn-debug')?.addEventListener('click', () => {
+      vscode.postMessage({ command: 'openLivePanel', methodName });
     });
 
     // ── Plan #4 auto-refresh + mode sync ─────────────────────────────────────

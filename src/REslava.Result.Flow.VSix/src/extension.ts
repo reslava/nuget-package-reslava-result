@@ -6,6 +6,7 @@ import { openPreviewForMethod, refreshDiagramsForDocument } from './diagramResol
 import { registerGutterDecorator } from './gutterDecorator';
 import { ResultFlowTreeProvider, ProjectNode } from './resultFlowTreeProvider';
 import { notifyAllPanels } from './webviewPanel';
+import { ResultFlowLivePanel } from './resultFlowLivePanel';
 
 const TRACK_A_PACKAGES = ['REslava.Result.Flow'];
 const TRACK_B_PACKAGES = ['REslava.ResultFlow'];
@@ -41,6 +42,10 @@ async function findProjectForInstall(): Promise<string | null> {
 }
 
 export function activate(context: vscode.ExtensionContext): void {
+    // Output channel for Live panel diagnostics — visible in Output panel → "ResultFlow Live"
+    const liveLog = vscode.window.createOutputChannel('ResultFlow Live');
+    context.subscriptions.push(liveLog);
+
     // CodeLens — "▶ Open diagram preview" above every [ResultFlow] method
     context.subscriptions.push(
         vscode.languages.registerCodeLensProvider(
@@ -158,6 +163,17 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand('reslava.openDemo', () => {
             vscode.env.openExternal(vscode.Uri.parse(DEMO_URL));
         })
+    );
+
+    // Live panel — opened by CodeLens "▶ Debug", sidebar inline button, or webview button
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            'resultflow.openLivePanel',
+            (arg: string | import('./resultFlowTreeProvider').MethodNode) => {
+                const methodName = typeof arg === 'string' ? arg : arg.methodName;
+                ResultFlowLivePanel.show(context.extensionUri, methodName, liveLog);
+            }
+        )
     );
 
     // Toggle single/multiple window mode

@@ -108,6 +108,7 @@ var message = result.Match(
 | [REslava.Result.Http](https://www.nuget.org/packages/REslava.Result.Http) | Wrap `HttpClient` calls so every HTTP response and network failure becomes a typed `Result<T>` |
 | [REslava.Result.Analyzers](https://www.nuget.org/packages/REslava.Result.Analyzers) | Roslyn analyzers that catch unsafe Result/OneOf usage at compile time |
 | [REslava.Result.OpenTelemetry](https://www.nuget.org/packages/REslava.Result.OpenTelemetry) | Zero-cost OpenTelemetry integration — seeds `ResultContext` from the active span and writes error tags as span attributes on failure |
+| [REslava.Result.Diagnostics](https://www.nuget.org/packages/REslava.Result.Diagnostics) | HTTP trace endpoint (`GET /reslava/traces`) that bridges `RingBufferObserver` to the VSIX Live panel — `PipelineTraceHost.Start(buffer)` or `app.MapResultFlowTraces(buffer)` |
 | [FluentValidation](https://www.nuget.org/packages/FluentValidation) | ≥ 11.x (installed by user) ⚠️ **Optional**  FluentValidation bridge |
 
 ## Links

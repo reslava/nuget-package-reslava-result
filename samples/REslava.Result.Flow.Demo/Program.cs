@@ -33,6 +33,7 @@
 //  14. Namespace-aware _LayerView — Demo.Pipelines.Pipelines [DomainBoundary("Application")] +
 //      UserService [DomainBoundary("Domain")] → _LayerView, _Stats, _ErrorSurface, _ErrorPropagation
 //  15. Pipeline Runtime Observation — RingBufferObserver + _Traced (exact tier)
+//  16. REslava.Result.Diagnostics — PipelineTraceHost HTTP endpoint for VSIX Live panel
 // =============================================================================
 using Demo.MatchDemo;
 using Demo.Pipelines;
@@ -41,6 +42,7 @@ using REslava.Result;
 using REslava.Result.AdvancedPatterns;
 using REslava.Result.Extensions;
 using REslava.Result.Flow;
+using REslava.Result.Diagnostics;
 using REslava.Result.Observers;
 
 var sep  = new string('─', 60);
@@ -267,6 +269,41 @@ foreach (var trace in ringBuffer.GetTraces())
     }
 }
 
+Console.WriteLine();
+
+// ── 16. REslava.Result.Diagnostics — PipelineTraceHost HTTP endpoint ─────────
+//
+// PipelineTraceHost.Start(buffer) embeds a minimal Kestrel server that exposes
+// GET /reslava/traces as JSON — the VSIX Live panel polls this endpoint every 2s.
+//
+// For apps that already have an ASP.NET Core WebApplication, use the route
+// extension instead:
+//   app.MapResultFlowTraces(buffer);   // maps GET /reslava/traces into your app
+//
+// The VSIX Live panel (▶ Debug CodeLens) automatically connects to the configured
+// port (default 5297; change via resultflow.tracePort in VS Code settings).
+Console.WriteLine();
+Console.WriteLine("  16. REslava.Result.Diagnostics — PipelineTraceHost:");
+Console.WriteLine(sep);
+
+var diagnosticsBuffer = new RingBufferObserver(capacity: 50);
+PipelineObserver.Register(diagnosticsBuffer);
+
+// Run a few traces so the buffer has data when the endpoint is queried
+var tracingSvc16 = new RuntimeTracingService();
+tracingSvc16.Process_Traced(42, 7);
+tracingSvc16.Process_Traced(42, 99);
+tracingSvc16.Process_Traced(999, 7);
+
+PipelineObserver.Unregister();
+
+// Start the HTTP trace endpoint on port 5297 (default Live panel port).
+// Keeps running until a key is pressed so the VSIX Live panel can poll the buffer.
+using var host = PipelineTraceHost.Start(diagnosticsBuffer, port: 5297);
+Console.WriteLine($"  Trace endpoint: http://localhost:5297/reslava/traces");
+Console.WriteLine($"  Buffer contains {diagnosticsBuffer.GetTraces().Count} traces.");
+Console.WriteLine($"  Open '▶ Debug' in VS Code, then press any key here to exit...");
+Console.ReadKey(intercept: true);
 Console.WriteLine();
 
 // =============================================================================

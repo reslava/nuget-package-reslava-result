@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <RootNamespace>REslava.Result.Diagnostics</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+
+    <!-- Code Analysis -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- NuGet Metadata -->
+    <PackageId>REslava.Result.Diagnostics</PackageId>
+    <Title>REslava.Result.Diagnostics - HTTP trace endpoint for VSIX Live panel</Title>
+    <Authors>Rafael Eslava</Authors>
+    <Company>REslava</Company>
+    <Product>REslava.Result.Diagnostics</Product>
+    <Description>HTTP trace endpoint for REslava.Result pipeline runtime observation. Exposes RingBufferObserver data via GET /reslava/traces so the REslava.Result Extensions VSIX can display the Live panel (History / Single / Step / Replay modes). Use PipelineTraceHost.Start(buffer) for console/worker apps, or app.MapResultFlowTraces(buffer) for ASP.NET Core apps.</Description>
+    <Copyright>Copyright (c) 2025 Rafa Eslava</Copyright>
+    <PackageProjectUrl>https://reslava.github.io/nuget-package-reslava-result</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/reslava/nuget-package-reslava-result</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>diagnostics;result;tracing;pipeline;vsix;live-panel;http;kestrel;reslava</PackageTags>
+    <PackageReleaseNotes>https://github.com/reslava/nuget-package-reslava-result/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.REslava.Result.Diagnostics.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+
+    <!-- Source Link -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
+    <None Include="..\..\docs\nuget\README.REslava.Result.Diagnostics.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ASP.NET Core (Kestrel, routing) — net8+ only; guarded by TFM -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Runtime dependency on core library — ships in the package.
+         ProjectReference so local builds resolve without a published NuGet.
+         dotnet pack converts this to a PackageDependency automatically. -->
+    <ProjectReference Include="..\REslava.Result\REslava.Result.csproj" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

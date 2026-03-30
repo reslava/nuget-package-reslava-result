@@ -17,6 +17,9 @@ namespace REslava.Result
             ResultPipelineHooks.Observer = observer;
         }
 
+        /// <summary>Returns the currently registered observer, or <c>null</c> if none is registered.</summary>
+        public static ResultFlowObserver? Current => ResultPipelineHooks.Observer;
+
         /// <summary>Removes the currently registered observer.</summary>
         public static void Unregister()
         {

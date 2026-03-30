@@ -111,6 +111,10 @@ Build Railway-Oriented pipelines with strongly typed errors and automatically ge
     Runnable console app — every `[ResultFlow]` and `[DomainBoundary]` feature with live generated diagrams.
     [](demo)
 
+-   :material-bug-play: __Live Panel & Diagnostics__
+    `REslava.Result.Diagnostics` — HTTP trace endpoint + VSIX Live panel with History / Single / Step / Replay modes. `▶ Debug` CodeLens streams per-node execution data into VS Code.
+    [](reference/features)
+
 -   :material-book-open-variant: __Reference__
     Version history, roadmap, and API documentation.
     [](reference)

@@ -175,15 +175,16 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                                     : returnType;
                             var resultIsGeneric = innerType?.Arity > 0;
 
-                            // nodeIds: one entry per non-Invisible chain node that has source info
+                            // nodeIds: one per non-Invisible node, using the same FNV-1a hash as the
+                            // Mermaid renderer (ShortHash.Compute(pipelineId, methodName, index))
+                            // so that runtime trace nodeId values match Mermaid diagram node IDs.
                             var nodeIds = new System.Collections.Generic.List<string>();
+                            int visibleIdx = 0;
                             foreach (var node in chain)
                             {
                                 if (node.Kind == Models.NodeKind.Invisible) continue;
-                                if (node.SourceFile != null && node.SourceLine.HasValue)
-                                    nodeIds.Add($"{System.IO.Path.GetFileName(node.SourceFile)}:{node.SourceLine}");
-                                else
-                                    nodeIds.Add($"{pipelineId}:{nodeIds.Count}");
+                                nodeIds.Add(ShortHash.Compute(pipelineId, node.MethodName, visibleIdx.ToString()));
+                                visibleIdx++;
                             }
 
                             var parameters = new System.Collections.Generic.List<(string TypeFqn, string ParamName, bool IsValueType)>();

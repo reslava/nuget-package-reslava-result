@@ -122,6 +122,27 @@ One click opens the rendered Mermaid diagram in a **dedicated side panel** — b
 
 The companion analyzer detects `[ResultFlow]` methods that are missing the diagram as a developer comment. A **single-click code fix** inserts the generated Mermaid diagram directly above the method body — so the diagram lives next to the code that produced it.
 
+## Live Panel — `▶ Debug` CodeLens (v1.52.0)
+
+Add [`REslava.Result.Diagnostics`](https://www.nuget.org/packages/REslava.Result.Diagnostics) to expose your `RingBufferObserver` over HTTP. The VSIX `▶ Debug` CodeLens connects to `GET /reslava/traces` and streams execution data into VS Code — trace list, node stepper, and animated replay with diagram node highlight.
+
+```bash
+dotnet add package REslava.Result.Diagnostics
+```
+
+```csharp
+using REslava.Result.Diagnostics;
+
+var buffer = new RingBufferObserver();
+PipelineObserver.Register(buffer);
+
+// Standalone (console / worker):
+using var host = PipelineTraceHost.Start(buffer, port: 5297);
+
+// ASP.NET Core:
+app.MapResultFlowTraces(buffer);
+```
+
 ## Diagnostics
 
 | ID | Severity | Description |

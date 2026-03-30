@@ -21,5 +21,7 @@
     <!-- REslava.Result.Flow — REslava.Result-native generator with type travel + typed error edges -->
     <ProjectReference Include="..\..\src\REslava.Result.Flow\REslava.Result.Flow.csproj"
                       OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <!-- REslava.Result.Diagnostics — HTTP trace endpoint for VSIX Live panel -->
+    <ProjectReference Include="..\..\src\REslava.Result.Diagnostics\REslava.Result.Diagnostics.csproj" />
   </ItemGroup>
 </Project>

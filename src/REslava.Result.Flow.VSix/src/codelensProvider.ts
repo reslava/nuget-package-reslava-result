@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { resolveClassName, hasTraceForMethod } from './diagramResolver';
 
 export class ResultFlowCodeLensProvider implements vscode.CodeLensProvider {
     provideCodeLenses(document: vscode.TextDocument): vscode.CodeLens[] {
@@ -9,10 +10,18 @@ export class ResultFlowCodeLensProvider implements vscode.CodeLensProvider {
             if (/^\s*\[ResultFlow[(\]]/.test(lines[i])) {
                 const range = new vscode.Range(i, 0, i, lines[i].length);
                 lenses.push(new vscode.CodeLens(range, {
-                    title: '▶ Open diagram preview',
+                    title: '▶ Diagram',
                     command: 'reslava._previewMethod',
                     arguments: [document.uri, i]
                 }));
+                const className = resolveClassName(document, i);
+                if (hasTraceForMethod(className)) {
+                    lenses.push(new vscode.CodeLens(range, {
+                        title: '▶ Debug',
+                        command: 'resultflow.openLivePanel',
+                        arguments: [document.uri, i]
+                    }));
+                }
             }
         }
         return lenses;

@@ -2,7 +2,7 @@
   "name": "reslava-result-extensions",
   "displayName": "REslava.Result Extensions",
   "description": "CodeLens and diagram preview for [ResultFlow] pipelines",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "publisher": "reslava",
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/reslava/nuget-package-reslava-result" },
@@ -43,6 +43,16 @@
           ],
           "default": "single",
           "markdownDescription": "Controls whether clicking a pipeline opens a new panel (`multiple`) or reuses the existing one (`single`)."
+        },
+        "resultflow.tracePort": {
+          "type": "number",
+          "default": 5297,
+          "markdownDescription": "Port for the ResultFlow trace HTTP endpoint. Must match the port passed to `PipelineTraceHost.Start(buffer, port)` or the Kestrel port your app is running on when using `app.MapResultFlowTraces(buffer)`."
+        },
+        "resultflow.tracePollIntervalMs": {
+          "type": "number",
+          "default": 2000,
+          "markdownDescription": "How often (in milliseconds) the Live panel polls `GET /reslava/traces`. Default: 2000 ms."
         }
       }
     },
@@ -78,6 +88,11 @@
       {
         "command": "reslava.openDemo",
         "title": "REslava: Open Demo on GitHub"
+      },
+      {
+        "command": "resultflow.openLivePanel",
+        "title": "Open ResultFlow Live Panel",
+        "icon": "$(debug-alt)"
       }
     ],
     "walkthroughs": [
@@ -137,6 +152,11 @@
           "command": "reslava.goToSource",
           "when": "view == reslavaResultFlowExplorer && viewItem == reslavaMethod",
           "group": "1"
+        },
+        {
+          "command": "resultflow.openLivePanel",
+          "when": "view == reslavaResultFlowExplorer && viewItem == reslavaMethodTraceable",
+          "group": "inline"
         }
       ],
       "view/title": [

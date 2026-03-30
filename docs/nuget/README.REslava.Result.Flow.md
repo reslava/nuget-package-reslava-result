@@ -118,6 +118,27 @@ Compared to `REslava.ResultFlow`, this package adds:
 - Typed failure edges (e.g. `InvalidEmailError` instead of just `fail`)
 - Error surface inference via `IError` — no manual annotation required
 
+## Live Panel — `▶ Debug` CodeLens (v1.52.0)
+
+Add [`REslava.Result.Diagnostics`](https://www.nuget.org/packages/REslava.Result.Diagnostics) to expose your `RingBufferObserver` over HTTP. The VSIX `▶ Debug` CodeLens connects to `GET /reslava/traces` and streams execution data into VS Code — trace list, node stepper, and animated replay with diagram node highlight.
+
+```bash
+dotnet add package REslava.Result.Diagnostics
+```
+
+```csharp
+using REslava.Result.Diagnostics;
+
+var buffer = new RingBufferObserver();
+PipelineObserver.Register(buffer);
+
+// Standalone (console / worker):
+using var host = PipelineTraceHost.Start(buffer, port: 5297);
+
+// ASP.NET Core:
+app.MapResultFlowTraces(buffer);
+```
+
 ## Diagnostics
 
 | ID | Severity | Description |

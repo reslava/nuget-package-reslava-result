@@ -27,6 +27,7 @@ dotnet run
 | 13 | `_TypeFlow` constant — same nodes as `_Diagram` but success edges carry the `Result<T>` type name | v1.51.0 |
 | 14 | Namespace-aware `_LayerView` — `[DomainBoundary]` + explicit namespace in `Demo.Pipelines`; VSIX sidebar namespace grouping | v1.51.0 |
 | 15 | Pipeline Runtime Observation — `RingBufferObserver` + `_Traced` exact-tier wrapper; per-node output values, error types, elapsed ms | v1.52.0 |
+| 16 | `REslava.Result.Diagnostics` — `PipelineTraceHost.Start(buffer)` HTTP endpoint; VSIX `▶ Debug` CodeLens connects to `GET /reslava/traces` for live trace streaming | v1.52.0 |
 
 ---
 

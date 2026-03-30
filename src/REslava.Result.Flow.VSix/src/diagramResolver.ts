@@ -61,10 +61,12 @@ export async function openPreviewForMethod(
         // Step 1 — generated *_Flows.g.cs (primary source)
         const fromGenerated = findDiagramInGeneratedFile(className, methodName);
         if (fromGenerated) {
+            const hasTrace = hasTraceForMethod(className);
             showWebviewPanel(
                 methodName, fromGenerated.diagram, extensionUri,
                 fromGenerated.typeFlow, fromGenerated.layerView,
-                fromGenerated.stats, fromGenerated.errorSurface, fromGenerated.errorPropagation
+                fromGenerated.stats, fromGenerated.errorSurface, fromGenerated.errorPropagation,
+                hasTrace
             );
             return;
         }
@@ -235,7 +237,7 @@ function extractFromExistingComment(
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function resolveMethodName(document: vscode.TextDocument, fromLine: number): string {
+export function resolveMethodName(document: vscode.TextDocument, fromLine: number): string {
     for (let i = fromLine; i < Math.min(fromLine + 5, document.lineCount); i++) {
         const m = document.lineAt(i).text.match(
             /(?:public|private|protected|internal|async|static|\s)+\S+\s+(\w+)\s*[(<]/
@@ -245,7 +247,7 @@ function resolveMethodName(document: vscode.TextDocument, fromLine: number): str
     return 'Pipeline';
 }
 
-function resolveClassName(document: vscode.TextDocument, fromLine: number): string {
+export function resolveClassName(document: vscode.TextDocument, fromLine: number): string {
     for (let i = fromLine; i >= 0; i--) {
         // After the class name, C# requires : { < ( or end-of-line.
         // Mermaid "class Foo subgraphStyle" has a plain word after the name — skip it.
@@ -255,6 +257,82 @@ function resolveClassName(document: vscode.TextDocument, fromLine: number): stri
         if (m) { return m[1]; }
     }
     return 'Unknown';
+}
+
+// ─── Trace detection ─────────────────────────────────────────────────────────
+//
+// Returns true when the generated *_Flows.g.cs for className contains a
+// {ClassName}_Traced_Extensions class — meaning the class is an instance-method
+// [ResultFlow] class for which the generator emitted _Traced wrappers.
+// Static-method classes never get _Traced, so this returns false for them.
+
+export function hasTraceForMethod(className: string): boolean {
+    const targetFile = `${className}_Flows.g.cs`;
+    const folders = vscode.workspace.workspaceFolders ?? [];
+    for (const folder of folders) {
+        const filePath = walkForObjFile(folder.uri.fsPath, targetFile);
+        if (filePath) {
+            try {
+                const content = fs.readFileSync(filePath, 'utf8');
+                return content.includes(`${className}_Traced_Extensions`);
+            } catch { return false; }
+        }
+    }
+    return false;
+}
+
+// ─── Live panel helper ────────────────────────────────────────────────────────
+//
+// Searches all *_Flows.g.cs files in the workspace for a diagram constant
+// matching methodName. Used by the Live panel when only methodName is known.
+
+export function findDiagramByMethodName(methodName: string): string | null {
+    const folders = vscode.workspace.workspaceFolders ?? [];
+    for (const folder of folders) {
+        const result = searchWorkspaceForMethod(folder.uri.fsPath, methodName);
+        if (result) { return result; }
+    }
+    return null;
+}
+
+function searchWorkspaceForMethod(dir: string, methodName: string): string | null {
+    let entries: fs.Dirent[];
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+    catch { return null; }
+
+    for (const entry of entries) {
+        if (!entry.isDirectory()) { continue; }
+        const fullPath = path.join(dir, entry.name);
+        if (entry.name === 'obj') {
+            const result = searchObjForMethod(fullPath, methodName);
+            if (result) { return result; }
+        } else if (!SKIP_DIRS.has(entry.name)) {
+            const result = searchWorkspaceForMethod(fullPath, methodName);
+            if (result) { return result; }
+        }
+    }
+    return null;
+}
+
+function searchObjForMethod(dir: string, methodName: string): string | null {
+    let entries: fs.Dirent[];
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+    catch { return null; }
+
+    for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            const result = searchObjForMethod(fullPath, methodName);
+            if (result) { return result; }
+        } else if (entry.name.endsWith('_Flows.g.cs')) {
+            try {
+                const content = fs.readFileSync(fullPath, 'utf8');
+                const diagram = extractDiagramConstant(content, methodName);
+                if (diagram) { return diagram; }
+            } catch { /* skip */ }
+        }
+    }
+    return null;
 }
 
 // Extracts the diagram string from: public const string MethodName = @"...";

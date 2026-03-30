@@ -77,6 +77,7 @@ jobs:
           dotnet build src/REslava.ResultFlow/REslava.ResultFlow.csproj --configuration Release
           dotnet build src/REslava.Result.Flow/REslava.Result.Flow.csproj --configuration Release
           dotnet build src/REslava.Result.OpenTelemetry/REslava.Result.OpenTelemetry.csproj --configuration Release
+          dotnet build src/REslava.Result.Diagnostics/REslava.Result.Diagnostics.csproj --configuration Release
           dotnet pack src/REslava.Result/REslava.Result.csproj --configuration Release --output ./packages
           dotnet pack src/REslava.Result.AspNetCore/REslava.Result.AspNetCore.csproj --configuration Release --output ./packages
           dotnet pack src/REslava.Result.Analyzers/REslava.Result.Analyzers.csproj --configuration Release --output ./packages
@@ -85,6 +86,7 @@ jobs:
           dotnet pack src/REslava.ResultFlow/REslava.ResultFlow.csproj --configuration Release --output ./packages
           dotnet pack src/REslava.Result.Flow/REslava.Result.Flow.csproj --configuration Release --output ./packages
           dotnet pack src/REslava.Result.OpenTelemetry/REslava.Result.OpenTelemetry.csproj --configuration Release --output ./packages
+          dotnet pack src/REslava.Result.Diagnostics/REslava.Result.Diagnostics.csproj --configuration Release --output ./packages
 
       - name: Publish to NuGet
         run: |

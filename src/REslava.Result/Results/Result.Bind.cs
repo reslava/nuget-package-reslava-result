@@ -31,8 +31,8 @@ public partial class Result<TValue> : Result, IResultBase<TValue>
 
         var obs = ResultPipelineHooks.Observer;
         var state = ResultPipelineHooks.State;
-        var nodeIndex = state?.ConsumeIndex() ?? 0;
         var nodeId = state != null ? state.CurrentNodeId() : $"{System.IO.Path.GetFileName(_callerFile)}:{_callerLine}";
+        var nodeIndex = state?.ConsumeIndex() ?? 0;
         var pipelineId = state?.PipelineId ?? _callerFile;
         var ts = obs != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0L;
 
@@ -137,8 +137,8 @@ public partial class Result<TValue> : Result, IResultBase<TValue>
 
         var obs = ResultPipelineHooks.Observer;
         var state = ResultPipelineHooks.State;
-        var nodeIndex = state?.ConsumeIndex() ?? 0;
         var nodeId = state != null ? state.CurrentNodeId() : $"{System.IO.Path.GetFileName(_callerFile)}:{_callerLine}";
+        var nodeIndex = state?.ConsumeIndex() ?? 0;
         var pipelineId = state?.PipelineId ?? _callerFile;
         var ts = obs != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0L;
 
