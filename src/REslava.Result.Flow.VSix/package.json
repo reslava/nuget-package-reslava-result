@@ -26,7 +26,8 @@
       "reslavaResultFlow": [
         {
           "id": "reslavaResultFlowExplorer",
-          "name": "⚡ Flow Catalog"
+          "name": "⚡ Flow Catalog",
+          "icon": "images/icon-sidebar.svg"
         }
       ]
     },
@@ -68,7 +69,7 @@
       },
       {
         "command": "reslava.installTrackA",
-        "title": "REslava: Install Track A (REslava.Result + REslava.Result.Flow)"
+        "title": "REslava: Install Track A (REslava.Result.Flow)"
       },
       {
         "command": "reslava.installTrackB",
@@ -88,7 +89,7 @@
           {
             "id": "reslava.installPackage",
             "title": "Install a ResultFlow NuGet package",
-            "description": "Choose your track:\n\n**Track A** — REslava.Result users:\n```\ndotnet add package REslava.Result\ndotnet add package REslava.Result.Flow\n```\n[Open terminal — Track A](command:reslava.installTrackA)\n\n**Track B** — Any other Result library (ErrorOr, LanguageExt, FluentResults):\n```\ndotnet add package REslava.ResultFlow\n```\n[Open terminal — Track B](command:reslava.installTrackB)\n\nWant to see a complete working example? **[REslava.Result.Flow.Demo](https://github.com/reslava/nuget-package-reslava-result/tree/main/samples/REslava.Result.Flow.Demo)** — a runnable sample covering every ResultFlow feature.\n[Open Demo on GitHub](command:reslava.openDemo)",
+            "description": "Choose your track:\n\n**Track A** — REslava.Result users:\n```\ndotnet add package REslava.Result.Flow\n```\n[Open terminal — Track A](command:reslava.installTrackA)\n\n**Track B** — Any other Result library (ErrorOr, LanguageExt, FluentResults):\n```\ndotnet add package REslava.ResultFlow\n```\n[Open terminal — Track B](command:reslava.installTrackB)\n\nWant to see a complete working example? **[REslava.Result.Flow.Demo](https://github.com/reslava/nuget-package-reslava-result/tree/main/samples/REslava.Result.Flow.Demo)** — a runnable sample covering every ResultFlow feature.\n[Open Demo on GitHub](command:reslava.openDemo)",
             "media": {
               "image": "images/icon.png",
               "altText": "Install a ResultFlow NuGet package"

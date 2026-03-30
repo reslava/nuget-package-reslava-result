@@ -138,6 +138,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
 
                     var className = typeDecl.Identifier.ValueText;
                     var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? typeFlow)>();
+                    var tracedMethods = new List<CodeGeneration.TracedMethodInfo>();
 
                     foreach (var (methodDecl, maxDepth, darkTheme, themeExplicitlySet) in group)
                     {
@@ -181,15 +182,77 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                         var errorSurface = layerView != null ? ResultFlowErrorSurfaceRenderer.Render(chain, darkTheme: effectiveDarkTheme, pipelineId: pipelineId) : null;
 
                         diagrams.Add((methodName, mermaid, layerView, stats, errorSurface, typeFlow));
+
+                        // ── Collect TracedMethodInfo for _Traced extension ────
+                        // Skip static methods — extension method requires an instance receiver.
+                        var isStatic = methodDecl.Modifiers.Any(m => m.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.StaticKeyword));
+                        if (!isStatic)
+                        {
+                            var returnTypeSyntax = methodDecl.ReturnType.ToFullString().Trim();
+                            var returnsTask = returnTypeSyntax.StartsWith("Task<") || returnTypeSyntax == "Task";
+                            // Unwrap Task<...> to check inner type
+                            var innerTypeSyntax = returnsTask && returnTypeSyntax.StartsWith("Task<") && returnTypeSyntax.EndsWith(">")
+                                ? returnTypeSyntax.Substring(5, returnTypeSyntax.Length - 6).Trim()
+                                : returnTypeSyntax;
+                            var resultIsGeneric = innerTypeSyntax.Contains("<");
+
+                            var nodeIds = new System.Collections.Generic.List<string>();
+                            foreach (var node in chain)
+                            {
+                                if (node.Kind == Models.NodeKind.Invisible) continue;
+                                if (node.SourceFile != null && node.SourceLine.HasValue)
+                                    nodeIds.Add($"{System.IO.Path.GetFileName(node.SourceFile)}:{node.SourceLine}");
+                                else
+                                    nodeIds.Add($"{pipelineId}:{nodeIds.Count}");
+                            }
+
+                            var parameters = new System.Collections.Generic.List<(string TypeSyntax, string ParamName, bool IsValueType)>();
+                            foreach (var p in methodDecl.ParameterList.Parameters)
+                            {
+                                var typeSyntax = p.Type?.ToFullString().Trim() ?? "object";
+                                parameters.Add((typeSyntax, p.Identifier.ValueText, IsKnownValueType(typeSyntax)));
+                            }
+
+                            tracedMethods.Add(new CodeGeneration.TracedMethodInfo
+                            {
+                                MethodName = methodName,
+                                ContainingNamespace = containingNs,
+                                ContainingTypeName = className,
+                                ReturnTypeSyntax = returnTypeSyntax,
+                                ReturnsTask = returnsTask,
+                                ResultIsGeneric = resultIsGeneric,
+                                Parameters = parameters,
+                                PipelineId = pipelineId,
+                                NodeIds = nodeIds.ToArray(),
+                            });
+                        }
                     }
 
                     if (diagrams.Count > 0)
                     {
-                        var code = ResultFlowCodeGenerator.Generate(className, diagrams);
+                        var code = ResultFlowCodeGenerator.Generate(className, diagrams, tracedMethods);
                         spc.AddSource($"{className}_Flows.g.cs", code);
                     }
                 }
             });
+        }
+
+        private static readonly System.Collections.Generic.HashSet<string> _valueTypeKeywords =
+            new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal)
+            {
+                "bool", "byte", "char", "decimal", "double", "float", "int", "long",
+                "sbyte", "short", "uint", "ulong", "ushort",
+                "System.Boolean", "System.Byte", "System.Char", "System.Decimal",
+                "System.Double", "System.Single", "System.Int32", "System.Int64",
+                "System.SByte", "System.Int16", "System.UInt32", "System.UInt64", "System.UInt16",
+                "global::System.Boolean", "global::System.Int32", "global::System.Int64",
+            };
+
+        private static bool IsKnownValueType(string typeSyntax)
+        {
+            // Strip trailing '?' (nullable value types are still value types for ToString purposes)
+            var t = typeSyntax.TrimEnd('?').Trim();
+            return _valueTypeKeywords.Contains(t);
         }
     }
 }

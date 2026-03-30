@@ -51,6 +51,7 @@
     <Compile Include="ResultFlowRegistryGeneratorTests.cs" />
     <Compile Include="PipelineMetadataTests.cs" />
     <Compile Include="TypeFlowTests.cs" />
+    <Compile Include="TracedExtensionTests.cs" />
   </ItemGroup>
 
   <!-- Prevent double compilation of generated files -->

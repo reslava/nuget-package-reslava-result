@@ -105,6 +105,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
 
                     var className = typeDecl.Identifier.ValueText;
                     var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? errorPropagation, string? typeFlow)>();
+                    var tracedMethods = new List<CodeGeneration.TracedMethodInfo>();
 
                     foreach (var (methodDecl, maxDepth, darkTheme, themeExplicitlySet) in group)
                     {
@@ -160,10 +161,51 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                         var errorPropagation = layerView != null ? ResultFlowErrorPropagationRenderer.Render(chain, rootLayer, darkTheme: effectiveDarkTheme, pipelineId: pipelineId) : null;
 
                         diagrams.Add((methodName, mermaid, layerView, stats, errorSurface, errorPropagation, typeFlow));
+
+                        // ── Collect TracedMethodInfo for _Traced extension ────
+                        if (rootSymbol != null && !rootSymbol.IsStatic)
+                        {
+                            var fmt = Microsoft.CodeAnalysis.SymbolDisplayFormat.FullyQualifiedFormat;
+                            var returnType = rootSymbol.ReturnType as Microsoft.CodeAnalysis.INamedTypeSymbol;
+                            var returnsTask = returnType != null && returnType.Name == "Task"
+                                && returnType.ContainingNamespace?.ToDisplayString() == "System.Threading.Tasks";
+                            Microsoft.CodeAnalysis.INamedTypeSymbol? innerType = returnsTask
+                                && returnType!.TypeArguments.Length > 0
+                                    ? returnType.TypeArguments[0] as Microsoft.CodeAnalysis.INamedTypeSymbol
+                                    : returnType;
+                            var resultIsGeneric = innerType?.Arity > 0;
+
+                            // nodeIds: one entry per non-Invisible chain node that has source info
+                            var nodeIds = new System.Collections.Generic.List<string>();
+                            foreach (var node in chain)
+                            {
+                                if (node.Kind == Models.NodeKind.Invisible) continue;
+                                if (node.SourceFile != null && node.SourceLine.HasValue)
+                                    nodeIds.Add($"{System.IO.Path.GetFileName(node.SourceFile)}:{node.SourceLine}");
+                                else
+                                    nodeIds.Add($"{pipelineId}:{nodeIds.Count}");
+                            }
+
+                            var parameters = new System.Collections.Generic.List<(string TypeFqn, string ParamName, bool IsValueType)>();
+                            foreach (var p in rootSymbol.Parameters)
+                                parameters.Add((p.Type.ToDisplayString(fmt), p.Name, p.Type.IsValueType));
+
+                            tracedMethods.Add(new CodeGeneration.TracedMethodInfo
+                            {
+                                MethodName = methodName,
+                                ContainingTypeFqn = rootSymbol.ContainingType.ToDisplayString(fmt),
+                                ReturnTypeFqn = rootSymbol.ReturnType.ToDisplayString(fmt),
+                                ReturnsTask = returnsTask,
+                                ResultIsGeneric = resultIsGeneric,
+                                Parameters = parameters,
+                                PipelineId = pipelineId,
+                                NodeIds = nodeIds.ToArray(),
+                            });
+                        }
                     }
 
                     if (diagrams.Count > 0)
-                        spc.AddSource($"{className}_Flows.g.cs", ResultFlowCodeGenerator.Generate(className, diagrams));
+                        spc.AddSource($"{className}_Flows.g.cs", ResultFlowCodeGenerator.Generate(className, diagrams, tracedMethods));
                 }
             });
         }

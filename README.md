@@ -1399,6 +1399,74 @@ Both `REslava.Result.Flow` and `REslava.ResultFlow`.
 
 ---
 
+### 🔬 Pipeline Runtime Observation — `RingBufferObserver` + `_Traced` (v1.52.0)
+
+Instrument any `[ResultFlow]` pipeline with zero changes to production code. Register an observer once, call the generated `_Traced` companion method, and get per-node output values, error types, and elapsed milliseconds for every execution.
+
+**Setup:**
+
+```csharp
+using REslava.Result.Observers;
+
+var ringBuffer = new RingBufferObserver(); // default capacity: 50 executions
+PipelineObserver.Register(ringBuffer);
+
+// Call the generated _Traced companion instead of the real method:
+var result = orderService.PlaceOrder_Traced(request);
+
+PipelineObserver.Unregister(); // or use RegisterScoped() for automatic cleanup
+
+foreach (var trace in ringBuffer.GetTraces())
+{
+    Console.WriteLine($"{trace.MethodName} → {(trace.IsSuccess ? "✓" : "✗ " + trace.ErrorType)}  ({trace.ElapsedMs}ms)");
+    foreach (var node in trace.Nodes)
+        Console.WriteLine($"  [{node.Index}] {node.NodeId,-8}: {node.OutputValue}  ({node.ElapsedMs}ms)");
+}
+```
+
+**`_Traced` companion method** — generated automatically for every `[ResultFlow]` instance method. Wraps the real method without touching it; seeds exact pipeline state (`pipelineId` + per-step `nodeId` array) so the observer can correlate each hook call back to the diagram:
+
+```csharp
+// Generated in *_Flows.g.cs — call it exactly like the real method:
+var result = orderService.PlaceOrder_Traced(request);         // sync
+var result = await orderService.PlaceOrder_Traced_Async(req); // async (when method returns Task<Result<T>>)
+```
+
+**Two observation tiers:**
+
+| Tier | How | Precision |
+|---|---|---|
+| **Exact** | Call the generated `_Traced` method | Exact `pipelineId` + `nodeId` per step — maps directly to diagram nodes |
+| **Auto** | Call the real method with an observer registered | `[CallerFilePath]` + `[CallerLineNumber]` — no code change needed |
+
+**`RingBufferObserver` API:**
+
+```csharp
+var obs = new RingBufferObserver(capacity: 100); // bounded; evicts oldest on overflow
+PipelineObserver.Register(obs);
+// ... run pipelines ...
+var traces = obs.GetTraces();   // snapshot — safe to iterate while pipelines run
+obs.Clear();                    // reset
+```
+
+**Scoped registration (test / per-request isolation):**
+
+```csharp
+using var _ = PipelineObserver.RegisterScoped(new RingBufferObserver());
+// observer is automatically unregistered when the using block exits
+```
+
+**Phase 2 preview — VSIX Live panel (upcoming):**
+
+| Mode | Description |
+|---|---|
+| **History** | Ring buffer replay — last N executions, scrollable |
+| **Single** | Highlight one execution; node values shown inline on diagram |
+| **Step** | Pause-and-step through a live execution |
+| **Replay** | Re-run from captured input with breakpoint support |
+
+---
+
 ## 4. 📐 REslava.Result Core Library
 
 ### 4.1. Core Operations

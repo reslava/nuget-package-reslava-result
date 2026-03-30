@@ -1,3 +1,6 @@
+using System.Runtime.CompilerServices;
+using REslava.Result.Observers;
+
 namespace REslava.Result.Extensions;
 
 /// <summary>
@@ -10,10 +13,17 @@ public static class ResultValidationExtensions
     /// <summary>
     /// Ensures that a condition is met, otherwise returns a failed result.
     /// </summary>
+    /// <param name="result">The result to validate.</param>
+    /// <param name="predicate">The condition to check against the value.</param>
+    /// <param name="error">The error to return if the condition is not met.</param>
+    /// <param name="_callerFile">Infrastructure — do not use.</param>
+    /// <param name="_callerLine">Infrastructure — do not use.</param>
     public static Result<T> Ensure<T>(
         this Result<T> result,
         Func<T, bool> predicate,
-        Error error)
+        Error error,
+        [CallerFilePath] string _callerFile = "",
+        [CallerLineNumber] int _callerLine = 0)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
         error = error.EnsureNotNull(nameof(error));
@@ -23,10 +33,43 @@ public static class ResultValidationExtensions
             return result;
         }
 
+        var obs = ResultPipelineHooks.Observer;
+        var state = ResultPipelineHooks.State;
+        var nodeIndex = state?.ConsumeIndex() ?? 0;
+        var nodeId = state != null ? state.CurrentNodeId() : $"{System.IO.Path.GetFileName(_callerFile)}:{_callerLine}";
+        var pipelineId = state?.PipelineId ?? _callerFile;
+        var ts = obs != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0L;
+
         try
         {
-            if (predicate(result.Value!)) return result;
+            if (predicate(result.Value!))
+            {
+                if (obs != null)
+                {
+                    var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                        * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                    obs.OnNodeExit(new NodeExitContext(
+                        PipelineId: pipelineId, NodeId: nodeId, StepName: "Ensure",
+                        IsSuccess: true, OutputValue: null,
+                        ErrorType: null, ErrorMessage: null,
+                        ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+                }
+                return result;
+            }
+
             var enrichedError = ResultContextEnricher.EnrichError(error, result.Context);
+
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId, NodeId: nodeId, StepName: "Ensure",
+                    IsSuccess: false, OutputValue: null,
+                    ErrorType: enrichedError.GetType().Name, ErrorMessage: enrichedError.Message,
+                    ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+            }
+
             var fail = Result<T>.Fail(enrichedError);
             fail.Context = result.Context;
             return fail;
@@ -34,6 +77,18 @@ public static class ResultValidationExtensions
         catch (Exception ex)
         {
             var enrichedError = ResultContextEnricher.EnrichError(new ExceptionError(ex), result.Context);
+
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId, NodeId: nodeId, StepName: "Ensure",
+                    IsSuccess: false, OutputValue: null,
+                    ErrorType: enrichedError.GetType().Name, ErrorMessage: enrichedError.Message,
+                    ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+            }
+
             var fail = Result<T>.Fail(enrichedError);
             fail.Context = result.Context;
             return fail;
@@ -47,10 +102,17 @@ public static class ResultValidationExtensions
     /// <summary>
     /// Ensures that a condition is met, otherwise returns a failed result.
     /// </summary>
+    /// <param name="result">The result to validate.</param>
+    /// <param name="predicate">The condition to check against the value.</param>
+    /// <param name="errorMessage">The error message to return if the condition is not met.</param>
+    /// <param name="_callerFile">Infrastructure — do not use.</param>
+    /// <param name="_callerLine">Infrastructure — do not use.</param>
     public static Result<T> Ensure<T>(
         this Result<T> result,
         Func<T, bool> predicate,
-        string errorMessage)
+        string errorMessage,
+        [CallerFilePath] string _callerFile = "",
+        [CallerLineNumber] int _callerLine = 0)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
 
@@ -59,11 +121,44 @@ public static class ResultValidationExtensions
             return result;
         }
 
+        var obs = ResultPipelineHooks.Observer;
+        var state = ResultPipelineHooks.State;
+        var nodeIndex = state?.ConsumeIndex() ?? 0;
+        var nodeId = state != null ? state.CurrentNodeId() : $"{System.IO.Path.GetFileName(_callerFile)}:{_callerLine}";
+        var pipelineId = state?.PipelineId ?? _callerFile;
+        var ts = obs != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0L;
+
         try
         {
-            if (predicate(result.Value!)) return result;
+            if (predicate(result.Value!))
+            {
+                if (obs != null)
+                {
+                    var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                        * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                    obs.OnNodeExit(new NodeExitContext(
+                        PipelineId: pipelineId, NodeId: nodeId, StepName: "Ensure",
+                        IsSuccess: true, OutputValue: null,
+                        ErrorType: null, ErrorMessage: null,
+                        ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+                }
+                return result;
+            }
+
             var rawError = new Error(errorMessage);
             var enrichedError = ResultContextEnricher.EnrichError(rawError, result.Context);
+
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId, NodeId: nodeId, StepName: "Ensure",
+                    IsSuccess: false, OutputValue: null,
+                    ErrorType: enrichedError.GetType().Name, ErrorMessage: enrichedError.Message,
+                    ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+            }
+
             var fail = Result<T>.Fail(enrichedError);
             fail.Context = result.Context;
             return fail;
@@ -71,6 +166,18 @@ public static class ResultValidationExtensions
         catch (Exception ex)
         {
             var enrichedError = ResultContextEnricher.EnrichError(new ExceptionError(ex), result.Context);
+
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId, NodeId: nodeId, StepName: "Ensure",
+                    IsSuccess: false, OutputValue: null,
+                    ErrorType: enrichedError.GetType().Name, ErrorMessage: enrichedError.Message,
+                    ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+            }
+
             var fail = Result<T>.Fail(enrichedError);
             fail.Context = result.Context;
             return fail;
@@ -136,15 +243,30 @@ public static class ResultValidationExtensions
     /// </code>
     /// </example>
     /// </summary>
+    /// <param name="resultTask">The task returning the result to validate.</param>
+    /// <param name="predicate">The condition to check against the value.</param>
+    /// <param name="error">The error to return if the condition is not met.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
+    /// <param name="_callerFile">Infrastructure — do not use.</param>
+    /// <param name="_callerLine">Infrastructure — do not use.</param>
     public static async Task<Result<T>> EnsureAsync<T>(
         this Task<Result<T>> resultTask,
         Func<T, bool> predicate,
         Error error,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        [CallerFilePath] string _callerFile = "",
+        [CallerLineNumber] int _callerLine = 0)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
         error = error.EnsureNotNull(nameof(error));
         cancellationToken.ThrowIfCancellationRequested();
+
+        var obs = ResultPipelineHooks.Observer;
+        var state = ResultPipelineHooks.State;
+        var nodeIndex = state?.ConsumeIndex() ?? 0;
+        var nodeId = state != null ? state.CurrentNodeId() : $"{System.IO.Path.GetFileName(_callerFile)}:{_callerLine}";
+        var pipelineId = state?.PipelineId ?? _callerFile;
+        var ts = obs != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0L;
 
         var result = await resultTask;
 
@@ -155,8 +277,34 @@ public static class ResultValidationExtensions
 
         try
         {
-            if (predicate(result.Value!)) return result;
+            if (predicate(result.Value!))
+            {
+                if (obs != null)
+                {
+                    var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                        * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                    obs.OnNodeExit(new NodeExitContext(
+                        PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                        IsSuccess: true, OutputValue: null,
+                        ErrorType: null, ErrorMessage: null,
+                        ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+                }
+                return result;
+            }
+
             var enrichedError = ResultContextEnricher.EnrichError(error, result.Context);
+
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                    IsSuccess: false, OutputValue: null,
+                    ErrorType: enrichedError.GetType().Name, ErrorMessage: enrichedError.Message,
+                    ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+            }
+
             var fail = Result<T>.Fail(enrichedError);
             fail.Context = result.Context;
             return fail;
@@ -164,6 +312,18 @@ public static class ResultValidationExtensions
         catch (Exception ex)
         {
             var enrichedError = ResultContextEnricher.EnrichError(new ExceptionError(ex), result.Context);
+
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                    IsSuccess: false, OutputValue: null,
+                    ErrorType: enrichedError.GetType().Name, ErrorMessage: enrichedError.Message,
+                    ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+            }
+
             var fail = Result<T>.Fail(enrichedError);
             fail.Context = result.Context;
             return fail;
@@ -173,14 +333,29 @@ public static class ResultValidationExtensions
     /// <summary>
     /// Awaits the result then ensures that a condition is met, otherwise returns a failed result.
     /// </summary>
+    /// <param name="resultTask">The task returning the result to validate.</param>
+    /// <param name="predicate">The condition to check against the value.</param>
+    /// <param name="errorMessage">The error message to return if the condition is not met.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
+    /// <param name="_callerFile">Infrastructure — do not use.</param>
+    /// <param name="_callerLine">Infrastructure — do not use.</param>
     public static async Task<Result<T>> EnsureAsync<T>(
         this Task<Result<T>> resultTask,
         Func<T, bool> predicate,
         string errorMessage,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        [CallerFilePath] string _callerFile = "",
+        [CallerLineNumber] int _callerLine = 0)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
         cancellationToken.ThrowIfCancellationRequested();
+
+        var obs = ResultPipelineHooks.Observer;
+        var state = ResultPipelineHooks.State;
+        var nodeIndex = state?.ConsumeIndex() ?? 0;
+        var nodeId = state != null ? state.CurrentNodeId() : $"{System.IO.Path.GetFileName(_callerFile)}:{_callerLine}";
+        var pipelineId = state?.PipelineId ?? _callerFile;
+        var ts = obs != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0L;
 
         var result = await resultTask;
 
@@ -191,9 +366,35 @@ public static class ResultValidationExtensions
 
         try
         {
-            if (predicate(result.Value!)) return result;
+            if (predicate(result.Value!))
+            {
+                if (obs != null)
+                {
+                    var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                        * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                    obs.OnNodeExit(new NodeExitContext(
+                        PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                        IsSuccess: true, OutputValue: null,
+                        ErrorType: null, ErrorMessage: null,
+                        ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+                }
+                return result;
+            }
+
             var rawError = new Error(errorMessage);
             var enrichedError = ResultContextEnricher.EnrichError(rawError, result.Context);
+
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                    IsSuccess: false, OutputValue: null,
+                    ErrorType: enrichedError.GetType().Name, ErrorMessage: enrichedError.Message,
+                    ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+            }
+
             var fail = Result<T>.Fail(enrichedError);
             fail.Context = result.Context;
             return fail;
@@ -201,6 +402,18 @@ public static class ResultValidationExtensions
         catch (Exception ex)
         {
             var enrichedError = ResultContextEnricher.EnrichError(new ExceptionError(ex), result.Context);
+
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                    IsSuccess: false, OutputValue: null,
+                    ErrorType: enrichedError.GetType().Name, ErrorMessage: enrichedError.Message,
+                    ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+            }
+
             var fail = Result<T>.Fail(enrichedError);
             fail.Context = result.Context;
             return fail;
@@ -225,11 +438,19 @@ public static class ResultValidationExtensions
     /// </code>
     /// </example>
     /// </summary>
+    /// <param name="result">The result to validate.</param>
+    /// <param name="predicate">The async condition to check against the value.</param>
+    /// <param name="error">The error to return if the condition is not met.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
+    /// <param name="_callerFile">Infrastructure — do not use.</param>
+    /// <param name="_callerLine">Infrastructure — do not use.</param>
     public static async Task<Result<T>> EnsureAsync<T>(
         this Result<T> result,
         Func<T, Task<bool>> predicate,
         Error error,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        [CallerFilePath] string _callerFile = "",
+        [CallerLineNumber] int _callerLine = 0)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
         error = error.EnsureNotNull(nameof(error));
@@ -240,9 +461,43 @@ public static class ResultValidationExtensions
             return result;
         }
 
+        var obs = ResultPipelineHooks.Observer;
+        var state = ResultPipelineHooks.State;
+        var nodeIndex = state?.ConsumeIndex() ?? 0;
+        var nodeId = state != null ? state.CurrentNodeId() : $"{System.IO.Path.GetFileName(_callerFile)}:{_callerLine}";
+        var pipelineId = state?.PipelineId ?? _callerFile;
+        var ts = obs != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0L;
+
         var isValid = await predicate(result.Value!);
-        if (isValid) return result;
+
+        if (isValid)
+        {
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                    IsSuccess: true, OutputValue: null,
+                    ErrorType: null, ErrorMessage: null,
+                    ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+            }
+            return result;
+        }
+
         var enrichedError = ResultContextEnricher.EnrichError(error, result.Context);
+
+        if (obs != null)
+        {
+            var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+            obs.OnNodeExit(new NodeExitContext(
+                PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                IsSuccess: false, OutputValue: null,
+                ErrorType: enrichedError.GetType().Name, ErrorMessage: enrichedError.Message,
+                ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+        }
+
         var fail = Result<T>.Fail(enrichedError);
         fail.Context = result.Context;
         return fail;
@@ -251,11 +506,19 @@ public static class ResultValidationExtensions
     /// <summary>
     /// Ensures that an async condition is met, otherwise returns a failed result.
     /// </summary>
+    /// <param name="result">The result to validate.</param>
+    /// <param name="predicate">The async condition to check against the value.</param>
+    /// <param name="errorMessage">The error message to return if the condition is not met.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
+    /// <param name="_callerFile">Infrastructure — do not use.</param>
+    /// <param name="_callerLine">Infrastructure — do not use.</param>
     public static async Task<Result<T>> EnsureAsync<T>(
         this Result<T> result,
         Func<T, Task<bool>> predicate,
         string errorMessage,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        [CallerFilePath] string _callerFile = "",
+        [CallerLineNumber] int _callerLine = 0)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
         cancellationToken.ThrowIfCancellationRequested();
@@ -265,10 +528,44 @@ public static class ResultValidationExtensions
             return result;
         }
 
+        var obs = ResultPipelineHooks.Observer;
+        var state = ResultPipelineHooks.State;
+        var nodeIndex = state?.ConsumeIndex() ?? 0;
+        var nodeId = state != null ? state.CurrentNodeId() : $"{System.IO.Path.GetFileName(_callerFile)}:{_callerLine}";
+        var pipelineId = state?.PipelineId ?? _callerFile;
+        var ts = obs != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0L;
+
         var isValid = await predicate(result.Value!);
-        if (isValid) return result;
+
+        if (isValid)
+        {
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                    IsSuccess: true, OutputValue: null,
+                    ErrorType: null, ErrorMessage: null,
+                    ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+            }
+            return result;
+        }
+
         var rawError = new Error(errorMessage);
         var enrichedError = ResultContextEnricher.EnrichError(rawError, result.Context);
+
+        if (obs != null)
+        {
+            var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+            obs.OnNodeExit(new NodeExitContext(
+                PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                IsSuccess: false, OutputValue: null,
+                ErrorType: enrichedError.GetType().Name, ErrorMessage: enrichedError.Message,
+                ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+        }
+
         var fail = Result<T>.Fail(enrichedError);
         fail.Context = result.Context;
         return fail;
@@ -289,15 +586,30 @@ public static class ResultValidationExtensions
     /// </code>
     /// </example>
     /// </summary>
+    /// <param name="resultTask">The task returning the result to validate.</param>
+    /// <param name="predicate">The async condition to check against the value.</param>
+    /// <param name="error">The error to return if the condition is not met.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
+    /// <param name="_callerFile">Infrastructure — do not use.</param>
+    /// <param name="_callerLine">Infrastructure — do not use.</param>
     public static async Task<Result<T>> EnsureAsync<T>(
         this Task<Result<T>> resultTask,
         Func<T, Task<bool>> predicate,
         Error error,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        [CallerFilePath] string _callerFile = "",
+        [CallerLineNumber] int _callerLine = 0)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
         error = error.EnsureNotNull(nameof(error));
         cancellationToken.ThrowIfCancellationRequested();
+
+        var obs = ResultPipelineHooks.Observer;
+        var state = ResultPipelineHooks.State;
+        var nodeIndex = state?.ConsumeIndex() ?? 0;
+        var nodeId = state != null ? state.CurrentNodeId() : $"{System.IO.Path.GetFileName(_callerFile)}:{_callerLine}";
+        var pipelineId = state?.PipelineId ?? _callerFile;
+        var ts = obs != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0L;
 
         var result = await resultTask;
 
@@ -307,8 +619,35 @@ public static class ResultValidationExtensions
         }
 
         var isValid = await predicate(result.Value!);
-        if (isValid) return result;
+
+        if (isValid)
+        {
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                    IsSuccess: true, OutputValue: null,
+                    ErrorType: null, ErrorMessage: null,
+                    ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+            }
+            return result;
+        }
+
         var enrichedError = ResultContextEnricher.EnrichError(error, result.Context);
+
+        if (obs != null)
+        {
+            var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+            obs.OnNodeExit(new NodeExitContext(
+                PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                IsSuccess: false, OutputValue: null,
+                ErrorType: enrichedError.GetType().Name, ErrorMessage: enrichedError.Message,
+                ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+        }
+
         var fail = Result<T>.Fail(enrichedError);
         fail.Context = result.Context;
         return fail;
@@ -317,14 +656,29 @@ public static class ResultValidationExtensions
     /// <summary>
     /// Awaits the result then ensures that an async condition is met, otherwise returns a failed result.
     /// </summary>
+    /// <param name="resultTask">The task returning the result to validate.</param>
+    /// <param name="predicate">The async condition to check against the value.</param>
+    /// <param name="errorMessage">The error message to return if the condition is not met.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
+    /// <param name="_callerFile">Infrastructure — do not use.</param>
+    /// <param name="_callerLine">Infrastructure — do not use.</param>
     public static async Task<Result<T>> EnsureAsync<T>(
         this Task<Result<T>> resultTask,
         Func<T, Task<bool>> predicate,
         string errorMessage,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        [CallerFilePath] string _callerFile = "",
+        [CallerLineNumber] int _callerLine = 0)
     {
         predicate = predicate.EnsureNotNull(nameof(predicate));
         cancellationToken.ThrowIfCancellationRequested();
+
+        var obs = ResultPipelineHooks.Observer;
+        var state = ResultPipelineHooks.State;
+        var nodeIndex = state?.ConsumeIndex() ?? 0;
+        var nodeId = state != null ? state.CurrentNodeId() : $"{System.IO.Path.GetFileName(_callerFile)}:{_callerLine}";
+        var pipelineId = state?.PipelineId ?? _callerFile;
+        var ts = obs != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0L;
 
         var result = await resultTask;
 
@@ -334,9 +688,36 @@ public static class ResultValidationExtensions
         }
 
         var isValid = await predicate(result.Value!);
-        if (isValid) return result;
+
+        if (isValid)
+        {
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                    IsSuccess: true, OutputValue: null,
+                    ErrorType: null, ErrorMessage: null,
+                    ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+            }
+            return result;
+        }
+
         var rawError = new Error(errorMessage);
         var enrichedError = ResultContextEnricher.EnrichError(rawError, result.Context);
+
+        if (obs != null)
+        {
+            var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+            obs.OnNodeExit(new NodeExitContext(
+                PipelineId: pipelineId, NodeId: nodeId, StepName: "EnsureAsync",
+                IsSuccess: false, OutputValue: null,
+                ErrorType: enrichedError.GetType().Name, ErrorMessage: enrichedError.Message,
+                ElapsedMs: elapsedMs, NodeIndex: nodeIndex));
+        }
+
         var fail = Result<T>.Fail(enrichedError);
         fail.Context = result.Context;
         return fail;

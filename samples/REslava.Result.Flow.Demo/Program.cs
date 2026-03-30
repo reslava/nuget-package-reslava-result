@@ -32,6 +32,7 @@
 //  13. _TypeFlow constant — same nodes as _Diagram but success edges carry the Result<T> type name
 //  14. Namespace-aware _LayerView — Demo.Pipelines.Pipelines [DomainBoundary("Application")] +
 //      UserService [DomainBoundary("Domain")] → _LayerView, _Stats, _ErrorSurface, _ErrorPropagation
+//  15. Pipeline Runtime Observation — RingBufferObserver + _Traced (exact tier)
 // =============================================================================
 using Demo.MatchDemo;
 using Demo.Pipelines;
@@ -40,6 +41,7 @@ using REslava.Result;
 using REslava.Result.AdvancedPatterns;
 using REslava.Result.Extensions;
 using REslava.Result.Flow;
+using REslava.Result.Observers;
 
 var sep  = new string('─', 60);
 var sep2 = new string('═', 60);
@@ -230,6 +232,40 @@ Console.WriteLine("  FulfillmentService (dark theme):");
 Run("FulfillOrder (success)                   ", FulfillmentService.FulfillOrder(7, 10));
 Run("FulfillOrder (product not found)         ", FulfillmentService.FulfillOrder(99, 10));
 Run("FulfillOrder (insufficient stock)        ", FulfillmentService.FulfillOrder(8, 5));
+
+// ── 15. Pipeline Runtime Observation ─────────────────────────────────────────
+//
+// RingBufferObserver stores the last N pipeline executions in memory.
+// Calling _Traced (the generated exact-tier wrapper) seeds the per-execution
+// PipelineState so every Bind/Map/Ensure/Tap node reports its exact NodeId,
+// output value, elapsed time, and error type to the observer.
+//
+// Auto-tier (without _Traced): hooks still fire from Bind/Map/etc. but use
+// [CallerFilePath]:[CallerLineNumber] as the NodeId instead of the stable hash.
+Console.WriteLine();
+Console.WriteLine("  15. Pipeline Runtime Observation — RingBufferObserver + _Traced:");
+Console.WriteLine(sep);
+
+var ringBuffer = new RingBufferObserver();
+PipelineObserver.Register(ringBuffer);
+
+var tracingSvc = new RuntimeTracingService();
+tracingSvc.Process_Traced(42, 7);    // success: User 42 → Product 7
+tracingSvc.Process_Traced(42, 99);   // failure: ProductNotFoundError
+tracingSvc.Process_Traced(999, 7);   // failure: UserNotFoundError
+
+PipelineObserver.Unregister();
+
+foreach (var trace in ringBuffer.GetTraces())
+{
+    var status = trace.IsSuccess ? "✓ ok" : $"✗ {trace.ErrorType}";
+    Console.WriteLine($"  Process({trace.InputValue}) → {status}  ({trace.ElapsedMs}ms, {trace.Nodes.Count} nodes observed)");
+    foreach (var node in trace.Nodes)
+    {
+        var value = node.IsSuccess ? (node.OutputValue ?? "ok") : (node.ErrorType ?? "fail");
+        Console.WriteLine($"    [{node.NodeIndex}] {node.StepName,-6}: {value}  ({node.ElapsedMs}ms)");
+    }
+}
 
 Console.WriteLine();
 
@@ -755,4 +791,40 @@ class sg_N0_ReserveStock subgraphStyle
         FindProduct(productId)
             .Bind(p => WarehouseService.ReserveStock(p, quantity))
             .Map(p  => new StockReservation(p.Id, quantity, p.Price));
+}
+
+// =============================================================================
+// RuntimeTracingService — section 15: Pipeline Runtime Observation
+//
+// Non-static class so the generator emits a {ClassName}_Traced_Extensions class
+// with Process_Traced(this RuntimeTracingService self, ...) extension method.
+// Call Process_Traced() while a RingBufferObserver is registered to capture
+// per-node output values, error types, and elapsed times.
+// =============================================================================
+sealed class RuntimeTracingService
+{
+    private static readonly Dictionary<int, User> _users = new()
+    {
+        [42] = new User(42, "alice@example.com", "Admin"),
+    };
+    private static readonly Dictionary<int, Product> _products = new()
+    {
+        [7]  = new Product(7,  "Widget", 29.99m, 100),
+    };
+
+    [ResultFlow]
+    public Result<Order> Process(int userId, int productId) =>
+        FindUser(userId)
+            .Bind(_ => FindProduct(productId))
+            .Map(p   => new Order(0, userId, p.Price));
+
+    private static Result<User> FindUser(int id) =>
+        _users.TryGetValue(id, out User? u)
+            ? Result<User>.Ok(u)
+            : Result<User>.Fail(new UserNotFoundError(id));
+
+    private static Result<Product> FindProduct(int id) =>
+        _products.TryGetValue(id, out Product? p)
+            ? Result<Product>.Ok(p)
+            : Result<Product>.Fail(new ProductNotFoundError(id));
 }

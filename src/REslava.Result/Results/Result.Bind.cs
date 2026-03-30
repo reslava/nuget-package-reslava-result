@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
+using REslava.Result.Observers;
 
 namespace REslava.Result;
 
@@ -11,8 +13,13 @@ public partial class Result<TValue> : Result, IResultBase<TValue>
     /// </summary>
     /// <typeparam name="TOut">The type of the output value.</typeparam>
     /// <param name="binder">The function that returns a new Result.</param>
+    /// <param name="_callerFile">Infrastructure — do not use.</param>
+    /// <param name="_callerLine">Infrastructure — do not use.</param>
     /// <returns>The result of the binder function with accumulated success reasons, or a failed result.</returns>
-    public Result<TOut> Bind<TOut>(Func<TValue, Result<TOut>> binder)
+    public Result<TOut> Bind<TOut>(
+        Func<TValue, Result<TOut>> binder,
+        [CallerFilePath] string _callerFile = "",
+        [CallerLineNumber] int _callerLine = 0)
     {
         binder = binder.EnsureNotNull(nameof(binder));
 
@@ -22,9 +29,34 @@ public partial class Result<TValue> : Result, IResultBase<TValue>
             return new Result<TOut>(default, Reasons) { Context = Context };
         }
 
+        var obs = ResultPipelineHooks.Observer;
+        var state = ResultPipelineHooks.State;
+        var nodeIndex = state?.ConsumeIndex() ?? 0;
+        var nodeId = state != null ? state.CurrentNodeId() : $"{System.IO.Path.GetFileName(_callerFile)}:{_callerLine}";
+        var pipelineId = state?.PipelineId ?? _callerFile;
+        var ts = obs != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0L;
+
         try
         {
             var bindResult = binder(Value!);
+
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId,
+                    NodeId: nodeId,
+                    StepName: "Bind",
+                    IsSuccess: bindResult.IsSuccess,
+                    OutputValue: bindResult.IsSuccess ? bindResult.Value?.ToString() : null,
+                    ErrorType: bindResult.IsFailure && bindResult.Errors.Count > 0
+                        ? bindResult.Errors[0].GetType().Name : null,
+                    ErrorMessage: bindResult.IsFailure && bindResult.Errors.Count > 0
+                        ? bindResult.Errors[0].Message : null,
+                    ElapsedMs: elapsedMs,
+                    NodeIndex: nodeIndex));
+            }
 
             // If original result has success reasons, preserve them
             if (Successes.Count > 0)
@@ -85,8 +117,14 @@ public partial class Result<TValue> : Result, IResultBase<TValue>
     /// <typeparam name="TOut">The type of the output value.</typeparam>
     /// <param name="binder">The async function that returns a new Result.</param>
     /// <param name="cancellationToken">Optional cancellation token.</param>
+    /// <param name="_callerFile">Infrastructure — do not use.</param>
+    /// <param name="_callerLine">Infrastructure — do not use.</param>
     /// <returns>The result of the binder function with accumulated success reasons, or a failed result.</returns>
-    public async Task<Result<TOut>> BindAsync<TOut>(Func<TValue, Task<Result<TOut>>> binder, CancellationToken cancellationToken = default)
+    public async Task<Result<TOut>> BindAsync<TOut>(
+        Func<TValue, Task<Result<TOut>>> binder,
+        CancellationToken cancellationToken = default,
+        [CallerFilePath] string _callerFile = "",
+        [CallerLineNumber] int _callerLine = 0)
     {
         binder = binder.EnsureNotNull(nameof(binder));
         cancellationToken.ThrowIfCancellationRequested();
@@ -97,9 +135,34 @@ public partial class Result<TValue> : Result, IResultBase<TValue>
             return new Result<TOut>(default, Reasons) { Context = Context };
         }
 
+        var obs = ResultPipelineHooks.Observer;
+        var state = ResultPipelineHooks.State;
+        var nodeIndex = state?.ConsumeIndex() ?? 0;
+        var nodeId = state != null ? state.CurrentNodeId() : $"{System.IO.Path.GetFileName(_callerFile)}:{_callerLine}";
+        var pipelineId = state?.PipelineId ?? _callerFile;
+        var ts = obs != null ? System.Diagnostics.Stopwatch.GetTimestamp() : 0L;
+
         try
         {
             var bindResult = await binder(Value!);
+
+            if (obs != null)
+            {
+                var elapsedMs = (long)((System.Diagnostics.Stopwatch.GetTimestamp() - ts)
+                    * 1000.0 / System.Diagnostics.Stopwatch.Frequency);
+                obs.OnNodeExit(new NodeExitContext(
+                    PipelineId: pipelineId,
+                    NodeId: nodeId,
+                    StepName: "BindAsync",
+                    IsSuccess: bindResult.IsSuccess,
+                    OutputValue: bindResult.IsSuccess ? bindResult.Value?.ToString() : null,
+                    ErrorType: bindResult.IsFailure && bindResult.Errors.Count > 0
+                        ? bindResult.Errors[0].GetType().Name : null,
+                    ErrorMessage: bindResult.IsFailure && bindResult.Errors.Count > 0
+                        ? bindResult.Errors[0].Message : null,
+                    ElapsedMs: elapsedMs,
+                    NodeIndex: nodeIndex));
+            }
 
             // If original result has success reasons, preserve them
             if (Successes.Count > 0)

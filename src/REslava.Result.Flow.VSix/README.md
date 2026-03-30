@@ -72,7 +72,6 @@ Install one of the two ResultFlow NuGet packages in your project:
 
 **Track A:**
 ```bash
-dotnet add package REslava.Result
 dotnet add package REslava.Result.Flow
 ```
 
