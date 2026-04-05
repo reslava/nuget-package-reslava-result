@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { resolveClassName, hasDebugProxyForClass } from './diagramResolver';
 
 export class ResultFlowCodeLensProvider implements vscode.CodeLensProvider {
     provideCodeLenses(document: vscode.TextDocument): vscode.CodeLens[] {
@@ -15,14 +14,6 @@ export class ResultFlowCodeLensProvider implements vscode.CodeLensProvider {
                     command: 'reslava._previewMethod',
                     arguments: [document.uri, i]
                 }));
-                const className = resolveClassName(document, i);
-                if (hasDebugProxyForClass(className)) {
-                    lenses.push(new vscode.CodeLens(range, {
-                        title: '▶ Debug',
-                        command: 'resultflow.openDebugPanel',
-                        arguments: [document.uri, i]
-                    }));
-                }
             }
 
             // ▶ Debug above .Flow.Debug. call sites (e.g. svc.Flow.Debug.Process(42, 7))

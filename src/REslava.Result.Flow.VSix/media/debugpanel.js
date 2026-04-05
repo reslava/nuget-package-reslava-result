@@ -1,4 +1,4 @@
-// Live Panel webview script.
+// Debug Panel webview script.
 // Init data is passed via window.__livePanel__ (set by a tiny inline script before this loads).
 (async function () {
   let baseDiagram       = window.__livePanel__.diagram;
@@ -14,6 +14,8 @@
   let replayTimer   = null;
   let hasFileData   = false;  // true once file-based traces received; ignores pollError after that
   let dataSource    = 'waiting';  // 'waiting' | 'file' | 'http'
+  let fileCount     = 0;
+  let diagramMap    = {};
 
   // ── DOM refs ───────────────────────────────────────────────────────────────
   const hdrName      = document.getElementById('hdr-name');
@@ -43,6 +45,7 @@
 
   // ── File picker ────────────────────────────────────────────────────────────
   filePicker.addEventListener('change', () => {
+    setMode('history');
     vscode.postMessage({ command: 'loadFile', path: filePicker.value });
   });
 
@@ -100,7 +103,8 @@
     if (msg.command === 'status') {
       dataSource = msg.source;
       if (msg.source === 'file') {
-        sourceBadge.textContent = '\uD83D\uDCC4 file' + (msg.detail ? ' \u00B7 ' + msg.detail : '');
+        const fileLabel = fileCount === 1 ? '1 file found' : fileCount > 1 ? fileCount + ' files found' : '';
+        sourceBadge.textContent = '\uD83D\uDCC4 file' + (fileLabel ? ' \u00B7 ' + fileLabel : '');
         sourceBadge.title = 'Traces loaded from reslava-traces.json';
         sourceBadge.className = 'source-badge source-file';
       } else if (msg.source === 'http') {
@@ -113,7 +117,12 @@
       }
     } else if (msg.command === 'traces') {
       hasFileData = dataSource === 'file';
-      allTraces = msg.traces;
+      // Sort each trace's nodes by nodeIndex (JSON arrival order ≠ execution order for cross-method pipelines)
+      allTraces = (msg.traces || []).map(function(t) {
+        return Object.assign({}, t, {
+          nodes: t.nodes ? t.nodes.slice().sort(function(a, b) { return a.nodeIndex - b.nodeIndex; }) : []
+        });
+      });
       statusDot.className = 'status-dot ok';
       statusDot.title = 'Connected';
       hintBar.style.display = 'none';
@@ -143,6 +152,13 @@
         (f.path === msg.selectedPath ? ' selected' : '') + '>' +
         escHtml(f.label) + '</option>'
       ).join('');
+      fileCount = msg.files.length;
+      if (dataSource === 'file') {
+        const fileLabel = fileCount === 1 ? '1 file found' : fileCount + ' files found';
+        sourceBadge.textContent = '\uD83D\uDCC4 file \u00B7 ' + fileLabel;
+      }
+    } else if (msg.command === 'setDiagramMap') {
+      diagramMap = msg.map;
     } else if (msg.command === 'setMethod') {
       currentMethodName = msg.methodName;
       hdrName.textContent = '\u25BA ' + msg.methodName;
@@ -205,6 +221,9 @@
       row.addEventListener('click', () => {
         const idx = parseInt(row.getAttribute('data-idx'), 10);
         selectedTrace = allTraces[idx];
+        // Switch diagram to the one matching this trace's pipeline
+        const pid = selectedTrace?.pipelineId;
+        if (pid && pid in diagramMap) { baseDiagram = diagramMap[pid]; }
         nodeIdx = 0;
         stopReplay();
         setMode('step');
@@ -224,11 +243,16 @@
     const total = nodes.length;
 
     const inputPart = selectedTrace.inputValue ? '  \u00b7  Input: ' + selectedTrace.inputValue : '';
-    stepperTitle.textContent =
-      'Node ' + (nodeIdx + 1) + ' of ' + total +
-      '  \u2014  ' + selectedTrace.methodName +
-      (selectedTrace.isSuccess ? '  \u2713' : '  \u2717 ' + (selectedTrace.errorType ?? '')) +
-      inputPart;
+    const curNodeId = nodes[nodeIdx]?.nodeId ?? '';
+    stepperTitle.innerHTML =
+      escHtml('Node ' + (nodeIdx + 1) + ' of ' + total +
+        '  \u2014  ' + selectedTrace.methodName +
+        (selectedTrace.isSuccess ? '  \u2713' : '  \u2717 ' + (selectedTrace.errorType ?? '')) +
+        inputPart) +
+      '<br><small style="font-size:0.72em;opacity:0.45;font-family:monospace">' +
+        'pid:\u202f' + escHtml(selectedTrace.pipelineId ?? '?') +
+        '\u2002nid:\u202f' + escHtml(curNodeId || '\u2014') +
+      '</small>';
 
     btnPrev.disabled = (nodeIdx === 0);
     btnNext.disabled = (nodeIdx >= total - 1);
@@ -249,14 +273,17 @@
         ? '<span style="color:#22c55e">&#10003;</span>'
         : '<span style="color:#ef4444">&#10005;</span>';
       const outLine = n.outputValue
-        ? '<div class="node-output">' + escHtml(truncate(n.outputValue, 60)) + '</div>'
+        ? '<div class="node-output">' + escHtml(truncate(n.outputValue, 200)) + '</div>'
         : n.errorType
           ? '<div class="node-output" style="color:#ef4444">' + escHtml(n.errorType) + '</div>'
           : '';
+      const nidSpan = n.nodeId
+        ? '<span style="display:block;font-size:0.7em;opacity:0.4;font-family:monospace">' + escHtml(n.nodeId) + '</span>'
+        : '';
       return '<div class="node-row' + (isCur ? ' current' : '') + '">' +
         '<span class="node-idx">' + (i + 1) + '</span>' +
         '<div class="node-cell">' +
-          '<span class="node-name">' + escHtml(n.stepName) + '</span>' + outLine +
+          '<span class="node-name">' + escHtml(n.stepName) + '</span>' + outLine + nidSpan +
         '</div>' +
         '<div class="node-meta">' + icon + ' ' + n.elapsedMs + 'ms</div>' +
         '</div>';
@@ -279,9 +306,16 @@
       .replace(/\nclass\s+\w+\s+__rrf_hl/g, '')
       .replace(/\nclassDef\s+__rrf_hl[^\n]*/g, '');
 
-    if (nodeId) {
+    // Only emit class directive for plain hex/alphanumeric nodeIds.
+    // Fallback ids like "fd319c15:3" contain ':' which breaks Mermaid parsing.
+    if (nodeId && /^[a-zA-Z0-9_]+$/.test(nodeId)) {
       d += '\nclassDef __rrf_hl fill:#ffe066,stroke:#f59e0b,stroke-width:2.5px';
-      d += '\nclass ' + nodeId + ' __rrf_hl';
+      // Subgraph containers have no standalone Mermaid node — highlight ENTRY_{nodeId} instead
+      if (d.includes('subgraph sg_' + nodeId)) {
+        d += '\nclass ENTRY_' + nodeId + ' __rrf_hl';
+      } else {
+        d += '\nclass ' + nodeId + ' __rrf_hl';
+      }
     }
 
     try {

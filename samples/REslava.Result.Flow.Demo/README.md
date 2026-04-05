@@ -28,7 +28,8 @@ dotnet run
 | 14 | Namespace-aware `_LayerView` — `[DomainBoundary]` + explicit namespace in `Demo.Pipelines`; VSIX sidebar namespace grouping | v1.51.0 |
 | 15 | Pipeline Runtime Observation — `RingBufferObserver`; per-node output values, error types, elapsed ms; `Save()` writes `reslava-traces.json` for VSIX Debug panel | v1.52.0 |
 | 16 | FlowProxy Debug — `svc.Flow.Debug.Process()` captures one trace → `reslava-debug-Process.json`; VSIX Debug panel auto-opens via file watcher; multi-file picker | v1.53.0 |
-| 17 | FlowProxy always-on — `partial class` + `svc.Flow.Process()` wraps any `[ResultFlow]` method with observer hooks; `svc.Flow.Debug` for single-trace captures | v1.53.0 |
+| 17 | FlowProxy across multiple services — shared `RingBufferObserver` over `OrderService`, `InventoryService`, `FulfillmentService`; `Save("all-services")` → `reslava-all-services.json`; 4-file Debug panel picker workout | v1.53.0 |
+| 18 | DebugProxy on cross-method pipeline — `OrderService.Flow.Debug.PlaceOrderCross()` → `reslava-debug-PlaceOrderCross.json`; picker shows `traces` + `debug-Process` + `all-services` + `debug-PlaceOrderCross` | v1.53.0 |
 
 ---
 

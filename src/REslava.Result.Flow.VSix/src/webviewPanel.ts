@@ -94,7 +94,7 @@ function createPanel(
         } else if (msg.command === 'toggleWindowMode') {
             await vscode.commands.executeCommand('reslava.toggleDiagramWindowMode');
         } else if (msg.command === 'openLivePanel') {
-            await vscode.commands.executeCommand('resultflow.openLivePanel', msg.methodName);
+            await vscode.commands.executeCommand('resultflow.openDebugPanel', msg.methodName);
         }
     });
     return panel;

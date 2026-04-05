@@ -212,15 +212,11 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                                 : "";
                             var resultValueIsValueType = resultIsGeneric && IsKnownValueType(resultValueTypeSyntax);
 
-                            // nodeIds: one per non-Invisible node — same FNV-1a hash as Mermaid renderer
+                            // nodeIds: in execution order — outer node first, then inner SubNodes recursively,
+                            // then the next outer node. Mirrors the flat PipelineState.NodeIndex counter.
+                            // The renderer already set NodeId on all visible nodes via AssignNodeIds.
                             var nodeIds = new System.Collections.Generic.List<string>();
-                            int visibleIdx = 0;
-                            foreach (var node in chain)
-                            {
-                                if (node.Kind == NodeKind.Invisible) continue;
-                                nodeIds.Add(ShortHash.Compute(pipelineId, node.MethodName, visibleIdx.ToString()));
-                                visibleIdx++;
-                            }
+                            CollectNodeIdsInExecutionOrder(chain, nodeIds);
 
                             var parameters = new System.Collections.Generic.List<(string TypeSyntax, string ParamName, bool IsValueType)>();
                             foreach (var p in methodDecl.ParameterList.Parameters)
@@ -273,6 +269,27 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
             // Strip trailing '?' (nullable value types are still value types for ToString purposes)
             var t = typeSyntax.TrimEnd('?').Trim();
             return _valueTypeKeywords.Contains(t);
+        }
+
+        /// <summary>
+        /// Collects nodeIds in execution order: outer node first, then its inner SubNodes recursively,
+        /// then the next outer node. Mirrors the flat <c>PipelineState.NodeIndex</c> counter.
+        /// Only nodes with a non-null NodeId (set by <c>AssignNodeIds</c> in the renderer) are included.
+        /// </summary>
+        private static void CollectNodeIdsInExecutionOrder(
+            System.Collections.Generic.IReadOnlyList<PipelineNode> nodes,
+            System.Collections.Generic.List<string> result)
+        {
+            foreach (var node in nodes)
+            {
+                // Only include nodes that fire a runtime hook (Bind/Map/Ensure/Tap/Match).
+                // Unknown = unrecognised calls like Result<T>.Ok() factory; they appear in the
+                // extracted chain but do NOT increment PipelineState.NodeIndex at runtime.
+                if (node.Kind == NodeKind.Invisible || node.Kind == NodeKind.Unknown || node.NodeId == null) continue;
+                result.Add(node.NodeId);
+                if (node.SubNodes != null && node.SubNodes.Count > 0)
+                    CollectNodeIdsInExecutionOrder(node.SubNodes, result);
+            }
         }
     }
 }

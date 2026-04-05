@@ -231,7 +231,7 @@ namespace REslava.Result.Flow.Generators.ResultFlow.CodeGeneration
             // DebugProxy — always emitted; uses buffer.Save() instead of PipelineTraceHost
             sb.AppendLine($"{ci}        private DebugProxy? _debug;");
             if (isStatic)
-                sb.AppendLine($"{ci}        public static DebugProxy Debug => _flowProxy._debug ??= new DebugProxy();");
+                sb.AppendLine($"{ci}        public DebugProxy Debug => _debug ??= new DebugProxy();");
             else
                 sb.AppendLine($"{ci}        public DebugProxy Debug => _debug ??= new DebugProxy(_self);");
             sb.AppendLine();

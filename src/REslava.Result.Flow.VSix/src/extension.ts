@@ -41,7 +41,7 @@ async function findProjectForInstall(): Promise<string | null> {
     return picked ? picked.fsPath : null;
 }
 
-async function sendFileListToPanel(log: vscode.OutputChannel): Promise<void> {
+async function sendFileListToPanel(log: vscode.OutputChannel, activePath?: string): Promise<void> {
     const found = await vscode.workspace.findFiles('**/reslava-*.json', null, 20);
     if (found.length === 0) { return; }
     const withMtime = found.map(u => ({ fsPath: u.fsPath, mtime: fs.statSync(u.fsPath).mtimeMs }));
@@ -51,7 +51,7 @@ async function sendFileListToPanel(log: vscode.OutputChannel): Promise<void> {
         path: f.fsPath
     }));
     log.appendLine(`[DebugPanel] file list: ${files.map(f => f.label).join(', ')}`);
-    ResultFlowDebugPanel.setFileList(files);
+    ResultFlowDebugPanel.setFileList(files, activePath);
 }
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -182,8 +182,8 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand(
             'resultflow.openDebugPanel',
-            async (arg: string | import('./resultFlowTreeProvider').MethodNode) => {
-                const methodName = typeof arg === 'string' ? arg : arg.methodName;
+            async (arg?: string | import('./resultFlowTreeProvider').MethodNode) => {
+                const methodName = arg ? (typeof arg === 'string' ? arg : arg.methodName) : 'Debug';
                 ResultFlowDebugPanel.show(context.extensionUri, methodName, liveLog);
                 // Immediate scan — null exclude bypasses search.exclude (which often hides bin/)
                 const found = await vscode.workspace.findFiles('**/reslava-*.json', null, 20);
@@ -192,7 +192,10 @@ export function activate(context: vscode.ExtensionContext): void {
                     // Sort by modification time descending — newest first
                     const withMtime = found.map(u => ({ fsPath: u.fsPath, mtime: fs.statSync(u.fsPath).mtimeMs }));
                     withMtime.sort((a, b) => b.mtime - a.mtime);
-                    const tracePath = withMtime[0].fsPath;
+                    // Prefer reslava-debug-{methodName}.json when launched from CodeLens
+                    const debugFile = withMtime.find(f =>
+                        path.basename(f.fsPath) === `reslava-debug-${methodName}.json`);
+                    const tracePath = (debugFile ?? withMtime[0]).fsPath;
                     liveLog.appendLine(`[DebugPanel] loading ${tracePath}`);
                     // Cancel polling immediately (before the 500ms initial poll fires)
                     ResultFlowDebugPanel.cancelPolling();
@@ -209,8 +212,8 @@ export function activate(context: vscode.ExtensionContext): void {
     // File watcher — auto-open Debug panel when any reslava-*.json appears or changes
     const traceWatcher = vscode.workspace.createFileSystemWatcher('**/reslava-*.json');
     const onTraceFile = (uri: vscode.Uri) => {
-        ResultFlowDebugPanel.loadFromFile(uri.fsPath, context.extensionUri, liveLog);
-        sendFileListToPanel(liveLog);
+        ResultFlowDebugPanel.loadFromFile(uri.fsPath, context.extensionUri, liveLog, true);
+        sendFileListToPanel(liveLog, uri.fsPath);
     };
     traceWatcher.onDidCreate(onTraceFile);
     traceWatcher.onDidChange(onTraceFile);

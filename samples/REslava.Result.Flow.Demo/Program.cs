@@ -33,7 +33,11 @@
 //  14. Namespace-aware _LayerView — Demo.Pipelines.Pipelines [DomainBoundary("Application")] +
 //      UserService [DomainBoundary("Domain")] → _LayerView, _Stats, _ErrorSurface, _ErrorPropagation
 //  15. Pipeline Runtime Observation — RingBufferObserver + svc.Flow.Process() (FlowProxy)
-//  16. Flow.Debug.Process() — writes reslava-traces.json; VSIX Debug panel auto-opens
+//  16. Flow.Debug.Process() — writes reslava-debug-Process.json; VSIX Debug panel auto-opens
+//  17. FlowProxy across all services — shared RingBufferObserver over OrderService,
+//      InventoryService, FulfillmentService; Save("all-services") → reslava-all-services.json
+//  18. DebugProxy on cross-method pipeline — Flow.Debug.PlaceOrderCross() → reslava-debug-PlaceOrderCross.json
+//      Debug panel now has 4 reslava-*.json files for the multi-file picker
 // =============================================================================
 using Demo.MatchDemo;
 using Demo.Pipelines;
@@ -290,6 +294,59 @@ Console.WriteLine(sep);
 
 var tracingSvc16 = new RuntimeTracingService();
 tracingSvc16.Flow.Debug.Process(42, 7);
+
+Console.WriteLine();
+
+// ── 17. FlowProxy across all services ────────────────────────────────────────
+//
+// Register one shared RingBufferObserver. Call Flow.Method() for one success
+// + one failure path across three services. Save("all-services") writes
+// reslava-all-services.json to the bin/ folder.
+//
+// With 4 reslava-*.json files present the Debug panel multi-file picker shows:
+//   [traces]   [debug-Process]   [all-services]   [debug-PlaceOrderCross]
+Console.WriteLine();
+Console.WriteLine("  17. FlowProxy across all services — multi-service shared observer:");
+Console.WriteLine(sep);
+
+var allBuffer = new RingBufferObserver();
+PipelineObserver.Register(allBuffer);
+
+// OrderService (Application layer, cross-method)
+OrderService.Flow.PlaceOrderCross(42, 7);    // success
+OrderService.Flow.PlaceOrderCross(999, 7);   // UserNotFoundError
+
+// InventoryService (Infrastructure → Domain cross-method)
+InventoryService.Flow.CheckStock(7, 10);     // success
+InventoryService.Flow.CheckStock(99, 10);    // ProductNotFoundError
+
+// FulfillmentService (Application → Domain cross-method, dark theme)
+FulfillmentService.Flow.FulfillOrder(7, 10); // success
+FulfillmentService.Flow.FulfillOrder(8, 5);  // InsufficientStockError
+
+PipelineObserver.Unregister();
+
+foreach (var trace in allBuffer.GetTraces())
+{
+    var status = trace.IsSuccess ? "✓ ok" : $"✗ {trace.ErrorType}";
+    Console.WriteLine($"  {trace.MethodName}({trace.InputValue}) → {status}  ({trace.ElapsedMs}ms)");
+}
+
+// Writes reslava-all-services.json — VSIX picker label: "all-services"
+allBuffer.Save("all-services");
+
+Console.WriteLine();
+
+// ── 18. Flow.Debug.PlaceOrderCross() — cross-method debug capture ─────────────
+//
+// DebugProxy captures one execution of the cross-method pipeline and saves to
+// reslava-debug-PlaceOrderCross.json. Combined with Section 16's reslava-debug-Process.json,
+// the Debug panel picker now shows two named debug files alongside the observer files.
+Console.WriteLine();
+Console.WriteLine("  18. Flow.Debug.PlaceOrderCross() — cross-method single-trace debug:");
+Console.WriteLine(sep);
+
+OrderService.Flow.Debug.PlaceOrderCross(42, 7);
 
 Console.WriteLine();
 
@@ -555,7 +612,7 @@ static class UserService
 
 // [DomainBoundary("Application")] on the class tags PlaceOrderCross (and any other methods) as Application layer.
 [DomainBoundary("Application")]
-static class OrderService
+static partial class OrderService
 {
     private static readonly Dictionary<int, User> _users = new()
     {
@@ -691,7 +748,7 @@ static class WarehouseService
 }
 
 [DomainBoundary("Infrastructure")]
-static class InventoryService
+static partial class InventoryService
 {
     private static readonly Dictionary<int, Product> _products = new()
     {
@@ -742,7 +799,7 @@ static class InventoryService
 // =============================================================================
 
 [DomainBoundary("Application")]
-static class FulfillmentService
+static partial class FulfillmentService
 {
     private static readonly Dictionary<int, Product> _catalog = new()
     {

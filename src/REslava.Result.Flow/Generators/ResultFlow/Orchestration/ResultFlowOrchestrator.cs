@@ -190,15 +190,13 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                             var resultIsGeneric = innerType?.Arity > 0;
                             var resultValueIsValueType = resultIsGeneric && innerType!.TypeArguments.Length > 0 && innerType.TypeArguments[0].IsValueType;
 
-                            // nodeIds: one per non-Invisible node — same FNV-1a hash as Mermaid renderer
+                            // nodeIds: in execution order — outer node first, then inner SubNodes recursively,
+                            // then the next outer node. This matches the flat NodeIndex counter in PipelineState:
+                            // inner Bind/Map hooks fire within the same PipelineState scope as the outer chain,
+                            // consuming consecutive NodeIndex slots. The renderer already set NodeId on all
+                            // visible nodes (including SubNodes) via AssignNodeIds, so we just read them.
                             var nodeIds = new System.Collections.Generic.List<string>();
-                            int visibleIdx = 0;
-                            foreach (var node in chain)
-                            {
-                                if (node.Kind == NodeKind.Invisible) continue;
-                                nodeIds.Add(ShortHash.Compute(pipelineId, node.MethodName, visibleIdx.ToString()));
-                                visibleIdx++;
-                            }
+                            CollectNodeIdsInExecutionOrder(chain, nodeIds);
 
                             // Class-level info (same for all methods in this group)
                             var containingNs = rootSymbol.ContainingType.ContainingNamespace;
@@ -236,6 +234,28 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                                 flowProxyMethods.Count > 0 ? flowProxyMethods : null));
                 }
             });
+        }
+
+        /// <summary>
+        /// Collects nodeIds in execution order: outer node first, then its inner SubNodes recursively,
+        /// then the next outer node. Mirrors the flat <c>PipelineState.NodeIndex</c> counter which
+        /// increments for every Bind/Map/Ensure/Tap hook that fires — regardless of call depth.
+        /// Only nodes with a non-null NodeId (set by <c>AssignNodeIds</c> in the renderer) are included.
+        /// </summary>
+        private static void CollectNodeIdsInExecutionOrder(
+            System.Collections.Generic.IReadOnlyList<PipelineNode> nodes,
+            System.Collections.Generic.List<string> result)
+        {
+            foreach (var node in nodes)
+            {
+                // Only include nodes that fire a runtime hook (Bind/Map/Ensure/Tap/Match).
+                // Unknown = unrecognised calls like Result<T>.Ok() factory; they appear in the
+                // extracted chain but do NOT increment PipelineState.NodeIndex at runtime.
+                if (node.Kind == NodeKind.Invisible || node.Kind == NodeKind.Unknown || node.NodeId == null) continue;
+                result.Add(node.NodeId);
+                if (node.SubNodes != null && node.SubNodes.Count > 0)
+                    CollectNodeIdsInExecutionOrder(node.SubNodes, result);
+            }
         }
     }
 }

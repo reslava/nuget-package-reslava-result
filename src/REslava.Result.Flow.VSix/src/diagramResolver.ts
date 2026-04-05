@@ -347,3 +347,69 @@ function extractDiagramConstant(fileContent: string, methodName: string): string
     if (!m) { return null; }
     return m[1].replace(/""/g, '"');
 }
+
+// ─── Pipeline-ID lookup ───────────────────────────────────────────────────────
+//
+// Each generated diagram contains `%% pipelineId: {hash}` (added in v1.51.0).
+// The trace JSON also carries pipelineId, so we can match trace → diagram
+// without relying on method name (which may collide across classes).
+
+export function findDiagramByPipelineId(pipelineId: string): string | null {
+    const folders = vscode.workspace.workspaceFolders ?? [];
+    for (const folder of folders) {
+        const result = searchWorkspaceForPipelineId(folder.uri.fsPath, pipelineId);
+        if (result) { return result; }
+    }
+    return null;
+}
+
+function searchWorkspaceForPipelineId(dir: string, pipelineId: string): string | null {
+    let entries: fs.Dirent[];
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+    catch { return null; }
+
+    for (const entry of entries) {
+        if (!entry.isDirectory()) { continue; }
+        const fullPath = path.join(dir, entry.name);
+        if (entry.name === 'obj') {
+            const result = searchObjForPipelineId(fullPath, pipelineId);
+            if (result) { return result; }
+        } else if (!SKIP_DIRS.has(entry.name)) {
+            const result = searchWorkspaceForPipelineId(fullPath, pipelineId);
+            if (result) { return result; }
+        }
+    }
+    return null;
+}
+
+function searchObjForPipelineId(dir: string, pipelineId: string): string | null {
+    let entries: fs.Dirent[];
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+    catch { return null; }
+
+    for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            const result = searchObjForPipelineId(fullPath, pipelineId);
+            if (result) { return result; }
+        } else if (entry.name.endsWith('_Flows.g.cs')) {
+            try {
+                const content = fs.readFileSync(fullPath, 'utf8');
+                const diagram = extractDiagramByPipelineId(content, pipelineId);
+                if (diagram) { return diagram; }
+            } catch { /* skip */ }
+        }
+    }
+    return null;
+}
+
+function extractDiagramByPipelineId(fileContent: string, pipelineId: string): string | null {
+    if (!fileContent.includes(`%% pipelineId: ${pipelineId}`)) { return null; }
+    const constRegex = /public\s+const\s+string\s+\w+\s*=\s*@?"([^"]*(?:""[^"]*)*)"/gs;
+    let match;
+    while ((match = constRegex.exec(fileContent)) !== null) {
+        const value = match[1].replace(/""/g, '"');
+        if (value.includes(`%% pipelineId: ${pipelineId}`)) { return value; }
+    }
+    return null;
+}

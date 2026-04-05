@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 import * as http from 'http';
 import * as fs from 'fs';
-import * as path from 'path';
-import { findDiagramByMethodName } from './diagramResolver';
+import { findDiagramByMethodName, findDiagramByPipelineId } from './diagramResolver';
 
 export class ResultFlowDebugPanel {
     static readonly viewType = 'resultflow.debugPanel';
     private static _current: ResultFlowDebugPanel | undefined;
+    private static _loadGen = 0;
 
     private readonly _panel: vscode.WebviewPanel;
     private _pollTimer: ReturnType<typeof setInterval> | undefined;
@@ -55,15 +55,31 @@ export class ResultFlowDebugPanel {
      * Loads traces from a `reslava-traces.json` file and feeds them to the Debug panel.
      * Called by the file watcher when the file is created or changed.
      */
-    static loadFromFile(filePath: string, extensionUri: vscode.Uri, log: vscode.OutputChannel): void {
+    static loadFromFile(filePath: string, extensionUri: vscode.Uri, log: vscode.OutputChannel, skipGenCheck = false): void {
         try {
             const raw = fs.readFileSync(filePath, 'utf8');
             const traces = JSON.parse(raw);
             const methodName = traces.length > 0 ? traces[0].methodName : 'Debug';
             log.appendLine(`[DebugPanel] loadFromFile: ${traces.length} trace(s) from ${filePath}`);
 
+            const gen = skipGenCheck ? -1 : ++ResultFlowDebugPanel._loadGen;
             const postTraces = (panel: ResultFlowDebugPanel) => {
-                panel._panel.webview.postMessage({ command: 'status', source: 'file', detail: path.basename(path.dirname(filePath)) });
+                if (gen !== -1 && gen !== ResultFlowDebugPanel._loadGen) { return; }
+
+                // Build pipelineId → diagram map for all unique methods in this file
+                const diagramMap: Record<string, string | null> = {};
+                for (const trace of traces) {
+                    const pid = trace.pipelineId as string | undefined;
+                    if (pid && !(pid in diagramMap)) {
+                        diagramMap[pid] = findDiagramByPipelineId(pid);
+                    }
+                }
+
+                const firstPid = traces[0]?.pipelineId as string | undefined;
+                const firstDiagram = (firstPid && diagramMap[firstPid]) ?? findDiagramByMethodName(methodName);
+                panel._panel.webview.postMessage({ command: 'setMethod', methodName, diagram: firstDiagram });
+                panel._panel.webview.postMessage({ command: 'setDiagramMap', map: diagramMap });
+                panel._panel.webview.postMessage({ command: 'status', source: 'file' });
                 panel._panel.webview.postMessage({ command: 'traces', traces });
             };
 
@@ -116,13 +132,13 @@ export class ResultFlowDebugPanel {
     }
 
     /** Sends the list of available trace files to the webview picker. */
-    static setFileList(files: { label: string; path: string }[]): void {
+    static setFileList(files: { label: string; path: string }[], activePath?: string): void {
         const panel = ResultFlowDebugPanel._current;
         if (!panel || files.length === 0) { return; }
         panel._panel.webview.postMessage({
             command: 'setFileList',
             files,
-            selectedPath: files[0].path
+            selectedPath: activePath ?? files[0].path
         });
     }
 
@@ -196,7 +212,7 @@ function buildDebugPanelHtml(
     const mermaidUri   = webview.asWebviewUri(
         vscode.Uri.joinPath(extensionUri, 'media', 'mermaid.min.js'));
     const scriptUri    = webview.asWebviewUri(
-        vscode.Uri.joinPath(extensionUri, 'media', 'livepanel.js'));
+        vscode.Uri.joinPath(extensionUri, 'media', 'debugpanel.js'));
 
     const methodJson  = JSON.stringify(methodName);
     const diagramJson = JSON.stringify(diagram);
@@ -344,7 +360,7 @@ function buildDebugPanelHtml(
     .node-output {
       font-size: 11px; color: var(--vscode-descriptionForeground);
       margin-top: 2px; font-family: var(--vscode-editor-font-family, monospace);
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px;
+      word-break: break-word; white-space: pre-wrap;
     }
     .node-cell { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
