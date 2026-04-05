@@ -341,9 +341,26 @@ tagline: Know exactly what you're getting.
 
 ---
 
+## 13. Pipeline Runtime Observation — `REslava.Result` (v1.52.0–v1.53.0)
+
+| Feature | Short Description | Version | Docs |
+|---------|------------------|---------|------|
+| `ResultFlowObserver` | Abstract base class for pipeline observers; `OnNodeExecuted` + `OnPipelineCompleted` hooks | v1.52.0 | `### 🔬 Pipeline Runtime Observation` |
+| `RingBufferObserver` | Bounded in-memory ring buffer; `capacity` ctor; `GetTraces()` snapshot; `Clear()` | v1.52.0 | `### 🔬 Pipeline Runtime Observation` |
+| `PipelineObserver` static hub | `Register` / `Unregister` / `RegisterScoped` / `BeginPipeline` / `Current`; `AsyncLocal` isolation | v1.52.0 | `### 🔬 Pipeline Runtime Observation` |
+| `PipelineTrace` / `NodeTrace` | Data models; `NodeId` correlates to Mermaid diagram node; `ElapsedMs`, `OutputValue`, `ErrorType` per node | v1.52.0 | `### 🔬 Pipeline Runtime Observation` |
+| `REslava.Result.Diagnostics` | `PipelineTraceHost.Start` (Kestrel) + `MapResultFlowTraces` (ASP.NET Core); `GET /reslava/traces` JSON | v1.52.0 | `### 🔬 Pipeline Runtime Observation` |
+| `FlowProxy` | Generated for `partial` classes; `svc.Flow.Process()` seeds exact `pipelineId`+`nodeIds`; instance + static; both packages | v1.53.0 | `### 🔬 Pipeline Runtime Observation` |
+| `DebugProxy` | `svc.Flow.Debug.Process()` — captures 1 trace + auto-saves `reslava-debug-{method}.json`; VSIX Debug panel auto-opens | v1.53.0 | `### 🔬 Pipeline Runtime Observation` |
+| `RingBufferObserver.Save(path?)` | Persists traces to BOM-free JSON; auto-prefix `reslava-` for short names; full-path escape hatch | v1.53.0 | `### 🔬 Pipeline Runtime Observation` |
+| `REF004` + code fix | Warning + one-click fix when `[ResultFlow]` class missing `partial`; both packages | v1.53.0 | — |
+| VSIX Debug Panel v1.4.0 | File watcher `**/reslava-*.json`; source badge; multi-file picker; `▶ Debug` CodeLens on `.Flow.Debug.` lines | v1.53.0 | `### 🔬 Pipeline Runtime Observation` |
+
+---
+
 ## Summary
 
-!!! new "**v1.51.0** — 237 features across 15 categories."
+!!! new "**v1.53.0** — 247 features across 16 categories."
 
 
 | Category | Total Features |
@@ -363,7 +380,8 @@ tagline: Know exactly what you're getting.
 | ResultFlow | 79 |
 | OpenTelemetry | 3 |
 | ResultContext | 6 |
-| **Total** | **237** |
+| Pipeline Runtime Observation | 10 |
+| **Total** | **247** |
 
 ---
 
