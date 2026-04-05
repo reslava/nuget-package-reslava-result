@@ -33,6 +33,14 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
             category: "REslava.Result.Flow",
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
+
+        private static readonly DiagnosticDescriptor REF004 = new DiagnosticDescriptor(
+            id: "REF004",
+            title: "Class must be partial for FlowProxy",
+            messageFormat: "Class '{0}' has [ResultFlow] methods but is not marked as 'partial'. Add 'partial' to enable FlowProxy (svc.Flow.Method()).",
+            category: "REslava.Result.Flow",
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
 #pragma warning restore RS2008
 
         public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -44,7 +52,6 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
             });
 
             // Stage 2: Find method declarations decorated with [ResultFlow]
-            // Also read MaxDepth from the attribute args at the syntax level.
             var annotatedMethods = context.SyntaxProvider
                 .CreateSyntaxProvider(
                     predicate: (node, _) => node is MethodDeclarationSyntax m &&
@@ -107,7 +114,6 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                 if (!methods.Any()) return;
 
                 // Load custom mappings and linkMode from resultflow.json (if present).
-                // JSON config linkMode takes precedence over the MSBuild property.
                 IReadOnlyDictionary<string, NodeKind>? customMappings = null;
                 string linkMode = string.Empty;
                 var configAdditionalText = source.Left.Right.FirstOrDefault();
@@ -120,12 +126,10 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                         if (loadError != null)
                         {
                             spc.ReportDiagnostic(Diagnostic.Create(REF003, Location.None, loadError));
-                            // customMappings is null here — fallback to convention dictionary
                         }
                         linkMode = configLinkMode ?? string.Empty;
                     }
                 }
-                // Fall back to MSBuild property when JSON config does not specify linkMode
                 if (string.IsNullOrEmpty(linkMode))
                     linkMode = linkModeFromProps;
 
@@ -133,12 +137,22 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
 
                 foreach (var group in methods.GroupBy(t => t.Method.Parent))
                 {
-                    // Both ClassDeclarationSyntax and RecordDeclarationSyntax inherit TypeDeclarationSyntax
                     if (!(group.Key is TypeDeclarationSyntax typeDecl)) continue;
 
                     var className = typeDecl.Identifier.ValueText;
+
+                    // Check if the class is partial — required for FlowProxy
+                    var isPartial = typeDecl.Modifiers.Any(m => m.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.PartialKeyword));
+                    if (!isPartial)
+                        spc.ReportDiagnostic(Diagnostic.Create(REF004, typeDecl.Identifier.GetLocation(), className));
+
+                    // Class-level info (same for all methods in this group)
+                    var isClassStatic = typeDecl.Modifiers.Any(m => m.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.StaticKeyword));
+                    var classAccessibility = typeDecl.Modifiers.Any(m => m.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.PublicKeyword))
+                        ? "public" : "internal";
+
                     var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? typeFlow)>();
-                    var tracedMethods = new List<CodeGeneration.TracedMethodInfo>();
+                    var flowProxyMethods = new List<FlowProxyMethodInfo>();
 
                     foreach (var (methodDecl, maxDepth, darkTheme, themeExplicitlySet) in group)
                     {
@@ -167,6 +181,7 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                         // Compute pipelineId (syntax-only) so diagram node IDs match registry _Info nodeIds
                         var containingNs = ResultFlowChainExtractor.GetContainingNamespace(methodDecl);
                         var pipelineId = ShortHash.Compute(
+                            compilation.AssemblyName ?? "",
                             containingNs,
                             className,
                             methodName,
@@ -183,27 +198,28 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
 
                         diagrams.Add((methodName, mermaid, layerView, stats, errorSurface, typeFlow));
 
-                        // ── Collect TracedMethodInfo for _Traced extension ────
-                        // Skip static methods — extension method requires an instance receiver.
-                        var isStatic = methodDecl.Modifiers.Any(m => m.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.StaticKeyword));
-                        if (!isStatic)
+                        // ── Collect FlowProxyMethodInfo (all [ResultFlow] methods, including static) ──
+                        if (isPartial)
                         {
                             var returnTypeSyntax = methodDecl.ReturnType.ToFullString().Trim();
                             var returnsTask = returnTypeSyntax.StartsWith("Task<") || returnTypeSyntax == "Task";
-                            // Unwrap Task<...> to check inner type
                             var innerTypeSyntax = returnsTask && returnTypeSyntax.StartsWith("Task<") && returnTypeSyntax.EndsWith(">")
                                 ? returnTypeSyntax.Substring(5, returnTypeSyntax.Length - 6).Trim()
                                 : returnTypeSyntax;
                             var resultIsGeneric = innerTypeSyntax.Contains("<");
+                            var resultValueTypeSyntax = resultIsGeneric
+                                ? innerTypeSyntax.Substring(innerTypeSyntax.IndexOf('<') + 1).TrimEnd('>')
+                                : "";
+                            var resultValueIsValueType = resultIsGeneric && IsKnownValueType(resultValueTypeSyntax);
 
+                            // nodeIds: one per non-Invisible node — same FNV-1a hash as Mermaid renderer
                             var nodeIds = new System.Collections.Generic.List<string>();
+                            int visibleIdx = 0;
                             foreach (var node in chain)
                             {
-                                if (node.Kind == Models.NodeKind.Invisible) continue;
-                                if (node.SourceFile != null && node.SourceLine.HasValue)
-                                    nodeIds.Add($"{System.IO.Path.GetFileName(node.SourceFile)}:{node.SourceLine}");
-                                else
-                                    nodeIds.Add($"{pipelineId}:{nodeIds.Count}");
+                                if (node.Kind == NodeKind.Invisible) continue;
+                                nodeIds.Add(ShortHash.Compute(pipelineId, node.MethodName, visibleIdx.ToString()));
+                                visibleIdx++;
                             }
 
                             var parameters = new System.Collections.Generic.List<(string TypeSyntax, string ParamName, bool IsValueType)>();
@@ -213,14 +229,17 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
                                 parameters.Add((typeSyntax, p.Identifier.ValueText, IsKnownValueType(typeSyntax)));
                             }
 
-                            tracedMethods.Add(new CodeGeneration.TracedMethodInfo
+                            flowProxyMethods.Add(new FlowProxyMethodInfo
                             {
                                 MethodName = methodName,
+                                ContainingTypeShortName = className,
                                 ContainingNamespace = containingNs,
-                                ContainingTypeName = className,
+                                ContainingTypeAccessibility = classAccessibility,
+                                IsStatic = isClassStatic,
                                 ReturnTypeSyntax = returnTypeSyntax,
                                 ReturnsTask = returnsTask,
                                 ResultIsGeneric = resultIsGeneric,
+                                ResultValueIsValueType = resultValueIsValueType,
                                 Parameters = parameters,
                                 PipelineId = pipelineId,
                                 NodeIds = nodeIds.ToArray(),
@@ -230,7 +249,8 @@ namespace REslava.ResultFlow.Generators.ResultFlow.Orchestration
 
                     if (diagrams.Count > 0)
                     {
-                        var code = ResultFlowCodeGenerator.Generate(className, diagrams, tracedMethods);
+                        var code = ResultFlowCodeGenerator.Generate(className, diagrams,
+                            flowProxyMethods.Count > 0 ? flowProxyMethods : null);
                         spc.AddSource($"{className}_Flows.g.cs", code);
                     }
                 }

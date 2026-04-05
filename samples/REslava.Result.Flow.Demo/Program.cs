@@ -32,8 +32,8 @@
 //  13. _TypeFlow constant — same nodes as _Diagram but success edges carry the Result<T> type name
 //  14. Namespace-aware _LayerView — Demo.Pipelines.Pipelines [DomainBoundary("Application")] +
 //      UserService [DomainBoundary("Domain")] → _LayerView, _Stats, _ErrorSurface, _ErrorPropagation
-//  15. Pipeline Runtime Observation — RingBufferObserver + _Traced (exact tier)
-//  16. REslava.Result.Diagnostics — PipelineTraceHost HTTP endpoint for VSIX Live panel
+//  15. Pipeline Runtime Observation — RingBufferObserver + svc.Flow.Process() (FlowProxy)
+//  16. Flow.Debug.Process() — writes reslava-traces.json; VSIX Debug panel auto-opens
 // =============================================================================
 using Demo.MatchDemo;
 using Demo.Pipelines;
@@ -238,23 +238,23 @@ Run("FulfillOrder (insufficient stock)        ", FulfillmentService.FulfillOrder
 // ── 15. Pipeline Runtime Observation ─────────────────────────────────────────
 //
 // RingBufferObserver stores the last N pipeline executions in memory.
-// Calling _Traced (the generated exact-tier wrapper) seeds the per-execution
-// PipelineState so every Bind/Map/Ensure/Tap node reports its exact NodeId,
+// svc.Flow.Process() is the FlowProxy wrapper — it calls BeginPipeline with the
+// stable hash NodeIds so every Bind/Map/Ensure/Tap node reports its exact NodeId,
 // output value, elapsed time, and error type to the observer.
 //
-// Auto-tier (without _Traced): hooks still fire from Bind/Map/etc. but use
-// [CallerFilePath]:[CallerLineNumber] as the NodeId instead of the stable hash.
+// Register an observer before calling Flow.Process() to capture traces.
+// Without a registered observer, Flow.Process() runs the pipeline normally.
 Console.WriteLine();
-Console.WriteLine("  15. Pipeline Runtime Observation — RingBufferObserver + _Traced:");
+Console.WriteLine("  15. Pipeline Runtime Observation — RingBufferObserver + Flow.Process():");
 Console.WriteLine(sep);
 
 var ringBuffer = new RingBufferObserver();
 PipelineObserver.Register(ringBuffer);
 
 var tracingSvc = new RuntimeTracingService();
-tracingSvc.Process_Traced(42, 7);    // success: User 42 → Product 7
-tracingSvc.Process_Traced(42, 99);   // failure: ProductNotFoundError
-tracingSvc.Process_Traced(999, 7);   // failure: UserNotFoundError
+tracingSvc.Flow.Process(42, 7);    // success: User 42 → Product 7
+tracingSvc.Flow.Process(42, 99);   // failure: ProductNotFoundError
+tracingSvc.Flow.Process(999, 7);   // failure: UserNotFoundError
 
 PipelineObserver.Unregister();
 
@@ -269,41 +269,28 @@ foreach (var trace in ringBuffer.GetTraces())
     }
 }
 
+// Save all 3 traces — VSIX file watcher opens the Debug panel automatically
+ringBuffer.Save();
+
 Console.WriteLine();
 
-// ── 16. REslava.Result.Diagnostics — PipelineTraceHost HTTP endpoint ─────────
+// ── 16. Flow.Debug.Process() — file-based debug workflow ────────────────────
 //
-// PipelineTraceHost.Start(buffer) embeds a minimal Kestrel server that exposes
-// GET /reslava/traces as JSON — the VSIX Live panel polls this endpoint every 2s.
+// Flow.Debug.Process() is a generated single-trace debug wrapper. It internally:
+//   1. Creates a single-capacity RingBufferObserver and registers it
+//   2. Calls BeginPipeline with stable hash NodeIds
+//   3. Runs the real method
+//   4. In the finally block: calls buf.Save() → writes reslava-traces.json
+//      to the bin/ folder; the VSIX file watcher opens the Debug panel automatically
 //
-// For apps that already have an ASP.NET Core WebApplication, use the route
-// extension instead:
-//   app.MapResultFlowTraces(buffer);   // maps GET /reslava/traces into your app
-//
-// The VSIX Live panel (▶ Debug CodeLens) automatically connects to the configured
-// port (default 5297; change via resultflow.tracePort in VS Code settings).
+// No pausing, no HTTP server — just run and the Debug panel opens by itself.
 Console.WriteLine();
-Console.WriteLine("  16. REslava.Result.Diagnostics — PipelineTraceHost:");
+Console.WriteLine("  16. Flow.Debug.Process() — saves trace, VSIX Debug panel auto-opens:");
 Console.WriteLine(sep);
 
-var diagnosticsBuffer = new RingBufferObserver(capacity: 50);
-PipelineObserver.Register(diagnosticsBuffer);
-
-// Run a few traces so the buffer has data when the endpoint is queried
 var tracingSvc16 = new RuntimeTracingService();
-tracingSvc16.Process_Traced(42, 7);
-tracingSvc16.Process_Traced(42, 99);
-tracingSvc16.Process_Traced(999, 7);
+tracingSvc16.Flow.Debug.Process(42, 7);
 
-PipelineObserver.Unregister();
-
-// Start the HTTP trace endpoint on port 5297 (default Live panel port).
-// Keeps running until a key is pressed so the VSIX Live panel can poll the buffer.
-using var host = PipelineTraceHost.Start(diagnosticsBuffer, port: 5297);
-Console.WriteLine($"  Trace endpoint: http://localhost:5297/reslava/traces");
-Console.WriteLine($"  Buffer contains {diagnosticsBuffer.GetTraces().Count} traces.");
-Console.WriteLine($"  Open '▶ Debug' in VS Code, then press any key here to exit...");
-Console.ReadKey(intercept: true);
 Console.WriteLine();
 
 // =============================================================================
@@ -831,14 +818,14 @@ class sg_N0_ReserveStock subgraphStyle
 }
 
 // =============================================================================
-// RuntimeTracingService — section 15: Pipeline Runtime Observation
+// RuntimeTracingService — sections 15 & 16: Pipeline Runtime Observation
 //
-// Non-static class so the generator emits a {ClassName}_Traced_Extensions class
-// with Process_Traced(this RuntimeTracingService self, ...) extension method.
-// Call Process_Traced() while a RingBufferObserver is registered to capture
-// per-node output values, error types, and elapsed times.
+// partial class so the generator emits a FlowProxy nested class with:
+//   svc.Flow.Process()         (always-on tracing — register a RingBufferObserver first)
+//   svc.Flow.Debug.Process()   (single-trace — creates its own buffer, calls buf.Save())
+// The VSIX file watcher picks up reslava-traces.json and opens the Debug panel.
 // =============================================================================
-sealed class RuntimeTracingService
+sealed partial class RuntimeTracingService
 {
     private static readonly Dictionary<int, User> _users = new()
     {

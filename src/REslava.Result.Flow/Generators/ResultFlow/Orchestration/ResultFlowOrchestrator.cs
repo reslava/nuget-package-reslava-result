@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using REslava.Result.Flow.Core.Interfaces;
 using REslava.Result.Flow.Generators.ResultFlow.Attributes;
@@ -21,6 +22,14 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
             category: "REslava.Result.Flow",
             defaultSeverity: DiagnosticSeverity.Info,
             isEnabledByDefault: true);
+
+        private static readonly DiagnosticDescriptor REF004 = new DiagnosticDescriptor(
+            id: "REF004",
+            title: "Class must be partial for FlowProxy",
+            messageFormat: "Class '{0}' has [ResultFlow] methods but is not marked as 'partial'. Add 'partial' to enable FlowProxy (svc.Flow.Method()).",
+            category: "REslava.Result.Flow",
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
 #pragma warning restore RS2008
 
         public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -30,7 +39,6 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                 ctx.AddSource("ResultFlowAttribute.g.cs", ResultFlowAttributeGenerator.GenerateAttribute()));
 
             // Stage 2: find [ResultFlow]-decorated methods (syntax only — cheap)
-            // Also read MaxDepth from the attribute args at the syntax level (no semantic model needed).
             var annotatedMethods = context.SyntaxProvider
                 .CreateSyntaxProvider(
                     predicate: (node, _) => node is MethodDeclarationSyntax m &&
@@ -104,8 +112,14 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                     if (!(group.Key is TypeDeclarationSyntax typeDecl)) continue;
 
                     var className = typeDecl.Identifier.ValueText;
+
+                    // Check if the class is partial — required for FlowProxy
+                    var isPartial = typeDecl.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword));
+                    if (!isPartial)
+                        spc.ReportDiagnostic(Diagnostic.Create(REF004, typeDecl.Identifier.GetLocation(), className));
+
                     var diagrams = new List<(string methodName, string mermaid, string? layerView, string? stats, string? errorSurface, string? errorPropagation, string? typeFlow)>();
-                    var tracedMethods = new List<CodeGeneration.TracedMethodInfo>();
+                    var flowProxyMethods = new List<FlowProxyMethodInfo>();
 
                     foreach (var (methodDecl, maxDepth, darkTheme, themeExplicitlySet) in group)
                     {
@@ -162,8 +176,8 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
 
                         diagrams.Add((methodName, mermaid, layerView, stats, errorSurface, errorPropagation, typeFlow));
 
-                        // ── Collect TracedMethodInfo for _Traced extension ────
-                        if (rootSymbol != null && !rootSymbol.IsStatic)
+                        // ── Collect FlowProxyMethodInfo (all [ResultFlow] methods, including static) ──
+                        if (isPartial && rootSymbol != null)
                         {
                             var fmt = Microsoft.CodeAnalysis.SymbolDisplayFormat.FullyQualifiedFormat;
                             var returnType = rootSymbol.ReturnType as Microsoft.CodeAnalysis.INamedTypeSymbol;
@@ -174,30 +188,41 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                                     ? returnType.TypeArguments[0] as Microsoft.CodeAnalysis.INamedTypeSymbol
                                     : returnType;
                             var resultIsGeneric = innerType?.Arity > 0;
+                            var resultValueIsValueType = resultIsGeneric && innerType!.TypeArguments.Length > 0 && innerType.TypeArguments[0].IsValueType;
 
-                            // nodeIds: one per non-Invisible node, using the same FNV-1a hash as the
-                            // Mermaid renderer (ShortHash.Compute(pipelineId, methodName, index))
-                            // so that runtime trace nodeId values match Mermaid diagram node IDs.
+                            // nodeIds: one per non-Invisible node — same FNV-1a hash as Mermaid renderer
                             var nodeIds = new System.Collections.Generic.List<string>();
                             int visibleIdx = 0;
                             foreach (var node in chain)
                             {
-                                if (node.Kind == Models.NodeKind.Invisible) continue;
+                                if (node.Kind == NodeKind.Invisible) continue;
                                 nodeIds.Add(ShortHash.Compute(pipelineId, node.MethodName, visibleIdx.ToString()));
                                 visibleIdx++;
                             }
+
+                            // Class-level info (same for all methods in this group)
+                            var containingNs = rootSymbol.ContainingType.ContainingNamespace;
+                            var ns = containingNs?.IsGlobalNamespace == true ? "" : containingNs?.ToDisplayString() ?? "";
+                            var accessibility = rootSymbol.ContainingType.DeclaredAccessibility == Accessibility.Internal
+                                ? "internal" : "public";
+                            var isClassStatic = rootSymbol.ContainingType.IsStatic;
 
                             var parameters = new System.Collections.Generic.List<(string TypeFqn, string ParamName, bool IsValueType)>();
                             foreach (var p in rootSymbol.Parameters)
                                 parameters.Add((p.Type.ToDisplayString(fmt), p.Name, p.Type.IsValueType));
 
-                            tracedMethods.Add(new CodeGeneration.TracedMethodInfo
+                            flowProxyMethods.Add(new FlowProxyMethodInfo
                             {
                                 MethodName = methodName,
                                 ContainingTypeFqn = rootSymbol.ContainingType.ToDisplayString(fmt),
+                                ContainingTypeShortName = rootSymbol.ContainingType.Name,
+                                ContainingNamespace = ns,
+                                ContainingTypeAccessibility = accessibility,
+                                IsStatic = isClassStatic,
                                 ReturnTypeFqn = rootSymbol.ReturnType.ToDisplayString(fmt),
                                 ReturnsTask = returnsTask,
                                 ResultIsGeneric = resultIsGeneric,
+                                ResultValueIsValueType = resultValueIsValueType,
                                 Parameters = parameters,
                                 PipelineId = pipelineId,
                                 NodeIds = nodeIds.ToArray(),
@@ -206,7 +231,9 @@ namespace REslava.Result.Flow.Generators.ResultFlow.Orchestration
                     }
 
                     if (diagrams.Count > 0)
-                        spc.AddSource($"{className}_Flows.g.cs", ResultFlowCodeGenerator.Generate(className, diagrams, tracedMethods));
+                        spc.AddSource($"{className}_Flows.g.cs",
+                            ResultFlowCodeGenerator.Generate(className, diagrams,
+                                flowProxyMethods.Count > 0 ? flowProxyMethods : null));
                 }
             });
         }

@@ -25,10 +25,10 @@ public class TracedExtensionTests
 
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("PlaceOrder_Traced"),
-            "Generator should emit PlaceOrder_Traced extension method");
-        Assert.IsTrue(output.Contains("OrderService_Traced_Extensions"),
-            "Generator should emit OrderService_Traced_Extensions class");
+        Assert.IsTrue(output.Contains("public FlowProxy Flow =>"),
+            "Generator should emit FlowProxy Flow property for instance class");
+        Assert.IsTrue(output.Contains("public sealed class FlowProxy"),
+            "Generator should emit FlowProxy sealed class");
     }
 
     [TestMethod]
@@ -216,7 +216,7 @@ namespace TestNS
     using REslava.Result;
     public class CreateOrderRequest {{ }}
     public class Order {{ }}
-    public class OrderService
+    public partial class OrderService
     {{
         [REslava.Result.Flow.ResultFlow]
         public Result<Order> PlaceOrder(CreateOrderRequest request) =>
@@ -226,11 +226,11 @@ namespace TestNS
 
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("PlaceOrder_Traced"),
-            "Generator should emit PlaceOrder_Traced for method with parameters");
-        // The generated method should forward the parameter to the real method
-        Assert.IsTrue(output.Contains("self.PlaceOrder("),
-            "Generated wrapper should forward to self.PlaceOrder(...)");
+        Assert.IsTrue(output.Contains("public FlowProxy Flow =>"),
+            "Generator should emit FlowProxy Flow property for method with parameters");
+        // The generated proxy method should forward the parameter to the real method
+        Assert.IsTrue(output.Contains("_self.PlaceOrder("),
+            "Generated FlowProxy should forward to _self.PlaceOrder(...)");
     }
 
     // ── this OrderService self receiver ──────────────────────────────────────
@@ -246,11 +246,11 @@ namespace TestNS
 
         var output = RunGenerator(source);
 
-        // Extension method syntax: this {TypeFqn} self
-        Assert.IsTrue(output.Contains("self"),
-            "Generated extension method should use 'self' as the receiver parameter");
-        Assert.IsTrue(output.Contains("self.PlaceOrder("),
-            "Generated wrapper should call self.PlaceOrder(...)");
+        // FlowProxy delegates via _self field
+        Assert.IsTrue(output.Contains("_self"),
+            "Generated FlowProxy should use '_self' as the receiver field");
+        Assert.IsTrue(output.Contains("_self.PlaceOrder("),
+            "Generated FlowProxy should call _self.PlaceOrder(...)");
     }
 
     // ── Namespace — emitted inside Generated.ResultFlow ───────────────────────
@@ -267,7 +267,7 @@ namespace TestNS
         var output = RunGenerator(source);
 
         Assert.IsTrue(output.Contains("namespace Generated.ResultFlow"),
-            "Both the Flows constants and _Traced_Extensions should be in Generated.ResultFlow namespace");
+            "Flows constants class should be in Generated.ResultFlow namespace");
     }
 
     // ── Multiple methods on same class ───────────────────────────────────────
@@ -312,7 +312,7 @@ namespace TestNS
     using REslava.Result;
     public class Order {{ }}
     public class Invoice {{ }}
-    public class OrderService
+    public partial class OrderService
     {{
         [REslava.Result.Flow.ResultFlow]
         public Result<Order> PlaceOrder() =>
@@ -326,14 +326,195 @@ namespace TestNS
 
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("PlaceOrder_Traced"),
-            "First method should have _Traced emitted");
-        Assert.IsTrue(output.Contains("CreateInvoice_Traced"),
-            "Second method should have _Traced emitted");
+        Assert.IsTrue(output.Contains("_self.PlaceOrder("),
+            "First method should have FlowProxy wrapper calling _self.PlaceOrder");
+        Assert.IsTrue(output.Contains("_self.CreateInvoice("),
+            "Second method should have FlowProxy wrapper calling _self.CreateInvoice");
         Assert.IsTrue(output.Contains("_nodeIds_PlaceOrder"),
             "First method should have _nodeIds_ field");
         Assert.IsTrue(output.Contains("_nodeIds_CreateInvoice"),
             "Second method should have _nodeIds_ field");
+    }
+
+    // ── Fix #1: Static class emits diagram constant, no _Traced ─────────────
+
+    [TestMethod]
+    public void StaticClass_WithResultFlowMethod_EmitsDiagramConstant()
+    {
+        var source = $@"
+using System;
+using System.Collections.Immutable;
+
+namespace REslava.Result
+{{
+    public interface IReason {{ string Message {{ get; }} }}
+    public interface IError : IReason {{ }}
+    public interface ISuccess : IReason {{ }}
+    public interface IResultBase
+    {{
+        bool IsSuccess {{ get; }}
+        bool IsFailure {{ get; }}
+        ImmutableList<IReason> Reasons {{ get; }}
+        ImmutableList<IError> Errors {{ get; }}
+        ImmutableList<ISuccess> Successes {{ get; }}
+    }}
+    public interface IResultBase<out T> : IResultBase {{ T? Value {{ get; }} }}
+    public class Result<T> : IResultBase<T>
+    {{
+        public bool IsSuccess {{ get; }}
+        public bool IsFailure {{ get; }}
+        public T? Value {{ get; }}
+        public ImmutableList<IReason> Reasons => ImmutableList<IReason>.Empty;
+        public ImmutableList<IError> Errors => ImmutableList<IError>.Empty;
+        public ImmutableList<ISuccess> Successes => ImmutableList<ISuccess>.Empty;
+        public static Result<T> Ok(T value) => new Result<T>();
+        public static Result<T> Fail(string msg) => new Result<T>();
+        public Result<TOut> Bind<TOut>(Func<T, Result<TOut>> f) => new Result<TOut>();
+    }}
+}}
+
+namespace TestNS
+{{
+    using REslava.Result;
+    public class Order {{ }}
+    public static class OrderService
+    {{
+        [REslava.Result.Flow.ResultFlow]
+        public static Result<Order> Process() =>
+            Result<Order>.Ok(new Order()).Bind(o => Result<Order>.Ok(o));
+    }}
+}}";
+
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("public const string Process"),
+            "Static class should have its diagram constant emitted");
+    }
+
+    [TestMethod]
+    public void StaticClass_WithResultFlowMethod_DoesNotEmitTracedExtension()
+    {
+        var source = $@"
+using System;
+using System.Collections.Immutable;
+
+namespace REslava.Result
+{{
+    public interface IReason {{ string Message {{ get; }} }}
+    public interface IError : IReason {{ }}
+    public interface ISuccess : IReason {{ }}
+    public interface IResultBase
+    {{
+        bool IsSuccess {{ get; }}
+        bool IsFailure {{ get; }}
+        ImmutableList<IReason> Reasons {{ get; }}
+        ImmutableList<IError> Errors {{ get; }}
+        ImmutableList<ISuccess> Successes {{ get; }}
+    }}
+    public interface IResultBase<out T> : IResultBase {{ T? Value {{ get; }} }}
+    public class Result<T> : IResultBase<T>
+    {{
+        public bool IsSuccess {{ get; }}
+        public bool IsFailure {{ get; }}
+        public T? Value {{ get; }}
+        public ImmutableList<IReason> Reasons => ImmutableList<IReason>.Empty;
+        public ImmutableList<IError> Errors => ImmutableList<IError>.Empty;
+        public ImmutableList<ISuccess> Successes => ImmutableList<ISuccess>.Empty;
+        public static Result<T> Ok(T value) => new Result<T>();
+        public static Result<T> Fail(string msg) => new Result<T>();
+        public Result<TOut> Bind<TOut>(Func<T, Result<TOut>> f) => new Result<TOut>();
+    }}
+}}
+
+namespace TestNS
+{{
+    using REslava.Result;
+    public class Order {{ }}
+    public static class OrderService
+    {{
+        [REslava.Result.Flow.ResultFlow]
+        public static Result<Order> Process() =>
+            Result<Order>.Ok(new Order()).Bind(o => Result<Order>.Ok(o));
+    }}
+}}";
+
+        var output = RunGenerator(source);
+
+        Assert.IsFalse(output.Contains("_Traced_Extensions"),
+            "Static class should NOT emit _Traced_Extensions");
+        Assert.IsFalse(output.Contains("Process_Traced"),
+            "Static class should NOT emit Process_Traced");
+    }
+
+    // ── Fix #2: Value-type T uses non-nullable ToString ───────────────────────
+
+    [TestMethod]
+    public void TracedExtension_ValueTypeT_UsesNonNullableToString()
+    {
+        var source = $@"
+using System;
+using System.Collections.Immutable;
+
+namespace REslava.Result
+{{
+    public interface IReason {{ string Message {{ get; }} }}
+    public interface IError : IReason {{ }}
+    public interface ISuccess : IReason {{ }}
+    public interface IResultBase
+    {{
+        bool IsSuccess {{ get; }}
+        bool IsFailure {{ get; }}
+        ImmutableList<IReason> Reasons {{ get; }}
+        ImmutableList<IError> Errors {{ get; }}
+        ImmutableList<ISuccess> Successes {{ get; }}
+    }}
+    public interface IResultBase<out T> : IResultBase {{ T? Value {{ get; }} }}
+    public class Result<T> : IResultBase<T>
+    {{
+        public bool IsSuccess {{ get; }}
+        public bool IsFailure {{ get; }}
+        public T? Value {{ get; }}
+        public ImmutableList<IReason> Reasons => ImmutableList<IReason>.Empty;
+        public ImmutableList<IError> Errors => ImmutableList<IError>.Empty;
+        public ImmutableList<ISuccess> Successes => ImmutableList<ISuccess>.Empty;
+        public static Result<T> Ok(T value) => new Result<T>();
+        public static Result<T> Fail(string msg) => new Result<T>();
+        public Result<TOut> Bind<TOut>(Func<T, Result<TOut>> f) => new Result<TOut>();
+    }}
+}}
+
+namespace TestNS
+{{
+    using REslava.Result;
+    public partial class OrderService
+    {{
+        [REslava.Result.Flow.ResultFlow]
+        public Result<int> PlaceOrder() =>
+            Result<int>.Ok(1).Bind(n => Result<int>.Ok(n));
+    }}
+}}";
+
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("result.Value.ToString()"),
+            "Value-type T should emit result.Value.ToString() (non-nullable)");
+        Assert.IsFalse(output.Contains("result.Value?.ToString()"),
+            "Value-type T should NOT emit result.Value?.ToString()");
+    }
+
+    [TestMethod]
+    public void TracedExtension_ReferenceTypeT_UsesNullableToString()
+    {
+        var source = CreateSource("OrderService", "PlaceOrder",
+            "CreateOrder().Bind(SaveOrder)",
+            extraMethods: @"
+        static Result<Order> CreateOrder() => Result<Order>.Ok(new Order());
+        static Result<Order> SaveOrder(Order o) => Result<Order>.Ok(o);");
+
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("result.Value?.ToString()"),
+            "Reference-type T should emit result.Value?.ToString() (nullable)");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -386,7 +567,7 @@ namespace TestNS
     public class Order {{ }}
     public class Invoice {{ }}
 
-    public class {className}
+    public partial class {className}
     {{
         [REslava.Result.Flow.ResultFlow]
         public Result<Order> {methodName}() => {returnExpression};

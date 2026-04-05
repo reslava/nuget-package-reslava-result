@@ -111,6 +111,46 @@ Then rebuild — the generator will embed `vscode://file/...` links in the diagr
 
 ---
 
+### ▶ Debug CodeLens & Debug Panel (v1.53.0)
+
+A `▶ Debug` CodeLens appears on every line calling `.Flow.Debug.{method}(...)`. Clicking it opens the **Debug Panel** beside your editor.
+
+**What the Debug Panel shows:**
+- **Trace list** — each recorded pipeline execution: pass/fail icon, method name, node count, elapsed ms
+- **Node stepper** — step through every node in a trace; current step highlighted in the Mermaid diagram
+- **Animated replay** — plays through all nodes automatically
+- **File picker** — when multiple `reslava-*.json` trace files exist, switch between them without closing the panel
+- **Source badge** — `📄 file` or `🌐 http` shows how trace data arrived
+
+**File-drop workflow (no extra setup):**
+
+Make your class `partial`:
+
+```csharp
+public partial class OrderService
+{
+    [ResultFlow]
+    public Result<Order> Process(int userId, int productId) => ...
+}
+```
+
+Then call via the generated **FlowProxy**:
+
+```csharp
+// Single-trace debug — auto-saves, panel auto-opens:
+svc.Flow.Debug.Process(userId, productId);
+// → reslava-debug-Process.json written to bin/
+// → VSIX file watcher fires → Debug panel opens automatically
+
+// Always-on tracing — save manually when ready:
+var result = svc.Flow.Process(userId, productId);
+ringBuffer.Save();  // → reslava-traces.json → Debug panel auto-loads
+```
+
+The VSIX watches `**/reslava-*.json` — **no manual panel open needed**.
+
+---
+
 ## Links
 
 - [GitHub Repository](https://github.com/reslava/nuget-package-reslava-result)

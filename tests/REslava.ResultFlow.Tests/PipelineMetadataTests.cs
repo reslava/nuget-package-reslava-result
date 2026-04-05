@@ -260,6 +260,57 @@ namespace TestNS
             "Each step on its own line must produce a distinct source line in the click directive");
     }
 
+    // ── Fix #3: Assembly name included in pipelineId hash ────────────────────
+
+    [TestMethod]
+    public void PipelineId_DifferentAssemblyNames_ProduceDifferentIds()
+    {
+        // Same namespace+class+method in two projects with different assembly names must
+        // produce different pipelineIds — prevents hash collision across projects.
+        const string source = @"
+namespace MyApp.Services
+{
+    public class OrderService
+    {
+        [REslava.ResultFlow.ResultFlow]
+        public string Process(string cmd) => GetOrder(cmd).Bind(Validate).Map(ToDto);
+    }
+}";
+        string RunWithAssembly(string assemblyName)
+        {
+            var syntaxTree = CSharpSyntaxTree.ParseText(SourceText.From(source));
+            var compilation = CSharpCompilation.Create(
+                assemblyName,
+                new[] { syntaxTree },
+                CommonRefs(),
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+            var generator = new ResultFlowGenerator();
+            GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+            driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out _);
+
+            var sb = new System.Text.StringBuilder();
+            foreach (var tree in driver.GetRunResult().GeneratedTrees)
+            {
+                using var w = new System.IO.StringWriter();
+                tree.GetText().Write(w);
+                sb.AppendLine(w.ToString());
+            }
+            return sb.ToString();
+        }
+
+        var outputA = RunWithAssembly("ProjectA");
+        var outputB = RunWithAssembly("ProjectB");
+
+        var idA = Regex.Match(outputA, @"%% pipelineId: ([0-9a-f]+)").Groups[1].Value;
+        var idB = Regex.Match(outputB, @"%% pipelineId: ([0-9a-f]+)").Groups[1].Value;
+
+        Assert.IsFalse(string.IsNullOrEmpty(idA), "ProjectA must emit a pipelineId comment");
+        Assert.IsFalse(string.IsNullOrEmpty(idB), "ProjectB must emit a pipelineId comment");
+        Assert.AreNotEqual(idA, idB,
+            "Different assembly names must produce different pipelineIds to prevent cross-project hash collisions");
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     private static string SimpleSource(string cls, string method, string chain) => $@"

@@ -61,12 +61,12 @@ export async function openPreviewForMethod(
         // Step 1 — generated *_Flows.g.cs (primary source)
         const fromGenerated = findDiagramInGeneratedFile(className, methodName);
         if (fromGenerated) {
-            const hasTrace = hasTraceForMethod(className);
+            const hasDebugProxy = hasDebugProxyForClass(className);
             showWebviewPanel(
                 methodName, fromGenerated.diagram, extensionUri,
                 fromGenerated.typeFlow, fromGenerated.layerView,
                 fromGenerated.stats, fromGenerated.errorSurface, fromGenerated.errorPropagation,
-                hasTrace
+                hasDebugProxy
             );
             return;
         }
@@ -259,14 +259,15 @@ export function resolveClassName(document: vscode.TextDocument, fromLine: number
     return 'Unknown';
 }
 
-// ─── Trace detection ─────────────────────────────────────────────────────────
+// ─── DebugProxy detection ─────────────────────────────────────────────────────
 //
 // Returns true when the generated *_Flows.g.cs for className contains a
-// {ClassName}_Traced_Extensions class — meaning the class is an instance-method
-// [ResultFlow] class for which the generator emitted _Traced wrappers.
-// Static-method classes never get _Traced, so this returns false for them.
+// DebugProxy class — meaning the class has [ResultFlow] methods and
+// REslava.Result.Diagnostics is referenced (FlowProxy.Debug.Method() is available).
+// Returns false when DebugProxy was not emitted (Diagnostics not referenced,
+// or non-partial class that produced only a REF004 diagnostic).
 
-export function hasTraceForMethod(className: string): boolean {
+export function hasDebugProxyForClass(className: string): boolean {
     const targetFile = `${className}_Flows.g.cs`;
     const folders = vscode.workspace.workspaceFolders ?? [];
     for (const folder of folders) {
@@ -274,7 +275,7 @@ export function hasTraceForMethod(className: string): boolean {
         if (filePath) {
             try {
                 const content = fs.readFileSync(filePath, 'utf8');
-                return content.includes(`${className}_Traced_Extensions`);
+                return content.includes('sealed class DebugProxy');
             } catch { return false; }
         }
     }

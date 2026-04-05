@@ -177,4 +177,75 @@ public class RingBufferObserverTests
 
         Assert.IsTrue(obs.GetTraces()[0].ElapsedMs >= 0);
     }
+
+    // ── Save() ────────────────────────────────────────────────────────────
+
+    [TestMethod]
+    public void Save_CreatesFile_AtDefaultPath()
+    {
+        var obs = new RingBufferObserver();
+        using var _ = PipelineObserver.RegisterScoped(obs);
+        var scope = PipelineObserver.BeginPipeline("pid1", "DoWork", "input", null);
+        scope.End(isSuccess: true, outputValue: "out", errorType: null);
+        scope.Dispose();
+
+        var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "reslava-save-test.json");
+        try
+        {
+            obs.Save(path);
+            Assert.IsTrue(System.IO.File.Exists(path), "Save() must create the file");
+        }
+        finally { System.IO.File.Delete(path); }
+    }
+
+    [TestMethod]
+    public void Save_ProducesValidJson_WithTrace()
+    {
+        var obs = new RingBufferObserver();
+        using var _ = PipelineObserver.RegisterScoped(obs);
+        var scope = PipelineObserver.BeginPipeline("pid2", "Process", "42", null);
+        scope.End(isSuccess: false, outputValue: null, errorType: "NotFoundError");
+        scope.Dispose();
+
+        var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "reslava-save-valid.json");
+        try
+        {
+            obs.Save(path);
+            var json = System.IO.File.ReadAllText(path);
+            Assert.IsTrue(json.StartsWith("["), "Root must be a JSON array");
+            Assert.IsTrue(json.Contains("\"methodName\":\"Process\""), "Must contain methodName");
+            Assert.IsTrue(json.Contains("\"isSuccess\":false"), "Must contain isSuccess=false");
+            Assert.IsTrue(json.Contains("\"errorType\":\"NotFoundError\""), "Must contain errorType");
+        }
+        finally { System.IO.File.Delete(path); }
+    }
+
+    [TestMethod]
+    public void Save_OverwritesExistingFile()
+    {
+        var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "reslava-save-overwrite.json");
+        System.IO.File.WriteAllText(path, "old content");
+        try
+        {
+            var obs = new RingBufferObserver();
+            obs.Save(path);
+            var json = System.IO.File.ReadAllText(path);
+            Assert.AreEqual("[]", json, "Empty buffer must produce empty JSON array");
+        }
+        finally { System.IO.File.Delete(path); }
+    }
+
+    [TestMethod]
+    public void Save_EmptyBuffer_ProducesEmptyArray()
+    {
+        var obs = new RingBufferObserver();
+        var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "reslava-save-empty.json");
+        try
+        {
+            obs.Save(path);
+            var json = System.IO.File.ReadAllText(path);
+            Assert.AreEqual("[]", json);
+        }
+        finally { System.IO.File.Delete(path); }
+    }
 }

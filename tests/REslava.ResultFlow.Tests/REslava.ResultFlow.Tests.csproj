@@ -52,6 +52,7 @@
     <Compile Include="PipelineMetadataTests.cs" />
     <Compile Include="TypeFlowTests.cs" />
     <Compile Include="TracedExtensionTests.cs" />
+    <Compile Include="FlowProxyTests.cs" />
   </ItemGroup>
 
   <!-- Prevent double compilation of generated files -->

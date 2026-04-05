@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace REslava.Result.Observers
 {
@@ -90,6 +92,93 @@ namespace REslava.Result.Observers
         {
             while (_traces.TryDequeue(out _)) { }
         }
+
+        /// <summary>
+        /// Serializes all captured traces to a JSON file so the REslava VSIX Debug panel
+        /// can load them without a running HTTP server.
+        /// Default path: <c>reslava-traces.json</c> next to the executing assembly
+        /// (<see cref="System.AppContext.BaseDirectory"/>).
+        /// Overwrites any existing file.
+        /// </summary>
+        /// <param name="path">
+        /// Optional absolute or relative path. When <c>null</c>, writes to
+        /// <c>{AppContext.BaseDirectory}/reslava-traces.json</c>.
+        /// </param>
+        public void Save(string? path = null)
+        {
+            string filePath;
+            if (path == null)
+            {
+                filePath = Path.Combine(System.AppContext.BaseDirectory, "reslava-traces.json");
+            }
+            else if (path.IndexOf(Path.DirectorySeparatorChar) < 0 && path.IndexOf(Path.AltDirectorySeparatorChar) < 0)
+            {
+                // Short name (no directory separator) — auto-prefix reslava- so the VSIX picker finds it
+                var name = path.EndsWith(".json", System.StringComparison.OrdinalIgnoreCase) ? path : path + ".json";
+                if (!name.StartsWith("reslava-", System.StringComparison.OrdinalIgnoreCase))
+                    name = "reslava-" + name;
+                filePath = Path.Combine(System.AppContext.BaseDirectory, name);
+            }
+            else
+            {
+                // Absolute or relative path — use as-is (power-user escape hatch)
+                filePath = path;
+            }
+            var traces = GetTraces();
+            var sb = new StringBuilder();
+            sb.Append('[');
+            for (int t = 0; t < traces.Count; t++)
+            {
+                if (t > 0) sb.Append(',');
+                var tr = traces[t];
+                sb.Append('{');
+                AppendJsonString(sb, "pipelineId", tr.PipelineId); sb.Append(',');
+                AppendJsonString(sb, "methodName", tr.MethodName); sb.Append(',');
+                sb.Append($"\"isSuccess\":{(tr.IsSuccess ? "true" : "false")},");
+                AppendJsonStringNullable(sb, "errorType", tr.ErrorType); sb.Append(',');
+                AppendJsonStringNullable(sb, "inputValue", tr.InputValue); sb.Append(',');
+                AppendJsonStringNullable(sb, "outputValue", tr.OutputValue); sb.Append(',');
+                sb.Append($"\"elapsedMs\":{tr.ElapsedMs},");
+                AppendJsonString(sb, "startedAt", tr.StartedAt.ToString("o")); sb.Append(',');
+                AppendJsonString(sb, "endedAt", tr.EndedAt.ToString("o")); sb.Append(',');
+                sb.Append("\"nodes\":[");
+                for (int n = 0; n < tr.Nodes.Count; n++)
+                {
+                    if (n > 0) sb.Append(',');
+                    var nd = tr.Nodes[n];
+                    sb.Append('{');
+                    AppendJsonString(sb, "nodeId", nd.NodeId); sb.Append(',');
+                    AppendJsonString(sb, "stepName", nd.StepName); sb.Append(',');
+                    sb.Append($"\"isSuccess\":{(nd.IsSuccess ? "true" : "false")},");
+                    AppendJsonStringNullable(sb, "outputValue", nd.OutputValue); sb.Append(',');
+                    AppendJsonStringNullable(sb, "errorType", nd.ErrorType); sb.Append(',');
+                    AppendJsonStringNullable(sb, "errorMessage", nd.ErrorMessage); sb.Append(',');
+                    sb.Append($"\"elapsedMs\":{nd.ElapsedMs},");
+                    sb.Append($"\"nodeIndex\":{nd.NodeIndex}");
+                    sb.Append('}');
+                }
+                sb.Append("]}");
+            }
+            sb.Append(']');
+            File.WriteAllText(filePath, sb.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+        }
+
+        private static void AppendJsonString(StringBuilder sb, string key, string value)
+        {
+            sb.Append('"').Append(key).Append("\":\"").Append(EscapeJson(value)).Append('"');
+        }
+
+        private static void AppendJsonStringNullable(StringBuilder sb, string key, string? value)
+        {
+            if (value == null)
+                sb.Append('"').Append(key).Append("\":null");
+            else
+                AppendJsonString(sb, key, value);
+        }
+
+        private static string EscapeJson(string s) =>
+            s.Replace("\\", "\\\\").Replace("\"", "\\\"")
+             .Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
 
         private sealed class InProgressTrace
         {

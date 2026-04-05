@@ -22,10 +22,10 @@ public class TracedExtensionTests
 
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("PlaceOrder_Traced"),
-            "Generator should emit PlaceOrder_Traced extension method");
-        Assert.IsTrue(output.Contains("OrderService_Traced_Extensions"),
-            "Generator should emit OrderService_Traced_Extensions class");
+        Assert.IsTrue(output.Contains("public FlowProxy Flow =>"),
+            "Generator should emit FlowProxy Flow property for instance class");
+        Assert.IsTrue(output.Contains("public sealed class FlowProxy"),
+            "Generator should emit FlowProxy sealed class");
     }
 
     [TestMethod]
@@ -108,9 +108,9 @@ public class TracedExtensionTests
 
         var output = RunGenerator(source);
 
-        // REslava.ResultFlow emits _Traced in the user's namespace
+        // REslava.ResultFlow emits FlowProxy partial class in the user's namespace
         Assert.IsTrue(output.Contains("namespace TestNS"),
-            "_Traced_Extensions should be emitted in the user's namespace (TestNS)");
+            "FlowProxy partial class should be emitted in the user's namespace (TestNS)");
     }
 
     [TestMethod]
@@ -122,9 +122,9 @@ public class TracedExtensionTests
         var output = RunGenerator(source);
 
         // Syntax-only package uses the as-written type name, not global:: FQN
-        // The 'this' parameter should be "this OrderService self", not "this global::TestNS.OrderService self"
-        Assert.IsTrue(output.Contains("this OrderService self"),
-            "REslava.ResultFlow should use short type name (OrderService), not FQN");
+        // The _self field should be "private readonly OrderService _self", not a global:: FQN
+        Assert.IsTrue(output.Contains("private readonly OrderService _self"),
+            "REslava.ResultFlow should use short type name (OrderService) for _self field, not FQN");
     }
 
     // ── Static method exclusion ───────────────────────────────────────────────
@@ -174,7 +174,7 @@ namespace TestNS
         public static Result<T> Ok(T value) => new Result<T>();
         public Result<TOut> Bind<TOut>(Func<T, Result<TOut>> f) => new Result<TOut>();
     }}
-    public class OrderService
+    public partial class OrderService
     {{
         [ResultFlow]
         public Result<Order> PlaceOrder(CreateOrderRequest request) =>
@@ -184,10 +184,10 @@ namespace TestNS
 
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("PlaceOrder_Traced"),
-            "Generator should emit PlaceOrder_Traced for method with parameters");
-        Assert.IsTrue(output.Contains("self.PlaceOrder("),
-            "Generated wrapper should forward to self.PlaceOrder(...)");
+        Assert.IsTrue(output.Contains("public FlowProxy Flow =>"),
+            "Generator should emit FlowProxy Flow property for method with parameters");
+        Assert.IsTrue(output.Contains("_self.PlaceOrder("),
+            "Generated FlowProxy should forward to _self.PlaceOrder(...)");
     }
 
     // ── Two methods on same class ─────────────────────────────────────────────
@@ -207,7 +207,7 @@ namespace TestNS
         public static Result<T> Ok(T value) => new Result<T>();
         public Result<TOut> Bind<TOut>(Func<T, Result<TOut>> f) => new Result<TOut>();
     }}
-    public class OrderService
+    public partial class OrderService
     {{
         [ResultFlow]
         public Result<Order> PlaceOrder() =>
@@ -221,10 +221,10 @@ namespace TestNS
 
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("PlaceOrder_Traced"),
-            "First method should have _Traced emitted");
-        Assert.IsTrue(output.Contains("CreateInvoice_Traced"),
-            "Second method should have _Traced emitted");
+        Assert.IsTrue(output.Contains("_self.PlaceOrder("),
+            "First method should have FlowProxy wrapper calling _self.PlaceOrder");
+        Assert.IsTrue(output.Contains("_self.CreateInvoice("),
+            "Second method should have FlowProxy wrapper calling _self.CreateInvoice");
         Assert.IsTrue(output.Contains("_nodeIds_PlaceOrder"),
             "First method should have _nodeIds_ field");
         Assert.IsTrue(output.Contains("_nodeIds_CreateInvoice"),
@@ -241,8 +241,123 @@ namespace TestNS
 
         var output = RunGenerator(source);
 
-        Assert.IsTrue(output.Contains("self.PlaceOrder("),
-            "Generated wrapper should call self.PlaceOrder(...)");
+        Assert.IsTrue(output.Contains("_self.PlaceOrder("),
+            "Generated FlowProxy should call _self.PlaceOrder(...)");
+    }
+
+    // ── Fix #1: Static class emits diagram constant, no _Traced ─────────────
+
+    [TestMethod]
+    public void StaticClass_WithResultFlowMethod_EmitsDiagramConstant()
+    {
+        var source = $@"
+using System;
+
+namespace TestNS
+{{
+    public class Order {{ }}
+    public class Result<T>
+    {{
+        public bool IsSuccess {{ get; }}
+        public bool IsFailure {{ get; }}
+        public T? Value {{ get; }}
+        public static Result<T> Ok(T value) => new Result<T>();
+        public static Result<T> Fail(string msg) => new Result<T>();
+        public Result<TOut> Bind<TOut>(Func<T, Result<TOut>> f) => new Result<TOut>();
+    }}
+    public static class OrderService
+    {{
+        [ResultFlow]
+        public static Result<Order> Process() =>
+            Result<Order>.Ok(new Order()).Bind(o => Result<Order>.Ok(o));
+    }}
+}}";
+
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("public const string Process"),
+            "Static class should have its diagram constant emitted");
+    }
+
+    [TestMethod]
+    public void StaticClass_WithResultFlowMethod_DoesNotEmitTracedExtension()
+    {
+        var source = $@"
+using System;
+
+namespace TestNS
+{{
+    public class Order {{ }}
+    public class Result<T>
+    {{
+        public bool IsSuccess {{ get; }}
+        public bool IsFailure {{ get; }}
+        public T? Value {{ get; }}
+        public static Result<T> Ok(T value) => new Result<T>();
+        public static Result<T> Fail(string msg) => new Result<T>();
+        public Result<TOut> Bind<TOut>(Func<T, Result<TOut>> f) => new Result<TOut>();
+    }}
+    public static class OrderService
+    {{
+        [ResultFlow]
+        public static Result<Order> Process() =>
+            Result<Order>.Ok(new Order()).Bind(o => Result<Order>.Ok(o));
+    }}
+}}";
+
+        var output = RunGenerator(source);
+
+        Assert.IsFalse(output.Contains("_Traced_Extensions"),
+            "Static class should NOT emit _Traced_Extensions");
+        Assert.IsFalse(output.Contains("Process_Traced"),
+            "Static class should NOT emit Process_Traced");
+    }
+
+    // ── Fix #2: Value-type T uses non-nullable ToString ───────────────────────
+
+    [TestMethod]
+    public void TracedExtension_ValueTypeT_UsesNonNullableToString()
+    {
+        var source = $@"
+using System;
+
+namespace TestNS
+{{
+    public class Result<T>
+    {{
+        public bool IsSuccess {{ get; }}
+        public bool IsFailure {{ get; }}
+        public T? Value {{ get; }}
+        public static Result<T> Ok(T value) => new Result<T>();
+        public static Result<T> Fail(string msg) => new Result<T>();
+        public Result<TOut> Bind<TOut>(Func<T, Result<TOut>> f) => new Result<TOut>();
+    }}
+    public partial class OrderService
+    {{
+        [ResultFlow]
+        public Result<int> PlaceOrder() =>
+            Result<int>.Ok(1).Bind(n => Result<int>.Ok(n));
+    }}
+}}";
+
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("result.Value.ToString()"),
+            "Value-type T should emit result.Value.ToString() (non-nullable)");
+        Assert.IsFalse(output.Contains("result.Value?.ToString()"),
+            "Value-type T should NOT emit result.Value?.ToString()");
+    }
+
+    [TestMethod]
+    public void TracedExtension_ReferenceTypeT_UsesNullableToString()
+    {
+        var source = CreateTypedSource("OrderService", "PlaceOrder",
+            "Result<Order>.Ok(new Order()).Bind(o => Result<Order>.Ok(o))");
+
+        var output = RunGenerator(source);
+
+        Assert.IsTrue(output.Contains("result.Value?.ToString()"),
+            "Reference-type T should emit result.Value?.ToString() (nullable)");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -267,7 +382,7 @@ namespace TestNS
         public Result<T> Tap(Action<T> a) => this;
     }}
 
-    public class {className}
+    public partial class {className}
     {{
         [ResultFlow]
         public Result<Order> {methodName}() => {returnExpression};

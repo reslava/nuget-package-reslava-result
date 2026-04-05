@@ -6,7 +6,7 @@ import { openPreviewForMethod, refreshDiagramsForDocument } from './diagramResol
 import { registerGutterDecorator } from './gutterDecorator';
 import { ResultFlowTreeProvider, ProjectNode } from './resultFlowTreeProvider';
 import { notifyAllPanels } from './webviewPanel';
-import { ResultFlowLivePanel } from './resultFlowLivePanel';
+import { ResultFlowDebugPanel } from './resultFlowLivePanel';
 
 const TRACK_A_PACKAGES = ['REslava.Result.Flow'];
 const TRACK_B_PACKAGES = ['REslava.ResultFlow'];
@@ -41,9 +41,22 @@ async function findProjectForInstall(): Promise<string | null> {
     return picked ? picked.fsPath : null;
 }
 
+async function sendFileListToPanel(log: vscode.OutputChannel): Promise<void> {
+    const found = await vscode.workspace.findFiles('**/reslava-*.json', null, 20);
+    if (found.length === 0) { return; }
+    const withMtime = found.map(u => ({ fsPath: u.fsPath, mtime: fs.statSync(u.fsPath).mtimeMs }));
+    withMtime.sort((a, b) => b.mtime - a.mtime);
+    const files = withMtime.slice(0, 5).map(f => ({
+        label: path.basename(f.fsPath).replace(/^reslava-/, ''),
+        path: f.fsPath
+    }));
+    log.appendLine(`[DebugPanel] file list: ${files.map(f => f.label).join(', ')}`);
+    ResultFlowDebugPanel.setFileList(files);
+}
+
 export function activate(context: vscode.ExtensionContext): void {
-    // Output channel for Live panel diagnostics — visible in Output panel → "ResultFlow Live"
-    const liveLog = vscode.window.createOutputChannel('ResultFlow Live');
+    // Output channel for Debug panel diagnostics — visible in Output panel → "ResultFlow Debug"
+    const liveLog = vscode.window.createOutputChannel('ResultFlow Debug');
     context.subscriptions.push(liveLog);
 
     // CodeLens — "▶ Open diagram preview" above every [ResultFlow] method
@@ -165,16 +178,43 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
-    // Live panel — opened by CodeLens "▶ Debug", sidebar inline button, or webview button
+    // Debug panel — opened by CodeLens "▶ Debug", sidebar inline button, or file watcher
     context.subscriptions.push(
         vscode.commands.registerCommand(
-            'resultflow.openLivePanel',
-            (arg: string | import('./resultFlowTreeProvider').MethodNode) => {
+            'resultflow.openDebugPanel',
+            async (arg: string | import('./resultFlowTreeProvider').MethodNode) => {
                 const methodName = typeof arg === 'string' ? arg : arg.methodName;
-                ResultFlowLivePanel.show(context.extensionUri, methodName, liveLog);
+                ResultFlowDebugPanel.show(context.extensionUri, methodName, liveLog);
+                // Immediate scan — null exclude bypasses search.exclude (which often hides bin/)
+                const found = await vscode.workspace.findFiles('**/reslava-*.json', null, 20);
+                liveLog.appendLine(`[DebugPanel] scan found ${found.length} trace file(s)`);
+                if (found.length > 0) {
+                    // Sort by modification time descending — newest first
+                    const withMtime = found.map(u => ({ fsPath: u.fsPath, mtime: fs.statSync(u.fsPath).mtimeMs }));
+                    withMtime.sort((a, b) => b.mtime - a.mtime);
+                    const tracePath = withMtime[0].fsPath;
+                    liveLog.appendLine(`[DebugPanel] loading ${tracePath}`);
+                    // Cancel polling immediately (before the 500ms initial poll fires)
+                    ResultFlowDebugPanel.cancelPolling();
+                    // Load after webview JS initializes (~400ms); then send file list
+                    setTimeout(() => {
+                        ResultFlowDebugPanel.loadFromFile(tracePath, context.extensionUri, liveLog);
+                        sendFileListToPanel(liveLog);
+                    }, 400);
+                }
             }
         )
     );
+
+    // File watcher — auto-open Debug panel when any reslava-*.json appears or changes
+    const traceWatcher = vscode.workspace.createFileSystemWatcher('**/reslava-*.json');
+    const onTraceFile = (uri: vscode.Uri) => {
+        ResultFlowDebugPanel.loadFromFile(uri.fsPath, context.extensionUri, liveLog);
+        sendFileListToPanel(liveLog);
+    };
+    traceWatcher.onDidCreate(onTraceFile);
+    traceWatcher.onDidChange(onTraceFile);
+    context.subscriptions.push(traceWatcher);
 
     // Toggle single/multiple window mode
     context.subscriptions.push(

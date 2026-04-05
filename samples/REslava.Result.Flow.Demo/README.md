@@ -26,8 +26,9 @@ dotnet run
 | 12 | Dark theme — `[ResultFlow(Theme = ResultFlowTheme.Dark)]` emits a dark-palette Mermaid diagram | v1.47.4 |
 | 13 | `_TypeFlow` constant — same nodes as `_Diagram` but success edges carry the `Result<T>` type name | v1.51.0 |
 | 14 | Namespace-aware `_LayerView` — `[DomainBoundary]` + explicit namespace in `Demo.Pipelines`; VSIX sidebar namespace grouping | v1.51.0 |
-| 15 | Pipeline Runtime Observation — `RingBufferObserver` + `_Traced` exact-tier wrapper; per-node output values, error types, elapsed ms | v1.52.0 |
-| 16 | `REslava.Result.Diagnostics` — `PipelineTraceHost.Start(buffer)` HTTP endpoint; VSIX `▶ Debug` CodeLens connects to `GET /reslava/traces` for live trace streaming | v1.52.0 |
+| 15 | Pipeline Runtime Observation — `RingBufferObserver`; per-node output values, error types, elapsed ms; `Save()` writes `reslava-traces.json` for VSIX Debug panel | v1.52.0 |
+| 16 | FlowProxy Debug — `svc.Flow.Debug.Process()` captures one trace → `reslava-debug-Process.json`; VSIX Debug panel auto-opens via file watcher; multi-file picker | v1.53.0 |
+| 17 | FlowProxy always-on — `partial class` + `svc.Flow.Process()` wraps any `[ResultFlow]` method with observer hooks; `svc.Flow.Debug` for single-trace captures | v1.53.0 |
 
 ---
 

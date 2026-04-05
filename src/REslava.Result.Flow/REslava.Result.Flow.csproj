@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="Analyzers\ResultFlowDiagramAnalyzer.cs" />
     <Compile Include="Analyzers\ResultFlowInsertCommentFix.cs" />
+    <Compile Include="Analyzers\ResultFlowPartialCodeFix.cs" />
     <Compile Include="Core\Interfaces\IGeneratorOrchestrator.cs" />
     <Compile Include="Generators\ResultFlow\ShortHash.cs" />
     <Compile Include="Generators\ResultFlow\ResultFlowGenerator.cs" />

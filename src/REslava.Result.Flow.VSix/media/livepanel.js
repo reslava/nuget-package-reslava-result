@@ -4,16 +4,21 @@
   let baseDiagram       = window.__livePanel__.diagram;
   let currentMethodName = window.__livePanel__.method;
 
+  const vscode = acquireVsCodeApi();
+
   // ── State ──────────────────────────────────────────────────────────────────
   let allTraces     = [];
   let mode          = 'history';
   let selectedTrace = null;
   let nodeIdx       = 0;
   let replayTimer   = null;
+  let hasFileData   = false;  // true once file-based traces received; ignores pollError after that
+  let dataSource    = 'waiting';  // 'waiting' | 'file' | 'http'
 
   // ── DOM refs ───────────────────────────────────────────────────────────────
   const hdrName      = document.getElementById('hdr-name');
   const statusDot    = document.getElementById('status-dot');
+  const sourceBadge  = document.getElementById('source-badge');
   const hintBar      = document.getElementById('hint-bar');
   const hintMsg      = document.getElementById('hint-msg');
   const tracePanel   = document.getElementById('trace-panel');
@@ -30,9 +35,16 @@
   const replayFill   = document.getElementById('replay-fill');
   const diagramArea  = document.getElementById('diagram-area');
   const diagramEl    = document.getElementById('diagram-el');
+  const fileBar      = document.getElementById('file-bar');
+  const filePicker   = document.getElementById('file-picker');
 
   mermaid.initialize({ startOnLoad: false, securityLevel: 'loose',
                        flowchart: { useMaxWidth: true } });
+
+  // ── File picker ────────────────────────────────────────────────────────────
+  filePicker.addEventListener('change', () => {
+    vscode.postMessage({ command: 'loadFile', path: filePicker.value });
+  });
 
   // ── Mode buttons (History | Step only) ────────────────────────────────────
   const modeBtns = {
@@ -85,18 +97,52 @@
   // restrictions. The host pushes { command: 'traces', traces } on each poll.
   window.addEventListener('message', async e => {
     const msg = e.data;
-    if (msg.command === 'traces') {
+    if (msg.command === 'status') {
+      dataSource = msg.source;
+      if (msg.source === 'file') {
+        sourceBadge.textContent = '\uD83D\uDCC4 file' + (msg.detail ? ' \u00B7 ' + msg.detail : '');
+        sourceBadge.title = 'Traces loaded from reslava-traces.json';
+        sourceBadge.className = 'source-badge source-file';
+      } else if (msg.source === 'http') {
+        sourceBadge.textContent = '\uD83C\uDF10 http';
+        sourceBadge.title = 'Traces from HTTP endpoint';
+        sourceBadge.className = 'source-badge source-http';
+      } else {
+        sourceBadge.textContent = '\u23F3 waiting';
+        sourceBadge.className = 'source-badge source-waiting';
+      }
+    } else if (msg.command === 'traces') {
+      hasFileData = dataSource === 'file';
       allTraces = msg.traces;
       statusDot.className = 'status-dot ok';
       statusDot.title = 'Connected';
       hintBar.style.display = 'none';
+      if (dataSource === 'http') {
+        sourceBadge.textContent = '\uD83C\uDF10 http';
+        sourceBadge.className = 'source-badge source-http';
+      }
       await render();
     } else if (msg.command === 'pollError') {
+      if (hasFileData) {
+        // File data takes precedence — show HTTP badge as inactive but keep traces
+        sourceBadge.title = 'HTTP endpoint not reachable — showing file data';
+        return;
+      }
       statusDot.className = 'status-dot err';
       statusDot.title = msg.message;
+      sourceBadge.textContent = '\uD83C\uDF10 \u2717';
+      sourceBadge.className = 'source-badge source-err';
       hintBar.style.display = '';
       hintMsg.textContent = msg.message + ' \u2014 start the trace endpoint:';
       if (mode === 'history' || mode === 'single') { renderTraceList([]); }
+    } else if (msg.command === 'setFileList') {
+      if (msg.files.length <= 1) { fileBar.style.display = 'none'; return; }
+      fileBar.style.display = '';
+      filePicker.innerHTML = msg.files.map(f =>
+        '<option value="' + escAttr(f.path) + '"' +
+        (f.path === msg.selectedPath ? ' selected' : '') + '>' +
+        escHtml(f.label) + '</option>'
+      ).join('');
     } else if (msg.command === 'setMethod') {
       currentMethodName = msg.methodName;
       hdrName.textContent = '\u25BA ' + msg.methodName;
@@ -273,6 +319,9 @@
   }
 
   // ── Utilities ──────────────────────────────────────────────────────────────
+  function escAttr(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  }
   function escHtml(s) {
     if (!s) { return ''; }
     return String(s)

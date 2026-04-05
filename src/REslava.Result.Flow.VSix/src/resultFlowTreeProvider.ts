@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { hasTraceForMethod } from './diagramResolver';
+import { hasDebugProxyForClass } from './diagramResolver';
 
 const RESULT_FLOW_ATTR = /^\s*\[ResultFlow[(\]]/;
 const CLASS_DECL       = /(?:^|[\w\s]*?)class\s+(\w+)(?:\s*[:({<]|\s*$)/;
@@ -211,7 +211,7 @@ export class ResultFlowTreeProvider
         for (const cls of entry.node.classes) {
             const methodInfoMap = registryData.get(cls.className);
             if (!methodInfoMap) { continue; }
-            const classHasTrace = hasTraceForMethod(cls.className);
+            const classHasTrace = hasDebugProxyForClass(cls.className);
             for (const method of cls.methods) {
                 const info = methodInfoMap.get(method.methodName);
                 if (info) {
@@ -403,8 +403,8 @@ export class MethodNode extends vscode.TreeItem {
             arguments: [this.uri, info.sourceLine - 1, className, this.methodName]
         };
 
-        // Debug inline button: only shown for instance-method classes with _Traced generated
-        this.contextValue = hasTrace ? 'reslavaMethodTraceable' : 'reslavaMethod';
+        // Debug inline button: only shown when DebugProxy was generated (FlowProxy.Debug available)
+        this.contextValue = hasTrace ? 'reslavaMethodDebuggable' : 'reslavaMethod';
     }
 }
 

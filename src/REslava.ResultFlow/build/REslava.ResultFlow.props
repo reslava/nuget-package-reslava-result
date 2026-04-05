@@ -9,6 +9,13 @@
     <Analyzer Include="$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\REslava.ResultFlow.dll" />
   </ItemGroup>
 
+  <!-- Auto-write generated files to disk so VSIX can discover *_Flows.g.cs.
+       Opt out by setting <REslavaResultFlowEmitFiles>false</REslavaResultFlowEmitFiles>. -->
+  <PropertyGroup Condition="'$(REslavaResultFlowEmitFiles)' != 'false'">
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
   <!-- Expose MSBuild properties to the generator via AnalyzerConfigOptionsProvider -->
   <ItemGroup>
     <CompilerVisibleProperty Include="ResultFlowDefaultTheme" />

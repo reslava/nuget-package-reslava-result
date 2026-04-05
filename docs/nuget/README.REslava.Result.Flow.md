@@ -118,26 +118,31 @@ Compared to `REslava.ResultFlow`, this package adds:
 - Typed failure edges (e.g. `InvalidEmailError` instead of just `fail`)
 - Error surface inference via `IError` — no manual annotation required
 
-## Live Panel — `▶ Debug` CodeLens (v1.52.0)
+## Debug Panel — `▶ Debug` CodeLens (v1.53.0)
 
-Add [`REslava.Result.Diagnostics`](https://www.nuget.org/packages/REslava.Result.Diagnostics) to expose your `RingBufferObserver` over HTTP. The VSIX `▶ Debug` CodeLens connects to `GET /reslava/traces` and streams execution data into VS Code — trace list, node stepper, and animated replay with diagram node highlight.
-
-```bash
-dotnet add package REslava.Result.Diagnostics
-```
+Make your class `partial` to unlock the **FlowProxy** — a generated wrapper that feeds the VS Code Debug panel with zero setup.
 
 ```csharp
-using REslava.Result.Diagnostics;
+// Mark your class partial:
+public partial class OrderService
+{
+    [ResultFlow]
+    public Result<Order> Process(int userId, int productId) => ...
+}
 
-var buffer = new RingBufferObserver();
-PipelineObserver.Register(buffer);
+// Always-on tracing (full ring buffer — many methods, many calls):
+var result = svc.Flow.Process(userId, productId);
+ringBuffer.Save();   // → reslava-traces.json in bin/ — VSIX auto-loads
 
-// Standalone (console / worker):
-using var host = PipelineTraceHost.Start(buffer, port: 5297);
-
-// ASP.NET Core:
-app.MapResultFlowTraces(buffer);
+// Single-trace debug (one method, one execution):
+svc.Flow.Debug.Process(userId, productId);
+// → reslava-debug-Process.json saved automatically
+// → VSIX file watcher fires → Debug panel opens with the trace
 ```
+
+The Debug panel shows a trace list, node stepper, animated replay with diagram node highlight, and a **file picker** when multiple `reslava-*.json` files are present.
+
+> **Advanced:** For long-running or remote scenarios, add [`REslava.Result.Diagnostics`](https://www.nuget.org/packages/REslava.Result.Diagnostics) to expose traces over HTTP (`PipelineTraceHost.Start` / `MapResultFlowTraces`).
 
 ## Diagnostics
 

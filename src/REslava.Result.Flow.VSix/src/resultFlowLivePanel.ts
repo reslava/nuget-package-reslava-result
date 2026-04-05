@@ -1,33 +1,37 @@
 import * as vscode from 'vscode';
 import * as http from 'http';
+import * as fs from 'fs';
+import * as path from 'path';
 import { findDiagramByMethodName } from './diagramResolver';
 
-export class ResultFlowLivePanel {
-    static readonly viewType = 'resultflow.livePanel';
-    private static _current: ResultFlowLivePanel | undefined;
+export class ResultFlowDebugPanel {
+    static readonly viewType = 'resultflow.debugPanel';
+    private static _current: ResultFlowDebugPanel | undefined;
 
     private readonly _panel: vscode.WebviewPanel;
     private _pollTimer: ReturnType<typeof setInterval> | undefined;
+    private _firstPollTimer: ReturnType<typeof setTimeout> | undefined;
     private readonly _port: number;
     private readonly _pollInterval: number;
     private readonly _log: vscode.OutputChannel;
+    private readonly _extensionUri: vscode.Uri;
 
-    /** Opens or reveals the Live panel for the given method. */
+    /** Opens or reveals the Debug panel for the given method. */
     static show(extensionUri: vscode.Uri, methodName: string, log: vscode.OutputChannel): void {
         const diagram = findDiagramByMethodName(methodName);  // null if not built yet
 
-        if (ResultFlowLivePanel._current) {
-            ResultFlowLivePanel._current._panel.reveal(vscode.ViewColumn.Beside);
-            ResultFlowLivePanel._current._panel.title = `Live: ${methodName}`;
-            ResultFlowLivePanel._current._panel.webview.postMessage({
+        if (ResultFlowDebugPanel._current) {
+            ResultFlowDebugPanel._current._panel.reveal(vscode.ViewColumn.Beside);
+            ResultFlowDebugPanel._current._panel.title = `Debug: ${methodName}`;
+            ResultFlowDebugPanel._current._panel.webview.postMessage({
                 command: 'setMethod', methodName, diagram
             });
             return;
         }
 
         const panel = vscode.window.createWebviewPanel(
-            ResultFlowLivePanel.viewType,
-            `Live: ${methodName}`,
+            ResultFlowDebugPanel.viewType,
+            `Debug: ${methodName}`,
             vscode.ViewColumn.Beside,
             {
                 enableScripts: true,
@@ -36,7 +40,50 @@ export class ResultFlowLivePanel {
             }
         );
 
-        ResultFlowLivePanel._current = new ResultFlowLivePanel(panel, extensionUri, methodName, diagram, log);
+        ResultFlowDebugPanel._current = new ResultFlowDebugPanel(panel, extensionUri, methodName, diagram, log);
+    }
+
+    /**
+     * Cancels HTTP polling on the active panel. Call immediately when file data is available
+     * so the 500ms initial poll never fires and overwrites the file-based traces.
+     */
+    static cancelPolling(): void {
+        ResultFlowDebugPanel._current?._stopPolling();
+    }
+
+    /**
+     * Loads traces from a `reslava-traces.json` file and feeds them to the Debug panel.
+     * Called by the file watcher when the file is created or changed.
+     */
+    static loadFromFile(filePath: string, extensionUri: vscode.Uri, log: vscode.OutputChannel): void {
+        try {
+            const raw = fs.readFileSync(filePath, 'utf8');
+            const traces = JSON.parse(raw);
+            const methodName = traces.length > 0 ? traces[0].methodName : 'Debug';
+            log.appendLine(`[DebugPanel] loadFromFile: ${traces.length} trace(s) from ${filePath}`);
+
+            const postTraces = (panel: ResultFlowDebugPanel) => {
+                panel._panel.webview.postMessage({ command: 'status', source: 'file', detail: path.basename(path.dirname(filePath)) });
+                panel._panel.webview.postMessage({ command: 'traces', traces });
+            };
+
+            if (ResultFlowDebugPanel._current) {
+                const panel = ResultFlowDebugPanel._current;
+                panel._stopPolling();
+                panel._panel.reveal(vscode.ViewColumn.Beside);
+                panel._panel.title = `Debug: ${methodName}`;
+                // Small delay so any in-flight poll error doesn't overwrite the traces
+                setTimeout(() => postTraces(panel), 150);
+            } else {
+                ResultFlowDebugPanel.show(extensionUri, methodName, log);
+                const opened = ResultFlowDebugPanel._current as ResultFlowDebugPanel | undefined;
+                opened?._stopPolling();
+                // Delay for webview JS to initialize before posting
+                setTimeout(() => { if (opened) { postTraces(opened); } }, 400);
+            }
+        } catch (err) {
+            log.appendLine(`[DebugPanel] loadFromFile error: ${err}`);
+        }
     }
 
     private constructor(
@@ -50,15 +97,33 @@ export class ResultFlowLivePanel {
         this._port         = config.get<number>('resultflow.tracePort',          5297);
         this._pollInterval = config.get<number>('resultflow.tracePollIntervalMs', 2000);
         this._log          = log;
+        this._extensionUri = extensionUri;
 
         this._panel = panel;
-        this._panel.webview.html = buildLivePanelHtml(methodName, diagram, extensionUri, panel.webview);
+        this._panel.webview.html = buildDebugPanelHtml(methodName, diagram, extensionUri, panel.webview);
         this._panel.onDidDispose(() => {
             this._stopPolling();
-            ResultFlowLivePanel._current = undefined;
+            ResultFlowDebugPanel._current = undefined;
         });
-        this._log.appendLine(`[LivePanel] opened for "${methodName}" — port ${this._port}, poll ${this._pollInterval}ms`);
+        this._log.appendLine(`[DebugPanel] opened for "${methodName}" — port ${this._port}, poll ${this._pollInterval}ms`);
         this._startPolling();
+
+        this._panel.webview.onDidReceiveMessage(msg => {
+            if (msg.command === 'loadFile') {
+                ResultFlowDebugPanel.loadFromFile(msg.path, this._extensionUri, this._log);
+            }
+        });
+    }
+
+    /** Sends the list of available trace files to the webview picker. */
+    static setFileList(files: { label: string; path: string }[]): void {
+        const panel = ResultFlowDebugPanel._current;
+        if (!panel || files.length === 0) { return; }
+        panel._panel.webview.postMessage({
+            command: 'setFileList',
+            files,
+            selectedPath: files[0].path
+        });
     }
 
     // ── Extension-host polling ─────────────────────────────────────────────────
@@ -80,6 +145,7 @@ export class ResultFlowLivePanel {
                         try {
                             const traces = JSON.parse(raw);
                             this._log.appendLine(`[LivePanel] parsed ${traces.length} trace(s) — posting to webview`);
+                            this._panel.webview.postMessage({ command: 'status', source: 'http' });
                             const sent = this._panel.webview.postMessage({ command: 'traces', traces });
                             sent.then(ok => this._log.appendLine(`[LivePanel] postMessage delivered: ${ok}`));
                         } catch (err) {
@@ -102,11 +168,15 @@ export class ResultFlowLivePanel {
         };
 
         // Delay the first poll slightly to let the webview finish loading
-        setTimeout(doPoll, 500);
+        this._firstPollTimer = setTimeout(doPoll, 500);
         this._pollTimer = setInterval(doPoll, this._pollInterval);
     }
 
     private _stopPolling(): void {
+        if (this._firstPollTimer !== undefined) {
+            clearTimeout(this._firstPollTimer);
+            this._firstPollTimer = undefined;
+        }
         if (this._pollTimer !== undefined) {
             clearInterval(this._pollTimer);
             this._pollTimer = undefined;
@@ -116,7 +186,7 @@ export class ResultFlowLivePanel {
 
 // ─── HTML builder ─────────────────────────────────────────────────────────────
 
-function buildLivePanelHtml(
+function buildDebugPanelHtml(
     methodName: string,
     diagram: string | null,
     extensionUri: vscode.Uri,
@@ -166,6 +236,26 @@ function buildLivePanelHtml(
     }
     .status-dot.ok  { background: var(--vscode-testing-iconPassed, #22c55e); }
     .status-dot.err { background: var(--vscode-testing-iconFailed, #ef4444); }
+    .source-badge {
+      font-size: 10px; padding: 1px 6px; border-radius: 3px; flex-shrink: 0;
+      border: 1px solid var(--vscode-panel-border, #444);
+      color: var(--vscode-descriptionForeground);
+    }
+    .source-file    { border-color: #22c55e; color: #22c55e; }
+    .source-http    { border-color: #3b82f6; color: #3b82f6; }
+    .source-waiting { border-color: #f59e0b; color: #f59e0b; }
+    .source-err     { border-color: #ef4444; color: #ef4444; }
+
+    /* ── File picker bar ── */
+    .file-bar {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px;
+    }
+    .file-pick {
+      flex: 1; font-size: 12px; padding: 3px 6px; border-radius: 3px;
+      background: var(--vscode-dropdown-background, #3c3c3c);
+      color: var(--vscode-dropdown-foreground, #ccc);
+      border: 1px solid var(--vscode-panel-border, #444);
+    }
 
     /* ── Mode toolbar ── */
     .mode-bar { display: flex; gap: 4px; margin-bottom: 10px; }
@@ -276,7 +366,14 @@ function buildLivePanelHtml(
   <!-- Header -->
   <div class="hdr">
     <span class="hdr-name" id="hdr-name">&#9654; ${methodName}</span>
+    <span class="source-badge source-waiting" id="source-badge" title="Waiting for traces">&#x23F3; waiting</span>
     <span class="status-dot" id="status-dot" title="Connecting\u2026"></span>
+  </div>
+
+  <!-- File picker (shown when >1 reslava-*.json file found) -->
+  <div class="file-bar" id="file-bar" style="display:none">
+    <span style="color:var(--vscode-descriptionForeground)">&#128194;</span>
+    <select id="file-picker" class="file-pick"></select>
   </div>
 
   <!-- Mode toolbar -->
@@ -285,10 +382,10 @@ function buildLivePanelHtml(
     <button class="mode-btn"        id="btn-step"   >&#9197; Step</button>
   </div>
 
-  <!-- Connection hint (hidden when connected) -->
+  <!-- Connection hint (hidden when file data arrives) -->
   <div class="hint-bar" id="hint-bar" style="display:none">
-    <div id="hint-msg">Start the trace endpoint:</div>
-    <code>PipelineTraceHost.Start(buffer) or app.MapResultFlowTraces(buffer)</code>
+    <div id="hint-msg">No traces yet &mdash; run your app with:</div>
+    <code>svc.Flow.Debug.Process(...)</code> &nbsp; or &nbsp; <code>buffer.Save()</code>
     <div><button class="hint-copy" id="btn-hint-copy">Copy snippet</button></div>
   </div>
 
