@@ -189,7 +189,7 @@ public class RingBufferObserverTests
         scope.End(isSuccess: true, outputValue: "out", errorType: null);
         scope.Dispose();
 
-        var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "reslava-save-test.json");
+        var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"reslava-save-test-{System.Guid.NewGuid():N}.json");
         try
         {
             obs.Save(path);
@@ -207,7 +207,7 @@ public class RingBufferObserverTests
         scope.End(isSuccess: false, outputValue: null, errorType: "NotFoundError");
         scope.Dispose();
 
-        var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "reslava-save-valid.json");
+        var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"reslava-save-valid-{System.Guid.NewGuid():N}.json");
         try
         {
             obs.Save(path);
@@ -223,7 +223,7 @@ public class RingBufferObserverTests
     [TestMethod]
     public void Save_OverwritesExistingFile()
     {
-        var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "reslava-save-overwrite.json");
+        var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"reslava-save-overwrite-{System.Guid.NewGuid():N}.json");
         System.IO.File.WriteAllText(path, "old content");
         try
         {
@@ -239,7 +239,7 @@ public class RingBufferObserverTests
     public void Save_EmptyBuffer_ProducesEmptyArray()
     {
         var obs = new RingBufferObserver();
-        var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "reslava-save-empty.json");
+        var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"reslava-save-empty-{System.Guid.NewGuid():N}.json");
         try
         {
             obs.Save(path);
