@@ -61,17 +61,52 @@ nav:
   - Choose Your Path: getting-started/choose-your-path.md
   - Quick Start: getting-started/quick-start.md
 - Resultflow:
-  - ResultFlow — Pipeline Visualization: resultflow/index.md
-  - Async Step Annotation: resultflow/async-step-annotation.md
-  - Clickable Mermaid Nodes — VS Code Navigation (v1.43.0): resultflow/clickable-mermaid-nodes--vs-code-navigation-v1.43.0.md
-  - ️ Code Action — Insert Diagram as Comment: resultflow/code-action--insert-diagram-as-comment.md
-  - ️ Error Type Annotation on Failure Edges (v1.40.0): resultflow/error-type-annotation-on-failure-edges-v1.40.0.md
-  - Installation — `REslava.Result.Flow`: resultflow/installation--reslava.result.flow.md
-  - ️ Pipeline Visualization — `[ResultFlow]`: resultflow/pipeline-visualization--resultflow.md
-  - REslava.ResultFlow — Library-agnostic Alternative: resultflow/reslava.resultflow--library-agnostic-alternative.md
-  - ️ resultflow.json — Custom Classification: resultflow/resultflow.json--custom-classification.md
-  - Sidecar Markdown Constant — Pipeline Docs Alongside Code (v1.43.0): resultflow/sidecar-markdown-constant--pipeline-docs-alongside-code-v1.43.0.md
-  - ️ Success Type Travel: resultflow/success-type-travel.md
+  - ResultFlow — Pipeline Diagram Generator: resultflow/index.md
+  - Diagrams:
+    - ResultFlow — Diagram Gallery: resultflow/diagrams/index.md
+  - Editor:
+    - ResultFlow — VS Code Editor: resultflow/editor/index.md
+    - ️ Code Action — Insert Diagram as Comment: resultflow/editor/code-action--insert-diagram-as-comment.md
+    - ️ CodeLens — Diagram Preview (v1.48.0): resultflow/editor/codelens--diagram-preview-v1.48.0.md
+    - Flow Catalog sidebar (VSIX v1.2.0): resultflow/editor/flow-catalog-sidebar-vsix-v1.2.0.md
+    - ⊞ Single / Multiple Window Mode (VSIX v1.2.0): resultflow/editor/single--multiple-window-mode-vsix-v1.2.0.md
+    - VSIX — Health Icon, Namespace Grouping & Loading Indicator (v1.51.0): resultflow/editor/vsix--health-icon-namespace-grouping--loading-indicator-v1.51.0.md
+    - VSIX v1.2.2 — Error Children, Layer Tabs, Revised Health & Walkthrough (v1.51.0): resultflow/editor/vsix-v1.2.2--error-children-layer-tabs-revised-health--walkthrough-v1.51.0.md
+  - Features:
+    - ResultFlow — Diagram Features: resultflow/features/index.md
+    - Async Step Annotation: resultflow/features/async-step-annotation.md
+    - Clickable Mermaid Nodes — VS Code Navigation (v1.43.0): resultflow/features/clickable-mermaid-nodes--vs-code-navigation-v1.43.0.md
+    - Cross-Method Pipeline Tracing — `MaxDepth` (v1.45.0): resultflow/features/cross-method-pipeline-tracing--maxdepth-v1.45.0.md
+    - Dark Theme Diagrams (v1.47.4): resultflow/features/dark-theme-diagrams-v1.47.4.md
+    - ️ Domain Boundary Diagrams — `_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation` (v1.45.0): resultflow/features/domain-boundary-diagrams--_layerview-_stats-_errorsurface-_errorpropagation-v1.45.0.md
+    - Error Taxonomy Map (v1.54.0): resultflow/features/error-taxonomy-map-v1.54.0.md
+    - ️ Error Type Annotation on Failure Edges (v1.40.0): resultflow/features/error-type-annotation-on-failure-edges-v1.40.0.md
+    - FAIL Node Error Annotation (v1.51.0): resultflow/features/fail-node-error-annotation-v1.51.0.md
+    - Match — Multi-Branch Fan-Out (v1.46.0): resultflow/features/match--multi-branch-fan-out-v1.46.0.md
+    - ️ Node Type Legend — `Legend` constant (v1.47.2): resultflow/features/node-type-legend--legend-constant-v1.47.2.md
+    - Sidecar Markdown Constant — Pipeline Docs Alongside Code (v1.43.0): resultflow/features/sidecar-markdown-constant--pipeline-docs-alongside-code-v1.43.0.md
+    - ️ Success Type Travel: resultflow/features/success-type-travel.md
+    - Type-Flow Diagram — `_TypeFlow` (v1.51.0): resultflow/features/type-flow-diagram--_typeflow-v1.51.0.md
+  - Runtime:
+    - ResultFlow — Runtime Observation: resultflow/runtime/index.md
+    - Debug Panel — File-Drop Workflow + Multi-File Picker (v1.53.0): resultflow/runtime/debug-panel--file-drop-workflow--multi-file-picker-v1.53.0.md
+    - ️ Debug Panel — nodeId Subchain Fix + VSIX v1.4.1 (v1.54.0): resultflow/runtime/debug-panel--nodeid-subchain-fix--vsix-v1.4.1-v1.54.0.md
+    - FlowProxy — Always-On Tracing + Debug Mode (v1.53.0): resultflow/runtime/flowproxy--always-on-tracing--debug-mode-v1.53.0.md
+    - Pipeline Identity — PipelineId, NodeId & Namespace (v1.51.0): resultflow/runtime/pipeline-identity--pipelineid-nodeid--namespace-v1.51.0.md
+    - ️ Pipeline Registry Generator (v1.50.0): resultflow/runtime/pipeline-registry-generator-v1.50.0.md
+    - Pipeline Runtime Observation — FlowProxy + RingBufferObserver (v1.52.0): resultflow/runtime/pipeline-runtime-observation--flowproxy--ringbufferobserver-v1.52.0.md
+  - Setup:
+    - ResultFlow — Setup & Configuration: resultflow/setup/index.md
+    - Installation — `REslava.Result.Flow`: resultflow/setup/installation--reslava.result.flow.md
+    - ️ Pipeline Visualization — `[ResultFlow]`: resultflow/setup/pipeline-visualization--resultflow.md
+    - REslava.ResultFlow — Library-agnostic Alternative: resultflow/setup/reslava.resultflow--library-agnostic-alternative.md
+    - ️ resultflow.json — Custom Classification: resultflow/setup/resultflow.json--custom-classification.md
+    - Solution-Wide Default Theme — `Directory.Build.props` (v1.48.0): resultflow/setup/solution-wide-default-theme--directory.build.props-v1.48.0.md
+    - Two-Track Package Messaging + NuGet Dependency Fix (v1.51.0): resultflow/setup/two-track-package-messaging--nuget-dependency-fix-v1.51.0.md
+- Demo:
+  - Demo Project: demo/index.md
+  - Dark Theme Flow Catalog: demo/flow-catalog-dark.md
+  - Architectural Flow Catalog: demo/flow-catalog-light.md
 - Core Concepts:
   - Fundamentals: core-concepts/index.md
   - Advanced Types:
@@ -250,7 +285,27 @@ nav:
   - v1.41.0 ✅: community/v1.41.0-.md
   - v1.42.0 ✅: community/v1.42.0-.md
   - v1.43.0 ✅: community/v1.43.0-.md
-  - v1.44.0 (Current) ✅: community/v1.44.0-current-.md
+  - v1.44.0 ✅: community/v1.44.0-.md
+  - v1.44.1 ✅: community/v1.44.1-.md
+  - v1.45.0 ✅: community/v1.45.0-.md
+  - v1.46.0 ✅: community/v1.46.0-.md
+  - v1.46.1 ✅: community/v1.46.1-.md
+  - v1.46.2 ✅: community/v1.46.2-.md
+  - v1.46.3 ✅: community/v1.46.3-.md
+  - v1.47.0 ✅: community/v1.47.0-.md
+  - v1.47.1 ✅: community/v1.47.1-.md
+  - v1.47.2 ✅: community/v1.47.2-.md
+  - v1.47.3 ✅: community/v1.47.3-.md
+  - v1.47.4 ✅: community/v1.47.4-.md
+  - v1.47.5 ✅: community/v1.47.5-.md
+  - v1.48.0 ✅: community/v1.48.0-.md
+  - v1.49.0 ✅: community/v1.49.0-.md
+  - v1.50.0 ✅: community/v1.50.0-.md
+  - v1.50.1 ✅: community/v1.50.1-.md
+  - v1.51.0 ✅: community/v1.51.0-.md
+  - v1.52.0 ✅: community/v1.52.0-.md
+  - v1.53.0 ✅: community/v1.53.0-.md
+  - v1.54.0 (Current) ✅: community/v1.54.0-current-.md
   - Version History: community/version-history.md
 markdown_extensions:
 - meta

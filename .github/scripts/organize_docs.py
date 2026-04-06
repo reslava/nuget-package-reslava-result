@@ -164,7 +164,42 @@ MAPPING = {
     "roadmap": "reference",
     "overview": "reference/api-doc",
 
-    # ResultFlow
+    # ResultFlow — subcategories (most-specific prefixes first; longest-match wins)
+    "installation--reslava.result.flow":            "resultflow/setup",
+    "pipeline-visualization--resultflow":           "resultflow/setup",
+    "reslava.resultflow--library-agnostic":         "resultflow/setup",
+    "two-track-package-messaging":                  "resultflow/setup",
+    "resultflow.json--custom-classification":       "resultflow/setup",
+    "solution-wide-default-theme":                  "resultflow/setup",
+
+    "async-step-annotation":                        "resultflow/features",
+    "clickable-mermaid-nodes":                      "resultflow/features",
+    "cross-method-pipeline-tracing":                "resultflow/features",
+    "dark-theme-diagrams":                          "resultflow/features",
+    "domain-boundary-diagrams":                     "resultflow/features",
+    "error-taxonomy-map":                           "resultflow/features",
+    "error-type-annotation":                        "resultflow/features",
+    "fail-node-error-annotation":                   "resultflow/features",
+    "match--multi-branch-fan-out":                  "resultflow/features",
+    "node-type-legend":                             "resultflow/features",
+    "sidecar-markdown-constant":                    "resultflow/features",
+    "success-type-travel":                          "resultflow/features",
+    "type-flow-diagram":                            "resultflow/features",
+
+    "flowproxy--always-on-tracing":                 "resultflow/runtime",
+    "pipeline-runtime-observation":                 "resultflow/runtime",
+    "debug-panel":                                  "resultflow/runtime",
+    "pipeline-identity":                            "resultflow/runtime",
+    "pipeline-registry-generator":                  "resultflow/runtime",
+
+    "codelens--diagram-preview":                    "resultflow/editor",
+    "code-action--insert-diagram":                  "resultflow/editor",
+    "flow-catalog-sidebar":                         "resultflow/editor",
+    "single--multiple-window-mode":                 "resultflow/editor",
+    "vsix--health-icon":                            "resultflow/editor",
+    "vsix-v1.2.2--error-children":                 "resultflow/editor",
+
+    # ResultFlow — fallback (any remaining resultflow file)
     "resultflow": "resultflow",
     "pipeline-visualization": "resultflow",
     "result-flow": "resultflow",
@@ -200,17 +235,8 @@ def fix_dash_filenames(docs_dir):
             file.rename(new_path)
 
 
-def main():
-    if not DOCS_DIR.exists():
-        print("❌ docs/ directory not found.")
-        return
-
-    # First, fix filenames that start with a dash
-    fix_dash_filenames(DOCS_DIR)
-
-    # Collect all markdown files (excluding index.md)
-    files = [f for f in DOCS_DIR.glob("*.md") if f.name != "index.md"]
-
+def route_files(files):
+    """Route a list of markdown files into their destination folders using MAPPING."""
     for file in files:
         stem = file.stem.lower()
         matched = False
@@ -240,7 +266,24 @@ def main():
                 break
 
         if not matched:
-            print(f"⚠️  Warning: No matching prefix for {file.name}, leaving in mkdocs/")
+            print(f"⚠️  Warning: No matching prefix for {file.name}, leaving in place")
+
+
+def main():
+    if not DOCS_DIR.exists():
+        print("❌ docs/ directory not found.")
+        return
+
+    # First, fix filenames that start with a dash
+    fix_dash_filenames(DOCS_DIR)
+
+    route_files([f for f in DOCS_DIR.glob("*.md") if f.name != "index.md"])
+
+    # Pass 2 — route mkdocs/resultflow/*.md into subcategory subdirs.
+    # Must run AFTER pass 1, because pass 1 moves mdsplit section-3 files into resultflow/.
+    resultflow_dir = DOCS_DIR / "resultflow"
+    if resultflow_dir.exists():
+        route_files([f for f in resultflow_dir.glob("*.md") if f.name != "index.md"])
 
 if __name__ == "__main__":
     main()

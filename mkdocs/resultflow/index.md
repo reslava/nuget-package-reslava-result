@@ -1,96 +1,42 @@
 ---
 hide:
   - navigation
-title: ResultFlow — Pipeline Visualization
-description: Auto-generate Mermaid pipeline diagrams from your Result pipelines. REslava.Result.Flow for REslava.Result projects (richer, semantic); REslava.ResultFlow for any library (library-agnostic).
-tagline: Don't try to understand the pipeline—watch the flow.
+title: ResultFlow — Pipeline Diagram Generator
+description: Auto-generated Mermaid pipeline diagrams at compile time. Browse by category — setup, diagram features, runtime observation, and VS Code editor.
 ---
 
-# ResultFlow — Pipeline Visualization
-
-Auto-generate **Mermaid pipeline diagrams** from your fluent Result pipelines. Add `[ResultFlow]` to any method — the diagram is inserted as a comment with one click, or accessed as a `const string` after build.
-
-!!! tip "Which package?"
-    **Using REslava.Result?** → install **`REslava.Result.Flow`** — richer diagrams with typed error edges, entry-point node, and full semantic type travel.
-
-    **Using FluentResults, ErrorOr, LanguageExt, or any other library?** → install **`REslava.ResultFlow`** — library-agnostic, zero configuration for common methods.
-
-```bash
-# For REslava.Result projects (recommended)
-dotnet add package REslava.Result.Flow
-
-# For any other Result library
-dotnet add package REslava.ResultFlow
-```
+# ResultFlow — Pipeline Diagram Generator
 
 <div class="grid cards" markdown>
 
--   :material-image-multiple: __Diagram Gallery — All 5 Types__
+-   :material-image-multiple: __🖼️ Diagram Gallery__
 
-    See all five diagram types side by side — `_Diagram`, `_LayerView`, `_ErrorSurface`, `_ErrorPropagation`, and `_Stats` — on the same `PlaceOrder` scenario for easy comparison.
+    All five ResultFlow diagram types side by side — pipeline, architecture, error surface, error propagation, and stats. Same scenario throughout for easy comparison.
 
-    [View gallery](diagrams)
-    {: .is-featured }
+    [](diagrams/)
 
--   :material-graph: __`REslava.Result.Flow` — For REslava.Result projects__
+-   :material-package-down: __📦 Setup & Configuration__
 
-    The recommended package. Full Roslyn semantic analysis — typed error edges from method body scanning, entry-point detection, and complete type travel via `IResultBase`. Requires REslava.Result.
+    Install the right package, add `[ResultFlow]`, configure `resultflow.json`, and set a solution-wide default theme.
 
-    [](installation--reslava.result.flow)
+    [](setup/)
 
--   :material-chart-timeline-variant: __Pipeline Visualization — `[ResultFlow]`__
+-   :material-view-grid: __✨ Diagram Features__
 
-    Add one attribute. Get a live Mermaid diagram of every success path, failure branch, async step, and side effect — generated from your code.
+    Typed error edges, async markers, cross-method tracing, Match fan-out, type travel, dark theme, error taxonomy, and more — everything the generator emits at compile time.
 
-    [](pipeline-visualization--resultflow)
+    [](features/)
 
--   :material-eye: __CodeLens — Diagram Preview in VS Code__
+-   :material-play-network: __🔬 Runtime Observation__
 
-    `▶ Open diagram preview` appears above every `[ResultFlow]` method. One click opens a live Mermaid preview — no browser, no copy-paste. Requires the **REslava.Result Extensions** VS Code extension.
+    FlowProxy, RingBufferObserver, Debug Panel, pipeline identity, and registry — everything that happens at execution time.
 
-    [](codelens--diagram-preview-v1.48.0)
+    [](runtime/)
 
--   :material-wrench: __Code Action — Insert Diagram as Comment__
+-   :material-microsoft-visual-studio-code: __🖊️ VS Code Editor__
 
-    One click inserts the generated Mermaid diagram directly above the method — no build required. Renders inline in VS Code, GitHub, and Rider.
+    CodeLens diagram preview, Flow Catalog sidebar, code actions, single/multiple window mode, and VSIX health & walkthrough features.
 
-    [](code-action--insert-diagram-as-comment)
-
--   :material-lightning-bolt: __Async Step Annotation__
-
-    `*Async` methods are automatically annotated with a ⚡ suffix in the diagram label — no configuration required.
-
-    [](async-step-annotation)
-
--   :material-swap-horizontal: __Success Type Travel__
-
-    The success type `T` is inferred at each pipeline step and rendered inline — zero configuration, works with any Result library.
-
-    [](success-type-travel)
-
--   :material-file-cog: __`resultflow.json` — Custom Classification__
-
-    Classify custom or third-party methods. Add a single JSON file and override any built-in classification with your own method names.
-
-    [](resultflow.json--custom-classification)
-
--   :material-package-variant-closed-check: __`REslava.ResultFlow` — Library-agnostic Alternative__
-
-    Works with ErrorOr, FluentResults, LanguageExt, or any fluent Result library. Syntax-only analysis — no REslava.Result dependency required.
-
-    [](reslava.resultflow--library-agnostic-alternative)
-
--   :material-call-split: __Cross-Method Pipeline Tracing — `MaxDepth`__
-
-    `Bind` lambdas that call same-project methods are automatically expanded as Mermaid `subgraph` blocks — one diagram across multiple methods. `MaxDepth` controls recursion depth; cycle guard prevents infinite loops.
-
-    [](cross-method-pipeline-tracing--maxdepth-v1.45.0)
-
--   :material-layers-triple: __Domain Boundary Diagrams — `_LayerView`, `_Stats`, `_ErrorSurface`, `_ErrorPropagation`__
-
-    Apply `[DomainBoundary("LayerName")]` to a class or method and get four additional constants: architecture view, pipeline stats, fail-edges only, and errors grouped by layer.
-
-    [](domain-boundary-diagrams--_layerview-_stats-_errorsurface-_errorpropagation-v1.45.0)
-
+    [](editor/)
 
 </div>
