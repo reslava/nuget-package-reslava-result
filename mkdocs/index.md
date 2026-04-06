@@ -23,13 +23,21 @@ tagline: Don't try to understand the pipeline—watch the flow.
 
 *Don't try to understand the pipeline—watch the flow.*
 
-Build Railway-Oriented pipelines with strongly typed errors and automatically generated flow diagrams.
+Build Railway-Oriented pipelines with strongly typed errors, automatically generated flow diagrams, and built-in runtime observation — **trace every node, debug visually.**
+
+| | |
+|---|---|
+| ✏️ **Write** | Add `[ResultFlow]` — Mermaid diagram constants generated at compile time |
+| ▶️ **Run** | Make your class `partial` — FlowProxy traces every node (output, type, elapsed ms) |
+| 🐛 **Debug** | Drop a `reslava-*.json` — VS Code Debug Panel replays the trace on your live diagram |
 
 **:material-source-repository: [nuget-package-reslava-result GitHub repo](https://github.com/reslava/nuget-package-reslava-result)**
 
 ![Auto-generated pipeline diagram — full type travel, typed error edges, async markers](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/Pipelines_AdminCheckout.svg)
 
 *[`[ResultFlow]`](resultflow) — one attribute, live Mermaid diagram of your pipeline. Type travel, async markers, named error edges — generated from your code.*
+
+![VS Code sidebar, diagram panel and Debug Panel walkthrough](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/images/result-flow.gif)
 
 !!! tip "🎯 Typed Error Pipelines — compile-time failure edges with `Result<TValue, TError>` (v1.39.0)"
     Replace `IEnumerable<IError>` bags with **exact, exhaustive error types**. Each `Bind` step grows the error union by one slot (`ErrorsOf<T1,T2,...>`). At the callsite, `Match` is exhaustive — the compiler tells you if you missed a case.

@@ -4,7 +4,7 @@ VS Code companion for the [REslava.Result](https://www.nuget.org/packages/REslav
 
 Adds a **Flow Catalog sidebar**, **CodeLens**, and a **gutter icon** to every `[ResultFlow]` method — browse all pipelines across your workspace, click any method to open a live Mermaid diagram.
 
-![Flow Catalog sidebar, diagram panel, and toolbar](https://raw.githubusercontent.com/reslava/nuget-package-reslava-result/main/src/REslava.Result.Flow.VSix/images/screenshot.png)
+![VS Code sidebar, diagram panel and Debug Panel walkthrough](images/result-flow.gif)
 
 ---
 
