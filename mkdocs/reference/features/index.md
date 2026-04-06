@@ -355,12 +355,15 @@ tagline: Know exactly what you're getting.
 | `RingBufferObserver.Save(path?)` | Persists traces to BOM-free JSON; auto-prefix `reslava-` for short names; full-path escape hatch | v1.53.0 | `### 🔬 Pipeline Runtime Observation` |
 | `REF004` + code fix | Warning + one-click fix when `[ResultFlow]` class missing `partial`; both packages | v1.53.0 | — |
 | VSIX Debug Panel v1.4.0 | File watcher `**/reslava-*.json`; source badge; multi-file picker; `▶ Debug` CodeLens on `.Flow.Debug.` lines | v1.53.0 | `### 🔬 Pipeline Runtime Observation` |
+| `_ErrorTaxonomy` constant | Compile-time markdown table of error types per method; `certain` (from `Result<T,TError>` return type) + `inferred` (body scan); `Generated.ErrorTaxonomy.{Class}_ErrorTaxonomy`; both packages | v1.54.0 | `### 🔍 Error Taxonomy Map` |
+| VSIX v1.4.1 Debug Panel fixes | nodeId subchain fix for cross-method pipelines; subgraph ENTRY highlight; node sort by index; output word-wrap | v1.54.0 | `### 🔬 Pipeline Runtime Observation` |
+| VSIX v1.4.2 GIF showcase | `result-flow.gif` in VSIX images; README.md + mkdocs/index.md 3-layer pitch (Write → Run → Debug) | v1.54.0 | — |
 
 ---
 
 ## Summary
 
-!!! new "**v1.53.0** — 247 features across 16 categories."
+!!! new "**v1.54.0** — 250 features across 16 categories."
 
 
 | Category | Total Features |
@@ -377,11 +380,11 @@ tagline: Know exactly what you're getting.
 | Validation DSL | 1 |
 | FluentValidation Bridge | 2 |
 | Http Extensions | 6 |
-| ResultFlow | 79 |
+| ResultFlow | 82 |
 | OpenTelemetry | 3 |
 | ResultContext | 6 |
 | Pipeline Runtime Observation | 10 |
-| **Total** | **247** |
+| **Total** | **250** |
 
 ---
 
