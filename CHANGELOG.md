@@ -4,6 +4,36 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) guideline.
 
+## [1.54.0] - 2026-04-06
+
+### ✨ Added
+
+#### Error Taxonomy Generator
+
+- **`ErrorTaxonomyGenerator`** — new incremental generator in both `REslava.Result.Flow` (semantic) and `REslava.ResultFlow` (syntax-only); emits `{Class}_ErrorTaxonomy.g.cs` per class that has at least one `[ResultFlow]` method; no attribute or opt-in required
+- **`_ErrorTaxonomy` constant** — markdown table in `Generated.ErrorTaxonomy.{Class}_ErrorTaxonomy`; columns: `Method | Error Type | Confidence`; sorted by method then error type; de-duplicated
+- **Two confidence levels** — `certain`: `Result<T, TError>` return type (exact, from symbol); `inferred`: `Fail(new XxxError(...))` / `Ensure(..., new XxxError(...))` body scan
+- **`REslava.ResultFlow` heuristic** — syntax-only port uses `LooksLikeErrorType` (name ends in `Error` / `Exception`) instead of `IError` interface check; same output format and confidence labels
+
+#### Debug Panel — nodeId Subchain Fix
+
+- **Generator `_nodeIds_` fix** — `CollectNodeIdsInExecutionOrder` now walks inner sub-chains recursively in execution order for `MaxDepth > 0` pipelines; inner `Bind`/`Map` hooks consumed `NodeIndex` slots that weren't in the outer array → outer steps fell back to `{pipelineId}:{index}` fallback IDs; fix: emit inner nodeIds between the outer Bind node and the next outer node
+- **`NodeKind.Unknown` excluded** — factory calls like `Result<T>.Ok(u)` are extracted as `Unknown` nodes but fire no runtime hooks; correctly excluded from `_nodeIds_` (was causing an off-by-one after the subchain)
+
+#### VSIX v1.4.1 Debug Panel Polish
+
+- **Subgraph ENTRY highlight** — stepping into a cross-method node highlights `ENTRY_{nodeId}` (real Mermaid node inside the subgraph) instead of emitting a no-op `class` directive on the subgraph container name
+- **Sort nodes by `nodeIndex`** — `nodes` array in each trace sorted by `nodeIndex` on `traces` message arrival; JSON completion order ≠ execution order for cross-method pipelines
+- **Node output word-wrap** — removed `max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap`; replaced with `word-break: break-word; white-space: pre-wrap`; long output values no longer truncated at panel width
+- **Debug toolbar button fix** — `webviewPanel.ts` was executing unregistered `resultflow.openLivePanel`; fixed to `resultflow.openDebugPanel`
+- **File picker sync on watcher auto-load** — `sendFileListToPanel` now accepts `activePath?`; `onTraceFile` passes `uri.fsPath`; picker `selectedPath` reflects the file that was just auto-loaded
+
+### 🧪 Stats
+
+- Tests: 4,957 passing (floor: >4,500)
+
+---
+
 ## [1.53.0] - 2026-04-05
 
 ### ✨ Added
