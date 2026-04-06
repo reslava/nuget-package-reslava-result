@@ -107,6 +107,11 @@
     <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowCodeGenerator.cs" />
     <Compile Include="Generators\ResultFlow\CodeGeneration\ResultFlowRegistryCodeGenerator.cs" />
     <Compile Include="Generators\ResultFlow\LayerDetector.cs" />
+    <Compile Include="Generators\ErrorTaxonomy\ErrorTaxonomyGenerator.cs" />
+    <Compile Include="Generators\ErrorTaxonomy\Orchestration\ErrorTaxonomyOrchestrator.cs" />
+    <Compile Include="Generators\ErrorTaxonomy\ErrorTaxonomyScanner.cs" />
+    <Compile Include="Generators\ErrorTaxonomy\ErrorTaxonomyRenderer.cs" />
+    <Compile Include="Generators\ErrorTaxonomy\ErrorTaxonomyCodeGenerator.cs" />
   </ItemGroup>
 
 </Project>

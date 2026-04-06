@@ -55,6 +55,7 @@
     <Compile Include="TypeFlowTests.cs" />
     <Compile Include="TracedExtensionTests.cs" />
     <Compile Include="FlowProxyTests.cs" />
+    <Compile Include="ErrorTaxonomyTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
