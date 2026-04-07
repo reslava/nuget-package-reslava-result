@@ -33,6 +33,8 @@
   const btnNext      = document.getElementById('btn-next');
   const btnPlay      = document.getElementById('btn-play');
   const btnPause     = document.getElementById('btn-pause');
+  const btnGenTest   = document.getElementById('btn-gen-test');
+  const btnExplain   = document.getElementById('btn-explain');
   const replayBar    = document.getElementById('replay-bar');
   const replayFill   = document.getElementById('replay-fill');
   const diagramArea  = document.getElementById('diagram-area');
@@ -94,6 +96,16 @@
   });
   btnPlay.addEventListener('click',  startReplay);
   btnPause.addEventListener('click', stopReplay);
+  btnGenTest.addEventListener('click', () => {
+    if (selectedTrace) {
+      vscode.postMessage({ command: 'generateTest', trace: selectedTrace });
+    }
+  });
+  btnExplain.addEventListener('click', () => {
+    if (selectedTrace && !selectedTrace.isSuccess) {
+      vscode.postMessage({ command: 'explainFailure', trace: selectedTrace });
+    }
+  });
 
   // ── Messages from extension host ───────────────────────────────────────────
   // Polling is done in the extension host (Node.js) to avoid webview sandbox
@@ -291,6 +303,9 @@
 
     const currentRow = nodeListEl.querySelector('.node-row.current');
     if (currentRow) { currentRow.scrollIntoView({ block: 'nearest' }); }
+
+    // ── AI buttons visibility ─────────────────────────────────────────────────
+    btnExplain.style.display = selectedTrace.isSuccess ? 'none' : '';
 
     // ── Diagram node highlight ────────────────────────────────────────────────
     await renderHighlightedDiagram(nodes[nodeIdx]?.nodeId ?? null);

@@ -151,6 +151,35 @@ The VSIX watches `**/reslava-*.json` — **no manual panel open needed**.
 
 ---
 
+### 🤖 AI features — Generate Test & Explain Failure (v1.55.0)
+
+Two AI-powered buttons appear in the **Debug Panel node stepper** when a trace is selected:
+
+| Button | When visible | What it does |
+|---|---|---|
+| **🧪 Test** | Any trace | Generates a compilable MSTest unit test from the real execution data |
+| **🔍 Explain** | Failing traces only | Explains in 3–5 sentences why the pipeline failed and where the root cause is |
+
+Both use the captured `PipelineTrace` — real inputs, real outputs, real error types — not log text. This dramatically reduces hallucination compared to log-based AI tools.
+
+#### Setup
+
+No extra setup if you have **Claude Code** installed. The extension calls `claude -p` automatically and uses your existing Pro subscription.
+
+If `claude` is not in your terminal PATH:
+
+1. Open a terminal and run `claude --version` — if it fails, add the Claude Code CLI to your system PATH and restart VS Code.
+2. Alternatively, set `resultflow.anthropicApiKey` in VS Code Settings as a fallback (free tier available at [console.anthropic.com](https://console.anthropic.com)).
+
+#### How to use
+
+1. Open the **Debug Panel** (CodeLens `▶ Debug` or sidebar button)
+2. Click a trace row to enter **Step view**
+3. Click **🧪 Test** or **🔍 Explain** — a progress notification appears while the model runs
+4. Result opens in a panel beside your editor with a **Copy** button
+
+---
+
 ## Links
 
 - [GitHub Repository](https://github.com/reslava/nuget-package-reslava-result)

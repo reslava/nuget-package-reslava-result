@@ -177,6 +177,7 @@ dotnet add package REslava.ResultFlow
   - [3.29. 💾 Debug Panel — File-Drop Workflow + Multi-File Picker (v1.53.0)](#329--debug-panel--file-drop-workflow--multi-file-picker-v1530)
   - [3.30. 🔍 Error Taxonomy Map (v1.54.0)](#330--error-taxonomy-map-v1540)
   - [3.31. 🛠️ Debug Panel — nodeId Subchain Fix + VSIX v1.4.1 (v1.54.0)](#331-️-debug-panel--nodeid-subchain-fix--vsix-v141-v1540)
+  - [3.32. 🤖 AI Pipeline Intelligence — GenerateTest \& ExplainFailure (vsix v1.5.0)](#332--ai-pipeline-intelligence--generatetest--explainfailure-vsix-v150)
 - [4. 📐 REslava.Result Core Library](#4--reslavaresult-core-library)
   - [4.1. Core Operations](#41-core-operations)
     - [4.1.1. 💡 Why Result Instead of Exceptions?](#411--why-result-instead-of-exceptions)
@@ -357,60 +358,61 @@ dotnet add package REslava.ResultFlow
   - [22.2. `.WriteErrorTagsToSpan()` — write error tags to active span](#222-writeerrortagstospan--write-error-tags-to-active-span)
   - [22.3. End-to-end example](#223-end-to-end-example)
 - [23. 🎯 Roadmap](#23--roadmap)
-  - [23.1. v1.54.0 (Current) ✅](#231-v1540-current-)
-  - [23.2. v1.53.0 ✅](#232-v1530-)
-  - [23.3. v1.52.0 ✅](#233-v1520-)
-  - [23.4. v1.51.0 ✅](#234-v1510-)
-  - [23.5. v1.50.1 ✅](#235-v1501-)
-  - [23.6. v1.50.0 ✅](#236-v1500-)
-  - [23.7. v1.49.0 ✅](#237-v1490-)
-  - [23.8. v1.48.0 ✅](#238-v1480-)
-  - [23.9. v1.47.5 ✅](#239-v1475-)
-  - [23.10. v1.47.4 ✅](#2310-v1474-)
-  - [23.11. v1.47.3 ✅](#2311-v1473-)
-  - [23.12. v1.47.2 ✅](#2312-v1472-)
-  - [23.13. v1.47.1 ✅](#2313-v1471-)
-  - [23.14. v1.47.0 ✅](#2314-v1470-)
-  - [23.15. v1.46.3 ✅](#2315-v1463-)
-  - [23.16. v1.46.2 ✅](#2316-v1462-)
-  - [23.17. v1.46.1 ✅](#2317-v1461-)
-  - [23.18. v1.46.0 ✅](#2318-v1460-)
-  - [23.19. v1.45.0 ✅](#2319-v1450-)
-  - [23.20. v1.44.1 ✅](#2320-v1441-)
-  - [23.21. v1.44.0 ✅](#2321-v1440-)
-  - [23.22. v1.43.0 ✅](#2322-v1430-)
-  - [23.23. v1.42.0 ✅](#2323-v1420-)
-  - [23.24. v1.41.0 ✅](#2324-v1410-)
-  - [23.25. v1.40.0 ✅](#2325-v1400-)
-  - [23.26. v1.39.1 ✅](#2326-v1391-)
-  - [23.27. v1.39.0 ✅](#2327-v1390-)
-  - [23.28. v1.38.1 ✅](#2328-v1381-)
-  - [23.29. v1.38.0 ✅](#2329-v1380-)
-  - [23.30. v1.37.0 ✅](#2330-v1370-)
-  - [23.31. v1.36.0 ✅](#2331-v1360-)
-  - [23.32. v1.35.0 ✅](#2332-v1350-)
-  - [23.33. v1.34.0 ✅](#2333-v1340-)
-  - [23.34. v1.33.0 ✅](#2334-v1330-)
-  - [23.35. v1.32.0 ✅](#2335-v1320-)
-  - [23.36. v1.31.0 ✅](#2336-v1310-)
-  - [23.37. v1.30.0 ✅](#2337-v1300-)
-  - [23.38. v1.29.0 ✅](#2338-v1290-)
-  - [23.39. v1.28.0 ✅](#2339-v1280-)
-  - [23.40. v1.27.0 ✅](#2340-v1270-)
-  - [23.41. v1.26.0 ✅](#2341-v1260-)
-  - [23.42. v1.25.0 ✅](#2342-v1250-)
-  - [23.43. v1.24.0 ✅](#2343-v1240-)
-  - [23.44. v1.23.0 ✅](#2344-v1230-)
-  - [23.45. v1.22.0 ✅](#2345-v1220-)
-  - [23.46. v1.21.0 ✅](#2346-v1210-)
-  - [23.47. v1.20.0 ✅](#2347-v1200-)
-  - [23.48. v1.19.0 ✅](#2348-v1190-)
-  - [23.49. v1.18.0 ✅](#2349-v1180-)
-  - [23.50. v1.17.0 ✅](#2350-v1170-)
-  - [23.51. v1.16.0 ✅](#2351-v1160-)
-  - [23.52. v1.15.0 ✅](#2352-v1150-)
-  - [23.53. v1.14.x ✅](#2353-v114x-)
-  - [23.54. v1.13.0 ✅](#2354-v1130-)
+  - [23.1. v1.54.0 — VSIX v1.5.0 only (Current) ✅](#231-v1540--vsix-v150-only-current-)
+  - [23.2. v1.54.0 ✅](#232-v1540-)
+  - [23.3. v1.53.0 ✅](#233-v1530-)
+  - [23.4. v1.52.0 ✅](#234-v1520-)
+  - [23.5. v1.51.0 ✅](#235-v1510-)
+  - [23.6. v1.50.1 ✅](#236-v1501-)
+  - [23.7. v1.50.0 ✅](#237-v1500-)
+  - [23.8. v1.49.0 ✅](#238-v1490-)
+  - [23.9. v1.48.0 ✅](#239-v1480-)
+  - [23.10. v1.47.5 ✅](#2310-v1475-)
+  - [23.11. v1.47.4 ✅](#2311-v1474-)
+  - [23.12. v1.47.3 ✅](#2312-v1473-)
+  - [23.13. v1.47.2 ✅](#2313-v1472-)
+  - [23.14. v1.47.1 ✅](#2314-v1471-)
+  - [23.15. v1.47.0 ✅](#2315-v1470-)
+  - [23.16. v1.46.3 ✅](#2316-v1463-)
+  - [23.17. v1.46.2 ✅](#2317-v1462-)
+  - [23.18. v1.46.1 ✅](#2318-v1461-)
+  - [23.19. v1.46.0 ✅](#2319-v1460-)
+  - [23.20. v1.45.0 ✅](#2320-v1450-)
+  - [23.21. v1.44.1 ✅](#2321-v1441-)
+  - [23.22. v1.44.0 ✅](#2322-v1440-)
+  - [23.23. v1.43.0 ✅](#2323-v1430-)
+  - [23.24. v1.42.0 ✅](#2324-v1420-)
+  - [23.25. v1.41.0 ✅](#2325-v1410-)
+  - [23.26. v1.40.0 ✅](#2326-v1400-)
+  - [23.27. v1.39.1 ✅](#2327-v1391-)
+  - [23.28. v1.39.0 ✅](#2328-v1390-)
+  - [23.29. v1.38.1 ✅](#2329-v1381-)
+  - [23.30. v1.38.0 ✅](#2330-v1380-)
+  - [23.31. v1.37.0 ✅](#2331-v1370-)
+  - [23.32. v1.36.0 ✅](#2332-v1360-)
+  - [23.33. v1.35.0 ✅](#2333-v1350-)
+  - [23.34. v1.34.0 ✅](#2334-v1340-)
+  - [23.35. v1.33.0 ✅](#2335-v1330-)
+  - [23.36. v1.32.0 ✅](#2336-v1320-)
+  - [23.37. v1.31.0 ✅](#2337-v1310-)
+  - [23.38. v1.30.0 ✅](#2338-v1300-)
+  - [23.39. v1.29.0 ✅](#2339-v1290-)
+  - [23.40. v1.28.0 ✅](#2340-v1280-)
+  - [23.41. v1.27.0 ✅](#2341-v1270-)
+  - [23.42. v1.26.0 ✅](#2342-v1260-)
+  - [23.43. v1.25.0 ✅](#2343-v1250-)
+  - [23.44. v1.24.0 ✅](#2344-v1240-)
+  - [23.45. v1.23.0 ✅](#2345-v1230-)
+  - [23.46. v1.22.0 ✅](#2346-v1220-)
+  - [23.47. v1.21.0 ✅](#2347-v1210-)
+  - [23.48. v1.20.0 ✅](#2348-v1200-)
+  - [23.49. v1.19.0 ✅](#2349-v1190-)
+  - [23.50. v1.18.0 ✅](#2350-v1180-)
+  - [23.51. v1.17.0 ✅](#2351-v1170-)
+  - [23.52. v1.16.0 ✅](#2352-v1160-)
+  - [23.53. v1.15.0 ✅](#2353-v1150-)
+  - [23.54. v1.14.x ✅](#2354-v114x-)
+  - [23.55. v1.13.0 ✅](#2355-v1130-)
 - [24. 📈 Version History](#24--version-history)
 - [25. 🤝 Contributing](#25--contributing)
 - [26. 📄 License](#26--license)
@@ -1649,6 +1651,19 @@ _nodeIds_PlaceOrderCross = {
 - **Node output word-wrap** — output values are no longer cut off at 220 px; `word-break: break-word` lets long values wrap naturally
 - **Debug toolbar button fix** — was calling unregistered `resultflow.openLivePanel`; now correctly calls `resultflow.openDebugPanel`
 - **File picker sync** — watcher auto-load now passes the loaded file as `selectedPath` so the picker reflects the active file
+
+### 3.32. 🤖 AI Pipeline Intelligence — GenerateTest & ExplainFailure (vsix v1.5.0)
+
+Two AI-powered buttons in the **Debug Panel node stepper**:
+
+| Button | Visible when | What it does |
+|---|---|---|
+| **🧪 Test** | Any trace selected | Generates a compilable MSTest unit test from real execution data (inputs, outputs, error types) |
+| **🔍 Explain** | Failing trace selected | Explains in 3–5 sentences why the pipeline failed and where the root cause is |
+
+**Setup — no extra config needed if you have Claude Code installed.** The extension calls `claude -p` automatically and uses your Pro subscription. If `claude` is not in PATH, the error message shows the exact install location found on disk and links to setup instructions. Set `resultflow.anthropicApiKey` in VS Code Settings as a fallback (free tier available at console.anthropic.com).
+
+**Why it works well:** the AI receives a structured `FlowAIModel` — typed node names, real inputs, exact error type, failing step — not raw log text. Hallucination surface is dramatically lower than log-based AI debugging tools.
 
 ---
 
@@ -4778,31 +4793,35 @@ var result = Result<Order>.Ok(order)
 
 ## 23. 🎯 Roadmap
 
-### 23.1. v1.54.0 (Current) ✅
+### 23.1. v1.54.0 — VSIX v1.5.0 only (Current) ✅
+
+- **AI Pipeline Intelligence** — `🧪 Generate Test` + `🔍 Explain Failure` buttons in Debug Panel node stepper; `FlowAIModel` serializer (structured trace → compact AI schema); `claude -p` CLI-first (uses Pro subscription) with direct Anthropic API fallback; smart PATH error messages (installed-but-not-in-PATH vs not-installed); NuGet packages unchanged at v1.54.0
+
+### 23.2. v1.54.0 ✅
 
 - **Error Taxonomy generator** — new `ErrorTaxonomyGenerator` in both `REslava.Result.Flow` (semantic) and `REslava.ResultFlow` (syntax-only); emits `{Class}_ErrorTaxonomy.g.cs` with `_ErrorTaxonomy` markdown table constant; `Result<T,TError>` return type → certain; `Fail`/`Ensure` body scan → inferred; de-duplicated, sorted; 19 tests
 - **Debug Panel + nodeId fix** — generator `_nodeIds_` array now includes inner sub-chain slots in execution order (cross-method `MaxDepth > 0` pipelines no longer fall back to `fd319c15:3`); subgraph ENTRY node highlighted instead of no-op `class` directive; sort nodes by `nodeIndex` on arrival; node output word-wrap; Debug toolbar button fix; file picker sync on watcher auto-load; VSIX v1.4.1; 4,957 tests
 
-### 23.2. v1.53.0 ✅
+### 23.3. v1.53.0 ✅
 
 - **FlowProxy — always-on tracing + debug mode** — `partial class` → generator emits `svc.Flow.Process()` (always-on) + `svc.Flow.Debug.Process()` (single-trace `DebugProxy`); `DebugProxy` always emitted; saves to `reslava-debug-{method}.json`; `REF004` + code fix (add `partial`); `_Traced` removed; both packages
 - **Debug panel — file-drop workflow + multi-file picker** — `RingBufferObserver.Save(path?)` (auto-prefix `reslava-`, BOM-free UTF-8); file watcher `**/reslava-*.json`; source badge (⏳/📄/🌐); multi-file picker strips `reslava-` prefix; "Live Panel" renamed "Debug panel" throughout; VSIX v1.4.0; 4,938 tests
 
-### 23.3. v1.52.0 ✅
+### 23.4. v1.52.0 ✅
 
 - **Pipeline runtime observation** — `ResultFlowObserver`, `RingBufferObserver`, `PipelineObserver`, `PipelineTrace`/`NodeTrace`; hooks in `Bind`/`Map`/`Ensure`/`Tap`/`Match`; `_Traced` generated extension (both packages); `REslava.Result.Diagnostics` package (`PipelineTraceHost.Start` + `MapResultFlowTraces`); VSIX v1.3.0 Live Panel (History/Step/Replay, diagram node highlight, Debug visibility filtering); 4,892 tests
 
-### 23.4. v1.51.0 ✅
+### 23.5. v1.51.0 ✅
 
 - **Pipeline identity** — `pipelineId`, `nodeIds`, `namespace` in `_Info`; deterministic node IDs in diagrams; `_TypeFlow` constant; FAIL node error annotation + depth-2 `errorTypes` scan; `%% pipelineId:` comment; Legend update; two-track NuGet README messaging; NuGet transitive dep fix (`REslava.Result.Flow`, `REslava.Result.Analyzers`, `REslava.Result.AspNetCore`); VSIX v1.2.2 (error children, layer tabs, walkthrough, missing-package detection); 4,704 tests
 
-### 23.5. v1.50.1 ✅
+### 23.6. v1.50.1 ✅
 
 - **Registry generator fix** — both `REslava.Result.Flow` and `REslava.ResultFlow` registry generators now include `[ResultFlow]` methods regardless of return type; previously methods returning non-`Result` types (e.g. Match-terminal pipelines returning `string`) were omitted from the registry
 - **`sourceLine` fix** — `sourceLine` in `_Info` JSON is now correctly 1-based; previously stored as 0-based, causing VSIX "Go to Source" to navigate one line above the method
 - **VSIX v1.2.1** — sidebar stats count only visible projects; fixes stats showing all workspace projects instead of only those with `[ResultFlow]` pipelines
 
-### 23.6. v1.50.0 ✅
+### 23.7. v1.50.0 ✅
 
 - **Pipeline Registry Generator** — new always-on `ResultFlowRegistryGenerator` in both packages; emits `{ClassName}_PipelineRegistry.g.cs` per class with `_Methods` (JSON array of pipeline method names) and `{MethodName}_Info` (JSON object with `returnType`, `nodeCount`, `nodeKinds`, `errorTypes`, `hasDiagram`, `sourceLine`)
 - **`ResultFlowRegistry=false`** — opt-out MSBuild property to disable registry generation per project
@@ -4812,7 +4831,7 @@ var result = Result<Order>.Ok(order)
 - **Stats bar** — total projects · pipelines · nodes shown above the tree
 - **Single / Multiple window mode** — toggle whether pipeline diagram clicks reuse one shared panel or open per-method; persists via `reslava.diagramWindowMode` setting; toggled from sidebar toolbar or diagram panel toolbar
 
-### 23.7. v1.49.0 ✅
+### 23.8. v1.49.0 ✅
 
 - **VSIX v1.1.0 — WebviewPanel renderer** — diagram opens in a dedicated `vscode.WebviewPanel` with bundled Mermaid v10.9.5 (offline, no sidecar `.md` file); one-panel-per-method; rapid clicks reveal the existing panel
 - **VSIX v1.1.0 — Node-click navigation** — clicking any node (with `ResultFlowLinkMode=vscode`) navigates VS Code to that exact source line
@@ -4820,24 +4839,24 @@ var result = Result<Order>.Ok(order)
 - **`REslava.Result.Flow` build props** — new `build/REslava.Result.Flow.props` exposes `ResultFlowLinkMode` + `ResultFlowDefaultTheme` as `CompilerVisibleProperty` (parity with `REslava.ResultFlow`)
 - **MermaidRenderer fix** — Gatekeeper predicate tooltip `'` and `"` escaped to Unicode curly quotes; prevents Mermaid parse errors; both packages
 
-### 23.8. v1.48.0 ✅
+### 23.9. v1.48.0 ✅
 
 - **CodeLens `▶ Open diagram preview`** — install **REslava.Result Extensions** from the VS Code Marketplace; CodeLens appears above every `[ResultFlow]` method with 4-step fallback chain (`*_Flows.g.cs` → auto-insert comment via Roslyn → existing comment → notify)
 - **`ResultFlowDefaultTheme` MSBuild property** — set `<ResultFlowDefaultTheme>Dark</ResultFlowDefaultTheme>` in `Directory.Build.props` for a solution-wide default; method-level `[ResultFlow(Theme = ...)]` always wins; both packages
 - **NuGet README images** — switched from local SVG pack to `raw.githubusercontent.com` PNG URLs; `mermaid-to-svg.sh` now emits `.png` alongside `.svg` with `--backgroundColor transparent`
 
-### 23.9. v1.47.5 ✅
+### 23.10. v1.47.5 ✅
 
 - **NuGet README images fixed** — NuGet.org blocks external `raw.githubusercontent.com` SVG URLs; showcase SVGs are now packed locally inside `REslava.Result` and `REslava.Result.Flow` (relative `images/` path); diagrams render correctly on NuGet.org
 
-### 23.10. v1.47.4 ✅
+### 23.11. v1.47.4 ✅
 
 - **Dark theme** — `[ResultFlow(Theme = ResultFlowTheme.Dark)]` emits full dark `classDef` palette for all diagram types (`_Pipeline`, `_LayerView`, `_ErrorSurface`, `_ErrorPropagation`); `MermaidInitDark` constant fixes white-on-dark titles and edge label pills; both packages
 - **Layer color centralization** — `Layer{n}_Style` classDefs centralized in `ResultFlowThemes.cs`; depth-indexed subgraphs (`Layer{depth}["ActualName"]`); inner nodes keep `NodeKind` classDef; 2-colour alternating palette; both packages
 - **`FulfillmentService` demo** — `[DomainBoundary("Application")]` + `[ResultFlow(MaxDepth = 2, Theme = Dark)]` calling `WarehouseService` (Domain); dark cross-method pipeline with LayerView / ErrorSurface / ErrorPropagation
 - **MkDocs dark catalog** — `mkdocs/demo/flow-catalog-dark.md` (`force-dark-mode: true`); demo landing updated with Light / Dark buttons
 
-### 23.11. v1.47.3 ✅
+### 23.12. v1.47.3 ✅
 
 - **SVG single source of truth** — all non-code Mermaid showcase blocks in GitHub README, NuGet READMEs, and MkDocs pages replaced with `![alt](images/Name.svg)` image links; future diagram visual changes require only re-running `scripts/svg.sh`
 - **`scripts/svg.sh`** — new local orchestrator: build Demo → export `.mmd` → convert to SVG; SVGs committed as static assets (mmdc/Puppeteer too heavy for CI)
@@ -4846,7 +4865,7 @@ var result = Result<Order>.Ok(order)
 - **Demo extended** — `InventoryService` + `WarehouseService` with `[DomainBoundary]`; LayerView/ErrorSurface/ErrorPropagation now have 2+ method examples
 - **Legend Guard tooltip** — `Legend` constant Guard node uses `<span title='hover shows condition'>` label; note text `⚡ = async | Guard: condition shown on hover`; both packages
 
-### 23.12. v1.47.2 ✅
+### 23.13. v1.47.2 ✅
 
 - **Async suffix strip** — node labels and titles no longer repeat `Async`; `FindProductAsync ⚡` → `FindProduct⚡`; both packages
 - **Bind vs Map visual distinction** — `:::bind` (thick dark-green border) for `Bind`/`Or`/`MapError`; `:::map` (plain green) for `Map`; previously both used `:::transform`; both packages
@@ -4854,40 +4873,40 @@ var result = Result<Order>.Ok(order)
 - **`Legend` constant** — one `Legend` Mermaid mini-diagram per `*_Flows` class; shows all 9 node types with shapes and colors in a horizontal row; both packages
 - **Gatekeeper predicate tooltip** — `Ensure`/`Filter` nodes wrap label in `<span title='p.Stock > 0'>` when first arg is a lambda; visible on hover in VS Code; silently dropped on GitHub; both packages
 
-### 23.13. v1.47.1 ✅
+### 23.14. v1.47.1 ✅
 
 - **Mermaid frontmatter title** — every `[ResultFlow]` diagram now opens with `---\ntitle: MethodName\n---`; renders as a native heading in all Mermaid-capable viewers; both packages
 - **Root entry node** — chain seed call rendered as amber `ENTRY_ROOT["Method<br/>→ Type"]:::operation ==>` node; async seed calls receive `⚡` marker; both packages
 - **Code action fixes** — Insert/Refresh action now passes title + seed to renderer; `REslava.ResultFlow` gains in-place refresh; CRLF normalisation prevents blank line on Windows second refresh
 - **`generate_flow_catalog.py`** — fixed parsing of compact `@"content";` verbatim string format
 
-### 23.14. v1.47.0 ✅
+### 23.15. v1.47.0 ✅
 
 - **Architectural Flow Catalog** — `scripts/generate_flow_catalog.py` scans `obj/Generated/**/*_Flows.g.cs` and publishes every `[ResultFlow]` + `[DomainBoundary]` diagram as a live MkDocs page (`mkdocs/reference/flow-catalog/`); grouped by class → method → view type (Pipeline, Layer View, Stats, Error Surface, Error Propagation); `_Sidecar` constants skipped
 - **Demo Project MkDocs section** — `mkdocs/demo/` landing page + `flow-catalog.md` showcasing the `REslava.Result.Flow.Demo` output; wired into nav and home page grid
 - **CI auto-rebuild** — `mkdocs-docfx.yml` builds the demo and regenerates the catalog before every MkDocs deploy
 - No generator changes, no new attributes, no API changes
 
-### 23.15. v1.46.3 ✅
+### 23.16. v1.46.3 ✅
 
 - **Subgraph entry arrow** — cross-method expanded `subgraph` blocks now open with an invisible `ENTRY_N[ ]:::entry ==>` thick arrow pointing to the first inner node, making the execution entry point immediately visible; flat pipelines unchanged; both `REslava.Result.Flow` and `REslava.ResultFlow`
 
-### 23.16. v1.46.2 ✅
+### 23.17. v1.46.2 ✅
 
 - **NuGet README images fixed** — switched from HTML `<img>` (stripped by NuGet) to standard Markdown `![alt](url)` syntax; SVG diagrams now render correctly on NuGet.org
 
-### 23.17. v1.46.1 ✅
+### 23.18. v1.46.1 ✅
 
 - **SVG diagrams in NuGet READMEs** — `REslava.Result` and `REslava.Result.Flow` NuGet README pages now show rendered pipeline diagrams via hosted SVG images; Mermaid blocks removed (NuGet does not render Mermaid)
 
-### 23.18. v1.46.0 ✅
+### 23.19. v1.46.0 ✅
 
 - **Match hexagon + ok/fail edges** — `Match`/`MatchAsync` now renders as a Mermaid decision hexagon `{{"Match"}}:::terminal` with explicit `-->|ok| SUCCESS` and `-->|fail| FAIL` exits; replaces the dead-end rectangle; both `REslava.Result.Flow` and `REslava.ResultFlow`
 - **Typed N-branch fan-out** — when `Match` is called with explicitly-typed lambda parameters (e.g. `(ValidationError v) => ...`), `REslava.Result.Flow` emits one `-->|TypeName| FAIL` edge per branch via `PipelineNode.MatchBranchLabels`; semantic model resolution with syntax fallback
 - **Gap 1 Terminal guard** — `Match` node label no longer overwritten by the inner lambda body method name (e.g. `ToString` would have replaced `Match`); both extractors fixed
 - 4,634 tests, >4,500 floor
 
-### 23.19. v1.45.0 ✅
+### 23.20. v1.45.0 ✅
 
 - **Domain Boundary Diagrams** — `[DomainBoundary("Layer")]` on a class or method triggers four new constants: `_LayerView` (architecture `flowchart TD`), `_Stats` (Markdown table), `_ErrorSurface` (fail-edges only), `_ErrorPropagation` (errors grouped by layer)
 - **`[DomainBoundary]` on classes** — attribute now valid on classes; all methods inherit the layer; method-level annotation takes priority
@@ -4897,7 +4916,7 @@ var result = Result<Order>.Ok(order)
 - **Diagram gallery** — new `mkdocs/resultflow/diagrams/` public gallery showcasing all diagram types
 - ~4,680 tests, >4,500 floor
 
-### 23.20. v1.44.1 ✅
+### 23.21. v1.44.1 ✅
 
 - **Library branding** — "Visual Result pipelines for .NET" tagline; showcase Mermaid diagram above the fold in README; `[ResultFlow]` highlighted as the killer visual differentiator
 - **NuGet `<Description>` fields** — all 8 packages updated with feature-accurate descriptions
@@ -4905,13 +4924,13 @@ var result = Result<Order>.Ok(order)
 - **`REslava.Result.Flow` primary positioning** — README section 3 and MkDocs resultflow page restructured: `REslava.Result.Flow` is now clearly primary; `REslava.ResultFlow` is secondary
 - 187 features, >4,500 tests
 
-### 23.21. v1.44.0 ✅
+### 23.22. v1.44.0 ✅
 
 - **`netstandard2.0` target** — `REslava.Result` now targets `netstandard2.0;net8.0;net9.0;net10.0`; fixes invisibility in the default NuGet search (framework filter mode = "all"); adds compatibility with .NET Framework 4.6.1+, Unity, Xamarin, and older .NET Core
 - **NuGet metadata** — title and tags updated for better search ranking (`result-pattern`, `railway-oriented-programming`, `reslava`, `functional-programming`)
 - 187 features, >4,500 tests
 
-### 23.22. v1.43.0 ✅
+### 23.23. v1.43.0 ✅
 
 - **`[DomainBoundary]` attribute** — marks methods/constructors as architectural entry points (`[DomainBoundary]` or `[DomainBoundary("Application")]`); lives in `REslava.Result` namespace
 - **RESL1030** — new analyzer; warns when a `Result<T, TError>` is passed directly to a `[DomainBoundary]` method without calling `.MapError()` first; prevents domain-specific error surfaces from leaking across layers
@@ -4920,7 +4939,7 @@ var result = Result<Order>.Ok(order)
 - **`{MethodName}_Sidecar` constant** — always-generated companion constant wrapping the Mermaid diagram in a fenced `# Pipeline` markdown block; write to `.md` with `File.WriteAllText(...)`
 - 187 features, >4,500 tests
 
-### 23.23. v1.42.0 ✅
+### 23.24. v1.42.0 ✅
 
 - **`ResultContext`** — pipeline context carrier embedded in `Result<T>`, `Result<T,TError>`, `Result`; carries `Entity`, `EntityId`, `CorrelationId`, `OperationName`, `TenantId` through the pipeline
 - **Auto-seeding** — `Ok()`/`Fail()` set `Context.Entity = typeof(T).Name` automatically; no user code needed
@@ -4933,7 +4952,7 @@ var result = Result<Order>.Ok(order)
 - **Generator fix** — `FluentValidateExtensionGenerator` and `ValidateExtensionGenerator` updated to emit `ValidationError.Field(...)` instead of deprecated 2-arg constructor
 - 182 features, >4,400 tests
 
-### 23.24. v1.41.0 ✅
+### 23.25. v1.41.0 ✅
 
 - **`TagKey<T>`** — typed accessor into `ImmutableDictionary<string, object>` Tags; `abstract record TagKey(string Name)` + `sealed record TagKey<T>(string Name) : TagKey(Name)`; record equality and value semantics
 - **`DomainTags`** — predefined typed domain tag keys: `Entity`, `EntityId`, `Field`, `Value`, `Operation`; used by `NotFoundError`, `ConflictError`, `ValidationError` auto-tags
@@ -4948,7 +4967,7 @@ var result = Result<Order>.Ok(order)
 - **`REslava.Result.Flow` — Mermaid node correlation block** — `%% --- Node correlation (ReasonMetadata.NodeId / PipelineStep) ---` block emitted at the end of every generated diagram; pairs diagram nodes with runtime `ReasonMetadata.NodeId` values
 - 169 features, >4,300 tests
 
-### 23.25. v1.40.0 ✅
+### 23.26. v1.40.0 ✅
 
 - **`ReasonMetadata`** — new sealed record capturing `CallerMember`, `CallerFile`, `CallerLine` via compiler-injected `[CallerMemberName/FilePath/LineNumber]` on factory methods; zero-allocation `Empty` singleton; completely separate from `Tags` (no framework leakage into user metadata)
 - **`IReasonMetadata`** — secondary capability interface (same pattern as `IAsyncDisposable`); opt-in metadata exposure from `IReason`-typed references without breaking existing implementations; `Reason` base class implements it automatically
@@ -4960,11 +4979,11 @@ var result = Result<Order>.Ok(order)
 - **ResultFlow `ErrorHint`** — Mermaid failure edges now annotate the error type for body-scan pipelines: `.Ensure(pred, new NotFoundError(...))` → `|"fail: NotFoundError"|`; syntactic extraction (no semantic model required); `ErrorType` from type-read mode still takes precedence
 - 158 features, >4,300 tests
 
-### 23.26. v1.39.1 ✅
+### 23.27. v1.39.1 ✅
 
 - Minor update: Fixed and updated NuGet package `REslava.Result` README
 
-### 23.27. v1.39.0 ✅
+### 23.28. v1.39.0 ✅
 - **`OneOf<T1..T8>` sealed class** — all `OneOf` types converted from `readonly struct` to `sealed class`; `OneOf<T1..T7>` and `OneOf<T1..T8>` added for full arity symmetry ⚠️ *breaking: copy→reference semantics*
 - **`OneOfBase<T1..T8>`** — unconstrained abstract class holding all shared dispatch (`IsT1..T8`, `AsT1..T8`, `Match`, `Switch`, `Equals`, `GetHashCode`, `ToString`); `OneOf` and `ErrorsOf` both inherit it
 - **`IOneOf<T1..T8>`** — shared interface implemented by both `OneOf<>` and `ErrorsOf<>`; enables generic programming over any discriminated union
@@ -4978,7 +4997,7 @@ var result = Result<Order>.Ok(order)
 - 153 features across 13 categories
 - >4,000 tests
 
-### 23.28. v1.38.1 ✅
+### 23.29. v1.38.1 ✅
 - **`REslava.Result.Flow` chain walker bug fix** — `IInvocationOperation.Instance` traversal stopped after the first node for static roots (`Result<T>.Ok(...)`) and async extension methods. Fixed with syntax-walk + per-node `semanticModel.GetOperation()` — all pipeline steps reliably captured regardless of calling convention.
 - **`REslava.Result.Flow` — REF002 analyzer + Code Action** — native companion package now emits REF002 on every `[ResultFlow]` method with a detectable chain. Code action inserts a full-fidelity diagram (type travel + typed error edges) as a ` ```mermaid ` fence comment — rendering inline in VS Code, GitHub, Rider.
 - **`REslava.ResultFlow` — `mermaid` fence format** — "Insert diagram as comment" code action now wraps diagrams in ` ```mermaid … ``` ` fence (was plain `/* ... */`). Renders inline in any Markdown-aware IDE.
@@ -4988,7 +5007,7 @@ var result = Result<Order>.Ok(order)
 - 142 features across 13 categories
 - >3,900 tests
 
-### 23.29. v1.38.0 ✅
+### 23.30. v1.38.0 ✅
 - **RESL1009 analyzer + code fix** — detects `try/catch` patterns that can be replaced by `Result<T>.Try`; two code actions: Fix A (basic `Try`) and Fix B (preserves custom error handler); handles sync and async methods; `TryAsync` rewrite removes `async/await`
 - **⚡ Async step annotation** (`REslava.ResultFlow`) — `*Async` method nodes automatically get a `⚡` label suffix in generated Mermaid diagrams; zero configuration; custom `resultflow.json`-mapped methods inherit ⚡ if their name ends in `Async`
 - **Success type travel** (`REslava.ResultFlow`) — infers `T` from each step's generic return type via Roslyn semantic model; renders `"Bind<br/>User"` or `"Map<br/>User → UserDto"` inline labels; library-agnostic (`Result<T>`, `ErrorOr<T>`, `Fin<T>`, any `SomeWrapper<T>`)
@@ -4997,14 +5016,14 @@ var result = Result<Order>.Ok(order)
 - 140 features across 13 categories
 - 3,983 tests
 
-### 23.30. v1.37.0 ✅
+### 23.31. v1.37.0 ✅
 - **`Switch()` / `SwitchAsync()`** — void side-effect dispatch; routes success/failure to two actions; explicit intent signal for void branching; `Task<Result>` / `Task<Result<T>>` extensions enable clean end-of-chain dispatch after async pipelines
 - **`MapError()` / `MapErrorAsync()`** — transforms errors in the failure path; symmetric counterpart to `Map`; success passes through unchanged; result state never changes; Task extensions included
 - **`Or()` / `OrElse()` / `OrElseAsync()`** — fallback result on failure; simpler API than `Recover`; `Or(fallback)` is eager, `OrElse(factory)` is lazy and receives the error list; Task extensions included
 - 136 features across 13 categories
 - 3,960 tests
 
-### 23.31. v1.36.0 ✅
+### 23.32. v1.36.0 ✅
 - **`REslava.ResultFlow` standalone package** — independent of `REslava.Result`; works with any fluent Result library via built-in convention dictionary (REslava.Result, ErrorOr, LanguageExt) or custom `resultflow.json`
 - **REF002 + Code Action** — IDE code action inserts the Mermaid diagram as a `/* ... */` block comment above the method; no build required
 - **Convention dictionary expansion** — ErrorOr (`Then`/`Switch`), LanguageExt (`Filter`/`Do`/`DoLeft`) built-in support
@@ -5014,45 +5033,45 @@ var result = Result<Order>.Ok(order)
 - 133 features across 13 categories
 - 3,783 tests
 
-### 23.32. v1.35.0 ✅
+### 23.33. v1.35.0 ✅
 - **`[ResultFlow]` source generator** — annotate any fluent `Result<T>` pipeline method → auto-generated Mermaid `flowchart LR` diagram as a `public const string` in `Generated.ResultFlow.{Class}_Flows` at compile time; zero runtime overhead; 9 operation semantics; REF001 info diagnostic for non-fluent methods
 - 128 features across 13 categories
 - 3,768 tests
 
-### 23.33. v1.34.0 ✅
+### 23.34. v1.34.0 ✅
 - **`IResultResponse<T>` → `IResultBase<T>`** ⚠️ *breaking rename* — `IResultResponse` carried an unintended HTTP connotation; `IResultBase` is the semantically correct name (base contract for all Result types). Update direct references from `IResultResponse<T>` to `IResultBase<T>`.
 - **Documentation gaps filled** — Http extensions usage guide, generator setup guide, `ConversionError` in error type table
 - 123 features across 12 categories
 - 3,756 tests
 
-### 23.34. v1.33.0 ✅
+### 23.35. v1.33.0 ✅
 - **`REslava.Result.Http`** — new 5th NuGet package; `GetResult<T>`, `PostResult<TBody, TResponse>`, `PutResult<TBody, TResponse>`, `DeleteResult`, `DeleteResult<T>` extension methods on `HttpClient`; every HTTP error and network failure becomes a typed `Result<T>`; configurable via `HttpResultOptions` (custom JSON options, custom status code mapper)
 - **README/TOC restructure** — full logical reorganization of all 26 sections; improved hierarchy and navigation
 - **MkDocs restructure** — sub-folder grid-card navigation across all sections; `architecture/source-generators/` sub-folder split; orphan detection tooling
 - 123 features across 12 categories
 - 3,756 tests
 
-### 23.35. v1.32.0 ✅
+### 23.36. v1.32.0 ✅
 - **`Result.Validate(r1, r2, ..., mapper)`** — applicative validation; runs 2/3/4 independent `Result<T>` validations simultaneously, accumulates ALL errors (no short-circuit), maps heterogeneous success values via typed mapper func to `Result<TResult>`
 - **`Result<T>.Deconstruct()`** — C# 8+ tuple syntax; `var (value, errors) = result` and `var (isSuccess, value, errors) = result` for `Result<T>`; `var (isSuccess, errors) = result` for non-generic `Result`
 - **`Maybe<T>` ↔ `Result<T>` interop** — `maybe.ToResult(errorFactory/error/string)` bridges `None` to typed failure; `result.ToMaybe()` discards errors and returns `Some(value)` or `None`
 - 117 features across 11 categories
 - 3,696 tests
 
-### 23.36. v1.31.0 ✅
+### 23.37. v1.31.0 ✅
 - **`Result.WithLogger(ILogger, string)`** / **`LogOnFailure(ILogger, string)`** — Tap-style ILogger integration; Debug on success, Warning on domain failure, Error on ExceptionError; structured log properties (`result.outcome`, `result.error.type`, `result.error.message`); Task extensions with CancellationToken
 - **`Result.Recover()`** / **`RecoverAsync()`** — railway recovery; transforms any failure into a new `Result<T>` (success or failure) via a fallback func; error list passed to recovery func for context-aware branching; both `Result` and `Result<T>`; Task extensions
 - **`Result.Filter()`** / **`FilterAsync()`** — convert success to failure when a predicate fails; `Func<T, IError>` error factory enables value-dependent contextual messages; 3 sync overloads (factory / static IError / string); async predicate variant; Task extensions
 - 114 features across 11 categories
 - 3,591 tests
 
-### 23.37. v1.30.0 ✅
+### 23.38. v1.30.0 ✅
 - **`Result.Catch<TException>()`** / **`CatchAsync<TException>()`** — inline typed exception handler in the railway; converts an `ExceptionError` wrapping `TException` to any `IError`; `Task<Result<T>>` extension also catches direct throws from the source task
 - **`Result.WithActivity(Activity?)`** — enriches an existing OTel `Activity` span with outcome tags (`result.outcome`, `result.error.type`, `result.error.message`); Tap-style (returns result unchanged), null-safe, no new NuGet dependency
 - 111 features across 11 categories
 - 3,432 tests
 
-### 23.38. v1.29.0 ✅
+### 23.39. v1.29.0 ✅
 - **`IsFailed` → `IsFailure`** ⚠️ *breaking rename* — `IsSuccess` / `IsFailure` is the correct symmetric pair; find-and-replace across call sites
 - **Console samples** — 3 new examples: `14_ValidationDSL`, `15_OneOf5_OneOf6`, `16_AsyncPatterns_Advanced` (covers all v1.27–v1.28 features)
 - **FastMinimalAPI validation showcase** — side-by-side `/api/smart/validation` (DSL vs DataAnnotations) and `/api/smart/fluent-validation` (bridge demo)
@@ -5060,12 +5079,12 @@ var result = Result<Order>.Ok(order)
 - **Feature Reference page** — 109 features across 11 categories in docs
 - 3,339 tests
 
-### 23.39. v1.28.0 ✅
+### 23.40. v1.28.0 ✅
 - **FluentValidation Bridge** ⚠️ *optional migration bridge* — new `REslava.Result.FluentValidation` package (4th NuGet); `[FluentValidate]` attribute generates `.Validate(IValidator<T>)` + `.ValidateAsync()` extensions; SmartEndpoints auto-injects `IValidator<T>` as a lambda parameter; for teams with existing FV validators only — **new projects do not need this package**
 - **RESL1006 analyzer** — compile error when both `[Validate]` and `[FluentValidate]` appear on the same type (conflicting `.Validate()` signatures)
 - 3,339 tests
 
-### 23.40. v1.27.0 ✅
+### 23.41. v1.27.0 ✅
 - **CancellationToken Support in SmartEndpoints** — generated lambdas detect `CancellationToken` in service method signatures and inject it as an endpoint parameter; backward-compatible
 - **OneOf5 / OneOf6** — `OneOf<T1..T5>` and `OneOf<T1..T6>` structs with full `Match`, `Switch`, `MapT*`, `BindT*`, equality, and implicit conversions; OneOf4 bug fixes
 - **OneOf chain extensions** — `ToFourWay`, `ToFiveWay`, `ToSixWay` and corresponding down-conversions across the full 2↔3↔4↔5↔6 arity chain
@@ -5073,67 +5092,67 @@ var result = Result<Order>.Ok(order)
 - **DocFX API Reference** — all public types, members, and XML docs fully surfaced at `/reference/api/`
 - 3,313 tests
 
-### 23.41. v1.26.0 ✅
+### 23.42. v1.26.0 ✅
 - **RESL1005 analyzer** — Info-level diagnostic suggests domain error types (`NotFoundError`, `ConflictError`, etc.) when `new Error("...")` message implies an HTTP error category; 14 new tests
 - **SmartEndpoints Auto-Validation** — `[Validate]` on a body parameter type auto-injects `.Validate()` into the generated lambda; returns 422 early on failure; 5 new tests
 - 2,862 tests
 
-### 23.42. v1.25.0 ✅
+### 23.43. v1.25.0 ✅
 - **Documentation Website** — MkDocs Material site auto-generated from README.md; 8 nav sections, dark/light, search, social cards
 - **DocFX API Reference landing page** — Bootstrap namespace cards, Core Types grid, quick-links to docs/GitHub/NuGet
 - **CI optimization** — path allowlist (src/tests only); docs commits no longer trigger test suite
 - 2,843 tests (unchanged)
 
-### 23.43. v1.24.0 ✅
+### 23.44. v1.24.0 ✅
 - **`[Validate]` Source Generator** — decorate any record/class to get `.Validate()` returning `Result<T>`; delegates to `Validator.TryValidateObject` (all 20+ `DataAnnotations` types supported); field errors surface as `ValidationError` with `FieldName`; composable with `.Bind()` / `.ToIResult()` / `.ToActionResult()`
 - 7 new generator tests, 2,843 total tests
 
-### 23.44. v1.23.0 ✅
+### 23.45. v1.23.0 ✅
 - **SmartEndpoints: Endpoint Filters** — `[SmartFilter(typeof(T))]` attribute generates `.AddEndpointFilter<T>()`, stackable (AllowMultiple = true)
 - **SmartEndpoints: Output Caching** — `CacheSeconds` property on `[AutoGenerateEndpoints]` and `[AutoMapEndpoint]`; class-level default, method-level override, `-1` to opt out; only applied to GET
 - **SmartEndpoints: Rate Limiting** — `RateLimitPolicy` property on both attribute levels; `"none"` to opt out; inherits class default
 - **FastMinimalAPI Demo: SmartCatalogController** — showcases all three features with `LoggingEndpointFilter`
 - 11 new source generator tests, 2,836 total tests
 
-### 23.45. v1.22.0 ✅
+### 23.46. v1.22.0 ✅
 - **OneOf<>.ToActionResult() — MVC One-Liners** — source-generated `IActionResult` extension methods for `OneOf<T1,...,T4>` in MVC controllers, domain errors auto-map via `IError.Tags["HttpStatusCode"]`
 - **OneOfToIResult: Tag-Based Error Mapping Fix** — `MapErrorToHttpResult` checks `IError.Tags["HttpStatusCode"]` first before falling back to type-name heuristics
 - **SmartEndpoints: Accurate OpenAPI Error Docs** — `ValidationError` → 422 (was 400), `Result<T>` endpoints declare 400/404/409/422
 - 12 new source generator tests, 2,825 total tests
 
-### 23.46. v1.21.0 ✅
+### 23.47. v1.21.0 ✅
 - **Result<T>.ToActionResult() — ASP.NET MVC Support** — source-generated `IActionResult` extension methods for MVC controllers, convention-based HTTP mapping with explicit overload escape hatch
 - **FastMvcAPI Demo App** — MVC equivalent of FastMinimalAPI demo (Users, Products, Orders) on port 5001
 - 9 new source generator tests
 
-### 23.47. v1.20.0 ✅
+### 23.48. v1.20.0 ✅
 - **Structured Error Hierarchy** — 5 built-in domain errors (`NotFoundError`, `ValidationError`, `ConflictError`, `UnauthorizedError`, `ForbiddenError`) with HTTP status code tags and CRTP fluent chaining
 - **ResultToIResult: Domain Error-Aware HTTP Mapping** — reads `HttpStatusCode` tag for accurate status codes (was always 400)
 - **Test Coverage Hardening** — 150 new tests covering OkIf/FailIf, Try, Combine, Tap, LINQ Task extensions
 - **Internal Quality** — cached computed properties, ExceptionError namespace fix, Result\<T\> constructor encapsulation, ToString() override, dead code cleanup, convention-based SmartEndpoints route prefix
 
-### 23.48. v1.19.0 ✅
+### 23.49. v1.19.0 ✅
 - **RESL1004 — Async Result Not Awaited** — detects `Task<Result<T>>` assigned without `await` + code fix
 - **CancellationToken Support Throughout** — `CancellationToken cancellationToken = default` on all async methods (source-compatible)
 - 5 diagnostics + 3 code fixes
 
-### 23.49. v1.18.0 ✅
+### 23.50. v1.18.0 ✅
 - **Task-Based Async Patterns** — `Result.WhenAll()` (typed tuples), `Result.Retry()` (exponential backoff), `.Timeout()` extension
 
-### 23.50. v1.17.0 ✅
+### 23.51. v1.17.0 ✅
 - **JSON Serialization Support (System.Text.Json)** — `JsonConverter` for `Result<T>`, `OneOf<T1..T4>`, `Maybe<T>`
 
-### 23.51. v1.16.0 ✅
+### 23.52. v1.16.0 ✅
 - Tailored NuGet README for each of the 3 packages
 
-### 23.52. v1.15.0 ✅
+### 23.53. v1.15.0 ✅
 - Repository cleanup: removed unused Node.js toolchain, stale samples, incomplete templates
 
-### 23.53. v1.14.x ✅
+### 23.54. v1.14.x ✅
 - **REslava.Result.Analyzers** — RESL1001, RESL1002, RESL1003, RESL2001 + 3 code fixes
 - OneOf generator consolidation (15 files → 7)
 
-### 23.54. v1.13.0 ✅
+### 23.55. v1.13.0 ✅
 - **SmartEndpoints: Authorization & Policy Support** — `RequiresAuth`, `Roles`, `Policies`, `[SmartAllowAnonymous]`
 - **LINQ query comprehension syntax for Result<T>**
 - SmartEndpoints: OpenAPI Metadata Auto-Generation
@@ -5142,6 +5161,7 @@ var result = Result<Order>.Ok(order)
 
 ## 24. 📈 Version History
 
+- **v1.54.0 vsix v1.5.0 only** - AI Pipeline Intelligence: `🧪 Generate Test` + `🔍 Explain Failure` in Debug Panel; `claude -p` CLI-first + Anthropic API fallback; VSIX v1.5.0 only (no NuGet changes)
 - **v1.54.0** - Error Taxonomy generator (`_ErrorTaxonomy` markdown table constant; `Result<T,TError>` → certain; `Fail`/`Ensure` body scan → inferred; both packages); Debug Panel nodeId subchain fix (cross-method `_nodeIds_` array includes inner slots in execution order); subgraph ENTRY highlight; VSIX v1.4.1; 4,957 tests
 - **v1.53.0** - FlowProxy: `partial class` → `svc.Flow.Process()` (always-on) + `svc.Flow.Debug.Process()` (single-trace DebugProxy); DebugProxy saves to `reslava-debug-{method}.json`; `REF004` + code fix; `_Traced` removed; `RingBufferObserver.Save(path?)` (auto-prefix `reslava-`, BOM-free); Debug panel file watcher `**/reslava-*.json`; source badge; multi-file picker; VSIX v1.4.0; 4,938 tests
 - **v1.52.0** - Pipeline runtime observation: `ResultFlowObserver`, `RingBufferObserver`, `PipelineObserver`, `PipelineTrace`/`NodeTrace`; hooks in `Bind`/`Map`/`Ensure`/`Tap`/`Match`; `_Traced` generated extension (both packages); `REslava.Result.Diagnostics` package (`PipelineTraceHost.Start` + `MapResultFlowTraces`); VSIX v1.3.0 Live Panel (History/Step/Replay, diagram node highlight, Debug visibility filtering); off-by-one fixes; 4,892 tests

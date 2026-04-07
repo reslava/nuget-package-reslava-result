@@ -2,6 +2,10 @@ import * as vscode from 'vscode';
 import * as http from 'http';
 import * as fs from 'fs';
 import { findDiagramByMethodName, findDiagramByPipelineId } from './diagramResolver';
+import { buildFlowAIModel, PipelineTraceJson } from './ai/FlowAIModel';
+import { callClaude } from './ai/claudeClient';
+import { buildGenerateTestPrompt, buildExplainFailurePrompt } from './ai/prompts';
+import { showAIResult } from './ai/aiPanel';
 
 export class ResultFlowDebugPanel {
     static readonly viewType = 'resultflow.debugPanel';
@@ -41,6 +45,11 @@ export class ResultFlowDebugPanel {
         );
 
         ResultFlowDebugPanel._current = new ResultFlowDebugPanel(panel, extensionUri, methodName, diagram, log);
+    }
+
+    /** Returns true when a Debug Panel instance is currently open. */
+    static hasCurrent(): boolean {
+        return ResultFlowDebugPanel._current !== undefined;
     }
 
     /**
@@ -124,9 +133,13 @@ export class ResultFlowDebugPanel {
         this._log.appendLine(`[DebugPanel] opened for "${methodName}" — port ${this._port}, poll ${this._pollInterval}ms`);
         this._startPolling();
 
-        this._panel.webview.onDidReceiveMessage(msg => {
+        this._panel.webview.onDidReceiveMessage(async msg => {
             if (msg.command === 'loadFile') {
                 ResultFlowDebugPanel.loadFromFile(msg.path, this._extensionUri, this._log);
+            } else if (msg.command === 'generateTest') {
+                await this._handleGenerateTest(msg.trace as PipelineTraceJson);
+            } else if (msg.command === 'explainFailure') {
+                await this._handleExplainFailure(msg.trace as PipelineTraceJson);
             }
         });
     }
@@ -197,6 +210,48 @@ export class ResultFlowDebugPanel {
             clearInterval(this._pollTimer);
             this._pollTimer = undefined;
         }
+    }
+
+    private async _handleExplainFailure(trace: PipelineTraceJson): Promise<void> {
+        const model = buildFlowAIModel(trace);
+        const prompt = buildExplainFailurePrompt(model);
+        this._log.appendLine(`[AI] ExplainFailure for "${model.method}" — sending prompt`);
+
+        await vscode.window.withProgress(
+            { location: vscode.ProgressLocation.Notification, title: 'Explaining failure…', cancellable: false },
+            async () => {
+                try {
+                    const result = await callClaude(prompt, { maxTokens: 400 });
+                    showAIResult(`Explain: ${model.method}`, result);
+                    this._log.appendLine(`[AI] ExplainFailure done — ${result.length} chars`);
+                } catch (err) {
+                    const msg = err instanceof Error ? err.message : String(err);
+                    this._log.appendLine(`[AI] ExplainFailure error: ${msg}`);
+                    vscode.window.showErrorMessage(`Explain Failure failed: ${msg}`);
+                }
+            }
+        );
+    }
+
+    private async _handleGenerateTest(trace: PipelineTraceJson): Promise<void> {
+        const model = buildFlowAIModel(trace);
+        const prompt = buildGenerateTestPrompt(model);
+        this._log.appendLine(`[AI] GenerateTest for "${model.method}" — sending prompt`);
+
+        await vscode.window.withProgress(
+            { location: vscode.ProgressLocation.Notification, title: 'Generating test…', cancellable: false },
+            async () => {
+                try {
+                    const result = await callClaude(prompt, { maxTokens: 800 });
+                    showAIResult(`Test: ${model.method}`, result);
+                    this._log.appendLine(`[AI] GenerateTest done — ${result.length} chars`);
+                } catch (err) {
+                    const msg = err instanceof Error ? err.message : String(err);
+                    this._log.appendLine(`[AI] GenerateTest error: ${msg}`);
+                    vscode.window.showErrorMessage(`Generate Test failed: ${msg}`);
+                }
+            }
+        );
     }
 }
 
@@ -427,6 +482,8 @@ function buildDebugPanelHtml(
         <button class="step-btn" id="btn-next">Next &#8594;</button>
         <button class="step-btn accent" id="btn-play">&#9654; Replay</button>
         <button class="step-btn" id="btn-pause" style="display:none">&#9646;&#9646; Pause</button>
+        <button class="step-btn" id="btn-gen-test"    title="Generate MSTest unit test from this trace">&#129514; Test</button>
+        <button class="step-btn" id="btn-explain"     title="Explain why this pipeline failed" style="display:none">&#128269; Explain</button>
       </div>
     </div>
     <div class="node-list" id="node-list"></div>

@@ -2,7 +2,7 @@
   "name": "reslava-result-extensions",
   "displayName": "REslava.Result Extensions",
   "description": "CodeLens and diagram preview for [ResultFlow] pipelines",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "publisher": "reslava",
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/reslava/nuget-package-reslava-result" },
@@ -53,6 +53,11 @@
           "type": "number",
           "default": 2000,
           "markdownDescription": "How often (in milliseconds) the Live panel polls `GET /reslava/traces`. Default: 2000 ms."
+        },
+        "resultflow.anthropicApiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Optional. Anthropic API key for AI features (Generate Test, Explain Failure). If not set, Claude Code CLI is used automatically (requires Claude Code installed — uses your Pro subscription). Get a free key at [console.anthropic.com](https://console.anthropic.com)."
         }
       }
     },
@@ -93,6 +98,14 @@
         "command": "resultflow.openDebugPanel",
         "title": "Open ResultFlow Debug Panel",
         "icon": "$(debug-alt)"
+      },
+      {
+        "command": "resultflow.generateTest",
+        "title": "ResultFlow: Generate Test from Trace"
+      },
+      {
+        "command": "resultflow.explainFailure",
+        "title": "ResultFlow: Explain Failure"
       }
     ],
     "walkthroughs": [

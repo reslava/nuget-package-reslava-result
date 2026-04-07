@@ -358,12 +358,14 @@ tagline: Know exactly what you're getting.
 | `_ErrorTaxonomy` constant | Compile-time markdown table of error types per method; `certain` (from `Result<T,TError>` return type) + `inferred` (body scan); `Generated.ErrorTaxonomy.{Class}_ErrorTaxonomy`; both packages | v1.54.0 | `### 🔍 Error Taxonomy Map` |
 | VSIX v1.4.1 Debug Panel fixes | nodeId subchain fix for cross-method pipelines; subgraph ENTRY highlight; node sort by index; output word-wrap | v1.54.0 | `### 🔬 Pipeline Runtime Observation` |
 | VSIX v1.4.2 GIF showcase | `result-flow.gif` in VSIX images; README.md + mkdocs/index.md 3-layer pitch (Write → Run → Debug) | v1.54.0 | — |
+| VSIX v1.5.0 — `🧪 Generate Test` | Debug Panel stepper button; generates MSTest `[TestMethod]` from real trace data; `claude -p` CLI-first + Anthropic API fallback | v1.55.0 | `### 🤖 AI Pipeline Intelligence` |
+| VSIX v1.5.0 — `🔍 Explain Failure` | Debug Panel stepper button (failing traces only); 3–5 sentence root-cause explanation; reuses same AI client + result panel | v1.55.0 | `### 🤖 AI Pipeline Intelligence` |
 
 ---
 
 ## Summary
 
-!!! new "**v1.54.0** — 250 features across 16 categories."
+!!! new "**v1.55.0** — 252 features across 16 categories (VSIX only — NuGet packages at v1.54.0)."
 
 
 | Category | Total Features |

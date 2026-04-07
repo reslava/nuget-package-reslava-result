@@ -241,6 +241,22 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
+    // AI commands — registered so they can also be invoked from the command palette
+    context.subscriptions.push(
+        vscode.commands.registerCommand('resultflow.generateTest', async () => {
+            if (!ResultFlowDebugPanel.hasCurrent()) {
+                vscode.window.showWarningMessage('Open the ResultFlow Debug Panel and select a trace first.');
+            }
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand('resultflow.explainFailure', async () => {
+            if (!ResultFlowDebugPanel.hasCurrent()) {
+                vscode.window.showWarningMessage('Open the ResultFlow Debug Panel and select a failing trace first.');
+            }
+        })
+    );
+
     // Auto-refresh open panels when a C# file is saved (500ms debounce absorbs
     // format-on-save double-save events)
     let saveTimer: NodeJS.Timeout | undefined;
@@ -255,3 +271,4 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): void {}
+
