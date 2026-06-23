@@ -42,6 +42,8 @@ Build Railway-Oriented pipelines with strongly typed errors, automatically gener
 
 **📖 [Full documentation](https://reslava.github.io/nuget-package-reslava-result/)** · API reference, advanced patterns, and interactive examples.
 
+> **🧵 Loom** — While building this library I started keeping design and planning in persistent Markdown instead of disposable chats. That practice grew into **[Loom](https://github.com/reslava/loom)** — a visual environment where knowledge becomes artifacts, artifacts become context, and context drives implementation.
+
 **⚡ Quick start — Pipeline Visualization**
 
 Choose your track based on which Result library you use:

@@ -1,0 +1,54 @@
+name: VSIX Release
+
+on:
+  push:
+    tags:
+      - 'vsix-v*'
+
+permissions:
+  contents: read
+
+jobs:
+  publish-vsix:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/REslava.Result.Flow.VSix
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Validate Version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          tag_version="${{ github.ref_name }}"
+          tag_version_clean="${tag_version#vsix-v}"
+
+          if [[ "$version" == "$tag_version_clean" ]]; then
+            echo "Version $tag_version matches package.json"
+          else
+            echo "Version mismatch: package.json=$version, tag=$tag_version_clean"
+            exit 1
+          fi
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Package VSIX
+        run: npx @vscode/vsce package -o reslava-result-extensions.vsix
+
+      - name: Publish to VS Code Marketplace
+        run: npx @vscode/vsce publish --packagePath reslava-result-extensions.vsix -p "$VSCE_PAT"
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Publish to Open VSX
+        run: npx ovsx publish reslava-result-extensions.vsix -p "$OVSX_TOKEN"
+        env:
+          OVSX_TOKEN: ${{ secrets.OVSX_TOKEN }}
